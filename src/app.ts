@@ -10,6 +10,7 @@ app.get("/", (_req, res) => {
 	res.status(HTTP_STATUS.SUCCESS).json({
 		service: APP_NAME,
 		status: "running",
+        environment: process.env.DOPPLER_ENVIRONMENT
 	});
 });
 

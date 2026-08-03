@@ -1,3 +1,3 @@
 export const APP_NAME = "spotq-restaurant-service";
 
-export const PORT = 3000;
+export const PORT = process.env.PORT;
