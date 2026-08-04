@@ -6,7 +6,7 @@ import type {
 } from "express";
 
 import { HTTP_STATUS } from "../../shared/constants/http.constants.js";
-import { logger } from "../../infrastructure/logger/logger.js";
+import { logger } from "../../infrastructure/observability/logger.js";
 import { messages } from "../../shared/constants/message.constants.js";
 
 export class AppError extends Error {

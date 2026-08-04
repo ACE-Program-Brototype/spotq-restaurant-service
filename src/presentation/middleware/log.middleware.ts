@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { randomUUID } from "node:crypto";
-import { logger } from "../../infrastructure/logger/logger.js";
+import { logger } from "../../infrastructure/observability/logger.js";
 import { messages } from "../../shared/constants/message.constants.js";
 
 export function httpLogger(

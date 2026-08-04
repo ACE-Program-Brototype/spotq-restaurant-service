@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { logger } from "../../infrastructure/logger/logger.js";
+import { logger } from "../../infrastructure/observability/logger.js";
 import { AppError } from "./error.middleware.js";
 import { HTTP_STATUS } from "../../shared/constants/http.constants.js";
 import { messages } from "../../shared/constants/message.constants.js";
