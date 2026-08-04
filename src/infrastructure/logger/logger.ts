@@ -1,0 +1,22 @@
+import pino from "pino";
+
+export const logger = pino({
+	level: process.env.LOG_LEVEL ?? "info",
+
+	base: {
+		service: "restaurant-service",
+		version: "1.0.0",
+	},
+
+	timestamp: pino.stdTimeFunctions.isoTime,
+
+	messageKey: "message",
+
+	formatters: {
+		level(label) {
+			return {
+				level: label.toUpperCase(),
+			};
+		},
+	},
+});

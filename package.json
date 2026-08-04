@@ -28,7 +28,9 @@
 		"bullmq": "^6.0.6",
 		"express": "^5.2.1",
 		"ioredis": "^6.0.0",
-		"pg": "^8.22.0"
+		"pg": "^8.22.0",
+		"pino": "^10.3.1",
+		"pino-http": "^11.0.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.6",
