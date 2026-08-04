@@ -4,14 +4,14 @@ import {
 	connectDatabase,
 	disconnectDatabase,
 } from "./infrastructure/database/db.js";
+import { connectRedis, disconnectRedis } from "./infrastructure/redis/redis.js";
 import { PORT } from "./shared/constants/app.constants.js";
 
 async function bootstrap() {
 	try {
 		await connectDatabase();
 
-		const redisResponse = await redis.ping();
-		console.log("✅ Redis Connected:", redisResponse);
+    await connectRedis()
 
 		const server = app.listen(PORT, () => {
 			console.log(`🚀 Server running on port ${PORT}`);
@@ -21,7 +21,7 @@ async function bootstrap() {
 			console.log(`\n${signal} received. Shutting down...`);
 
 			server.close(async () => {
-				await redis.quit();
+				await disconnectRedis()
 				await disconnectDatabase();
 
 				console.log("✅ Shutdown completed");
