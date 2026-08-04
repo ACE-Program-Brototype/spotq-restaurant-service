@@ -1,0 +1,20 @@
+# Dependencies and build output
+node_modules
+dist
+coverage
+
+# Secrets and local environment files
+.env.*
+.env
+.infisical.json
+
+# Local-only files
+.git
+.github
+.vscode
+.idea
+*.log
+test
+tests
+README.md
+run.sh
