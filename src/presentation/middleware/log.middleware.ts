@@ -1,6 +1,5 @@
-import type { NextFunction, Request, Response } from "express";
-
 import { randomUUID } from "node:crypto";
+import type { NextFunction, Request, Response } from "express";
 import { logger } from "../../infrastructure/observability/logger.js";
 import { messages } from "../../shared/constants/message.constants.js";
 
@@ -35,12 +34,11 @@ export function httpLogger(
 
 			operation: `${req.method} ${req.route?.path ?? req.path}`,
 		},
-		messages.INCOMMING_HTTP_REQ
+		messages.INCOMMING_HTTP_REQ,
 	);
 
 	res.on("finish", () => {
-		const duration =
-			Number(process.hrtime.bigint() - start) / 1_000_000;
+		const duration = Number(process.hrtime.bigint() - start) / 1_000_000;
 
 		logger.info(
 			{
@@ -60,7 +58,7 @@ export function httpLogger(
 
 				operation: `${req.method} ${req.route?.path ?? req.path}`,
 			},
-			messages.OUTGOING_HTTP_RES
+			messages.OUTGOING_HTTP_RES,
 		);
 	});
 

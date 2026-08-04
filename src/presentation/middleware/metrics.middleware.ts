@@ -1,42 +1,44 @@
-import { Request, Response, NextFunction } from "express";
-import { httpErrorsTotal, httpRequestDuration, httpRequestsTotal } from "../../infrastructure/observability/metrics.js";
+import type { NextFunction, Request, Response } from "express";
+import {
+	httpErrorsTotal,
+	httpRequestDuration,
+	httpRequestsTotal,
+} from "../../infrastructure/observability/metrics.js";
 import { HTTP_STATUS } from "../../shared/constants/http.constants.js";
 
+export const metricsMiddleware = (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	const start = Date.now();
 
-export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
+	res.on("finish", () => {
+		const duration = (Date.now() - start) / 1000;
 
-    const start = Date.now();
+		const route = req.originalUrl;
 
-    res.on("finish", () => {
+		httpRequestsTotal.inc({
+			method: req.method,
+			route,
+			status: String(res.statusCode),
+		});
 
-        const duration = (Date.now() - start) / 1000;
+		httpRequestDuration.observe(
+			{
+				method: req.method,
+				route,
+			},
+			duration,
+		);
 
-        const route = req.originalUrl;
+		if (res.statusCode >= HTTP_STATUS.BAD_REQUEST) {
+			httpErrorsTotal.inc({
+				route,
+				status: String(res.statusCode),
+			});
+		}
+	});
 
-        httpRequestsTotal.inc({
-            method: req.method,
-            route,
-            status: String(res.statusCode)
-        });
-
-        httpRequestDuration.observe(
-            {
-                method: req.method,
-                route
-            },
-            duration
-        );
-
-        if (res.statusCode >= HTTP_STATUS.BAD_REQUEST) {
-
-            httpErrorsTotal.inc({
-                route,
-                status: String(res.statusCode)
-            });
-
-        }
-
-    });
-
-    next();
+	next();
 };

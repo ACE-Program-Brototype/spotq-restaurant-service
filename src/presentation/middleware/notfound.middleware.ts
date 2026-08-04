@@ -1,9 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import { logger } from "../../infrastructure/observability/logger.js";
-import { AppError } from "./error.middleware.js";
 import { HTTP_STATUS } from "../../shared/constants/http.constants.js";
 import { messages } from "../../shared/constants/message.constants.js";
-
+import { AppError } from "./error.middleware.js";
 
 export const notFoundHandler = (
 	req: Request,
@@ -22,13 +21,10 @@ export const notFoundHandler = (
 
 			ip: req.ip,
 		},
-		messages.REQ_ROUTE_NOT_FOUND
+		messages.REQ_ROUTE_NOT_FOUND,
 	);
 
 	next(
-		new AppError(
-			`Route '${req.originalUrl}' not found`,
-			HTTP_STATUS.NOT_FOUND,
-		),
+		new AppError(`Route '${req.originalUrl}' not found`, HTTP_STATUS.NOT_FOUND),
 	);
 };

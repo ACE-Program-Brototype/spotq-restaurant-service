@@ -1,12 +1,11 @@
 import type {
 	ErrorRequestHandler,
+	NextFunction,
 	Request,
 	Response,
-	NextFunction,
 } from "express";
-
-import { HTTP_STATUS } from "../../shared/constants/http.constants.js";
 import { logger } from "../../infrastructure/observability/logger.js";
+import { HTTP_STATUS } from "../../shared/constants/http.constants.js";
 import { messages } from "../../shared/constants/message.constants.js";
 
 export class AppError extends Error {
@@ -51,7 +50,7 @@ export const errorHandler: ErrorRequestHandler = (
 				stack: err.stack,
 			},
 		},
-		messages.UNHANDLED_APP_ERROR
+		messages.UNHANDLED_APP_ERROR,
 	);
 
 	res.status(statusCode).json({
@@ -60,8 +59,6 @@ export const errorHandler: ErrorRequestHandler = (
 		requestId: res.locals.requestId,
 
 		message:
-			err instanceof AppError
-				? err.message
-				: messages.INTERNAL_SERVER_ERROR
+			err instanceof AppError ? err.message : messages.INTERNAL_SERVER_ERROR,
 	});
 };

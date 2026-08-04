@@ -1,19 +1,18 @@
 import express from "express";
+import register from "./config/prom.client.js";
+import { errorHandler } from "./presentation/middleware/error.middleware.js";
+import { httpLogger } from "./presentation/middleware/log.middleware.js";
+import { metricsMiddleware } from "./presentation/middleware/metrics.middleware.js";
+import { notFoundHandler } from "./presentation/middleware/notfound.middleware.js";
 import { APP_NAME } from "./shared/constants/app.constants.js";
 import { HTTP_STATUS } from "./shared/constants/http.constants.js";
-import { httpLogger } from "./presentation/middleware/log.middleware.js";
-import { errorHandler } from "./presentation/middleware/error.middleware.js";
-import { notFoundHandler } from "./presentation/middleware/notfound.middleware.js";
-import { metricsMiddleware } from "./presentation/middleware/metrics.middleware.js";
-import register from "./config/prom.client.js";
 
 const app = express();
 
 app.use(express.json());
 
-
-app.use(httpLogger)
-app.use(metricsMiddleware)
+app.use(httpLogger);
+app.use(metricsMiddleware);
 
 app.get("/", (_req, res) => {
 	res.status(HTTP_STATUS.SUCCESS).json({
@@ -23,13 +22,12 @@ app.get("/", (_req, res) => {
 	});
 });
 
-
 app.get("/metrics", async (_req, res) => {
-  res.set("Content-Type", register.contentType);
-  res.end(await register.metrics());
+	res.set("Content-Type", register.contentType);
+	res.end(await register.metrics());
 });
 
-app.use(notFoundHandler)
-app.use(errorHandler)
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 export default app;

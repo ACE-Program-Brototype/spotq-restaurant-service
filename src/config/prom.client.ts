@@ -4,11 +4,11 @@ const register = new client.Registry();
 
 register.setDefaultLabels({
 	service_name: "restaurant-service",
-	environment: process.env.APP_ENV
+	environment: process.env.APP_ENV,
 });
 
 client.collectDefaultMetrics({
-    register,
+	register,
 });
 
-export default register
+export default register;
