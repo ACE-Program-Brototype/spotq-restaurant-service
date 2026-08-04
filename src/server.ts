@@ -1,18 +1,40 @@
 import app from "./app.js";
-import { DatabaseService } from "./infrastructure/database/db.js";
+import redis from "./config/redis.js";
+import {
+	connectDatabase,
+	disconnectDatabase,
+} from "./infrastructure/database/db.js";
 import { PORT } from "./shared/constants/app.constants.js";
 
 async function bootstrap() {
-  try {
-    await DatabaseService.connect();
+	try {
+		await connectDatabase();
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error("Failed to start application", error);
-    process.exit(1);
-  }
+		const redisResponse = await redis.ping();
+		console.log("✅ Redis Connected:", redisResponse);
+
+		const server = app.listen(PORT, () => {
+			console.log(`🚀 Server running on port ${PORT}`);
+		});
+
+		async function shutdown(signal: string) {
+			console.log(`\n${signal} received. Shutting down...`);
+
+			server.close(async () => {
+				await redis.quit();
+				await disconnectDatabase();
+
+				console.log("✅ Shutdown completed");
+				process.exit(0);
+			});
+		}
+
+		process.on("SIGINT", () => shutdown("SIGINT"));
+		process.on("SIGTERM", () => shutdown("SIGTERM"));
+	} catch (error) {
+		console.error("Failed to start application", error);
+		process.exit(1);
+	}
 }
 
 bootstrap();
