@@ -6,7 +6,6 @@ coverage
 # Secrets and local environment files
 .env.*
 .env
-.infisical.json
 
 # Local-only files
 .git
