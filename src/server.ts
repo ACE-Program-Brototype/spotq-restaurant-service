@@ -3,6 +3,7 @@ import {
 	connectDatabase,
 	disconnectDatabase,
 } from "./infrastructure/database/db.js";
+import { logger } from "./infrastructure/observability/logger.js";
 import {
 	connectBullMQ,
 	disconnectBullMQ,
@@ -13,24 +14,21 @@ import { PORT } from "./shared/constants/app.constants.js";
 async function bootstrap() {
 	try {
 		await connectDatabase();
-
 		await connectRedis();
-
 		await connectBullMQ();
 
 		const server = app.listen(PORT, () => {
-			console.log(`🚀 Server running on port ${PORT}`);
+			logger.info({ port: PORT }, "Server listening");
 		});
 
 		async function shutdown(signal: string) {
-			console.log(`\n${signal} received. Shutting down...`);
+			logger.info({ signal }, "Shutdown requested");
 
 			server.close(async () => {
 				await disconnectRedis();
 				await disconnectDatabase();
 				await disconnectBullMQ();
-
-				console.log("✅ Shutdown completed");
+				logger.info("Shutdown completed");
 				process.exit(0);
 			});
 		}
@@ -38,7 +36,7 @@ async function bootstrap() {
 		process.on("SIGINT", () => shutdown("SIGINT"));
 		process.on("SIGTERM", () => shutdown("SIGTERM"));
 	} catch (error) {
-		console.error("Failed to start application", error);
+		logger.fatal({ err: error }, "Failed to start application");
 		process.exit(1);
 	}
 }

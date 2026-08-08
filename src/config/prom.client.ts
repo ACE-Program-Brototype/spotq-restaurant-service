@@ -1,10 +1,11 @@
 import client from "prom-client";
+import { env } from "./env.js";
 
 const register = new client.Registry();
 
 register.setDefaultLabels({
 	service_name: "restaurant-service",
-	environment: process.env.APP_ENV,
+	environment: env.APP_ENV,
 });
 
 client.collectDefaultMetrics({
