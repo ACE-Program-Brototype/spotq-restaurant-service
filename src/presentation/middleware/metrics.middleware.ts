@@ -16,7 +16,8 @@ export const metricsMiddleware = (
 	res.on("finish", () => {
 		const duration = (Date.now() - start) / 1000;
 
-		const route = typeof req.route?.path === "string" ? req.route.path : "unmatched";
+		const route =
+			typeof req.route?.path === "string" ? req.route.path : "unmatched";
 
 		httpRequestsTotal.inc({
 			method: req.method,
