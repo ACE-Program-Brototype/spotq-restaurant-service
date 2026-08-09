@@ -7,7 +7,7 @@ import systemRouter from "./presentation/routes/system.routes.js";
 import { APP_ENV, APP_NAME } from "./shared/constants/app.constants.js";
 import { HTTP_STATUS } from "./shared/constants/http.constants.js";
 
-const app = express();
+let app = express();
 
 app.use(express.json());
 

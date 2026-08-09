@@ -32,6 +32,9 @@ COPY .infisical.json ./
 
 USER node
 
-EXPOSE 3000
+EXPOSE 3001
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:3001/health || exit 1
 
 CMD ["infisical", "run", "--", "node", "dist/server.js"]

@@ -10,7 +10,9 @@
 		"start": "node dist/server.js",
 		"lint": "biome lint .",
 		"format": "biome format --write .",
-		"check": "biome check --write ."
+		"check": "biome check --write .",
+		"validate": "pnpm lint && pnpm build",
+		"prepare": "husky"
 	},
 	"keywords": [],
 	"author": "",
@@ -37,6 +39,7 @@
 		"@biomejs/biome": "^2.5.6",
 		"@types/express": "^5.0.6",
 		"@types/node": "^26.1.2",
+		"husky": "^9.1.7",
 		"prisma": "^6.19.3",
 		"tsx": "^4.23.1",
 		"typescript": "^7.0.2"
