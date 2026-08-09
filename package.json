@@ -8,9 +8,9 @@
 		"dev": "tsx watch src/server.ts",
 		"build": "tsc",
 		"start": "node dist/server.js",
-		"lint": "biome lint .",
+		"lint": "biome lint --error-on-warnings .",
 		"format": "biome format --write .",
-		"check": "biome check --write .",
+		"check": "biome check --error-on-warnings --write .",
 		"validate": "pnpm lint && pnpm build",
 		"prepare": "husky"
 	},
