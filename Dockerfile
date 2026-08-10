@@ -17,7 +17,7 @@ FROM node:22-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production \
-    PORT=3000 \
+    PORT=3001 \
     INFISICAL_DISABLE_UPDATE_CHECK=true
 
 RUN apk add --no-cache bash curl && \
