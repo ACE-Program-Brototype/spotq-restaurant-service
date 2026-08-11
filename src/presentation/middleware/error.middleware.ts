@@ -4,9 +4,9 @@ import type {
 	Request,
 	Response,
 } from "express";
-import { logger } from "../../infrastructure/observability/logger.js";
-import { HTTP_STATUS } from "../../shared/constants/http.constants.js";
-import { messages } from "../../shared/constants/message.constants.js";
+import { logger } from "@/infrastructure/observability/logger";
+import { HTTP_STATUS } from "@/shared/constants/http.constants";
+import { messages } from "@/shared/constants/message.constants";
 
 export class AppError extends Error {
 	constructor(

@@ -1,5 +1,5 @@
 import client from "prom-client";
-import { env } from "./env.js";
+import { env } from "@/config/env";
 
 const register = new client.Registry();
 
