@@ -1,34 +1,46 @@
-const requiredEnvironmentVariable = (name: string): string => {
-	const value = process.env[name]?.trim();
-	if (!value) throw new Error(`Missing required environment variable: ${name}`);
-	return value;
-};
+import { z } from "zod";
 
-const parsePort = (value: string): number => {
-	if (!/^\d+$/.test(value))
-		throw new Error("PORT must be an integer between 1 and 65535");
-	const port = Number(value);
-	if (port < 1 || port > 65535)
-		throw new Error("PORT must be an integer between 1 and 65535");
-	return port;
-};
-
-const parseUrl = (name: string, allowedProtocols: string[]): string => {
-	const value = requiredEnvironmentVariable(name);
-	try {
-		const url = new URL(value);
-		if (!allowedProtocols.includes(url.protocol)) throw new Error();
-	} catch {
-		throw new Error(
-			`${name} must be a valid URL using one of: ${allowedProtocols.join(", ")}`,
+const urlValidator = (name: string, allowedProtocols: string[]) =>
+	z
+		.string()
+		.trim()
+		.refine(
+			(value) => {
+				try {
+					const url = new URL(value);
+					return allowedProtocols.includes(url.protocol);
+				} catch {
+					return false;
+				}
+			},
+			{
+				message: `${name} must be a valid URL using one of: ${allowedProtocols.join(", ")}`,
+			},
 		);
-	}
-	return value;
-};
 
-export const env = Object.freeze({
-	PORT: parsePort(requiredEnvironmentVariable("PORT")),
-	DATABASE_URL: parseUrl("DATABASE_URL", ["postgres:", "postgresql:"]),
-	REDIS_URL: parseUrl("REDIS_URL", ["redis:", "rediss:"]),
-	APP_ENV: process.env.APP_ENV?.trim() || "development",
+const envSchema = z.object({
+	PORT: z
+		.string()
+		.trim()
+		.regex(/^\d+$/, "PORT must be an integer between 1 and 65535")
+		.transform(Number)
+		.refine((port) => port >= 1 && port <= 65535, {
+			message: "PORT must be an integer between 1 and 65535",
+		}),
+	DATABASE_URL: urlValidator("DATABASE_URL", ["postgres:", "postgresql:"]),
+	REDIS_URL: urlValidator("REDIS_URL", ["redis:", "rediss:"]),
+	APP_ENV: z.preprocess(
+		(value) => (typeof value === "string" ? value.trim() : value),
+		z.string().min(1).default("development"),
+	),
+	LOG_LEVEL: z.preprocess(
+		(value) => (typeof value === "string" ? value.trim().toLowerCase() : value),
+		z
+			.enum(["trace", "debug", "info", "warn", "error", "fatal"])
+			.default("info"),
+	),
 });
+
+export type Env = z.infer<typeof envSchema>;
+
+export const env = Object.freeze(envSchema.parse(process.env));

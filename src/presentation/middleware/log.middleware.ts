@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
 import { logger } from "../../infrastructure/observability/logger.js";
 import { messages } from "../../shared/constants/message.constants.js";
@@ -10,7 +9,7 @@ export function httpLogger(
 ): void {
 	const start = process.hrtime.bigint();
 
-	const requestId = randomUUID();
+	const requestId = req.get("X-Request-ID")?.trim() || undefined;
 
 	res.locals.requestId = requestId;
 
