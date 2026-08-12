@@ -4,4 +4,9 @@ export const messages = {
 	INCOMMING_HTTP_REQ: "Incoming HTTP Request",
 	OUTGOING_HTTP_RES: "Outgoing HTTP Response",
 	REQ_ROUTE_NOT_FOUND: "Requested route not found",
+	SERVICE_RUNNING: "Service is running",
+	SERVICE_HEALTHY: "Service health check successful",
+	SERVICE_READY: "Service is ready",
+	SERVICE_UNAVAILABLE: "Service unavailable",
+	SUCCESS: "Success",
 };

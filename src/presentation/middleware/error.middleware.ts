@@ -7,19 +7,9 @@ import type {
 import { logger } from "@/infrastructure/observability/logger.js";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.js";
 import { messages } from "@/shared/constants/message.constants.js";
+import { AppError } from "@/utils/response.model.js";
 
-export class AppError extends Error {
-	constructor(
-		public readonly message: string,
-		public readonly statusCode: number,
-	) {
-		super(message);
-
-		this.name = this.constructor.name;
-
-		Object.setPrototypeOf(this, AppError.prototype);
-	}
-}
+export { AppError };
 
 export const errorHandler: ErrorRequestHandler = (
 	err,
@@ -55,10 +45,9 @@ export const errorHandler: ErrorRequestHandler = (
 
 	res.status(statusCode).json({
 		success: false,
-
 		requestId: res.locals.requestId,
-
 		message:
 			err instanceof AppError ? err.message : messages.INTERNAL_SERVER_ERROR,
+		error: err instanceof AppError ? err.details : undefined,
 	});
 };

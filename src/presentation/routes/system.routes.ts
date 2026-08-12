@@ -3,13 +3,14 @@ import { prisma } from "@/config/prisma.js";
 import register from "@/config/prom.client.js";
 import redis from "@/config/redis.js";
 import { testQueue } from "@/infrastructure/queue/bullmq.service.js";
-import { HTTP_STATUS } from "@/shared/constants/http.constants.js";
+import { messages } from "@/shared/constants/message.constants.js";
 import { SYSTEM_ROUTES } from "@/shared/constants/route.constants.js";
+import { successResponse } from "@/utils/response.model.js";
 
 const systemRouter = Router();
 
 systemRouter.get(SYSTEM_ROUTES.HEALTH, (_req, res) => {
-	res.status(HTTP_STATUS.SUCCESS).json({ status: "ok" });
+	successResponse(res, { status: "ok" }, messages.SERVICE_HEALTHY);
 });
 
 systemRouter.get(SYSTEM_ROUTES.READY, async (_req, res) => {
@@ -20,9 +21,9 @@ systemRouter.get(SYSTEM_ROUTES.READY, async (_req, res) => {
 			testQueue.waitUntilReady(),
 		]);
 
-		res.status(HTTP_STATUS.SUCCESS).json({ status: "ready" });
+		successResponse(res, { status: "ready" }, messages.SERVICE_READY);
 	} catch {
-		res.status(HTTP_STATUS.SERVICE_UNAVAILABLE).json({ status: "not_ready" });
+		throw new Error(messages.SERVICE_UNAVAILABLE);
 	}
 });
 
