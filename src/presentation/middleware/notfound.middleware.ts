@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { logger } from "@/infrastructure/observability/logger";
-import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { messages } from "@/shared/constants/message.constants";
-import { AppError } from "@/presentation/middleware/error.middleware";
+import { logger } from "@/infrastructure/observability/logger.js";
+import { AppError } from "@/presentation/middleware/error.middleware.js";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.js";
+import { messages } from "@/shared/constants/message.constants.js";
 
 export const notFoundHandler = (
 	req: Request,

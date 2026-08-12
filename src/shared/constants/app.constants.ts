@@ -1,4 +1,4 @@
-import { env } from "@/config/env";
+import { env } from "@/config/env.js";
 
 export const APP_NAME = "spotq-restaurant-service";
 

@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { prisma } from "@/config/prisma";
-import register from "@/config/prom.client";
-import redis from "@/config/redis";
-import { testQueue } from "@/infrastructure/queue/bullmq.service";
-import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { SYSTEM_ROUTES } from "@/shared/constants/route.constants";
+import { prisma } from "@/config/prisma.js";
+import register from "@/config/prom.client.js";
+import redis from "@/config/redis.js";
+import { testQueue } from "@/infrastructure/queue/bullmq.service.js";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.js";
+import { SYSTEM_ROUTES } from "@/shared/constants/route.constants.js";
 
 const systemRouter = Router();
 
