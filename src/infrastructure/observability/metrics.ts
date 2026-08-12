@@ -1,5 +1,5 @@
 import client from "prom-client";
-import register from "@/config/prom.client.js";
+import register from "@/config/prom.client.ts";
 
 export const httpRequestsTotal = new client.Counter({
 	name: "http_requests_total",

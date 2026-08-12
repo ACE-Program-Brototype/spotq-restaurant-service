@@ -1,5 +1,5 @@
 import { type ConnectionOptions, Queue } from "bullmq";
-import { env } from "@/config/env.js";
+import { env } from "@/config/env.ts";
 
 const bullMQConnection: ConnectionOptions = {
 	url: env.REDIS_URL,

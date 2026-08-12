@@ -1,15 +1,15 @@
-import app from "@/app.js";
+import app from "@/app.ts";
 import {
 	connectDatabase,
 	disconnectDatabase,
-} from "@/infrastructure/database/db.js";
-import { logger } from "@/infrastructure/observability/logger.js";
+} from "@/infrastructure/database/db.ts";
+import { logger } from "@/infrastructure/observability/logger.ts";
 import {
 	connectBullMQ,
 	disconnectBullMQ,
-} from "@/infrastructure/queue/bullmq.connect.js";
-import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis.js";
-import { PORT } from "@/shared/constants/app.constants.js";
+} from "@/infrastructure/queue/bullmq.connect.ts";
+import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis.ts";
+import { PORT } from "@/shared/constants/app.constants.ts";
 
 async function bootstrap() {
 	try {

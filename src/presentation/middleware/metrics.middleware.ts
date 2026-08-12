@@ -3,8 +3,8 @@ import {
 	httpErrorsTotal,
 	httpRequestDuration,
 	httpRequestsTotal,
-} from "@/infrastructure/observability/metrics.js";
-import { HTTP_STATUS } from "@/shared/constants/http.constants.js";
+} from "@/infrastructure/observability/metrics.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 
 export const metricsMiddleware = (
 	req: Request,

@@ -1,5 +1,5 @@
-import { prisma } from "@/config/prisma.js";
-import { logger } from "@/infrastructure/observability/logger.js";
+import { prisma } from "@/config/prisma.ts";
+import { logger } from "@/infrastructure/observability/logger.ts";
 
 export async function connectDatabase() {
 	await prisma.$connect();

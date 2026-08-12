@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import { logger } from "@/infrastructure/observability/logger.js";
-import { messages } from "@/shared/constants/message.constants.js";
+import { logger } from "@/infrastructure/observability/logger.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export function httpLogger(
 	req: Request,

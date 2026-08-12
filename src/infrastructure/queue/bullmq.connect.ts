@@ -1,5 +1,5 @@
-import { logger } from "@/infrastructure/observability/logger.js";
-import { testQueue } from "@/infrastructure/queue/bullmq.service.js";
+import { logger } from "@/infrastructure/observability/logger.ts";
+import { testQueue } from "@/infrastructure/queue/bullmq.service.ts";
 
 export async function connectBullMQ(): Promise<void> {
 	await testQueue.waitUntilReady();

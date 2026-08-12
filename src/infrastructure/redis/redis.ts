@@ -1,5 +1,5 @@
-import redis from "@/config/redis.js";
-import { logger } from "@/infrastructure/observability/logger.js";
+import redis from "@/config/redis.ts";
+import { logger } from "@/infrastructure/observability/logger.ts";
 
 export async function connectRedis() {
 	const redisResponse = await redis.ping();
