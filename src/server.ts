@@ -10,12 +10,15 @@ import {
 } from "@/infrastructure/queue/bullmq.connect.ts";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis.ts";
 import { PORT } from "@/shared/constants/app.constants.ts";
+import { closeS3Client } from "@/infrastructure/storage/s3.client";
+import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
 
 async function bootstrap() {
 	try {
 		await connectDatabase();
 		await connectRedis();
 		await connectBullMQ();
+		await checkS3Connection();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -28,6 +31,7 @@ async function bootstrap() {
 				await disconnectRedis();
 				await disconnectDatabase();
 				await disconnectBullMQ();
+				await closeS3Client();
 				logger.info("Shutdown completed");
 				process.exit(0);
 			});

@@ -39,6 +39,13 @@ const envSchema = z.object({
 			.enum(["trace", "debug", "info", "warn", "error", "fatal"])
 			.default("info"),
 	),
+	AWS_ACCESS_KEY_ID: z.string().trim().min(1),
+
+	AWS_SECRET_ACCESS_KEY: z.string().trim().min(1),
+
+	AWS_REGION: z.string().trim().min(1),
+
+	AWS_S3_BUCKET: z.string().trim().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;
