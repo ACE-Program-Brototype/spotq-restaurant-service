@@ -9,6 +9,8 @@
 		"paths": {
 			"@/*": ["./src/*"]
 		},
+		"experimentalDecorators": true,
+    	"emitDecoratorMetadata": true,
 		"allowArbitraryExtensions": true,
 		"allowImportingTsExtensions": true,
 		"noEmit": true,
