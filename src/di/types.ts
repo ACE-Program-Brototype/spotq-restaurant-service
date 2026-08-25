@@ -8,4 +8,12 @@ export const TYPES = {
 			"RestaurantEmailVerificationController",
 		),
 	},
+
+	Database: {
+		PrismaClient: Symbol.for("PrismaClient"),
+	},
+
+	Repositories: {
+		RestaurantRepository: Symbol.for("RestaurantRepository"),
+	},
 } as const;
