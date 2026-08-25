@@ -5,6 +5,8 @@ import { RestaurantEmailVerificationController } from "@/presentation/http/contr
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/restaurant-email-verification/send-email-otp.use-case.port";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import { RedisOtpStore } from "@/services/redis-otp-store.service";
 
 export const restaurantEmailVerificationModule = new ContainerModule(
 	({ bind }) => {
@@ -19,5 +21,9 @@ export const restaurantEmailVerificationModule = new ContainerModule(
 		bind<IRestaurantRepository>(TYPES.Repositories.RestaurantRepository).to(
 			RestaurantRepository,
 		);
+
+		bind<IOtpStore>(TYPES.Services.OtpStore).to(
+			RedisOtpStore
+		)
 	},
 );

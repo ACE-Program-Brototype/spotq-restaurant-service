@@ -16,4 +16,12 @@ export const TYPES = {
 	Repositories: {
 		RestaurantRepository: Symbol.for("RestaurantRepository"),
 	},
+
+	Redis: {
+		Client: Symbol.for("Redis")
+	},
+
+	Services: {
+		OtpStore: Symbol.for("RedisOtpStore")
+	}
 } as const;
