@@ -10,7 +10,7 @@
 			"@/*": ["./src/*"]
 		},
 		"experimentalDecorators": true,
-    	"emitDecoratorMetadata": true,
+		"emitDecoratorMetadata": true,
 		"allowArbitraryExtensions": true,
 		"allowImportingTsExtensions": true,
 		"noEmit": true,

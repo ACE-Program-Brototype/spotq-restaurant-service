@@ -3,7 +3,6 @@ import { env } from "@/config/env";
 import { s3Client } from "./s3.client";
 import { logger } from "@/infrastructure/observability/logger";
 
-
 export const checkS3Connection = async (): Promise<void> => {
 	try {
 		await s3Client.send(

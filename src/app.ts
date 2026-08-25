@@ -32,7 +32,7 @@ app.get("/", (_req, res) => {
 
 app.use("/", systemRouter);
 
-app.use("/",restaurantRouter);
+app.use("/", restaurantRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

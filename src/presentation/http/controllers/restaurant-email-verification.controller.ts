@@ -1,25 +1,23 @@
-import { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/restaurant-email-verification/send-email-otp.use-case.port";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/restaurant-email-verification/send-email-otp.use-case.port";
 import { TYPES } from "@/di/types";
-import type { Request,Response } from "express"
+import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 
 injectable();
 export class RestaurantEmailVerificationController {
+	constructor(
+		@inject(TYPES.UseCases.SendRestaurantEmailOtpUseCase)
+		private readonly sendRestaurantEmailOtpUseCase: ISendRestaurantEmailOtpUseCase,
+	) {}
 
-    constructor(
-    @inject(TYPES.UseCases.SendRestaurantEmailOtpUseCase)
-    private readonly sendRestaurantEmailOtpUseCase: ISendRestaurantEmailOtpUseCase,
-    ) {}
+	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
+		const dto = req.body;
 
-    async sendEmailOtp ( req:Request,res:Response) : Promise<Response> {
+		const mess = await this.sendRestaurantEmailOtpUseCase.execute(dto);
 
-        const dto = req.body;
-
-        const mess = await this.sendRestaurantEmailOtpUseCase.execute(dto);
-
-        return res.status(202).json({
-            success: true,
-            mess
-        });
-    }
+		return res.status(202).json({
+			success: true,
+			mess,
+		});
+	}
 }

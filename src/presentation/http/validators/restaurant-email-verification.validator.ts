@@ -1,5 +1,5 @@
-import { email, z } from "zod";
+import { z } from "zod";
 
 export const sendRestaurantEmailOtpSchema = z.object({
-    email: z.string().trim().toLowerCase().email()
+	email: z.string().trim().toLowerCase().email(),
 });
