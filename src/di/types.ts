@@ -32,4 +32,8 @@ export const TYPES = {
 	Brevo: {
 		Client: Symbol.for("BrevoClient"),
 	},
+
+	Queue:{
+		Email: Symbol.for("EmailQueue")
+	}
 } as const;
