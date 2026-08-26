@@ -10,7 +10,7 @@ import type { BrevoClient } from "@getbrevo/brevo";
 import { brevoClient } from "@/config/brevo.client";
 import type { Queue } from "bullmq";
 import { emailQueue } from "@/infrastructure/queue/bullmq.service";
-import { IEmailWorker } from "@/application/ports/workers/email.worker.port";
+import type { IEmailWorker } from "@/application/ports/workers/email.worker.port";
 import { EmailWorker } from "@/infrastructure/queue/workers/email.worker";
 
 export const commonModule = new ContainerModule(({ bind }) => {
