@@ -4,7 +4,7 @@ import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/restaurant-email-verification/send-email-otp.use-case.port";
 import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
-import { EMAIL_JOB_NAMES } from "@/shared/constants/queue.constants";
+import { JOB_NAMES } from "@/shared/constants/queue.constants";
 import { generateOtp } from "@/utils/otp.util";
 import type { Queue } from "bullmq";
 import { inject, injectable } from "inversify";
@@ -21,11 +21,10 @@ export class SendRestaurantEmailOtpUseCase
 		private readonly redisOtpStore: IOtpStore,
 
 		@inject(TYPES.Queue.Email)
-		private readonly emailQueue: Queue
+		private readonly emailQueue: Queue,
 	) {}
 
 	async execute(dto: SendRestaurantEmailOtpDto) {
-
 		const { email } = dto;
 
 		const restaurantExists =
@@ -41,15 +40,9 @@ export class SendRestaurantEmailOtpUseCase
 
 		await this.redisOtpStore.save(otpKey, otp, OTP_CONFIG.EXPIRY_SECONDS);
 
-		await this.emailQueue.add(
-			EMAIL_JOB_NAMES.VERIFICATION_OTP,
-			{
-				toEmail: email,
-    			otp
-			}
-		);
-
-		
-
+		await this.emailQueue.add(JOB_NAMES.EMAIL.VERIFICATION_OTP, {
+			toEmail: email,
+			otp,
+		});
 	}
 }

@@ -2,7 +2,7 @@ import { type ConnectionOptions, Queue } from "bullmq";
 import { env } from "@/config/env.ts";
 import { QUEUE_NAMES } from "@/shared/constants/queue.constants";
 
-const bullMQConnection: ConnectionOptions = {
+export const bullMQConnection: ConnectionOptions = {
 	url: env.REDIS_URL,
 };
 

@@ -1,4 +1,4 @@
 export interface VerificationEmailJob {
-  toEmail: string;
-  otp: string;
+	toEmail: string;
+	otp: string;
 }

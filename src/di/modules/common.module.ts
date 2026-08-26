@@ -10,6 +10,8 @@ import type { BrevoClient } from "@getbrevo/brevo";
 import { brevoClient } from "@/config/brevo.client";
 import type { Queue } from "bullmq";
 import { emailQueue } from "@/infrastructure/queue/bullmq.service";
+import { IEmailWorker } from "@/application/ports/workers/email.worker.port";
+import { EmailWorker } from "@/infrastructure/queue/workers/email.worker";
 
 export const commonModule = new ContainerModule(({ bind }) => {
 	bind<PrismaClient>(TYPES.Database.PrismaClient).toConstantValue(prisma);
@@ -21,4 +23,6 @@ export const commonModule = new ContainerModule(({ bind }) => {
 	bind<BrevoClient>(TYPES.Brevo.Client).toConstantValue(brevoClient);
 
 	bind<Queue>(TYPES.Queue.Email).toConstantValue(emailQueue);
+
+	bind<IEmailWorker>(TYPES.Worker.EMAIL).to(EmailWorker);
 });

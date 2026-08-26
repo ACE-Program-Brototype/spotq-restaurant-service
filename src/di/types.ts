@@ -23,6 +23,7 @@ export const TYPES = {
 
 	Services: {
 		OtpStore: Symbol.for("RedisOtpStore"),
+		Brevo_Email: Symbol.for("BrevoEmail"),
 	},
 
 	Logger: {
@@ -33,7 +34,11 @@ export const TYPES = {
 		Client: Symbol.for("BrevoClient"),
 	},
 
-	Queue:{
-		Email: Symbol.for("EmailQueue")
+	Queue: {
+		Email: Symbol.for("EmailQueue"),
+	},
+
+	Worker: {
+		EMAIL: Symbol.for("EmailWorker")
 	}
 } as const;

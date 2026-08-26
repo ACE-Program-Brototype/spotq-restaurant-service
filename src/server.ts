@@ -12,6 +12,9 @@ import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis.ts";
 import { PORT } from "@/shared/constants/app.constants.ts";
 import { closeS3Client } from "@/infrastructure/storage/s3.client";
 import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
+import { container } from "./di/container";
+import { TYPES } from "./di/types";
+import { IEmailWorker } from "./application/ports/workers/email.worker.port";
 
 async function bootstrap() {
 	try {
@@ -19,6 +22,9 @@ async function bootstrap() {
 		await connectRedis();
 		await connectBullMQ();
 		await checkS3Connection();
+
+		const emailWorker = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
+		emailWorker.start();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -32,6 +38,9 @@ async function bootstrap() {
 				await disconnectDatabase();
 				await disconnectBullMQ();
 				await closeS3Client();
+
+				emailWorker.stop();
+
 				logger.info("Shutdown completed");
 				process.exit(0);
 			});

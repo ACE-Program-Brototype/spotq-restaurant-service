@@ -1,8 +1,9 @@
 export const QUEUE_NAMES = {
-  EMAIL: "email",
+	EMAIL: "email",
 } as const;
 
-export const EMAIL_JOB_NAMES = {
-  VERIFICATION_OTP: "verification-otp",
+export const JOB_NAMES = {
+	EMAIL: {
+		VERIFICATION_OTP: "verification-otp",
+	},
 } as const;
-
