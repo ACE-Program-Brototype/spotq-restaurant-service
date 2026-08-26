@@ -4,9 +4,6 @@ import { commonModule } from "./modules/common.module";
 
 const container = new Container();
 
-container.load(
-    commonModule,
-    restaurantEmailVerificationModule
-);
+container.load(commonModule, restaurantEmailVerificationModule);
 
 export { container };

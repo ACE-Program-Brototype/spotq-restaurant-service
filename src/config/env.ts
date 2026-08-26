@@ -46,6 +46,16 @@ const envSchema = z.object({
 	AWS_REGION: z.string().trim().min(1),
 
 	AWS_S3_BUCKET: z.string().trim().min(1),
+
+	BREVO_API_KEY: z.string().trim().min(1),
+
+	BREVO_SENDER_EMAIL: z.string().trim().email(),
+
+	BREVO_SENDER_NAME: z.string().trim().min(1),
+
+	OTP_TTL_SECONDS: z.coerce.number().positive().default(300),
+
+	OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
 });
 
 export type Env = z.infer<typeof envSchema>;

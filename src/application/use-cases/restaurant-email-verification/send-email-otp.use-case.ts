@@ -3,27 +3,36 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/restaurant-email-verification/send-email-otp.use-case.port";
 import { TYPES } from "@/di/types";
+import { OTP_CONFIG } from "@/shared/constants/otp.constants";
+import { generateOtp } from "@/utils/otp.util";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class SendRestaurantEmailOtpUseCase implements ISendRestaurantEmailOtpUseCase {
-  constructor(
-    @inject(TYPES.Repositories.RestaurantRepository)
-	@inject(TYPES.Services.OtpStore)
-    private readonly restaurantRepository: IRestaurantRepository,
-	private readonly redisOtpStore: IOtpStore
-  ) {}
+export class SendRestaurantEmailOtpUseCase
+	implements ISendRestaurantEmailOtpUseCase
+{
+	constructor(
+		@inject(TYPES.Repositories.RestaurantRepository)
+		private readonly restaurantRepository: IRestaurantRepository,
 
-  async execute(dto: SendRestaurantEmailOtpDto) {
+		@inject(TYPES.Services.OtpStore)
+		private readonly redisOtpStore: IOtpStore,
+	) {}
 
-    const { email } = dto;
+	async execute(dto: SendRestaurantEmailOtpDto) {
+		const { email } = dto;
 
-    const restaurantExists = await this.restaurantRepository.existsByEmail(
-      email,
-    );
+		const restaurantExists =
+			await this.restaurantRepository.existsByEmail(email);
 
-    if (restaurantExists) {
-      return;
-    }
-  }
+		if (restaurantExists) {
+			return;
+		}
+
+		const otp = generateOtp();
+
+		const otpKey = `restaurant:email-verification:${dto.email}`;
+
+		await this.redisOtpStore.save(otpKey, otp, OTP_CONFIG.EXPIRY_SECONDS);
+	}
 }

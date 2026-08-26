@@ -11,14 +11,13 @@ export class RestaurantEmailVerificationController {
 	) {}
 
 	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
-
 		const dto = req.body;
 
 		await this.sendRestaurantEmailOtpUseCase.execute(dto);
 
 		return res.status(202).json({
 			success: true,
-			mess:"If this email is eligible for registration, a verification code will be sent."
+			mess: "If this email is eligible for registration, a verification code will be sent.",
 		});
 	}
 }

@@ -18,10 +18,18 @@ export const TYPES = {
 	},
 
 	Redis: {
-		Client: Symbol.for("Redis")
+		Client: Symbol.for("Redis"),
 	},
 
 	Services: {
-		OtpStore: Symbol.for("RedisOtpStore")
-	}
+		OtpStore: Symbol.for("RedisOtpStore"),
+	},
+
+	Logger: {
+		PinoClient: Symbol.for("PinoClient"),
+	},
+
+	Brevo: {
+		Client: Symbol.for("BrevoClient"),
+	},
 } as const;
