@@ -16,6 +16,7 @@ export class EmailVerificationService implements IEmailVerificationService {
 	) {}
 
 	async createVerificationToken(email: string): Promise<string> {
+		
 		const token = generateVerificationToken();
 
 		const tokenKey = getRestaurantEmailVerificationTokenKey(token);
