@@ -7,12 +7,14 @@ import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.r
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
-import type { IEmailService } from "@/application/ports/services/email-service.interface";
+import type { IEmailService } from "@/application/ports/services/email-service.port";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import { OtpService } from "@/infrastructure/services/otp.service";
+import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
+import { EmailVerificationService } from "@/infrastructure/services/email-verification.service";
 
 export const restaurantEmailVerificationModule = new ContainerModule(
 	({ bind }) => {
@@ -37,5 +39,9 @@ export const restaurantEmailVerificationModule = new ContainerModule(
 		).to(VerifyRestaurantEmailOtpUseCase);
 
 		bind<IOtpService>(TYPES.Services.OtpService).to(OtpService);
+
+		bind<IEmailVerificationService>(TYPES.Services.EmailVerification).to(
+			EmailVerificationService,
+		);
 	},
 );

@@ -3,14 +3,12 @@ import type { IVerifyRestaurantEmailOtpUseCase } from "../ports/use-case/verify-
 import { inject, injectable } from "inversify";
 import type { IOtpStore } from "../ports/services/otp-store.port";
 import type { VerifyRestaurantEmailOtpDto } from "../dto/restaurant-email-verification.dto";
-import {
-	getRestaurantEmailOtpAttemptsKey,
-	getRestaurantEmailOtpKey,
-} from "@/utils/otp.util";
+import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { AppError } from "@/utils/response.model";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import type { IOtpService } from "../ports/services/otp.service.port";
+import type { IEmailVerificationService } from "../ports/services/email-verification.service.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
@@ -22,9 +20,12 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		@inject(TYPES.Services.OtpService)
 		private readonly otpService: IOtpService,
+
+		@inject(TYPES.Services.EmailVerification)
+		private readonly emailVerificationService: IEmailVerificationService,
 	) {}
 
-	async execute(dto: VerifyRestaurantEmailOtpDto): Promise<void> {
+	async execute(dto: VerifyRestaurantEmailOtpDto): Promise<string> {
 		const { email, otp } = dto;
 
 		const otpKey = getRestaurantEmailOtpKey(email);
@@ -36,12 +37,13 @@ export class VerifyRestaurantEmailOtpUseCase
 		}
 
 		if (storedOtp === otp) {
-			const attemptsKey = getRestaurantEmailOtpAttemptsKey(email);
-
 			await this.redisOtpStore.delete(otpKey);
-			await this.redisOtpStore.delete(attemptsKey);
+			await this.otpService.resetAttempts(email);
 
-			return;
+			const verificationToken =
+				await this.emailVerificationService.createVerificationToken(email);
+
+			return verificationToken;
 		}
 
 		const attempts = await this.otpService.incrementAttempt(email);

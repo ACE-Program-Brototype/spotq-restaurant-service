@@ -1,4 +1,4 @@
-import type { IEmailService } from "@/application/ports/services/email-service.interface";
+import type { IEmailService } from "@/application/ports/services/email-service.port";
 import type { ILogger } from "@/application/ports/services/logger.interface";
 import { env } from "@/config/env";
 import { TYPES } from "@/di/types";

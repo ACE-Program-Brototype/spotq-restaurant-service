@@ -5,7 +5,7 @@ export const sendRestaurantEmailOtpSchema = z.object({
 });
 
 export const verifyRestaurantEmailOtpSchema = z.object({
-	email: z.string().trim().email(),
+	email: z.string().trim().toLowerCase().email(),
 
 	otp: z
 		.string()

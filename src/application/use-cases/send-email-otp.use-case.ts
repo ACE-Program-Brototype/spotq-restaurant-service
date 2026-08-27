@@ -43,7 +43,6 @@ export class SendRestaurantEmailOtpUseCase
 		const cooldownActive = await this.otpService.checkCooldown(email);
 
 		if (cooldownActive) {
-			
 			throw new AppError(
 				"Please wait before requesting another OTP",
 				HTTP_STATUS.TOO_MANY_REQUESTS,

@@ -28,11 +28,15 @@ export class RestaurantEmailVerificationController {
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const dto = req.body;
 
-		await this.verifyRestaurantEmailOtpUseCase.execute(dto);
+		const verificationToken =
+			await this.verifyRestaurantEmailOtpUseCase.execute(dto);
 
 		return res.status(200).json({
 			success: true,
 			message: "Email verified successfully.",
+			data: {
+				verificationToken,
+			},
 		});
 	}
 }
