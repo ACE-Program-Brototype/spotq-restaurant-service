@@ -15,6 +15,8 @@ import type { IOtpService } from "@/application/ports/services/otp.service.port"
 import { OtpService } from "@/infrastructure/services/otp.service";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 import { EmailVerificationService } from "@/infrastructure/services/email-verification.service";
+import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
+import { ResendRestaurantEmailOtpUseCase } from "@/application/use-cases/resend-email-otp.use-case";
 
 export const restaurantEmailVerificationModule = new ContainerModule(
 	({ bind }) => {
@@ -25,6 +27,10 @@ export const restaurantEmailVerificationModule = new ContainerModule(
 		bind<ISendRestaurantEmailOtpUseCase>(
 			TYPES.UseCases.SendRestaurantEmailOtpUseCase,
 		).to(SendRestaurantEmailOtpUseCase);
+
+		bind<IResendRestaurantEmailOtpUseCase>(
+			TYPES.UseCases.ResendRestaurantEmailOtpUseCase,
+		).to(ResendRestaurantEmailOtpUseCase);
 
 		bind<IRestaurantRepository>(TYPES.Repositories.RestaurantRepository).to(
 			RestaurantRepository,

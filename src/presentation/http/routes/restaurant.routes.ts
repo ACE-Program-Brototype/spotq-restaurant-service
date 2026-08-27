@@ -32,6 +32,14 @@ restaurantRouter.post(
 );
 
 restaurantRouter.post(
+	RESTAURANT_ROUTES.RESEND_EMAIL_OTP,
+	validate(sendRestaurantEmailOtpSchema),
+	restaurantEmailVerificationController.resendEmailOtp.bind(
+		restaurantEmailVerificationController,
+	),
+);
+
+restaurantRouter.post(
 	RESTAURANT_ROUTES.VERIFY_EMAIL,
 	validate(verifyRestaurantEmailOtpSchema),
 	restaurantEmailVerificationController.verifyEmailOtp.bind(

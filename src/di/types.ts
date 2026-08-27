@@ -1,6 +1,9 @@
 export const TYPES = {
 	UseCases: {
 		SendRestaurantEmailOtpUseCase: Symbol.for("SendRestaurantEmailOtpUseCase"),
+		ResendRestaurantEmailOtpUseCase: Symbol.for(
+			"ResendRestaurantEmailOtpUseCase",
+		),
 		VerifyRestaurantEmailOtpUseCase: Symbol.for(
 			"VerifyRestaurantEmailOtpUseCase",
 		),

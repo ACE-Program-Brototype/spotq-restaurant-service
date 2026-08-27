@@ -1,4 +1,5 @@
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
+import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 import { TYPES } from "@/di/types";
 import type { Request, Response } from "express";
@@ -9,6 +10,9 @@ export class RestaurantEmailVerificationController {
 	constructor(
 		@inject(TYPES.UseCases.SendRestaurantEmailOtpUseCase)
 		private readonly sendRestaurantEmailOtpUseCase: ISendRestaurantEmailOtpUseCase,
+
+		@inject(TYPES.UseCases.ResendRestaurantEmailOtpUseCase)
+		private readonly resendRestaurantEmailOtpUseCase: IResendRestaurantEmailOtpUseCase,
 
 		@inject(TYPES.UseCases.VerifyRestaurantEmailOtpUseCase)
 		private readonly verifyRestaurantEmailOtpUseCase: IVerifyRestaurantEmailOtpUseCase,
@@ -22,6 +26,17 @@ export class RestaurantEmailVerificationController {
 		return res.status(202).json({
 			success: true,
 			mess: "If this email is eligible for registration, a verification code will be sent.",
+		});
+	}
+
+	async resendEmailOtp(req: Request, res: Response): Promise<Response> {
+		const dto = req.body;
+
+		await this.resendRestaurantEmailOtpUseCase.execute(dto);
+
+		return res.status(202).json({
+			success: true,
+			message: "If this email is eligible for registration, a verification code will be sent.",
 		});
 	}
 
