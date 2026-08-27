@@ -12,10 +12,7 @@ export class RestaurantRegistrationController {
 		private readonly registerRestaurantUseCase: IRegisterRestaurantUseCase,
 	) {}
 
-	async register(
-		req: Request,
-		res: Response,
-	): Promise<Response> {
+	async register(req: Request, res: Response): Promise<Response> {
 		const authorizationHeader = req.headers.authorization;
 
 		if (!authorizationHeader?.startsWith("Bearer ")) {
@@ -27,10 +24,7 @@ export class RestaurantRegistrationController {
 
 		const verificationToken = authorizationHeader.substring(7);
 
-		await this.registerRestaurantUseCase.execute(
-			req.body,
-			verificationToken,
-		);
+		await this.registerRestaurantUseCase.execute(req.body, verificationToken);
 
 		return res.status(HTTP_STATUS.CREATED).json({
 			success: true,

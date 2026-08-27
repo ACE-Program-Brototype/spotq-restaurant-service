@@ -18,10 +18,10 @@ const restaurantEmailVerificationController =
 		TYPES.Controller.RestaurantEmailVerificationController,
 	);
 
-const restaurantRegistrationController = 
+const restaurantRegistrationController =
 	container.get<RestaurantRegistrationController>(
 		TYPES.Controller.RestaurantRegistrationController,
-	)
+	);
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,
@@ -43,6 +43,6 @@ restaurantRouter.post(
 	RESTAURANT_ROUTES.REGISTER,
 	validate(registerRestaurantSchema),
 	restaurantRegistrationController.register.bind(
-		restaurantRegistrationController
+		restaurantRegistrationController,
 	),
 );

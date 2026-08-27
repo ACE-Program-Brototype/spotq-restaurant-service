@@ -4,7 +4,7 @@ export const TYPES = {
 		VerifyRestaurantEmailOtpUseCase: Symbol.for(
 			"VerifyRestaurantEmailOtpUseCase",
 		),
-		RegisterRestaurantUseCase: Symbol.for("RegisterRestaurantUseCase")
+		RegisterRestaurantUseCase: Symbol.for("RegisterRestaurantUseCase"),
 	},
 
 	Controller: {
@@ -12,8 +12,8 @@ export const TYPES = {
 			"RestaurantEmailVerificationController",
 		),
 		RestaurantRegistrationController: Symbol.for(
-			"RestaurantRegistrationController"
-		)
+			"RestaurantRegistrationController",
+		),
 	},
 
 	Database: {
@@ -33,7 +33,7 @@ export const TYPES = {
 		Brevo_Email: Symbol.for("BrevoEmail"),
 		OtpService: Symbol.for("OtpService"),
 		EmailVerification: Symbol.for("EmailVerification"),
-		PasswordService: Symbol.for("PasswordService")
+		PasswordService: Symbol.for("PasswordService"),
 	},
 
 	Logger: {

@@ -9,9 +9,7 @@ import { AppError } from "@/utils/response.model";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class RegisterRestaurantUseCase
-	implements IRegisterRestaurantUseCase
-{
+export class RegisterRestaurantUseCase implements IRegisterRestaurantUseCase {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
@@ -27,11 +25,8 @@ export class RegisterRestaurantUseCase
 		dto: RegisterRestaurantDto,
 		verificationToken: string,
 	): Promise<void> {
-
 		const email =
-			await this.emailVerificationService.getVerifiedEmail(
-				verificationToken,
-			);
+			await this.emailVerificationService.getVerifiedEmail(verificationToken);
 
 		if (!email) {
 			throw new AppError(
@@ -50,8 +45,7 @@ export class RegisterRestaurantUseCase
 			);
 		}
 
-		const passwordHash =
-			await this.passwordService.hash(dto.password);
+		const passwordHash = await this.passwordService.hash(dto.password);
 
 		await this.restaurantRepository.createRestaurant({
 			restaurantName: dto.restaurantName,

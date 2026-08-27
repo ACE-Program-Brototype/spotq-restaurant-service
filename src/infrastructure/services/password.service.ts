@@ -9,10 +9,7 @@ export class PasswordService implements IPasswordService {
 		return bcrypt.hash(password, PASSWORD_CONFIG.SALT_ROUNDS);
 	}
 
-	async verify(
-		password: string,
-		passwordHash: string,
-	): Promise<boolean> {
+	async verify(password: string, passwordHash: string): Promise<boolean> {
 		return bcrypt.compare(password, passwordHash);
 	}
 }
