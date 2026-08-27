@@ -5,7 +5,7 @@ import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cas
 import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { JOB_NAMES } from "@/shared/constants/queue.constants";
-import { generateOtp } from "@/utils/otp.util";
+import { generateOtp, getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import type { Queue } from "bullmq";
 import { inject, injectable } from "inversify";
 
@@ -36,7 +36,7 @@ export class SendRestaurantEmailOtpUseCase
 
 		const otp = generateOtp();
 
-		const otpKey = `restaurant:email-verification:${dto.email}`;
+		const otpKey = getRestaurantEmailOtpKey(email);
 
 		await this.redisOtpStore.save(otpKey, otp, OTP_CONFIG.EXPIRY_SECONDS);
 
