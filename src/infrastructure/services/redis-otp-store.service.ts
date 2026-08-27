@@ -31,4 +31,14 @@ export class RedisOtpStore implements IOtpStore {
 
 		return result === 1;
 	}
+
+	async increment(key: string, ttlSeconds: number): Promise<number> {
+		const attempts = await this.redis.incr(key);
+
+		if (attempts === 1) {
+			await this.redis.expire(key, ttlSeconds);
+		}
+
+		return attempts;
+	}
 }

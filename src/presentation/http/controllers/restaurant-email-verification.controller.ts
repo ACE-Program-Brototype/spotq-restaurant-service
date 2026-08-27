@@ -11,7 +11,7 @@ export class RestaurantEmailVerificationController {
 		private readonly sendRestaurantEmailOtpUseCase: ISendRestaurantEmailOtpUseCase,
 
 		@inject(TYPES.UseCases.VerifyRestaurantEmailOtpUseCase)
-		private readonly verifyRestaurantEmailOtpUseCase: IVerifyRestaurantEmailOtpUseCase
+		private readonly verifyRestaurantEmailOtpUseCase: IVerifyRestaurantEmailOtpUseCase,
 	) {}
 
 	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
@@ -25,11 +25,7 @@ export class RestaurantEmailVerificationController {
 		});
 	}
 
-	async verifyEmailOtp(
-		req: Request,
-		res: Response,
-	): Promise<Response> {
-
+	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const dto = req.body;
 
 		await this.verifyRestaurantEmailOtpUseCase.execute(dto);

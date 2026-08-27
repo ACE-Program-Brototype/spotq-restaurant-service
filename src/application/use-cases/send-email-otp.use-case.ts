@@ -29,7 +29,6 @@ export class SendRestaurantEmailOtpUseCase
 	) {}
 
 	async execute(dto: SendRestaurantEmailOtpDto) {
-		
 		const { email } = dto;
 
 		const restaurantExists =
@@ -39,8 +38,7 @@ export class SendRestaurantEmailOtpUseCase
 			return;
 		}
 
-		const cooldownActive =
-			await this.otpService.checkCooldown(email);
+		const cooldownActive = await this.otpService.checkCooldown(email);
 
 		if (cooldownActive) {
 			return;
@@ -51,6 +49,8 @@ export class SendRestaurantEmailOtpUseCase
 		const otpKey = getRestaurantEmailOtpKey(email);
 
 		await this.redisOtpStore.save(otpKey, otp, OTP_CONFIG.EXPIRY_SECONDS);
+
+		await this.otpService.resetAttempts(email);
 
 		await this.emailQueue.add(JOB_NAMES.EMAIL.VERIFICATION_OTP, {
 			toEmail: email,

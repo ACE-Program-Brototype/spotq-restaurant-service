@@ -6,4 +6,6 @@ export interface IOtpStore {
 	delete(key: string): Promise<void>;
 
 	exists(key: string): Promise<boolean>;
+
+	increment(key: string, ttlSeconds: number): Promise<number>;
 }

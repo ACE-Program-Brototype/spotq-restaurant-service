@@ -5,10 +5,7 @@ import { TYPES } from "@/di/types";
 import { Worker } from "bullmq";
 import { inject, injectable } from "inversify";
 import { bullMQConnection } from "../bullmq.service";
-import {
-	JOB_NAMES,
-	QUEUE_NAMES,
-} from "@/shared/constants/queue.constants";
+import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants";
 
 @injectable()
 export class EmailWorker implements IEmailWorker {
@@ -39,10 +36,7 @@ export class EmailWorker implements IEmailWorker {
 						"Processing email verification job",
 					);
 
-					await this.emailService.sendVerificationEmail(
-						toEmail,
-						otp,
-					);
+					await this.emailService.sendVerificationEmail(toEmail, otp);
 
 					this.logger.info(
 						{

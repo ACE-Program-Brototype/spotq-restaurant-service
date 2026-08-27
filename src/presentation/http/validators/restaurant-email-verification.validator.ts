@@ -5,10 +5,10 @@ export const sendRestaurantEmailOtpSchema = z.object({
 });
 
 export const verifyRestaurantEmailOtpSchema = z.object({
-  email: z.string().trim().email(),
+	email: z.string().trim().email(),
 
-  otp: z
-    .string()
-    .trim()
-    .regex(/^\d{6}$/, "OTP must be 6 digits"),
+	otp: z
+		.string()
+		.trim()
+		.regex(/^\d{6}$/, "OTP must be 6 digits"),
 });

@@ -1,7 +1,9 @@
 export const TYPES = {
 	UseCases: {
 		SendRestaurantEmailOtpUseCase: Symbol.for("SendRestaurantEmailOtpUseCase"),
-		VerifyRestaurantEmailOtpUseCase: Symbol.for("VerifyRestaurantEmailOtpUseCase")
+		VerifyRestaurantEmailOtpUseCase: Symbol.for(
+			"VerifyRestaurantEmailOtpUseCase",
+		),
 	},
 
 	Controller: {
@@ -25,7 +27,7 @@ export const TYPES = {
 	Services: {
 		OtpStore: Symbol.for("RedisOtpStore"),
 		Brevo_Email: Symbol.for("BrevoEmail"),
-		OtpService: Symbol.for("OtpService")
+		OtpService: Symbol.for("OtpService"),
 	},
 
 	Logger: {
@@ -41,6 +43,6 @@ export const TYPES = {
 	},
 
 	Worker: {
-		EMAIL: Symbol.for("EmailWorker")
-	}
+		EMAIL: Symbol.for("EmailWorker"),
+	},
 } as const;

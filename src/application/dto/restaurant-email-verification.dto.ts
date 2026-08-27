@@ -1,6 +1,6 @@
-import type { 
-	sendRestaurantEmailOtpSchema, 
-	verifyRestaurantEmailOtpSchema 
+import type {
+	sendRestaurantEmailOtpSchema,
+	verifyRestaurantEmailOtpSchema,
 } from "@/presentation/http/validators/restaurant-email-verification.validator";
 
 import type { z } from "zod";
@@ -10,5 +10,5 @@ export type SendRestaurantEmailOtpDto = z.infer<
 >;
 
 export type VerifyRestaurantEmailOtpDto = z.infer<
-typeof verifyRestaurantEmailOtpSchema
+	typeof verifyRestaurantEmailOtpSchema
 >;
