@@ -1,7 +1,7 @@
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import express from "express";
 import { validate } from "../middleware/validation.middleware";
-import { sendRestaurantEmailOtpSchema } from "../validators/restaurant-email-verification.validator";
+import { sendRestaurantEmailOtpSchema, verifyRestaurantEmailOtpSchema } from "../validators/restaurant-email-verification.validator";
 import { container } from "@/di/container";
 import { TYPES } from "@/di/types";
 import type { RestaurantEmailVerificationController } from "../controllers/restaurant-email-verification.controller";
@@ -19,4 +19,12 @@ restaurantRouter.post(
 	restaurantEmailVerificationController.sendEmailOtp.bind(
 		restaurantEmailVerificationController,
 	),
+);
+
+restaurantRouter.post(
+	RESTAURANT_ROUTES.VERIFY_EMAIL,
+	validate(verifyRestaurantEmailOtpSchema),
+	restaurantEmailVerificationController.verifyEmailOtp.bind(
+		restaurantEmailVerificationController
+	)
 );

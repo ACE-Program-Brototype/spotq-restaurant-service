@@ -6,7 +6,7 @@ export const SYSTEM_ROUTES = {
 
 export const RESTAURANT_ROUTES = {
 	EMAIL_OTP: "/registration/email-otp",
-	VERIFY_EMAIL: "/registration/verify-email",
+	VERIFY_EMAIL: "/registration/email-otp/verify",
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
 	REGISTER: "/registration",
 } as const;

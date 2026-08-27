@@ -25,6 +25,7 @@ export class SendRestaurantEmailOtpUseCase
 	) {}
 
 	async execute(dto: SendRestaurantEmailOtpDto) {
+		
 		const { email } = dto;
 
 		const restaurantExists =

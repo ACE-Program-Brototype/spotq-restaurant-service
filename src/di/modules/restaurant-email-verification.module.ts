@@ -9,6 +9,8 @@ import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 import type { IEmailService } from "@/application/ports/services/email-service.interface";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
+import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 
 export const restaurantEmailVerificationModule = new ContainerModule(
 	({ bind }) => {
@@ -27,5 +29,9 @@ export const restaurantEmailVerificationModule = new ContainerModule(
 		bind<IOtpStore>(TYPES.Services.OtpStore).to(RedisOtpStore);
 
 		bind<IEmailService>(TYPES.Services.Brevo_Email).to(BrevoEmailService);
+
+		bind<IVerifyRestaurantEmailOtpUseCase>(
+			TYPES.UseCases.VerifyRestaurantEmailOtpUseCase
+		).to(VerifyRestaurantEmailOtpUseCase);
 	},
 );
