@@ -11,6 +11,8 @@ import type { IEmailService } from "@/application/ports/services/email-service.i
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
+import { IOtpService } from "@/application/ports/services/otp.service.port";
+import { OtpService } from "@/infrastructure/services/otp.service";
 
 export const restaurantEmailVerificationModule = new ContainerModule(
 	({ bind }) => {
@@ -33,5 +35,9 @@ export const restaurantEmailVerificationModule = new ContainerModule(
 		bind<IVerifyRestaurantEmailOtpUseCase>(
 			TYPES.UseCases.VerifyRestaurantEmailOtpUseCase
 		).to(VerifyRestaurantEmailOtpUseCase);
+
+		bind<IOtpService>(
+			TYPES.Services.OtpService
+		).to(OtpService);
 	},
 );

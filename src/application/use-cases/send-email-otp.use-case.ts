@@ -8,6 +8,7 @@ import { JOB_NAMES } from "@/shared/constants/queue.constants";
 import { generateOtp, getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import type { Queue } from "bullmq";
 import { inject, injectable } from "inversify";
+import type { IOtpService } from "../ports/services/otp.service.port";
 
 @injectable()
 export class SendRestaurantEmailOtpUseCase
@@ -19,6 +20,9 @@ export class SendRestaurantEmailOtpUseCase
 
 		@inject(TYPES.Services.OtpStore)
 		private readonly redisOtpStore: IOtpStore,
+
+		@inject(TYPES.Services.OtpService)
+		private readonly otpService: IOtpService,
 
 		@inject(TYPES.Queue.Email)
 		private readonly emailQueue: Queue,
@@ -32,6 +36,13 @@ export class SendRestaurantEmailOtpUseCase
 			await this.restaurantRepository.existsByEmail(email);
 
 		if (restaurantExists) {
+			return;
+		}
+
+		const cooldownActive =
+			await this.otpService.checkCooldown(email);
+
+		if (cooldownActive) {
 			return;
 		}
 
