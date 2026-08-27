@@ -1,4 +1,4 @@
-import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/restaurant-email-verification/send-email-otp.use-case.port";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
 import { TYPES } from "@/di/types";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
