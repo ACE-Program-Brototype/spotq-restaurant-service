@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,32 +8,35 @@ datasource db {
 }
 
 model Restaurant {
-  id              String   @id @default(uuid()) @db.Uuid
+  id               String           @id @default(uuid()) @db.Uuid
 
-  restaurantName  String
-  email           String   @unique
-  phone           String?
+  restaurantName   String
+  email            String           @unique
+  phone            String
 
-  ownerName       String?
-  ownerEmail      String?
+  ownerName        String
+  ownerEmail       String
 
-  seatingCapacity Int?
-  fssaiNumber     String?
-  gstNumber       String?
-  regNumber       String?
+  passwordHash     String
 
-  cuisineType     String?
+  onboardingStatus OnboardingStatus @default(PENDING)
 
-  passwordHash    String?
+  seatingCapacity  Int?
+  fssaiNumber      String?
+  gstNumber        String?
+  regNumber        String?
 
-  status          RestaurantStatus @default(PENDING)
+  cuisineType      String?
 
-  isVerified      Boolean @default(false)
-  isBlocked       Boolean @default(false)
-  blockReason     String?
+  status           RestaurantStatus @default(PENDING)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  emailVerifiedAt  DateTime?
+
+  isBlocked        Boolean          @default(false)
+  blockReason      String?
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@map("restaurants")
 }
@@ -50,4 +48,9 @@ enum RestaurantStatus {
   SUSPENDED
   ACTIVE
   INACTIVE
+}
+
+enum OnboardingStatus {
+  PENDING
+  COMPLETED
 }
