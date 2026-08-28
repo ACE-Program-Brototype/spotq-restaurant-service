@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Redis } from "ioredis";
 import jwt from "jsonwebtoken";
@@ -19,37 +20,46 @@ describe("RedisTokenRevocationRepository", () => {
 		repository = new RedisTokenRevocationRepository(redis as unknown as Redis);
 	});
 
-	it("should revoke token and store in Redis with calculated expiration", async () => {
+	it("should revoke token and store under auth:revoked-refresh:<sha256> in Redis with calculated expiration", async () => {
 		const token = jwt.sign(
 			{ id: "staff-123", email: "staff@spotq.com" },
 			"secret",
 			{ expiresIn: "1h" },
 		);
+		const expectedHash = crypto
+			.createHash("sha256")
+			.update(token)
+			.digest("hex");
 
 		redis.set.mockResolvedValue("OK" as never);
 
 		await repository.revoke(token);
 
 		expect(redis.set).toHaveBeenCalledWith(
-			`revoked:token:${token}`,
+			`auth:revoked-refresh:${expectedHash}`,
 			"revoked",
 			"EX",
 			expect.any(Number),
 		);
 	});
 
-	it("should return true when token is revoked in Redis", async () => {
+	it("should return true when token hash is found in auth:revoked-refresh", async () => {
+		const token = "revoked-token";
+		const expectedHash = crypto
+			.createHash("sha256")
+			.update(token)
+			.digest("hex");
 		redis.exists.mockResolvedValue(1 as never);
 
-		const isRevoked = await repository.isRevoked("revoked-token");
+		const isRevoked = await repository.isRevoked(token);
 
 		expect(isRevoked).toBe(true);
 		expect(redis.exists).toHaveBeenCalledWith(
-			"revoked:token:revoked-token",
+			`auth:revoked-refresh:${expectedHash}`,
 		);
 	});
 
-	it("should return false when token is not revoked", async () => {
+	it("should return false when token hash is not revoked", async () => {
 		redis.exists.mockResolvedValue(0 as never);
 
 		const isRevoked = await repository.isRevoked("valid-token");

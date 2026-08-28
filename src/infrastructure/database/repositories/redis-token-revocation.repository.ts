@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { inject, injectable } from "inversify";
 import type { Redis } from "ioredis";
 import jwt from "jsonwebtoken";
@@ -9,10 +10,16 @@ import type { ITokenRevocationRepository } from "@/domain/repositories/token-rev
 export class RedisTokenRevocationRepository
 	implements ITokenRevocationRepository
 {
+	private readonly keyPrefix = "auth:revoked-refresh:";
+
 	constructor(
 		@inject(TYPES.RedisClient)
 		private readonly redis: Redis,
 	) {}
+
+	private hashToken(token: string): string {
+		return crypto.createHash("sha256").update(token).digest("hex");
+	}
 
 	public async revoke(
 		token: string,
@@ -32,17 +39,19 @@ export class RedisTokenRevocationRepository
 				}
 			}
 		} catch {
-			// Fallback to default ttl
+			// Fallback to env default ttl
 		}
 
-		await this.redis.set(`revoked:token:${token}`, "revoked", "EX", ttl);
+		const key = `${this.keyPrefix}${this.hashToken(token)}`;
+		await this.redis.set(key, "revoked", "EX", ttl);
 	}
 
 	public async isRevoked(token: string): Promise<boolean> {
 		if (!token) {
 			return false;
 		}
-		const result = await this.redis.exists(`revoked:token:${token}`);
+		const key = `${this.keyPrefix}${this.hashToken(token)}`;
+		const result = await this.redis.exists(key);
 		return result === 1;
 	}
 }
