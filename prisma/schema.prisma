@@ -17,10 +17,6 @@ model Restaurant {
   ownerName        String
   ownerEmail       String
 
-  passwordHash     String
-
-  onboardingStatus OnboardingStatus @default(PENDING)
-
   seatingCapacity  Int?
   fssaiNumber      String?
   gstNumber        String?
@@ -48,9 +44,4 @@ enum RestaurantStatus {
   SUSPENDED
   ACTIVE
   INACTIVE
-}
-
-enum OnboardingStatus {
-  PENDING
-  COMPLETED
 }

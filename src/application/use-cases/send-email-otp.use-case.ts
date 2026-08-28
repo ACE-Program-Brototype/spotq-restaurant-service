@@ -33,13 +33,6 @@ export class SendRestaurantEmailOtpUseCase
 	async execute(dto: SendRestaurantEmailOtpDto) {
 		const { email } = dto;
 
-		const restaurantExists =
-			await this.restaurantRepository.existsByEmail(email);
-
-		if (restaurantExists) {
-			return;
-		}
-
 		const cooldownActive = await this.otpService.checkCooldown(email);
 
 		if (cooldownActive) {
