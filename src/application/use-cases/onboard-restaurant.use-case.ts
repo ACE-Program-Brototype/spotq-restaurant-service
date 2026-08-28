@@ -1,7 +1,6 @@
 import type { OnboardRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
-import type { IPasswordService } from "@/application/ports/services/password.service.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
@@ -17,8 +16,6 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase{
 		@inject(TYPES.Services.EmailVerification)
 		private readonly emailVerificationService: IEmailVerificationService,
 
-		@inject(TYPES.Services.PasswordService)
-		private readonly passwordService: IPasswordService,
 	) {}
 
 	async execute(
@@ -45,15 +42,12 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase{
 			);
 		}
 
-		const passwordHash = await this.passwordService.hash(dto.password);
-
 		await this.restaurantRepository.createRestaurant({
 			restaurantName: dto.restaurantName,
 			email,
 			phone: dto.phone,
 			ownerName: dto.ownerName,
 			ownerEmail: dto.ownerEmail,
-			passwordHash,
 			emailVerifiedAt: new Date(),
 		});
 

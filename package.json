@@ -30,7 +30,6 @@
 		"@aws-sdk/client-s3": "^3.1112.0",
 		"@getbrevo/brevo": "^6.0.3",
 		"@prisma/client": "^6.19.3",
-		"bcrypt": "^6.0.0",
 		"bullmq": "^6.0.6",
 		"express": "^5.2.1",
 		"inversify": "^8.2.3",
@@ -44,7 +43,6 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.6",
-		"@types/bcrypt": "^6.0.0",
 		"@types/express": "^5.0.6",
 		"@types/node": "^26.1.2",
 		"husky": "^9.1.7",

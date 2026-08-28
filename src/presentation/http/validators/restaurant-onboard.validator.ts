@@ -5,5 +5,4 @@ export const onboardRestaurantSchema = z.object({
 	phone: z.string().trim().min(1),
 	ownerName: z.string().trim().min(1),
 	ownerEmail: z.email(),
-	password: z.string().min(8),
 });

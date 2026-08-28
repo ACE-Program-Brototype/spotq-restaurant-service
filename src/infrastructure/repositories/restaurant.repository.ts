@@ -33,7 +33,6 @@ export class RestaurantRepository implements IRestaurantRepository {
 				phone: data.phone,
 				ownerName: data.ownerName,
 				ownerEmail: data.ownerEmail,
-				passwordHash: data.passwordHash,
 				emailVerifiedAt: data.emailVerifiedAt,
 			},
 		});

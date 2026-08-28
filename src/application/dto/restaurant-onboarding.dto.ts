@@ -10,6 +10,5 @@ export interface CreateRestaurantDto {
 	phone: string;
 	ownerName: string;
 	ownerEmail: string;
-	passwordHash: string;
 	emailVerifiedAt: Date;
 }

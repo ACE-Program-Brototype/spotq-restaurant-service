@@ -21,13 +21,12 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
 
 // Services
-import type { IPasswordService } from "@/application/ports/services/password.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { IEmailService } from "@/application/ports/services/email-service.port";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 
-import { PasswordService } from "@/infrastructure/services/password.service";
+
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
 import { OtpService } from "@/infrastructure/services/otp.service";
@@ -74,8 +73,5 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IEmailVerificationService>(
 		TYPES.Services.EmailVerification,
 	).to(EmailVerificationService);
-
-	bind<IPasswordService>(TYPES.Services.PasswordService).to(
-		PasswordService,
-	);
+	
 });
