@@ -5,23 +5,10 @@ import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
-import { container } from "@/di/container";
-import { TYPES } from "@/di/types";
-import type { RestaurantEmailVerificationController } from "../controllers/restaurant-email-verification.controller";
-import type { RestaurantRegistrationController } from "../controllers/restaurant-registeration.controller";
 import { registerRestaurantSchema } from "../validators/restaurant-registration.validator";
+import { restaurantEmailVerificationController, restaurantRegistrationController } from "@/di/controllers.resolutions";
 
 export const restaurantRouter = express.Router();
-
-const restaurantEmailVerificationController =
-	container.get<RestaurantEmailVerificationController>(
-		TYPES.Controller.RestaurantEmailVerificationController,
-	);
-
-const restaurantRegistrationController =
-	container.get<RestaurantRegistrationController>(
-		TYPES.Controller.RestaurantRegistrationController,
-	);
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,
