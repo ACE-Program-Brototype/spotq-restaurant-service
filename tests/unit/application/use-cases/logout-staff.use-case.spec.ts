@@ -1,16 +1,35 @@
-import { describe, expect, it } from "@jest/globals";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { LogoutStaffUseCase } from "@/application/use-cases/staff/logout-staff.use-case.ts";
+import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
 
 describe("LogoutStaffUseCase", () => {
-	it("should execute logout successfully", async () => {
-		const useCase = new LogoutStaffUseCase();
-		await expect(
-			useCase.execute({ refreshToken: "valid-refresh-token" }),
-		).resolves.toBeUndefined();
+	let tokenRevocationRepository: jest.Mocked<ITokenRevocationRepository>;
+	let useCase: LogoutStaffUseCase;
+
+	beforeEach(() => {
+		tokenRevocationRepository = {
+			revoke: jest.fn(),
+			isRevoked: jest.fn(),
+		};
+
+		useCase = new LogoutStaffUseCase(tokenRevocationRepository);
 	});
 
-	it("should execute logout without error even if refreshToken is undefined", async () => {
-		const useCase = new LogoutStaffUseCase();
-		await expect(useCase.execute({})).resolves.toBeUndefined();
+	it("should revoke refreshToken when provided", async () => {
+		tokenRevocationRepository.revoke.mockResolvedValue();
+
+		await useCase.execute({
+			refreshToken: "mock-refresh-token",
+		});
+
+		expect(tokenRevocationRepository.revoke).toHaveBeenCalledWith(
+			"mock-refresh-token",
+		);
+	});
+
+	it("should execute logout without error when no refreshToken is provided", async () => {
+		await useCase.execute({});
+
+		expect(tokenRevocationRepository.revoke).not.toHaveBeenCalled();
 	});
 });

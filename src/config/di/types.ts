@@ -1,7 +1,9 @@
 export const TYPES = {
 	// Database & Repositories
 	PrismaClient: Symbol.for("PrismaClient"),
+	RedisClient: Symbol.for("RedisClient"),
 	RestaurantStaffRepository: Symbol.for("RestaurantStaffRepository"),
+	TokenRevocationRepository: Symbol.for("TokenRevocationRepository"),
 
 	// Security & Ports
 	PasswordHasher: Symbol.for("PasswordHasher"),
@@ -12,8 +14,7 @@ export const TYPES = {
 	LogoutStaffUseCase: Symbol.for("LogoutStaffUseCase"),
 
 	// Controllers
-	LoginStaffController: Symbol.for("LoginStaffController"),
-	LogoutStaffController: Symbol.for("LogoutStaffController"),
+	StaffController: Symbol.for("StaffController"),
 
 	// Observability & System
 	Logger: Symbol.for("Logger"),
