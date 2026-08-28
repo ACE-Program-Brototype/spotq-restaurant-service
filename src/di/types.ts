@@ -33,6 +33,7 @@ export const TYPES = {
 		Brevo_Email: Symbol.for("BrevoEmail"),
 		OtpService: Symbol.for("OtpService"),
 		EmailVerification: Symbol.for("EmailVerification"),
+		AuthTokenService: Symbol.for("AuthTokenService")
 	},
 
 	Logger: {

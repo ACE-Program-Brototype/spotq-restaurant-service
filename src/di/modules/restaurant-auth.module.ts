@@ -31,6 +31,8 @@ import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
 import { OtpService } from "@/infrastructure/services/otp.service";
 import { EmailVerificationService } from "@/infrastructure/services/email-verification.service";
+import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
+import { AuthTokenService } from "@/infrastructure/services/auth-token.service";
 
 
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {
@@ -73,5 +75,9 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IEmailVerificationService>(
 		TYPES.Services.EmailVerification,
 	).to(EmailVerificationService);
+
+	bind<IAuthTokenService>(
+		TYPES.Services.AuthTokenService
+	).to(AuthTokenService);
 	
 });

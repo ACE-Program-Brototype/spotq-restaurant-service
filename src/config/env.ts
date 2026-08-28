@@ -56,6 +56,10 @@ const envSchema = z.object({
 	OTP_TTL_SECONDS: z.coerce.number().positive().default(300),
 
 	OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
+
+	JWT_ACCESS_SECRET: z.string().trim().min(64),
+
+	JWT_REFRESH_SECRET: z.string().trim().min(64),
 });
 
 export type Env = z.infer<typeof envSchema>;
