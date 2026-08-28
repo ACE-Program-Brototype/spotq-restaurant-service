@@ -1,4 +1,5 @@
 import { TYPES } from "@/di/types";
+import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "../ports/use-case/verify-email-otp.use-case.port";
 import { inject, injectable } from "inversify";
 import type { IOtpStore } from "../ports/services/otp-store.port";
@@ -15,6 +16,9 @@ export class VerifyRestaurantEmailOtpUseCase
 	implements IVerifyRestaurantEmailOtpUseCase
 {
 	constructor(
+		@inject(TYPES.Repositories.RestaurantRepository)
+		private readonly restaurantRepository: IRestaurantRepository,
+
 		@inject(TYPES.Services.OtpStore)
 		private readonly redisOtpStore: IOtpStore,
 
@@ -25,7 +29,9 @@ export class VerifyRestaurantEmailOtpUseCase
 		private readonly emailVerificationService: IEmailVerificationService,
 	) {}
 
-	async execute(dto: VerifyRestaurantEmailOtpDto): Promise<string> {
+	async execute(
+		dto: VerifyRestaurantEmailOtpDto,
+	) {
 		const { email, otp } = dto;
 
 		const otpKey = getRestaurantEmailOtpKey(email);
@@ -33,31 +39,53 @@ export class VerifyRestaurantEmailOtpUseCase
 		const storedOtp = await this.redisOtpStore.get(otpKey);
 
 		if (!storedOtp) {
-			throw new AppError("Invalid or expired OTP", HTTP_STATUS.BAD_REQUEST);
-		}
-
-		if (storedOtp === otp) {
-			await this.redisOtpStore.delete(otpKey);
-			await this.otpService.resetAttempts(email);
-
-			const verificationToken =
-				await this.emailVerificationService.createVerificationToken(email);
-
-			return verificationToken;
-		}
-
-		const attempts = await this.otpService.incrementAttempt(email);
-
-		if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
-			await this.redisOtpStore.delete(otpKey);
-			await this.otpService.resetAttempts(email);
-
 			throw new AppError(
-				"Maximum OTP verification attempts exceeded",
-				HTTP_STATUS.TOO_MANY_REQUESTS,
+				"Invalid or expired OTP",
+				HTTP_STATUS.BAD_REQUEST,
 			);
 		}
 
-		throw new AppError("Invalid or expired OTP", HTTP_STATUS.BAD_REQUEST);
+		if (storedOtp !== otp) {
+			const attempts = await this.otpService.incrementAttempt(email);
+
+			if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
+				await this.redisOtpStore.delete(otpKey);
+				await this.otpService.resetAttempts(email);
+
+				throw new AppError(
+					"Maximum OTP verification attempts exceeded",
+					HTTP_STATUS.TOO_MANY_REQUESTS,
+				);
+			}
+
+			throw new AppError(
+				"Invalid or expired OTP",
+				HTTP_STATUS.BAD_REQUEST,
+			);
+		}
+
+		await this.redisOtpStore.delete(otpKey);
+		await this.otpService.resetAttempts(email);
+
+		const restaurant =
+			await this.restaurantRepository.findByEmail(email);
+
+		if (!restaurant) {
+			const verificationToken =
+				await this.emailVerificationService.createVerificationToken(
+					email,
+				);
+
+			return {
+				nextStep: "ONBOARDING" as const,
+				verificationToken,
+			};
+		}
+
+		// Existing restaurant authentication will be handled here.
+
+		return {
+			nextStep: "DASHBOARD" as const,
+		};
 	}
 }

@@ -5,4 +5,6 @@ export interface IRestaurantRepository {
 	existsByEmail(email: string): Promise<boolean>;
 
 	createRestaurant(data: CreateRestaurantDto): Promise<Restaurant>;
+
+	findByEmail(email: string): Promise<Restaurant | null>;
 }

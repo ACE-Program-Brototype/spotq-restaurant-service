@@ -38,4 +38,12 @@ export class RestaurantRepository implements IRestaurantRepository {
 			},
 		});
 	}
+
+	async findByEmail(email: string): Promise<Restaurant | null> {
+		return this.prisma.restaurant.findUnique({
+			where: {
+				email,
+			},
+		});
+	}
 }

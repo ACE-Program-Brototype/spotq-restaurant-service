@@ -12,3 +12,10 @@ export type SendRestaurantEmailOtpDto = z.infer<
 export type VerifyRestaurantEmailOtpDto = z.infer<
 	typeof verifyRestaurantEmailOtpSchema
 >;
+
+export interface VerifyRestaurantEmailOtpResponseDto {
+	nextStep: "ONBOARDING" | "DASHBOARD";
+	verificationToken?: string;
+	accessToken?: string;
+	refreshToken?: string;
+}
