@@ -1,15 +1,15 @@
-import type { RegisterRestaurantDto } from "@/application/dto/restaurant-registration.dto";
+import type { OnboardRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 import type { IPasswordService } from "@/application/ports/services/password.service.port";
-import type { IRegisterRestaurantUseCase } from "@/application/ports/use-case/register-restaurant.use-case.port";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { AppError } from "@/utils/response.model";
 import { inject, injectable } from "inversify";
 
 @injectable()
-export class RegisterRestaurantUseCase implements IRegisterRestaurantUseCase {
+export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase{
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
@@ -22,7 +22,7 @@ export class RegisterRestaurantUseCase implements IRegisterRestaurantUseCase {
 	) {}
 
 	async execute(
-		dto: RegisterRestaurantDto,
+		dto: OnboardRestaurantDto,
 		verificationToken: string,
 	): Promise<void> {
 		const email =

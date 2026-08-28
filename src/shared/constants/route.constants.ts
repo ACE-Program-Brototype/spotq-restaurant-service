@@ -8,7 +8,7 @@ export const RESTAURANT_ROUTES = {
 	EMAIL_OTP: "/registration/email-otp",
 	VERIFY_EMAIL: "/registration/email-otp/verify",
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
-	REGISTER: "/registration",
+	ONBOARD: "/onboarding",
 } as const;
 
 export type RestaurantRoute =

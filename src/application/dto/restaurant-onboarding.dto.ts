@@ -1,7 +1,7 @@
-import type { registerRestaurantSchema } from "@/presentation/http/validators/restaurant-registration.validator";
+import type { onboardRestaurantSchema } from "@/presentation/http/validators/restaurant-onboard.validator";
 import type { z } from "zod";
 
-export type RegisterRestaurantDto = z.infer<typeof registerRestaurantSchema>;
+export type OnboardRestaurantDto = z.infer<typeof onboardRestaurantSchema>;
 
 //repo dto
 export interface CreateRestaurantDto {

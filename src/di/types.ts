@@ -7,7 +7,7 @@ export const TYPES = {
 		VerifyRestaurantEmailOtpUseCase: Symbol.for(
 			"VerifyRestaurantEmailOtpUseCase",
 		),
-		RegisterRestaurantUseCase: Symbol.for("RegisterRestaurantUseCase"),
+		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
 	},
 
 	Controller: {

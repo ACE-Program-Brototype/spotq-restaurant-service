@@ -5,7 +5,7 @@ import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
-import { registerRestaurantSchema } from "../validators/restaurant-registration.validator";
+import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
 import { restaurantAuthController } from "@/di/controllers.resolutions";
 
 export const restaurantRouter = express.Router();
@@ -35,9 +35,9 @@ restaurantRouter.post(
 );
 
 restaurantRouter.post(
-	RESTAURANT_ROUTES.REGISTER,
-	validate(registerRestaurantSchema),
-	restaurantAuthController.register.bind(
+	RESTAURANT_ROUTES.ONBOARD,
+	validate(onboardRestaurantSchema),
+	restaurantAuthController.onboard.bind(
 		restaurantAuthController,
 	),
 );

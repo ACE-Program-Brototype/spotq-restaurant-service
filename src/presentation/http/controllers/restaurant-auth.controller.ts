@@ -4,7 +4,7 @@ import { inject, injectable } from "inversify";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
-import type { IRegisterRestaurantUseCase } from "@/application/ports/use-case/register-restaurant.use-case.port";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
@@ -22,8 +22,8 @@ export class RestaurantAuthController {
 		@inject(TYPES.UseCases.VerifyRestaurantEmailOtpUseCase)
 		private readonly verifyRestaurantEmailOtpUseCase: IVerifyRestaurantEmailOtpUseCase,
 
-		@inject(TYPES.UseCases.RegisterRestaurantUseCase)
-		private readonly registerRestaurantUseCase: IRegisterRestaurantUseCase,
+		@inject(TYPES.UseCases.OnboardRestaurantUseCase)
+		private readonly onboardRestaurantUseCase: IOnboardRestaurantUseCase,
 	) {}
 
 	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
@@ -59,7 +59,7 @@ export class RestaurantAuthController {
 		});
 	}
 
-	async register(req: Request, res: Response): Promise<Response> {
+	async onboard(req: Request, res: Response): Promise<Response> {
 		const authorizationHeader = req.headers.authorization;
 
 		if (!authorizationHeader?.startsWith("Bearer ")) {
@@ -71,7 +71,7 @@ export class RestaurantAuthController {
 
 		const verificationToken = authorizationHeader.substring(7);
 
-		await this.registerRestaurantUseCase.execute(
+		await this.onboardRestaurantUseCase.execute(
 			req.body,
 			verificationToken,
 		);

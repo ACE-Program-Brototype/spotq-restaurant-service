@@ -1,4 +1,4 @@
-import type { CreateRestaurantDto } from "@/application/dto/restaurant-registration.dto";
+import type { CreateRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
 import type { Restaurant } from "@prisma/client";
 
 export interface IRestaurantRepository {
