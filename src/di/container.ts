@@ -1,14 +1,12 @@
 import { Container } from "inversify";
-import { restaurantEmailVerificationModule } from "./modules/restaurant-email-verification.module";
+import { restaurantAuthModule } from "./modules/restaurant-auth.module";
 import { commonModule } from "./modules/common.module";
-import { restaurantRegisterationModule } from "./modules/restaurant-registeration.module";
 
 const container = new Container();
 
 container.load(
 	commonModule,
-	restaurantEmailVerificationModule,
-	restaurantRegisterationModule,
+	restaurantAuthModule
 );
 
 export { container };

@@ -6,38 +6,38 @@ import {
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
 import { registerRestaurantSchema } from "../validators/restaurant-registration.validator";
-import { restaurantEmailVerificationController, restaurantRegistrationController } from "@/di/controllers.resolutions";
+import { restaurantAuthController } from "@/di/controllers.resolutions";
 
 export const restaurantRouter = express.Router();
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,
 	validate(sendRestaurantEmailOtpSchema),
-	restaurantEmailVerificationController.sendEmailOtp.bind(
-		restaurantEmailVerificationController,
+	restaurantAuthController.sendEmailOtp.bind(
+		restaurantAuthController,
 	),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.RESEND_EMAIL_OTP,
 	validate(sendRestaurantEmailOtpSchema),
-	restaurantEmailVerificationController.resendEmailOtp.bind(
-		restaurantEmailVerificationController,
+	restaurantAuthController.resendEmailOtp.bind(
+		restaurantAuthController,
 	),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.VERIFY_EMAIL,
 	validate(verifyRestaurantEmailOtpSchema),
-	restaurantEmailVerificationController.verifyEmailOtp.bind(
-		restaurantEmailVerificationController,
+	restaurantAuthController.verifyEmailOtp.bind(
+		restaurantAuthController,
 	),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.REGISTER,
 	validate(registerRestaurantSchema),
-	restaurantRegistrationController.register.bind(
-		restaurantRegistrationController,
+	restaurantAuthController.register.bind(
+		restaurantAuthController,
 	),
 );

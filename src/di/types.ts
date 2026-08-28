@@ -11,11 +11,8 @@ export const TYPES = {
 	},
 
 	Controller: {
-		RestaurantEmailVerificationController: Symbol.for(
-			"RestaurantEmailVerificationController",
-		),
-		RestaurantRegistrationController: Symbol.for(
-			"RestaurantRegistrationController",
+		RestaurantAuthController: Symbol.for(
+			"RestaurantAuthController",
 		),
 	},
 
