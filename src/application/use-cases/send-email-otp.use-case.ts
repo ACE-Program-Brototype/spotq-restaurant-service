@@ -18,7 +18,7 @@ export class SendRestaurantEmailOtpUseCase
 {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
-		private readonly restaurantRepository: IRestaurantRepository,
+		readonly _restaurantRepository: IRestaurantRepository,
 
 		@inject(TYPES.Services.OtpStore)
 		private readonly redisOtpStore: IOtpStore,

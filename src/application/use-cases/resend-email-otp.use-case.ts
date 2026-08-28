@@ -18,7 +18,7 @@ export class ResendRestaurantEmailOtpUseCase
 {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
-		private readonly restaurantRepository: IRestaurantRepository,
+		readonly _restaurantRepository: IRestaurantRepository,
 
 		@inject(TYPES.Services.OtpStore)
 		private readonly otpStore: IOtpStore,
@@ -32,13 +32,6 @@ export class ResendRestaurantEmailOtpUseCase
 
 	async execute(dto: SendRestaurantEmailOtpDto): Promise<void> {
 		const { email } = dto;
-
-		const restaurantExists =
-			await this.restaurantRepository.existsByEmail(email);
-
-		if (restaurantExists) {
-			return;
-		}
 
 		const cooldownActive = await this.otpService.checkCooldown(email);
 
