@@ -40,7 +40,6 @@ describe("RefreshTokenUseCase", () => {
 		restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 		email: "manager@spotq.com",
 		role: "MANAGER",
-		status: "ACTIVE",
 	};
 
 	beforeEach(() => {
@@ -49,6 +48,8 @@ describe("RefreshTokenUseCase", () => {
 			generateRefreshToken: jest.fn(),
 			verifyAccessToken: jest.fn(),
 			verifyRefreshToken: jest.fn(),
+			generateTempToken: jest.fn(),
+			verifyTempToken: jest.fn(),
 		};
 
 		restaurantStaffRepository = {
@@ -56,8 +57,8 @@ describe("RefreshTokenUseCase", () => {
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
+			update: jest.fn(),
 			delete: jest.fn(),
-			existsByEmail: jest.fn(),
 		};
 
 		tokenRevocationRepository = {

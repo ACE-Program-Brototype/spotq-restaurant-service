@@ -39,6 +39,8 @@ const envSchema = z.object({
 			.enum(["trace", "debug", "info", "warn", "error", "fatal"])
 			.default("info"),
 	),
+
+	// JWT Configuration
 	JWT_ACCESS_SECRET: z
 		.string()
 		.trim()
@@ -51,9 +53,21 @@ const envSchema = z.object({
 		.min(8)
 		.default("spotq-restaurant-service-refresh-secret-jwt-key"),
 	JWT_REFRESH_EXPIRES_IN: z.string().trim().default("7d"),
+	JWT_TEMP_SECRET: z
+		.string()
+		.trim()
+		.min(8)
+		.default("spotq-restaurant-service-temp-secret-jwt-key"),
+	JWT_TEMP_EXPIRES_IN: z.string().trim().default("15m"),
+
+	// Brevo Email Configuration
+	BREVO_API_KEY: z.string().trim().default("mock-brevo-api-key"),
+	BREVO_SENDER_EMAIL: z.string().trim().default("noreply@spotq.com"),
+	BREVO_SENDER_NAME: z.string().trim().default("SpotQ"),
 
 	// Cookie Configuration from Environment
 	COOKIE_NAME_REFRESH_TOKEN: z.string().trim().default("refreshToken"),
+	COOKIE_NAME_TEMP_TOKEN: z.string().trim().default("tempToken"),
 	COOKIE_HTTP_ONLY: z.preprocess((val) => {
 		if (typeof val === "string") return val.toLowerCase() === "true";
 		if (typeof val === "boolean") return val;

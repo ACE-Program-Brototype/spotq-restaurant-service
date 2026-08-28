@@ -30,6 +30,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@getbrevo/brevo": "^6.0.3",
 		"@prisma/client": "^6.19.3",
 		"bcrypt": "^5.1.1",
 		"bullmq": "^6.0.6",

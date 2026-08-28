@@ -112,6 +112,18 @@ async function main() {
 			role: StaffRole.WAITER,
 			status: StaffStatus.ACTIVE,
 		},
+		// SpotQ Official Staff Account for Testing Real Emails
+		{
+			id: "b8eebc99-9c0b-4ef8-bb6d-6bb9bd380a08",
+			restaurantId: bistroId,
+			fullname: "SpotQ Official",
+			email: "spotqofficial@gmail.com",
+			phone: "+1234567899",
+			avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+			passwordHash,
+			role: StaffRole.MANAGER,
+			status: StaffStatus.ACTIVE,
+		},
 		// Staff for SpotQ Spice Lounge
 		{
 			id: "b5eebc99-9c0b-4ef8-bb6d-6bb9bd380a05",
@@ -166,13 +178,18 @@ async function main() {
 		});
 
 		console.log(
-			`   ✅ ${upserted.fullname.padEnd(16)} | ${upserted.email.padEnd(24)} | Role: ${upserted.role.padEnd(8)} | Status: ${upserted.status}`,
+			`   ✅ ${upserted.fullname.padEnd(16)} | ${upserted.email.padEnd(26)} | Role: ${upserted.role.padEnd(8)} | Status: ${upserted.status}`,
 		);
 	}
 
 	console.log("\n🎉 Seeding completed successfully!");
 	console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 	console.log("🔑 Available Staff Login Test Accounts:");
+	console.log(
+		"   • spotqofficial@gmail.com  (Password: " +
+			defaultPassword +
+			" | Grand Bistro - MANAGER)",
+	);
 	console.log(
 		"   • owner@spotq.com          (Password: " +
 			defaultPassword +

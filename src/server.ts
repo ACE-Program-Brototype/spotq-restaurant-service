@@ -8,6 +8,7 @@ import {
 	connectBullMQ,
 	disconnectBullMQ,
 } from "@/infrastructure/queue/bullmq.connect.ts";
+import { createEmailWorker } from "@/infrastructure/queue/workers/email.worker.ts";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis.ts";
 import { PORT } from "@/shared/constants/app.constants.ts";
 
@@ -16,6 +17,8 @@ async function bootstrap() {
 		await connectDatabase();
 		await connectRedis();
 		await connectBullMQ();
+
+		const emailWorker = createEmailWorker();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -42,6 +45,7 @@ async function bootstrap() {
 				}
 
 				try {
+					await emailWorker.close();
 					await disconnectBullMQ();
 					await disconnectRedis();
 					await disconnectDatabase();

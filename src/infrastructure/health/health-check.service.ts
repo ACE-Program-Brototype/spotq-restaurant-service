@@ -2,7 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
 import redis from "@/config/redis.ts";
-import { testQueue } from "@/infrastructure/queue/bullmq.service.ts";
+import { emailQueue } from "@/infrastructure/queue/email.queue.ts";
 
 export interface HealthCheckResult {
 	status: "ok" | "error";
@@ -31,7 +31,7 @@ export class HealthCheckService implements IHealthCheckable {
 			await Promise.all([
 				this.prisma.$queryRaw`SELECT 1`,
 				redis.ping(),
-				testQueue.waitUntilReady(),
+				emailQueue.waitUntilReady(),
 			]);
 			return true;
 		} catch {
@@ -86,7 +86,7 @@ export class HealthCheckService implements IHealthCheckable {
 		// BullMQ Check
 		try {
 			const bmqStart = Date.now();
-			await testQueue.waitUntilReady();
+			await emailQueue.waitUntilReady();
 			result.services.bullmq = {
 				status: "up",
 				latencyMs: Date.now() - bmqStart,

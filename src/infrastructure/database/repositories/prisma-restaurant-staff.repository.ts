@@ -55,8 +55,19 @@ export class PrismaRestaurantStaffRepository
 
 	public async save(staff: RestaurantStaff): Promise<void> {
 		try {
-			await this.prisma.restaurantStaff.create({
-				data: {
+			await this.prisma.restaurantStaff.upsert({
+				where: { id: staff.id },
+				update: {
+					fullname: staff.fullname,
+					email: staff.email,
+					phone: staff.phone,
+					avatarUrl: staff.avatarUrl,
+					passwordHash: staff.passwordHash,
+					role: staff.role,
+					status: staff.status,
+					updatedAt: staff.updatedAt,
+				},
+				create: {
 					id: staff.id,
 					restaurantId: staff.restaurantId,
 					fullname: staff.fullname,

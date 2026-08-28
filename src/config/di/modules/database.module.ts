@@ -4,9 +4,11 @@ import type { Redis } from "ioredis";
 import { TYPES } from "@/config/di/types.ts";
 import { prisma } from "@/config/prisma.ts";
 import redis from "@/config/redis.ts";
+import type { IOtpRepository } from "@/domain/repositories/otp.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
 import { PrismaRestaurantStaffRepository } from "@/infrastructure/database/repositories/prisma-restaurant-staff.repository.ts";
+import { RedisOtpRepository } from "@/infrastructure/database/repositories/redis-otp.repository.ts";
 import { RedisTokenRevocationRepository } from "@/infrastructure/database/repositories/redis-token-revocation.repository.ts";
 
 export const databaseModule = new ContainerModule((bind) => {
@@ -17,5 +19,8 @@ export const databaseModule = new ContainerModule((bind) => {
 		.inSingletonScope();
 	bind<ITokenRevocationRepository>(TYPES.TokenRevocationRepository)
 		.to(RedisTokenRevocationRepository)
+		.inSingletonScope();
+	bind<IOtpRepository>(TYPES.OtpRepository)
+		.to(RedisOtpRepository)
 		.inSingletonScope();
 });

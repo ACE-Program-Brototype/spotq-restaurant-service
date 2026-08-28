@@ -42,6 +42,34 @@ export class RevokedTokenError extends DomainError {
 	}
 }
 
+export class InvalidOtpError extends DomainError {
+	public readonly code = "INVALID_OTP";
+	constructor(message = "Invalid or incorrect OTP") {
+		super(message);
+	}
+}
+
+export class OtpExpiredError extends DomainError {
+	public readonly code = "OTP_EXPIRED";
+	constructor(message = "OTP has expired. Please request a new one") {
+		super(message);
+	}
+}
+
+export class InvalidTempTokenError extends DomainError {
+	public readonly code = "INVALID_TEMP_TOKEN";
+	constructor(message = "Invalid or expired reset token") {
+		super(message);
+	}
+}
+
+export class RateLimitExceededError extends DomainError {
+	public readonly code = "RATE_LIMIT_EXCEEDED";
+	constructor(message = "Too many requests. Please try again later") {
+		super(message);
+	}
+}
+
 export class StaffInactiveError extends DomainError {
 	public readonly code = "STAFF_INACTIVE";
 	constructor(message = "Staff account is not active") {

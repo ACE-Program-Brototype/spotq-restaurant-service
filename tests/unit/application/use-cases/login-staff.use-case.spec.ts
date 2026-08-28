@@ -47,6 +47,8 @@ describe("LoginStaffUseCase", () => {
 			generateRefreshToken: jest.fn(),
 			verifyAccessToken: jest.fn(),
 			verifyRefreshToken: jest.fn(),
+			generateTempToken: jest.fn(),
+			verifyTempToken: jest.fn(),
 		};
 
 		useCase = new LoginStaffUseCase(
