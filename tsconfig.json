@@ -3,16 +3,26 @@
 		"target": "ES2022",
 		"module": "ESNext",
 		"moduleResolution": "bundler",
-		"rootDir": "./src",
-		"outDir": "./dist",
 		"baseUrl": ".",
 		"paths": {
+			"@domain/*": ["./src/domain/*"],
+			"@application/*": ["./src/application/*"],
+			"@dtos/*": ["./src/application/dtos/*"],
+			"@ports/*": ["./src/application/ports/*"],
+			"@use-cases/*": ["./src/application/use-cases/*"],
+			"@infrastructure/*": ["./src/infrastructure/*"],
+			"@presentation/*": ["./src/presentation/*"],
+			"@interfaces/*": ["./src/interfaces/*"],
+			"@config/*": ["./src/config/*"],
+			"@di/*": ["./src/config/di/*"],
+			"@modules/*": ["./src/modules/*"],
+			"@shared/*": ["./src/shared/*"],
+			"@utils/*": ["./src/utils/*"],
 			"@/*": ["./src/*"]
 		},
 		"allowArbitraryExtensions": true,
 		"allowImportingTsExtensions": true,
 		"noEmit": true,
-		"ignoreDeprecations": "6.0",
 		"strict": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
@@ -20,8 +30,10 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"resolveJsonModule": true,
-		"types": ["node"]
+		"types": ["node", "reflect-metadata", "jest"],
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
 	},
-	"include": ["src"],
+	"include": ["src/**/*", "tests/**/*", "jest.config.ts"],
 	"exclude": ["node_modules", "dist"]
 }

@@ -4,4 +4,7 @@ export const SYSTEM_ROUTES = {
 	METRICS: "/metrics",
 } as const;
 
-export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
+export const STAFF_ROUTES = {
+	BASE: "/staff",
+	LOGIN: "/login",
+} as const;

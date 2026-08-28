@@ -1,30 +1,34 @@
 import { Router } from "express";
-import { prisma } from "@/config/prisma.ts";
+import { container } from "@/config/di/container.ts";
+import { TYPES } from "@/config/di/types.ts";
 import register from "@/config/prom.client.ts";
-import redis from "@/config/redis.ts";
-import { testQueue } from "@/infrastructure/queue/bullmq.service.ts";
+import type { IHealthCheckable } from "@/infrastructure/health/health-check.service.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { SYSTEM_ROUTES } from "@/shared/constants/route.constants.ts";
-import { successResponse } from "@/utils/response.model.ts";
+import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 
 const systemRouter = Router();
 
-systemRouter.get(SYSTEM_ROUTES.HEALTH, (_req, res) => {
-	successResponse(res, { status: "ok" }, messages.SERVICE_HEALTHY);
+const healthCheckService = container.get<IHealthCheckable>(
+	TYPES.HealthCheckService,
+);
+
+systemRouter.get(SYSTEM_ROUTES.HEALTH, async (_req, res) => {
+	const health = await healthCheckService.checkHealth();
+	const statusCode =
+		health.status === "ok" ? HTTP_STATUS.OK : HTTP_STATUS.SERVICE_UNAVAILABLE;
+
+	sendSuccessResponse(res, health, messages.SERVICE_HEALTHY, statusCode);
 });
 
 systemRouter.get(SYSTEM_ROUTES.READY, async (_req, res) => {
-	try {
-		await Promise.all([
-			prisma.$queryRaw`SELECT 1`,
-			redis.ping(),
-			testQueue.waitUntilReady(),
-		]);
-
-		successResponse(res, { status: "ready" }, messages.SERVICE_READY);
-	} catch {
+	const isReady = await healthCheckService.isReady();
+	if (!isReady) {
 		throw new Error(messages.SERVICE_UNAVAILABLE);
 	}
+
+	sendSuccessResponse(res, { status: "ready" }, messages.SERVICE_READY);
 });
 
 systemRouter.get(SYSTEM_ROUTES.METRICS, async (_req, res) => {
