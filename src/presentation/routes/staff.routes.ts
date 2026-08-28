@@ -18,4 +18,6 @@ staffRouter.post(
 
 staffRouter.post(STAFF_ROUTES.LOGOUT, staffController.logout);
 
+staffRouter.post(STAFF_ROUTES.REFRESH_TOKEN, staffController.refreshToken);
+
 export default staffRouter;

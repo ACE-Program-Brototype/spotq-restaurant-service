@@ -28,6 +28,20 @@ export class InvalidCredentialsError extends DomainError {
 	}
 }
 
+export class InvalidRefreshTokenError extends DomainError {
+	public readonly code = "INVALID_REFRESH_TOKEN";
+	constructor(message = "Invalid or expired refresh token") {
+		super(message);
+	}
+}
+
+export class RevokedTokenError extends DomainError {
+	public readonly code = "REVOKED_TOKEN";
+	constructor(message = "Refresh token has been revoked") {
+		super(message);
+	}
+}
+
 export class StaffInactiveError extends DomainError {
 	public readonly code = "STAFF_INACTIVE";
 	constructor(message = "Staff account is not active") {

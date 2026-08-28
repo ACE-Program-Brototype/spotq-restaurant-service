@@ -12,6 +12,7 @@ export const TYPES = {
 	// Use Cases
 	LoginStaffUseCase: Symbol.for("LoginStaffUseCase"),
 	LogoutStaffUseCase: Symbol.for("LogoutStaffUseCase"),
+	RefreshTokenUseCase: Symbol.for("RefreshTokenUseCase"),
 
 	// Controllers
 	StaffController: Symbol.for("StaffController"),

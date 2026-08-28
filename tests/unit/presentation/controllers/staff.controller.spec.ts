@@ -2,11 +2,13 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
+import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
 import { StaffController } from "@/presentation/controllers/staff.controller.ts";
 
 describe("StaffController", () => {
 	let loginStaffUseCase: jest.Mocked<ILoginStaffUseCase>;
 	let logoutStaffUseCase: jest.Mocked<ILogoutStaffUseCase>;
+	let refreshTokenUseCase: jest.Mocked<IRefreshTokenUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
 
@@ -19,7 +21,15 @@ describe("StaffController", () => {
 			execute: jest.fn(),
 		};
 
-		controller = new StaffController(loginStaffUseCase, logoutStaffUseCase);
+		refreshTokenUseCase = {
+			execute: jest.fn(),
+		};
+
+		controller = new StaffController(
+			loginStaffUseCase,
+			logoutStaffUseCase,
+			refreshTokenUseCase,
+		);
 
 		res = {
 			status: jest.fn().mockReturnThis() as never,
@@ -125,6 +135,70 @@ describe("StaffController", () => {
 					message: "Staff logged out successfully",
 				}),
 			);
+		});
+	});
+
+	describe("refreshToken", () => {
+		it("should extract refresh token from cookie and return 200 with new accessToken", async () => {
+			const req: Partial<Request> = {
+				cookies: {
+					refreshToken: "mock-refresh-token",
+				},
+			};
+
+			refreshTokenUseCase.execute.mockResolvedValue({
+				accessToken: "new-access-token",
+			});
+
+			await controller.refreshToken(req as Request, res as Response);
+
+			expect(refreshTokenUseCase.execute).toHaveBeenCalledWith({
+				refreshToken: "mock-refresh-token",
+			});
+
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					statusCode: 200,
+					data: {
+						accessToken: "new-access-token",
+					},
+					message: "Access token refreshed successfully",
+				}),
+			);
+		});
+
+		it("should extract refresh token from request body if cookie is missing", async () => {
+			const req: Partial<Request> = {
+				cookies: {},
+				body: {
+					refreshToken: "body-refresh-token",
+				},
+			};
+
+			refreshTokenUseCase.execute.mockResolvedValue({
+				accessToken: "new-access-token",
+			});
+
+			await controller.refreshToken(req as Request, res as Response);
+
+			expect(refreshTokenUseCase.execute).toHaveBeenCalledWith({
+				refreshToken: "body-refresh-token",
+			});
+		});
+
+		it("should propagate errors when refresh token is invalid", async () => {
+			const req: Partial<Request> = {
+				cookies: {},
+			};
+
+			const mockError = new Error("Invalid or expired refresh token");
+			refreshTokenUseCase.execute.mockRejectedValue(mockError);
+
+			await expect(
+				controller.refreshToken(req as Request, res as Response),
+			).rejects.toThrow("Invalid or expired refresh token");
 		});
 	});
 });

@@ -8,4 +8,5 @@ export const STAFF_ROUTES = {
 	BASE: "/staff",
 	LOGIN: "/login",
 	LOGOUT: "/logout",
+	REFRESH_TOKEN: "/refresh-token",
 } as const;
