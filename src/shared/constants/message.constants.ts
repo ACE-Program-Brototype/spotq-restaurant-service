@@ -2,6 +2,7 @@ export const messages = {
 	// Success Messages
 	SUCCESS: "Success",
 	STAFF_LOGIN_SUCCESS: "Staff logged in successfully",
+	STAFF_LOGOUT_SUCCESS: "Staff logged out successfully",
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
 	SERVICE_READY: "Service is ready",

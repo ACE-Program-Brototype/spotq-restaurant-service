@@ -7,4 +7,5 @@ export const SYSTEM_ROUTES = {
 export const STAFF_ROUTES = {
 	BASE: "/staff",
 	LOGIN: "/login",
+	LOGOUT: "/logout",
 } as const;
