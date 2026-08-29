@@ -8,8 +8,7 @@ import { generateOtp, getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { inject, injectable } from "inversify";
 import { JOB_NAMES } from "@/shared/constants/queue.constants";
 import type { IOtpService } from "../ports/services/otp.service.port";
-import { AppError } from "@/utils/response.model";
-import { HTTP_STATUS } from "@/shared/constants/http.constants";
+import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
 
 @injectable()
 export class ResendRestaurantEmailOtpUseCase
@@ -33,10 +32,7 @@ export class ResendRestaurantEmailOtpUseCase
 		const cooldownActive = await this.otpService.checkCooldown(email);
 
 		if (cooldownActive) {
-			throw new AppError(
-				"Please wait before requesting another OTP",
-				HTTP_STATUS.TOO_MANY_REQUESTS,
-			);
+			throw new OtpCooldownActiveError();
 		}
 
 		const otp = generateOtp();

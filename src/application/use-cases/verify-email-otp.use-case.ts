@@ -5,12 +5,13 @@ import { inject, injectable } from "inversify";
 import type { IOtpStore } from "../ports/services/otp-store.port";
 import type { VerifyRestaurantEmailOtpDto } from "../dto/restaurant-email-verification.dto";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
-import { AppError } from "@/utils/response.model";
-import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IEmailVerificationService } from "../ports/services/email-verification.service.port";
 import type { IAuthTokenService } from "../ports/services/auth-token.service.port";
+import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
+import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
+import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOtpUseCase {
@@ -39,23 +40,21 @@ export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOt
     const storedOtp = await this.redisOtpStore.get(otpKey);
 
     if (!storedOtp) {
-      throw new AppError("Invalid or expired OTP", HTTP_STATUS.BAD_REQUEST);
+      throw new InvalidVerificationTokenError();
     }
 
     if (storedOtp !== otp) {
+
       const attempts = await this.otpService.incrementAttempt(email);
 
       if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
         await this.redisOtpStore.delete(otpKey);
         await this.otpService.resetAttempts(email);
 
-        throw new AppError(
-          "Maximum OTP verification attempts exceeded",
-          HTTP_STATUS.TOO_MANY_REQUESTS,
-        );
+        throw new OtpVerificationAttemptsExceededError();
       }
 
-      throw new AppError("Invalid or expired OTP", HTTP_STATUS.BAD_REQUEST);
+      throw new InvalidVerificationTokenError()
     }
 
     await this.redisOtpStore.delete(otpKey);
@@ -74,10 +73,7 @@ export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOt
     }
 
     if (restaurant.isBlocked) {
-      throw new AppError(
-        "Restaurant account is blocked",
-        HTTP_STATUS.FORBIDDEN,
-      );
+      throw new RestaurantAccountBlockedError();
     }
 
     // need to verify restaurant status before moving to dashboard.

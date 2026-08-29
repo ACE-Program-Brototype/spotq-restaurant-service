@@ -3,9 +3,9 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import { TYPES } from "@/di/types";
-import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { AppError } from "@/utils/response.model";
 import { inject, injectable } from "inversify";
+import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exists.error";
+import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
 
 @injectable()
 export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase{
@@ -26,20 +26,14 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase{
 			await this.emailVerificationService.getVerifiedEmail(verificationToken);
 
 		if (!email) {
-			throw new AppError(
-				"Invalid or expired verification token",
-				HTTP_STATUS.UNAUTHORIZED,
-			);
+			throw new InvalidVerificationTokenError();
 		}
 
 		const restaurantExists =
 			await this.restaurantRepository.existsByEmail(email);
 
 		if (restaurantExists) {
-			throw new AppError(
-				"Restaurant with this email already exists",
-				HTTP_STATUS.CONFLICT,
-			);
+			throw new RestaurantAlreadyExistsError();
 		}
 
 		await this.restaurantRepository.createRestaurant({
