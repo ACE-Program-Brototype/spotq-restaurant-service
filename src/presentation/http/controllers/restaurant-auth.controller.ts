@@ -47,15 +47,13 @@ export class RestaurantAuthController {
 	}
 
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
-		const verificationToken =
+		const result =
 			await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
 		return res.status(HTTP_STATUS.SUCCESS).json({
 			success: true,
 			message: "Email verified successfully.",
-			data: {
-				verificationToken,
-			},
+			data: result
 		});
 	}
 

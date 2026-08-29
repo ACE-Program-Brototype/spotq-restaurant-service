@@ -10,7 +10,7 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IEmailVerificationService } from "../ports/services/email-verification.service.port";
-import { IAuthTokenService } from "../ports/services/auth-token.service.port";
+import type { IAuthTokenService } from "../ports/services/auth-token.service.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOtpUseCase {
