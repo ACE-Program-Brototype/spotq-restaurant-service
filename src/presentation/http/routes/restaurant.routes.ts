@@ -13,31 +13,23 @@ export const restaurantRouter = express.Router();
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,
 	validate(sendRestaurantEmailOtpSchema),
-	restaurantAuthController.sendEmailOtp.bind(
-		restaurantAuthController,
-	),
+	restaurantAuthController.sendEmailOtp.bind(restaurantAuthController),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.RESEND_EMAIL_OTP,
 	validate(sendRestaurantEmailOtpSchema),
-	restaurantAuthController.resendEmailOtp.bind(
-		restaurantAuthController,
-	),
+	restaurantAuthController.resendEmailOtp.bind(restaurantAuthController),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.VERIFY_EMAIL,
 	validate(verifyRestaurantEmailOtpSchema),
-	restaurantAuthController.verifyEmailOtp.bind(
-		restaurantAuthController,
-	),
+	restaurantAuthController.verifyEmailOtp.bind(restaurantAuthController),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.ONBOARD,
 	validate(onboardRestaurantSchema),
-	restaurantAuthController.onboard.bind(
-		restaurantAuthController,
-	),
+	restaurantAuthController.onboard.bind(restaurantAuthController),
 );

@@ -48,8 +48,7 @@ export class RestaurantAuthController {
 	}
 
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
-		const result =
-			await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
+		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
 		return successResponse(
 			res,
@@ -68,10 +67,7 @@ export class RestaurantAuthController {
 
 		const verificationToken = authorizationHeader.substring(7);
 
-		await this.onboardRestaurantUseCase.execute(
-			req.body,
-			verificationToken,
-		);
+		await this.onboardRestaurantUseCase.execute(req.body, verificationToken);
 
 		return successResponse(
 			res,

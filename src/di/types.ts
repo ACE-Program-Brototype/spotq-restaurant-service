@@ -11,9 +11,7 @@ export const TYPES = {
 	},
 
 	Controller: {
-		RestaurantAuthController: Symbol.for(
-			"RestaurantAuthController",
-		),
+		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
 	},
 
 	Database: {
@@ -34,7 +32,7 @@ export const TYPES = {
 		OtpService: Symbol.for("OtpService"),
 		EmailVerification: Symbol.for("EmailVerification"),
 		AuthTokenService: Symbol.for("AuthTokenService"),
-		OtpHashService: Symbol.for("OtpHashService")
+		OtpHashService: Symbol.for("OtpHashService"),
 	},
 
 	Logger: {

@@ -8,14 +8,13 @@ import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exist
 import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
 
 @injectable()
-export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase{
+export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
 
 		@inject(TYPES.Services.EmailVerification)
 		private readonly emailVerificationService: IEmailVerificationService,
-
 	) {}
 
 	async execute(
@@ -41,7 +40,7 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase{
 			email,
 			phone: dto.phone,
 			ownerName: dto.ownerName,
-			ownerEmail: dto.ownerEmail,
+			ownerEmail: email,
 			emailVerifiedAt: new Date(),
 		});
 

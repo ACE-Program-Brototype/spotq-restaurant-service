@@ -15,84 +15,84 @@ import { RestaurantAccountBlockedError } from "../errors/restaurant-account-bloc
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 
 @injectable()
-export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOtpUseCase {
-  constructor(
-    @inject(TYPES.Repositories.RestaurantRepository)
-    private readonly restaurantRepository: IRestaurantRepository,
+export class VerifyRestaurantEmailOtpUseCase
+	implements IVerifyRestaurantEmailOtpUseCase
+{
+	constructor(
+		@inject(TYPES.Repositories.RestaurantRepository)
+		private readonly restaurantRepository: IRestaurantRepository,
 
-    @inject(TYPES.Services.OtpStore)
-    private readonly redisOtpStore: IOtpStore,
+		@inject(TYPES.Services.OtpStore)
+		private readonly redisOtpStore: IOtpStore,
 
-    @inject(TYPES.Services.OtpService)
-    private readonly otpService: IOtpService,
+		@inject(TYPES.Services.OtpService)
+		private readonly otpService: IOtpService,
 
-    @inject(TYPES.Services.EmailVerification)
-    private readonly emailVerificationService: IEmailVerificationService,
+		@inject(TYPES.Services.EmailVerification)
+		private readonly emailVerificationService: IEmailVerificationService,
 
-	  @inject(TYPES.Services.AuthTokenService)
-	  private readonly authTokenService: IAuthTokenService,
+		@inject(TYPES.Services.AuthTokenService)
+		private readonly authTokenService: IAuthTokenService,
 
-    @inject(TYPES.Services.OtpHashService)
-    private readonly otpHashService: IOtpHashService,
+		@inject(TYPES.Services.OtpHashService)
+		private readonly otpHashService: IOtpHashService,
+	) {}
 
-  ) {}
+	async execute(dto: VerifyRestaurantEmailOtpDto) {
+		const { email, otp } = dto;
 
-  async execute(dto: VerifyRestaurantEmailOtpDto) {
-    const { email, otp } = dto;
+		const otpKey = getRestaurantEmailOtpKey(email);
 
-    const otpKey = getRestaurantEmailOtpKey(email);
+		const storedOtp = await this.redisOtpStore.get(otpKey);
 
-    const storedOtp = await this.redisOtpStore.get(otpKey);
+		if (!storedOtp) {
+			throw new InvalidVerificationTokenError();
+		}
 
-    if (!storedOtp) {
-      throw new InvalidVerificationTokenError();
-    }
+		const isValid = await this.otpHashService.compare(otp, storedOtp);
 
-    const isValid = this.otpHashService.compare(otp,storedOtp);
+		if (!isValid) {
+			const attempts = await this.otpService.incrementAttempt(email);
 
-    if ( !isValid ) {
+			if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
+				await this.redisOtpStore.delete(otpKey);
+				await this.otpService.resetAttempts(email);
 
-      const attempts = await this.otpService.incrementAttempt(email);
+				throw new OtpVerificationAttemptsExceededError();
+			}
 
-      if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
-        await this.redisOtpStore.delete(otpKey);
-        await this.otpService.resetAttempts(email);
+			throw new InvalidVerificationTokenError();
+		}
 
-        throw new OtpVerificationAttemptsExceededError();
-      }
+		await this.redisOtpStore.delete(otpKey);
+		await this.otpService.resetAttempts(email);
 
-      throw new InvalidVerificationTokenError()
-    }
+		const restaurant = await this.restaurantRepository.findByEmail(email);
 
-    await this.redisOtpStore.delete(otpKey);
-    await this.otpService.resetAttempts(email);
+		if (!restaurant) {
+			const verificationToken =
+				await this.emailVerificationService.createVerificationToken(email);
 
-    const restaurant = await this.restaurantRepository.findByEmail(email);
+			return {
+				nextStep: "ONBOARDING" as const,
+				verificationToken,
+			};
+		}
 
-    if (!restaurant) {
-      const verificationToken =
-        await this.emailVerificationService.createVerificationToken(email);
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
 
-      return {
-        nextStep: "ONBOARDING" as const,
-        verificationToken,
-      };
-    }
+		// need to verify restaurant status before moving to dashboard.
 
-    if (restaurant.isBlocked) {
-      throw new RestaurantAccountBlockedError();
-    }
+		const tokenPair = this.authTokenService.generateTokenPair({
+			email,
+			restaurantId: restaurant.id,
+		});
 
-    // need to verify restaurant status before moving to dashboard.
-
-	const tokenPair = this.authTokenService.generateTokenPair({
-		email,
-		restaurantId: restaurant.id
-	});
-
-    return {
-      nextStep: "DASHBOARD" as const,
-	  ...tokenPair
-    };
-  }
+		return {
+			nextStep: "DASHBOARD" as const,
+			...tokenPair,
+		};
+	}
 }

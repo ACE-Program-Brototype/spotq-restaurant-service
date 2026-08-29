@@ -1,5 +1,10 @@
-import type { VerifyRestaurantEmailOtpDto, VerifyRestaurantEmailOtpResponseDto } from "@/application/dto/restaurant-email-verification.dto";
+import type {
+	VerifyRestaurantEmailOtpDto,
+	VerifyRestaurantEmailOtpResponseDto,
+} from "@/application/dto/restaurant-email-verification.dto";
 
 export interface IVerifyRestaurantEmailOtpUseCase {
-	execute(dto: VerifyRestaurantEmailOtpDto): Promise<VerifyRestaurantEmailOtpResponseDto>;
+	execute(
+		dto: VerifyRestaurantEmailOtpDto,
+	): Promise<VerifyRestaurantEmailOtpResponseDto>;
 }

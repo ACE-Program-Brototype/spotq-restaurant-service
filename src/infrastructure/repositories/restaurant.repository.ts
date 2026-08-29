@@ -36,7 +36,6 @@ export class RestaurantRepository
 	}
 
 	async findByEmail(email: string): Promise<Restaurant | null> {
-
 		return this.findUnique({ email });
 	}
 }

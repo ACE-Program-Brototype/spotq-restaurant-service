@@ -1,19 +1,29 @@
 import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
 import type { PrismaClient } from "@prisma/client";
 
+type PrismaModelDelegate<T> = {
+	create: (args: { data: Partial<T> }) => Promise<T>;
+	findUnique: (args: { where: Record<string, unknown> }) => Promise<T | null>;
+	findMany: () => Promise<T[]>;
+};
+
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
 	constructor(
 		protected readonly prisma: PrismaClient,
 		protected readonly modelName: keyof PrismaClient,
 	) {}
 
+	private getModel(): PrismaModelDelegate<T> {
+		return this.prisma[this.modelName] as unknown as PrismaModelDelegate<T>;
+	}
+
 	async create(data: Partial<T>): Promise<T> {
-		const model = this.prisma[this.modelName] as any;
+		const model = this.getModel();
 		return model.create({ data });
 	}
 
 	async findById(id: string): Promise<T | null> {
-		const model = this.prisma[this.modelName] as any;
+		const model = this.getModel();
 		return model.findUnique({
 			where: {
 				id,
@@ -22,14 +32,14 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
 	}
 
 	async findUnique(where: Record<string, unknown>): Promise<T | null> {
-		const model = this.prisma[this.modelName] as any;
+		const model = this.getModel();
 		return model.findUnique({
 			where,
 		});
 	}
 
 	async find(): Promise<T[]> {
-		const model = this.prisma[this.modelName] as any;
+		const model = this.getModel();
 		return model.findMany();
 	}
 }

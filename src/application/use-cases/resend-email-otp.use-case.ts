@@ -16,7 +16,6 @@ export class ResendRestaurantEmailOtpUseCase
 	implements IResendRestaurantEmailOtpUseCase
 {
 	constructor(
-
 		@inject(TYPES.Services.OtpStore)
 		private readonly otpStore: IOtpStore,
 

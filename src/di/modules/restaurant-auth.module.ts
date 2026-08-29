@@ -26,7 +26,6 @@ import type { IEmailService } from "@/application/ports/services/email-service.p
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 
-
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
 import { OtpService } from "@/infrastructure/services/otp.service";
@@ -36,12 +35,9 @@ import { AuthTokenService } from "@/infrastructure/services/auth-token.service";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 
-
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	// Controller
-	bind(TYPES.Controller.RestaurantAuthController).to(
-		RestaurantAuthController,
-	);
+	bind(TYPES.Controller.RestaurantAuthController).to(RestaurantAuthController);
 
 	// Use Cases
 	bind<ISendRestaurantEmailOtpUseCase>(
@@ -56,34 +52,27 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 		TYPES.UseCases.VerifyRestaurantEmailOtpUseCase,
 	).to(VerifyRestaurantEmailOtpUseCase);
 
-	bind<IOnboardRestaurantUseCase>(
-		TYPES.UseCases.OnboardRestaurantUseCase,
-	).to(OnboardRestaurantUseCase);
+	bind<IOnboardRestaurantUseCase>(TYPES.UseCases.OnboardRestaurantUseCase).to(
+		OnboardRestaurantUseCase,
+	);
 
 	// Repository
-	bind<IRestaurantRepository>(
-		TYPES.Repositories.RestaurantRepository,
-	).to(RestaurantRepository);
+	bind<IRestaurantRepository>(TYPES.Repositories.RestaurantRepository).to(
+		RestaurantRepository,
+	);
 
 	// Services
 	bind<IOtpStore>(TYPES.Services.OtpStore).to(RedisOtpStore);
 
-	bind<IEmailService>(TYPES.Services.Brevo_Email).to(
-		BrevoEmailService,
-	);
+	bind<IEmailService>(TYPES.Services.Brevo_Email).to(BrevoEmailService);
 
 	bind<IOtpService>(TYPES.Services.OtpService).to(OtpService);
 
-	bind<IEmailVerificationService>(
-		TYPES.Services.EmailVerification,
-	).to(EmailVerificationService);
+	bind<IEmailVerificationService>(TYPES.Services.EmailVerification).to(
+		EmailVerificationService,
+	);
 
-	bind<IAuthTokenService>(
-		TYPES.Services.AuthTokenService
-	).to(AuthTokenService);
+	bind<IAuthTokenService>(TYPES.Services.AuthTokenService).to(AuthTokenService);
 
-	bind<IOtpHashService>(
-		TYPES.Services.OtpHashService
-	).to(OtpHashService);
-	
+	bind<IOtpHashService>(TYPES.Services.OtpHashService).to(OtpHashService);
 });

@@ -9,7 +9,6 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { errorStatusMap } from "../errors/ error-status.map";
 
-
 export const errorHandler: ErrorRequestHandler = (
 	err,
 	req: Request,
@@ -17,8 +16,7 @@ export const errorHandler: ErrorRequestHandler = (
 	_next: NextFunction,
 ) => {
 	const statusCode =
-		errorStatusMap.get(err.constructor) ??
-		HTTP_STATUS.INTERNAL_SERVER_ERROR;
+		errorStatusMap.get(err.constructor) ?? HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
 	logger.error(
 		{
