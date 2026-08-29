@@ -29,9 +29,9 @@ export class ResendRestaurantEmailOtpUseCase
 	async execute(dto: SendRestaurantEmailOtpDto): Promise<void> {
 		const { email } = dto;
 
-		const cooldownActive = await this.otpService.checkCooldown(email);
+		const isRateLimited = await this.otpService.checkResendRateLimit(email);
 
-		if (cooldownActive) {
+		if (isRateLimited) {
 			throw new OtpCooldownActiveError();
 		}
 

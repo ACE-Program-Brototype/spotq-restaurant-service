@@ -6,9 +6,10 @@ import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-c
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 
+import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { AppError } from "@/utils/response.model";
+import { successResponse } from "@/utils/response.model";
 
 @injectable()
 export class RestaurantAuthController {
@@ -29,42 +30,40 @@ export class RestaurantAuthController {
 	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
 		await this.sendRestaurantEmailOtpUseCase.execute(req.body);
 
-		return res.status(HTTP_STATUS.ACCEPTED).json({
-			success: true,
-			message:
-				"If this email is eligible for registration, a verification code will be sent.",
-		});
+		return successResponse(
+			res,
+			"If this email is eligible for registration, a verification code will be sent.",
+			HTTP_STATUS.ACCEPTED,
+		);
 	}
 
 	async resendEmailOtp(req: Request, res: Response): Promise<Response> {
 		await this.resendRestaurantEmailOtpUseCase.execute(req.body);
 
-		return res.status(HTTP_STATUS.ACCEPTED).json({
-			success: true,
-			message:
-				"If this email is eligible for registration, a verification code will be sent.",
-		});
+		return successResponse(
+			res,
+			"If this email is eligible for registration, a verification code will be sent.",
+			HTTP_STATUS.ACCEPTED,
+		);
 	}
 
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result =
 			await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
-		return res.status(HTTP_STATUS.SUCCESS).json({
-			success: true,
-			message: "Email verified successfully.",
-			data: result
-		});
+		return successResponse(
+			res,
+			"Email verified successfully.",
+			HTTP_STATUS.SUCCESS,
+			result,
+		);
 	}
 
 	async onboard(req: Request, res: Response): Promise<Response> {
 		const authorizationHeader = req.headers.authorization;
 
 		if (!authorizationHeader?.startsWith("Bearer ")) {
-			throw new AppError(
-				"Verification token is required",
-				HTTP_STATUS.UNAUTHORIZED,
-			);
+			throw new InvalidVerificationTokenError();
 		}
 
 		const verificationToken = authorizationHeader.substring(7);
@@ -74,9 +73,10 @@ export class RestaurantAuthController {
 			verificationToken,
 		);
 
-		return res.status(HTTP_STATUS.CREATED).json({
-			success: true,
-			message: "Restaurant registered successfully",
-		});
+		return successResponse(
+			res,
+			"Restaurant registered successfully",
+			HTTP_STATUS.CREATED,
+		);
 	}
 }

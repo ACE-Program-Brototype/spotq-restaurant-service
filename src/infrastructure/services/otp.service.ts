@@ -4,7 +4,8 @@ import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import {
 	getRestaurantEmailOtpAttemptsKey,
-	getRestaurantEmailOtpCooldownKey,
+	getRestaurantEmailOtpResendKey,
+	getRestaurantEmailOtpSendKey,
 } from "@/utils/otp.util";
 import { inject, injectable } from "inversify";
 
@@ -15,22 +16,24 @@ export class OtpService implements IOtpService {
 		private readonly otpStore: IOtpStore,
 	) {}
 
-	async checkCooldown(email: string): Promise<boolean> {
-		const cooldownKey = getRestaurantEmailOtpCooldownKey(email);
-
-		const cooldownExists = await this.otpStore.exists(cooldownKey);
-
-		if (cooldownExists) {
-			return true;
-		}
-
-		await this.otpStore.save(
-			cooldownKey,
-			"1",
-			OTP_CONFIG.RESEND_COOLDOWN_SECONDS,
+	async checkSendRateLimit(email: string): Promise<boolean> {
+		const sendKey = getRestaurantEmailOtpSendKey(email);
+		const count = await this.otpStore.increment(
+			sendKey,
+			OTP_CONFIG.SEND_OTP_WINDOW_SECONDS,
 		);
 
-		return false;
+		return count > OTP_CONFIG.SEND_OTP_REQUEST_LIMIT;
+	}
+
+	async checkResendRateLimit(email: string): Promise<boolean> {
+		const resendKey = getRestaurantEmailOtpResendKey(email);
+		const count = await this.otpStore.increment(
+			resendKey,
+			OTP_CONFIG.RESEND_OTP_WINDOW_SECONDS,
+		);
+
+		return count > OTP_CONFIG.RESEND_OTP_REQUEST_LIMIT;
 	}
 
 	async resetAttempts(email: string): Promise<void> {

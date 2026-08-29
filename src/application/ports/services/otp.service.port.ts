@@ -1,5 +1,7 @@
 export interface IOtpService {
-	checkCooldown(email: string): Promise<boolean>;
+	checkSendRateLimit(email: string): Promise<boolean>;
+
+	checkResendRateLimit(email: string): Promise<boolean>;
 
 	resetAttempts(email: string): Promise<void>;
 

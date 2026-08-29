@@ -12,8 +12,12 @@ export const getRestaurantEmailOtpKey = (email: string): string => {
 	return `restaurant:email-verification:${email}`;
 };
 
-export const getRestaurantEmailOtpCooldownKey = (email: string): string => {
-	return `restaurant:email-verification:cooldown:${email}`;
+export const getRestaurantEmailOtpSendKey = (email: string): string => {
+	return `restaurant:email-verification:send-limit:${email}`;
+};
+
+export const getRestaurantEmailOtpResendKey = (email: string): string => {
+	return `restaurant:email-verification:resend-limit:${email}`;
 };
 
 export const getRestaurantEmailOtpAttemptsKey = (email: string): string => {
