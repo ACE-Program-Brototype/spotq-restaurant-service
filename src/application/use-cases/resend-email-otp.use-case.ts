@@ -1,5 +1,4 @@
 import type { SendRestaurantEmailOtpDto } from "@/application/dto/restaurant-email-verification.dto";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { Queue } from "bullmq";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
@@ -17,8 +16,6 @@ export class ResendRestaurantEmailOtpUseCase
 	implements IResendRestaurantEmailOtpUseCase
 {
 	constructor(
-		@inject(TYPES.Repositories.RestaurantRepository)
-		readonly _restaurantRepository: IRestaurantRepository,
 
 		@inject(TYPES.Services.OtpStore)
 		private readonly otpStore: IOtpStore,

@@ -1,5 +1,4 @@
 import type { SendRestaurantEmailOtpDto } from "@/application/dto/restaurant-email-verification.dto";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
 import { TYPES } from "@/di/types";
@@ -17,8 +16,6 @@ export class SendRestaurantEmailOtpUseCase
 	implements ISendRestaurantEmailOtpUseCase
 {
 	constructor(
-		@inject(TYPES.Repositories.RestaurantRepository)
-		readonly _restaurantRepository: IRestaurantRepository,
 
 		@inject(TYPES.Services.OtpStore)
 		private readonly redisOtpStore: IOtpStore,
