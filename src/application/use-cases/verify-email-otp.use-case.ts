@@ -12,7 +12,7 @@ import type { IAuthTokenService } from "../ports/services/auth-token.service.por
 import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
-import { IOtpHashService } from "../ports/services/otp-hash.service.port";
+import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOtpUseCase {

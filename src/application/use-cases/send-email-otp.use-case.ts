@@ -9,7 +9,7 @@ import type { Queue } from "bullmq";
 import { inject, injectable } from "inversify";
 import type { IOtpService } from "../ports/services/otp.service.port";
 import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
-import { IOtpHashService } from "../ports/services/otp-hash.service.port";
+import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 
 @injectable()
 export class SendRestaurantEmailOtpUseCase
