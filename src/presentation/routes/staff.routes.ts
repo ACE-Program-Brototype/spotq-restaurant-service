@@ -4,7 +4,11 @@ import { TYPES } from "@/config/di/types.ts";
 import type { StaffController } from "@/presentation/controllers/staff.controller.ts";
 import {
 	forgotPasswordRateLimiter,
+	loginRateLimiter,
+	refreshTokenRateLimiter,
 	resendOtpRateLimiter,
+	resetPasswordRateLimiter,
+	verifyOtpRateLimiter,
 } from "@/presentation/middleware/rate-limiter.middleware.ts";
 import { validateRequestBody } from "@/presentation/middleware/validation.middleware.ts";
 import { forgotPasswordSchema } from "@/presentation/validators/staff/forgot-password.validator.ts";
@@ -20,13 +24,18 @@ const staffController = container.get<StaffController>(TYPES.StaffController);
 
 staffRouter.post(
 	STAFF_ROUTES.LOGIN,
+	loginRateLimiter,
 	validateRequestBody(loginStaffSchema),
 	staffController.login,
 );
 
 staffRouter.post(STAFF_ROUTES.LOGOUT, staffController.logout);
 
-staffRouter.post(STAFF_ROUTES.REFRESH_TOKEN, staffController.refreshToken);
+staffRouter.post(
+	STAFF_ROUTES.REFRESH_TOKEN,
+	refreshTokenRateLimiter,
+	staffController.refreshToken,
+);
 
 staffRouter.post(
 	STAFF_ROUTES.FORGOT_PASSWORD,
@@ -37,6 +46,7 @@ staffRouter.post(
 
 staffRouter.post(
 	STAFF_ROUTES.VERIFY_FORGOT_PASSWORD_OTP,
+	verifyOtpRateLimiter,
 	validateRequestBody(verifyForgotPasswordOtpSchema),
 	staffController.verifyForgotPasswordOtp,
 );
@@ -50,6 +60,7 @@ staffRouter.post(
 
 staffRouter.post(
 	STAFF_ROUTES.RESET_PASSWORD,
+	resetPasswordRateLimiter,
 	validateRequestBody(resetPasswordSchema),
 	staffController.resetPassword,
 );
