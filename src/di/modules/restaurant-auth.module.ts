@@ -33,6 +33,8 @@ import { OtpService } from "@/infrastructure/services/otp.service";
 import { EmailVerificationService } from "@/infrastructure/services/email-verification.service";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import { AuthTokenService } from "@/infrastructure/services/auth-token.service";
+import { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 
 
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {
@@ -79,5 +81,9 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IAuthTokenService>(
 		TYPES.Services.AuthTokenService
 	).to(AuthTokenService);
+
+	bind<IOtpHashService>(
+		TYPES.Services.OtpHashService
+	).to(OtpHashService);
 	
 });

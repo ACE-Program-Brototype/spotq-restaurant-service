@@ -60,6 +60,8 @@ const envSchema = z.object({
 	JWT_ACCESS_SECRET: z.string().trim().min(64),
 
 	JWT_REFRESH_SECRET: z.string().trim().min(64),
+
+	BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(10).max(14),
 });
 
 export type Env = z.infer<typeof envSchema>;

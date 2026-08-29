@@ -12,6 +12,7 @@ import type { IAuthTokenService } from "../ports/services/auth-token.service.por
 import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
+import { IOtpHashService } from "../ports/services/otp-hash.service.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOtpUseCase {
@@ -28,8 +29,12 @@ export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOt
     @inject(TYPES.Services.EmailVerification)
     private readonly emailVerificationService: IEmailVerificationService,
 
-	@inject(TYPES.Services.AuthTokenService)
-	private readonly authTokenService: IAuthTokenService
+	  @inject(TYPES.Services.AuthTokenService)
+	  private readonly authTokenService: IAuthTokenService,
+
+    @inject(TYPES.Services.OtpHashService)
+    private readonly otpHashService: IOtpHashService,
+
   ) {}
 
   async execute(dto: VerifyRestaurantEmailOtpDto) {
@@ -43,7 +48,9 @@ export class VerifyRestaurantEmailOtpUseCase implements IVerifyRestaurantEmailOt
       throw new InvalidVerificationTokenError();
     }
 
-    if (storedOtp !== otp) {
+    const isValid = this.otpHashService.compare(otp,storedOtp);
+
+    if ( !isValid ) {
 
       const attempts = await this.otpService.incrementAttempt(email);
 

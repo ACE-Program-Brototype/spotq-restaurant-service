@@ -9,6 +9,7 @@ import { inject, injectable } from "inversify";
 import { JOB_NAMES } from "@/shared/constants/queue.constants";
 import type { IOtpService } from "../ports/services/otp.service.port";
 import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
+import { IOtpHashService } from "../ports/services/otp-hash.service.port";
 
 @injectable()
 export class ResendRestaurantEmailOtpUseCase
@@ -24,6 +25,9 @@ export class ResendRestaurantEmailOtpUseCase
 
 		@inject(TYPES.Queue.Email)
 		private readonly emailQueue: Queue,
+
+		@inject(TYPES.Services.OtpHashService)
+		private readonly otpHashService: IOtpHashService,
 	) {}
 
 	async execute(dto: SendRestaurantEmailOtpDto): Promise<void> {
@@ -37,9 +41,11 @@ export class ResendRestaurantEmailOtpUseCase
 
 		const otp = generateOtp();
 
+		const otpHash = await this.otpHashService.hash(otp);
+
 		const otpKey = getRestaurantEmailOtpKey(email);
 
-		await this.otpStore.save(otpKey, otp, OTP_CONFIG.EXPIRY_SECONDS);
+		await this.otpStore.save(otpKey, otpHash, OTP_CONFIG.EXPIRY_SECONDS);
 
 		await this.otpService.resetAttempts(email);
 
