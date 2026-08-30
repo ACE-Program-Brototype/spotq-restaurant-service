@@ -12,13 +12,9 @@ export const notFoundHandler = (
 	logger.warn(
 		{
 			event: "http.not_found",
-
 			requestId: res.locals.requestId,
-
 			method: req.method,
-
 			url: req.originalUrl,
-
 			ip: req.ip,
 		},
 		messages.REQ_ROUTE_NOT_FOUND,

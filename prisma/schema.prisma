@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,4 +5,76 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum RestaurantStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+  ACTIVE
+  INACTIVE
+}
+
+enum StaffRole {
+  STAFF
+}
+
+enum StaffStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  INVITED
+}
+
+model Restaurant {
+  id              String           @id @default(uuid()) @db.Uuid
+
+  restaurantName  String
+  email           String           @unique
+  phone           String
+
+  ownerName       String
+  ownerEmail      String
+
+  seatingCapacity Int?
+  fssaiNumber     String?
+  gstNumber       String?
+  regNumber       String?
+
+  cuisineType     String?
+
+  status          RestaurantStatus @default(PENDING)
+
+  emailVerifiedAt DateTime?
+
+  isBlocked       Boolean          @default(false)
+  blockReason     String?
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  staff           RestaurantStaff[]
+
+  @@map("restaurants")
+}
+
+model RestaurantStaff {
+  id           String      @id @default(uuid()) @db.Uuid
+  restaurantId String      @map("restaurant_id") @db.Uuid
+  fullname     String      @map("fullname")
+  email        String      @unique @map("email")
+  phone        String      @map("phone")
+  avatarUrl    String?     @map("avatar_url")
+  passwordHash String      @map("password_hash")
+  role         StaffRole   @default(STAFF)
+  status       StaffStatus @default(ACTIVE)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@index([email])
+  @@map("restaurant_staff")
 }
