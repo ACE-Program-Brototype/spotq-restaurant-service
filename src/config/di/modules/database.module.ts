@@ -11,7 +11,7 @@ import { PrismaRestaurantStaffRepository } from "@/infrastructure/database/repos
 import { RedisOtpRepository } from "@/infrastructure/database/repositories/redis-otp.repository.ts";
 import { RedisTokenRevocationRepository } from "@/infrastructure/database/repositories/redis-token-revocation.repository.ts";
 
-export const databaseModule = new ContainerModule((bind) => {
+export const databaseModule = new ContainerModule(({ bind }) => {
 	bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(prisma);
 	bind<Redis>(TYPES.RedisClient).toConstantValue(redis);
 	bind<IRestaurantStaffRepository>(TYPES.RestaurantStaffRepository)

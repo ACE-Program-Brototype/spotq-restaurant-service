@@ -15,7 +15,7 @@ import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-passwo
 import { VerifyForgotPasswordOtpUseCase } from "@/application/use-cases/staff/verify-forgot-password-otp.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
 
-export const applicationModule = new ContainerModule((bind) => {
+export const applicationModule = new ContainerModule(({ bind }) => {
 	bind<ILoginStaffUseCase>(TYPES.LoginStaffUseCase)
 		.to(LoginStaffUseCase)
 		.inSingletonScope();

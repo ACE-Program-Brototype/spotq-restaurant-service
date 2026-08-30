@@ -9,7 +9,7 @@ import { BcryptPasswordHasher } from "@/infrastructure/services/bcrypt-password-
 import { CryptoOtpService } from "@/infrastructure/services/crypto-otp.service.ts";
 import { JwtTokenService } from "@/infrastructure/services/jwt-token.service.ts";
 
-export const servicesModule = new ContainerModule((bind) => {
+export const servicesModule = new ContainerModule(({ bind }) => {
 	bind<IPasswordHasher>(TYPES.PasswordHasher)
 		.to(BcryptPasswordHasher)
 		.inSingletonScope();
