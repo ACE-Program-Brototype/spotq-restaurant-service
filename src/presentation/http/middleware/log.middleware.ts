@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { requestContextStorage } from "@/infrastructure/observability/async-storage.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -9,57 +10,57 @@ export function httpLogger(
 ): void {
 	const start = process.hrtime.bigint();
 
-	const requestId = req.get("X-Request-ID")?.trim() || undefined;
+	const requestId =
+		req.get("X-Request-ID")?.trim() ||
+		req.get("x-request-id")?.trim() ||
+		crypto.randomUUID();
+
+	const correlationId =
+		req.get("X-Correlation-ID")?.trim() ||
+		req.get("x-correlation-id")?.trim() ||
+		requestId;
 
 	res.locals.requestId = requestId;
+	res.locals.correlationId = correlationId;
+	res.setHeader("X-Request-ID", requestId);
+	res.setHeader("X-Correlation-ID", correlationId);
 
-	logger.info(
-		{
-			event: "http.request",
-
-			requestId,
-
-			method: req.method,
-
-			url: req.originalUrl,
-
-			ip: req.ip,
-
-			userAgent: req.get("user-agent"),
-
-			contentLength: req.get("content-length"),
-
-			contentType: req.get("content-type"),
-
-			operation: `${req.method} ${req.route?.path ?? req.path}`,
-		},
-		messages.INCOMMING_HTTP_REQ,
-	);
-
-	res.on("finish", () => {
-		const duration = Number(process.hrtime.bigint() - start) / 1_000_000;
-
+	requestContextStorage.run({ requestId, correlationId }, () => {
 		logger.info(
 			{
-				event: "http.response",
-
+				event: "http.request",
 				requestId,
-
+				correlationId,
 				method: req.method,
-
 				url: req.originalUrl,
-
-				statusCode: res.statusCode,
-
-				responseTime: Number(duration.toFixed(2)),
-
-				responseSize: res.getHeader("content-length"),
-
+				ip: req.ip,
+				userAgent: req.get("user-agent"),
+				contentLength: req.get("content-length"),
+				contentType: req.get("content-type"),
 				operation: `${req.method} ${req.route?.path ?? req.path}`,
 			},
-			messages.OUTGOING_HTTP_RES,
+			messages.INCOMMING_HTTP_REQ,
 		);
-	});
 
-	next();
+		res.on("finish", () => {
+			const duration = Number(process.hrtime.bigint() - start) / 1_000_000;
+
+			logger.info(
+				{
+					event: "http.response",
+					requestId,
+					correlationId,
+					method: req.method,
+					url: req.originalUrl,
+					statusCode: res.statusCode,
+					responseTime: Number(duration.toFixed(2)),
+					responseSize: res.getHeader("content-length"),
+					operation: `${req.method} ${req.route?.path ?? req.path}`,
+				},
+				messages.OUTGOING_HTTP_RES,
+			);
+		});
+
+		next();
+	});
 }

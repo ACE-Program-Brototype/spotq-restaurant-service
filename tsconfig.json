@@ -6,6 +6,19 @@
 		"rootDir": "./src",
 		"outDir": "./dist",
 		"paths": {
+			"@domain/*": ["./src/domain/*"],
+			"@application/*": ["./src/application/*"],
+			"@dtos/*": ["./src/application/dtos/*"],
+			"@ports/*": ["./src/application/ports/*"],
+			"@use-cases/*": ["./src/application/use-cases/*"],
+			"@infrastructure/*": ["./src/infrastructure/*"],
+			"@presentation/*": ["./src/presentation/*"],
+			"@interfaces/*": ["./src/interfaces/*"],
+			"@config/*": ["./src/config/*"],
+			"@di/*": ["./src/config/di/*"],
+			"@modules/*": ["./src/modules/*"],
+			"@shared/*": ["./src/shared/*"],
+			"@utils/*": ["./src/utils/*"],
 			"@/*": ["./src/*"]
 		},
 		"experimentalDecorators": true,
@@ -13,7 +26,6 @@
 		"allowArbitraryExtensions": true,
 		"allowImportingTsExtensions": true,
 		"noEmit": true,
-		"ignoreDeprecations": "6.0",
 		"strict": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
@@ -21,8 +33,8 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"resolveJsonModule": true,
-		"types": ["node"]
+		"types": ["node", "reflect-metadata", "jest"]
 	},
-	"include": ["src"],
-	"exclude": ["node_modules", "dist"]
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist", "tests"]
 }

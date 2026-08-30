@@ -28,7 +28,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
+          version: 11
 
       # Setup Node
       - name: Setup Node.js
@@ -48,6 +48,10 @@ jobs:
       # Lint
       - name: Run Linter
         run: pnpm lint
+
+      # Test
+      - name: Run Tests
+        run: pnpm test
 
       # Build
       - name: Build Application

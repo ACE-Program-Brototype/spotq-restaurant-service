@@ -62,6 +62,45 @@ const envSchema = z.object({
 	JWT_REFRESH_SECRET: z.string().trim().min(64),
 
 	BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(10).max(14),
+
+	JWT_ACCESS_EXPIRES_IN: z.string().trim().default("15m"),
+
+	JWT_REFRESH_EXPIRES_IN: z.string().trim().default("7d"),
+
+	JWT_TEMP_SECRET: z
+		.string()
+		.trim()
+		.min(8)
+		.default("spotq-restaurant-service-temp-secret-jwt-key"),
+
+	JWT_TEMP_EXPIRES_IN: z.string().trim().default("15m"),
+
+	// Cookie Configuration from Environment
+	COOKIE_NAME_REFRESH_TOKEN: z.string().trim().default("refreshToken"),
+	COOKIE_NAME_TEMP_TOKEN: z.string().trim().default("tempToken"),
+	COOKIE_HTTP_ONLY: z.preprocess((val) => {
+		if (typeof val === "string") return val.toLowerCase() === "true";
+		if (typeof val === "boolean") return val;
+		return true;
+	}, z.boolean().default(true)),
+	COOKIE_SECURE: z.preprocess((val) => {
+		if (typeof val === "string") return val.toLowerCase() === "true";
+		if (typeof val === "boolean") return val;
+		return process.env.APP_ENV === "production";
+	}, z.boolean().default(false)),
+	COOKIE_SAME_SITE: z.preprocess(
+		(val) => (typeof val === "string" ? val.trim().toLowerCase() : val),
+		z.enum(["strict", "lax", "none"]).default("strict"),
+	),
+	COOKIE_PATH: z.string().trim().default("/"),
+	COOKIE_MAX_AGE_MS: z.preprocess(
+		(val) => (typeof val === "string" ? Number(val) : val),
+		z
+			.number()
+			.positive()
+			.default(7 * 24 * 60 * 60 * 1000), // 7 days in ms
+	),
+	COOKIE_DOMAIN: z.string().trim().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

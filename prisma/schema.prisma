@@ -7,6 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum RestaurantStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+  ACTIVE
+  INACTIVE
+}
+
 model Restaurant {
   id               String           @id @default(uuid()) @db.Uuid
 
@@ -37,11 +46,33 @@ model Restaurant {
   @@map("restaurants")
 }
 
-enum RestaurantStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  SUSPENDED
+enum StaffRole {
+  STAFF
+}
+
+enum StaffStatus {
   ACTIVE
   INACTIVE
+  SUSPENDED
+  INVITED
+}
+
+model RestaurantStaff {
+  id           String      @id @default(uuid()) @db.Uuid
+  restaurantId String      @map("restaurant_id") @db.Uuid
+  fullname     String      @map("fullname")
+  email        String      @unique @map("email")
+  phone        String      @map("phone")
+  avatarUrl    String?     @map("avatar_url")
+  passwordHash String      @map("password_hash")
+  role         StaffRole   @default(STAFF)
+  status       StaffStatus @default(ACTIVE)
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@index([email])
+  @@map("restaurant_staff")
 }
