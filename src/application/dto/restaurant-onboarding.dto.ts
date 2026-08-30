@@ -1,7 +1,8 @@
-import type { onboardRestaurantSchema } from "@/presentation/http/validators/restaurant-onboard.validator";
-import type { z } from "zod";
-
-export type OnboardRestaurantDto = z.infer<typeof onboardRestaurantSchema>;
+export interface OnboardRestaurantDto {
+	restaurantName: string;
+	phone: string;
+	ownerName: string;
+}
 
 //repo dto
 export interface CreateRestaurantDto {
