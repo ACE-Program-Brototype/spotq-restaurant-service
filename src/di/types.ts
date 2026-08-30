@@ -7,6 +7,9 @@ export const TYPES = {
 		VerifyRestaurantEmailOtpUseCase: Symbol.for(
 			"VerifyRestaurantEmailOtpUseCase",
 		),
+		RefreshRestaurantAccessTokenUseCase: Symbol.for(
+			"RefreshRestaurantAccessTokenUseCase",
+		),
 		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
 	},
 

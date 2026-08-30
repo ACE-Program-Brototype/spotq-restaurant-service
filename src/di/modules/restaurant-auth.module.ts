@@ -8,11 +8,13 @@ import { RestaurantAuthController } from "@/presentation/http/controllers/restau
 // Use Cases
 import { SendRestaurantEmailOtpUseCase } from "@/application/use-cases/send-email-otp.use-case";
 import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
+import { RefreshRestaurantAccessTokenUseCase } from "@/application/use-cases/refresh-restaurant-access-token.use-case";
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import { ResendRestaurantEmailOtpUseCase } from "@/application/use-cases/resend-email-otp.use-case";
 
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
+import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
 
@@ -51,6 +53,10 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IVerifyRestaurantEmailOtpUseCase>(
 		TYPES.UseCases.VerifyRestaurantEmailOtpUseCase,
 	).to(VerifyRestaurantEmailOtpUseCase);
+
+	bind<IRefreshRestaurantAccessTokenUseCase>(
+		TYPES.UseCases.RefreshRestaurantAccessTokenUseCase,
+	).to(RefreshRestaurantAccessTokenUseCase);
 
 	bind<IOnboardRestaurantUseCase>(TYPES.UseCases.OnboardRestaurantUseCase).to(
 		OnboardRestaurantUseCase,

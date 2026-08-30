@@ -4,12 +4,14 @@ import { InvalidVerificationTokenError } from "@/application/errors/invalid-veri
 import { OtpCooldownActiveError } from "@/application/errors/otp-cooldown-active.error";
 import { OtpVerificationAttemptsExceededError } from "@/application/errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "@/application/errors/restaurant-account-blocked.error";
+import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 
 type ErrorConstructor = new () => Error;
 
 export const errorStatusMap = new Map<ErrorConstructor, number>([
 	[RestaurantAlreadyExistsError, HTTP_STATUS.CONFLICT],
 	[InvalidVerificationTokenError, HTTP_STATUS.UNAUTHORIZED],
+	[InvalidRefreshTokenError, HTTP_STATUS.UNAUTHORIZED],
 	[OtpCooldownActiveError, HTTP_STATUS.TOO_MANY_REQUESTS],
 	[OtpVerificationAttemptsExceededError, HTTP_STATUS.TOO_MANY_REQUESTS],
 	[RestaurantAccountBlockedError, HTTP_STATUS.FORBIDDEN],

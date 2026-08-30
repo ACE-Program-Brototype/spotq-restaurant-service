@@ -5,6 +5,7 @@ import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cas
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
+import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
 
 import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
 import { TYPES } from "@/di/types";
@@ -23,9 +24,43 @@ export class RestaurantAuthController {
 		@inject(TYPES.UseCases.VerifyRestaurantEmailOtpUseCase)
 		private readonly verifyRestaurantEmailOtpUseCase: IVerifyRestaurantEmailOtpUseCase,
 
+		@inject(TYPES.UseCases.RefreshRestaurantAccessTokenUseCase)
+		private readonly refreshRestaurantAccessTokenUseCase: IRefreshRestaurantAccessTokenUseCase,
+
 		@inject(TYPES.UseCases.OnboardRestaurantUseCase)
 		private readonly onboardRestaurantUseCase: IOnboardRestaurantUseCase,
 	) {}
+
+	private getCookie(req: Request, name: string): string | undefined {
+		const cookieHeader = req.headers.cookie;
+		if (!cookieHeader) return undefined;
+
+		const cookies = cookieHeader.split(";").reduce<Record<string, string>>((acc, rawCookie) => {
+			const [key, ...valueParts] = rawCookie.trim().split("=");
+			if (!key) return acc;
+			const value = valueParts.join("=");
+			acc[key] = decodeURIComponent(value ?? "");
+			return acc;
+		}, {});
+
+		return cookies[name];
+	}
+
+	private setAccessAndRefreshCookies(res: Response, accessToken: string, refreshToken: string) {
+		res.cookie("accessToken", accessToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+			maxAge: 15 * 60 * 1000,
+		});
+
+		res.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+			maxAge: 7 * 24 * 60 * 60 * 1000,
+		});
+	}
 
 	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
 		await this.sendRestaurantEmailOtpUseCase.execute(req.body);
@@ -50,11 +85,66 @@ export class RestaurantAuthController {
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
+		if (result.nextStep === "DASHBOARD") {
+			const { accessToken, refreshToken, ...dashboardResult } = result;
+
+			if (!accessToken || !refreshToken) {
+				return successResponse(
+					res,
+					"Email verified successfully.",
+					HTTP_STATUS.SUCCESS,
+					{ nextStep: dashboardResult.nextStep },
+				);
+			}
+
+			this.setAccessAndRefreshCookies(res, accessToken, refreshToken);
+
+			return successResponse(
+				res,
+				"Email verified successfully.",
+				HTTP_STATUS.SUCCESS,
+				{ nextStep: dashboardResult.nextStep },
+			);
+		}
+
 		return successResponse(
 			res,
 			"Email verified successfully.",
 			HTTP_STATUS.SUCCESS,
 			result,
+		);
+	}
+
+	async refreshAccessToken(req: Request, res: Response): Promise<Response> {
+		if (
+			typeof req.body?.refreshToken !== "undefined" ||
+			typeof req.query?.refreshToken !== "undefined" ||
+			req.headers.authorization
+		) {
+			throw new InvalidVerificationTokenError();
+		}
+
+		const refreshToken = this.getCookie(req, "refreshToken");
+
+		if (!refreshToken) {
+			throw new InvalidVerificationTokenError();
+		}
+
+		const { accessToken } = await this.refreshRestaurantAccessTokenUseCase.execute(
+			refreshToken,
+		);
+
+		res.cookie("accessToken", accessToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: "strict",
+			maxAge: 15 * 60 * 1000,
+		});
+
+		return successResponse(
+			res,
+			"Access token refreshed successfully.",
+			HTTP_STATUS.SUCCESS,
 		);
 	}
 

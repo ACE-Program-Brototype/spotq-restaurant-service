@@ -29,6 +29,11 @@ restaurantRouter.post(
 );
 
 restaurantRouter.post(
+	RESTAURANT_ROUTES.REFRESH_ACCESS_TOKEN,
+	restaurantAuthController.refreshAccessToken.bind(restaurantAuthController),
+);
+
+restaurantRouter.post(
 	RESTAURANT_ROUTES.ONBOARD,
 	validate(onboardRestaurantSchema),
 	restaurantAuthController.onboard.bind(restaurantAuthController),
