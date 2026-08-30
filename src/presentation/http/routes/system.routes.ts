@@ -3,6 +3,7 @@ import { prisma } from "@/config/prisma.ts";
 import register from "@/config/prom.client.ts";
 import redis from "@/config/redis.ts";
 import { emailQueue } from "@/infrastructure/queue/bullmq.service.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { SYSTEM_ROUTES } from "@/shared/constants/route.constants.ts";
 import { successResponse } from "@/utils/response.model.ts";
@@ -10,7 +11,9 @@ import { successResponse } from "@/utils/response.model.ts";
 const systemRouter = Router();
 
 systemRouter.get(SYSTEM_ROUTES.HEALTH, (_req, res) => {
-	successResponse(res, { status: "ok" }, messages.SERVICE_HEALTHY);
+	successResponse(res, messages.SERVICE_HEALTHY, HTTP_STATUS.SUCCESS, {
+		status: "ok",
+	});
 });
 
 systemRouter.get(SYSTEM_ROUTES.READY, async (_req, res) => {
@@ -21,7 +24,9 @@ systemRouter.get(SYSTEM_ROUTES.READY, async (_req, res) => {
 			emailQueue.waitUntilReady(),
 		]);
 
-		successResponse(res, { status: "ready" }, messages.SERVICE_READY);
+		successResponse(res, messages.SERVICE_READY, HTTP_STATUS.SUCCESS, {
+			status: "ready",
+		});
 	} catch {
 		throw new Error(messages.SERVICE_UNAVAILABLE);
 	}

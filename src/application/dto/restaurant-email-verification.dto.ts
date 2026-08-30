@@ -1,17 +1,11 @@
-import type {
-	sendRestaurantEmailOtpSchema,
-	verifyRestaurantEmailOtpSchema,
-} from "@/presentation/http/validators/restaurant-email-verification.validator";
+export interface SendRestaurantEmailOtpDto {
+	email: string;
+}
 
-import type { z } from "zod";
-
-export type SendRestaurantEmailOtpDto = z.infer<
-	typeof sendRestaurantEmailOtpSchema
->;
-
-export type VerifyRestaurantEmailOtpDto = z.infer<
-	typeof verifyRestaurantEmailOtpSchema
->;
+export interface VerifyRestaurantEmailOtpDto {
+	email: string;
+	otp: string;
+}
 
 export interface VerifyRestaurantEmailOtpResponseDto {
 	nextStep: "ONBOARDING" | "DASHBOARD";

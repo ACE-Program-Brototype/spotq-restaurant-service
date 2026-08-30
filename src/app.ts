@@ -18,16 +18,11 @@ app.use(httpLogger);
 app.use(metricsMiddleware);
 
 app.get("/", (_req, res) => {
-	successResponse(
-		res,
-		{
-			service: APP_NAME,
-			status: "running",
-			environment: APP_ENV,
-		},
-		"Service is running",
-		HTTP_STATUS.SUCCESS,
-	);
+	successResponse(res, "Service is running", HTTP_STATUS.SUCCESS, {
+		service: APP_NAME,
+		status: "running",
+		environment: APP_ENV,
+	});
 });
 
 app.use("/", systemRouter);
