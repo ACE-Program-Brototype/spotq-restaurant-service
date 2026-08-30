@@ -1,24 +1,33 @@
-import app from "@/app.ts";
+import app from "@/app";
 import {
 	connectDatabase,
 	disconnectDatabase,
-} from "@/infrastructure/database/db.ts";
-import { logger } from "@/infrastructure/observability/logger.ts";
+} from "@/infrastructure/database/db";
+import { logger } from "@/infrastructure/observability/logger";
 import {
 	connectBullMQ,
 	disconnectBullMQ,
-} from "@/infrastructure/queue/bullmq.connect.ts";
-import { createEmailWorker } from "@/infrastructure/queue/workers/email.worker.ts";
-import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis.ts";
-import { PORT } from "@/shared/constants/app.constants.ts";
+} from "@/infrastructure/queue/bullmq.connect";
+import { createEmailWorker } from "@/infrastructure/queue/workers/email.worker";
+import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
+import { PORT } from "@/shared/constants/app.constants";
+import { closeS3Client } from "@/infrastructure/storage/s3.client";
+import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
+import { container } from "./di/container";
+import { TYPES } from "./di/types";
+import type { IEmailWorker } from "./application/ports/workers/email.worker.port";
 
 async function bootstrap() {
 	try {
 		await connectDatabase();
 		await connectRedis();
 		await connectBullMQ();
+		await checkS3Connection();
 
-		const emailWorker = createEmailWorker();
+		const emailWorkerAdmin = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
+		emailWorkerAdmin.start();
+
+		const emailWorkerStaff = createEmailWorker();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -45,10 +54,14 @@ async function bootstrap() {
 				}
 
 				try {
-					await emailWorker.close();
+					await emailWorkerStaff.close();
+					await emailWorkerAdmin.stop();
+					await closeS3Client();
+
 					await disconnectBullMQ();
 					await disconnectRedis();
 					await disconnectDatabase();
+
 					logger.info("Graceful shutdown completed successfully");
 					process.exit(0);
 				} catch (teardownErr) {
@@ -57,7 +70,6 @@ async function bootstrap() {
 				}
 			});
 
-			// Force shutdown after 10s if connections fail to close
 			setTimeout(() => {
 				logger.error("Forced shutdown due to timeout");
 				process.exit(1);

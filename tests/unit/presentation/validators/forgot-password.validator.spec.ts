@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { forgotPasswordSchema } from "@/presentation/validators/staff/forgot-password.validator.ts";
-import { verifyForgotPasswordOtpSchema } from "@/presentation/validators/staff/verify-forgot-password-otp.validator.ts";
+import { forgotPasswordSchema } from "@/presentation/http/validators/staff/forgot-password.validator.ts";
+import { verifyForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/verify-forgot-password-otp.validator.ts";
 
 describe("ForgotPasswordValidators", () => {
 	describe("forgotPasswordSchema", () => {

@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { container } from "@/config/di/container.ts";
-import { TYPES } from "@/config/di/types.ts";
-import type { StaffController } from "@/presentation/controllers/staff.controller.ts";
+import { container } from "@/config/di/container";
+import { TYPES } from "@/config/di/types";
+import type { StaffController } from "@/presentation/http/controllers/staff.controller";
 import {
 	forgotPasswordRateLimiter,
 	loginRateLimiter,
@@ -9,14 +9,14 @@ import {
 	resendOtpRateLimiter,
 	resetPasswordRateLimiter,
 	verifyOtpRateLimiter,
-} from "@/presentation/middleware/rate-limiter.middleware.ts";
-import { validateRequestBody } from "@/presentation/middleware/validation.middleware.ts";
-import { forgotPasswordSchema } from "@/presentation/validators/staff/forgot-password.validator.ts";
-import { loginStaffSchema } from "@/presentation/validators/staff/login-staff.validator.ts";
-import { resendForgotPasswordOtpSchema } from "@/presentation/validators/staff/resend-forgot-password-otp.validator.ts";
-import { resetPasswordSchema } from "@/presentation/validators/staff/reset-password.validator.ts";
-import { verifyForgotPasswordOtpSchema } from "@/presentation/validators/staff/verify-forgot-password-otp.validator.ts";
-import { STAFF_ROUTES } from "@/shared/constants/route.constants.ts";
+} from "@/presentation/http/middleware/rate-limiter.middleware";
+import { validateRequestBody } from "@/presentation/http/middleware/validation.middleware";
+import { forgotPasswordSchema } from "@/presentation/http/validators/staff/forgot-password.validator";
+import { loginStaffSchema } from "@/presentation/http/validators/staff/login-staff.validator";
+import { resendForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/resend-forgot-password-otp.validator";
+import { resetPasswordSchema } from "@/presentation/http/validators/staff/reset-password.validator";
+import { verifyForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/verify-forgot-password-otp.validator";
+import { STAFF_ROUTES } from "@/shared/constants/route.constants";
 
 const staffRouter = Router();
 

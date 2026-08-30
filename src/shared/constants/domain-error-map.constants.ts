@@ -35,6 +35,12 @@ export const DOMAIN_ERROR_STATUS_MAP: Record<string, HttpStatusCode> = {
 	INVALID_STAFF_ROLE: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 	INVALID_STAFF_STATUS: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 	VALIDATION_ERROR: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+	RestaurantAlreadyExistsError: HTTP_STATUS.CONFLICT,
+	InvalidVerificationTokenError: HTTP_STATUS.UNAUTHORIZED,
+	InvalidRefreshTokenError: HTTP_STATUS.UNAUTHORIZED,
+	OtpCooldownActiveError: HTTP_STATUS.TOO_MANY_REQUESTS,
+	OtpVerificationAttemptsExceededError: HTTP_STATUS.TOO_MANY_REQUESTS,
+	RestaurantAccountBlockedError: HTTP_STATUS.FORBIDDEN,
 };
 
 export function getStatusCodeForDomainError(

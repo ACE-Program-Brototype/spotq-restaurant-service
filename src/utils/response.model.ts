@@ -22,14 +22,14 @@ export class AppError extends Error {
 
 export const successResponse = <T>(
 	res: Response,
-	data: T,
 	message = "Success",
 	status = 200,
+	data?: T,
 ): Response => {
 	return res.status(status).json({
 		success: true,
 		message,
-		data,
+		...(data !== undefined && { data }),
 	});
 };
 

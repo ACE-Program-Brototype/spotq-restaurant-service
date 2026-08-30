@@ -39,31 +39,41 @@ const envSchema = z.object({
 			.enum(["trace", "debug", "info", "warn", "error", "fatal"])
 			.default("info"),
 	),
+	AWS_ACCESS_KEY_ID: z.string().trim().min(1),
 
-	// JWT Configuration
-	JWT_ACCESS_SECRET: z
-		.string()
-		.trim()
-		.min(8)
-		.default("spotq-restaurant-service-access-secret-jwt-key"),
+	AWS_SECRET_ACCESS_KEY: z.string().trim().min(1),
+
+	AWS_REGION: z.string().trim().min(1),
+
+	AWS_S3_BUCKET: z.string().trim().min(1),
+
+	BREVO_API_KEY: z.string().trim().min(1),
+
+	BREVO_SENDER_EMAIL: z.string().trim().email(),
+
+	BREVO_SENDER_NAME: z.string().trim().min(1),
+
+	OTP_TTL_SECONDS: z.coerce.number().positive().default(300),
+
+	OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
+
+	JWT_ACCESS_SECRET: z.string().trim().min(64),
+
+	JWT_REFRESH_SECRET: z.string().trim().min(64),
+
+	BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(10).max(14),
+
 	JWT_ACCESS_EXPIRES_IN: z.string().trim().default("15m"),
-	JWT_REFRESH_SECRET: z
-		.string()
-		.trim()
-		.min(8)
-		.default("spotq-restaurant-service-refresh-secret-jwt-key"),
+
 	JWT_REFRESH_EXPIRES_IN: z.string().trim().default("7d"),
+
 	JWT_TEMP_SECRET: z
 		.string()
 		.trim()
 		.min(8)
 		.default("spotq-restaurant-service-temp-secret-jwt-key"),
-	JWT_TEMP_EXPIRES_IN: z.string().trim().default("15m"),
 
-	// Brevo Email Configuration
-	BREVO_API_KEY: z.string().trim().default("mock-brevo-api-key"),
-	BREVO_SENDER_EMAIL: z.string().trim().default("noreply@spotq.com"),
-	BREVO_SENDER_NAME: z.string().trim().default("SpotQ"),
+	JWT_TEMP_EXPIRES_IN: z.string().trim().default("15m"),
 
 	// Cookie Configuration from Environment
 	COOKIE_NAME_REFRESH_TOKEN: z.string().trim().default("refreshToken"),

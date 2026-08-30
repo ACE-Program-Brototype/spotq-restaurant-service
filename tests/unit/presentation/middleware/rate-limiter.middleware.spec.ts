@@ -7,7 +7,7 @@ import {
 	emailOrIpKeyGenerator,
 	getClientIp,
 	loginRateLimiter,
-} from "@/presentation/middleware/rate-limiter.middleware.ts";
+} from "@/presentation/http/middleware/rate-limiter.middleware.ts";
 
 jest.mock("@/config/redis.ts", () => ({
 	__esModule: true,
@@ -54,7 +54,7 @@ describe("Rate Limiter Middleware", () => {
 
 		it("should fallback to req.ip if x-forwarded-for is missing", () => {
 			mockReq.headers = {};
-			mockReq.ip = "10.0.0.1";
+			(mockReq as { ip?: string }).ip = "10.0.0.1";
 			const ip = getClientIp(mockReq as Request);
 			expect(ip).toBe("10.0.0.1");
 		});
@@ -63,14 +63,14 @@ describe("Rate Limiter Middleware", () => {
 	describe("emailOrIpKeyGenerator & emailKeyGenerator", () => {
 		it("should return email:ip when email is provided", () => {
 			mockReq.body = { email: "STAFF@EXAMPLE.COM" };
-			mockReq.ip = "127.0.0.1";
+			(mockReq as { ip?: string }).ip = "127.0.0.1";
 			const key = emailOrIpKeyGenerator(mockReq as Request);
 			expect(key).toBe("staff@example.com:127.0.0.1");
 		});
 
 		it("should fallback to ip when email is missing in emailOrIpKeyGenerator", () => {
 			mockReq.body = {};
-			mockReq.ip = "127.0.0.1";
+			(mockReq as { ip?: string }).ip = "127.0.0.1";
 			const key = emailOrIpKeyGenerator(mockReq as Request);
 			expect(key).toBe("127.0.0.1");
 		});

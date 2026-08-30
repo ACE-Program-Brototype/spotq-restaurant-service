@@ -1,10 +1,31 @@
 import type { NextFunction, Request, Response } from "express";
-import { type ZodSchema, z } from "zod";
+import type { ZodType } from "zod";
+import { z } from "zod";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
 
-export function validateRequestBody(schema: ZodSchema) {
+export const validate = (schema: ZodType) => {
+	return (req: Request, res: Response, next: NextFunction): void => {
+		const result = schema.safeParse(req.body);
+
+		if (!result.success) {
+			res.status(400).json({
+				success: false,
+				message: "Validation failed",
+				errors: result.error.flatten(),
+			});
+
+			return;
+		}
+
+		req.body = result.data;
+
+		next();
+	};
+};
+
+export function validateRequestBody(schema: ZodType) {
 	return async (
 		req: Request,
 		res: Response,

@@ -4,6 +4,14 @@ export const SYSTEM_ROUTES = {
 	METRICS: "/metrics",
 } as const;
 
+export const RESTAURANT_ROUTES = {
+	EMAIL_OTP: "/registration/email-otp",
+	VERIFY_EMAIL: "/registration/email-otp/verify",
+	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
+	REFRESH_ACCESS_TOKEN: "/auth/refresh",
+	ONBOARD: "/onboard",
+} as const;
+
 export const STAFF_ROUTES = {
 	BASE: "/staff",
 	LOGIN: "/login",
@@ -14,3 +22,10 @@ export const STAFF_ROUTES = {
 	RESEND_FORGOT_PASSWORD_OTP: "/forgot-password/resend-otp",
 	RESET_PASSWORD: "/reset-password",
 } as const;
+
+export type RestaurantRoute =
+	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
+
+export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
+
+export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];

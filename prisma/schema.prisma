@@ -16,6 +16,39 @@ enum RestaurantStatus {
   INACTIVE
 }
 
+model Restaurant {
+  id               String           @id @default(uuid()) @db.Uuid
+
+  restaurantName   String
+  email            String           @unique
+  phone            String
+
+  ownerName        String
+  ownerEmail       String
+
+  seatingCapacity  Int?
+  fssaiNumber      String?
+  gstNumber        String?
+  regNumber        String?
+
+  cuisineType      String?
+
+  status           RestaurantStatus @default(PENDING)
+
+  emailVerifiedAt  DateTime?
+
+  isBlocked        Boolean          @default(false)
+  blockReason      String?
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Relations
+  staff            RestaurantStaff[]
+
+  @@map("restaurants")
+}
+
 enum StaffRole {
   STAFF
 }
@@ -25,38 +58,6 @@ enum StaffStatus {
   INACTIVE
   SUSPENDED
   INVITED
-}
-
-model Restaurant {
-  id              String           @id @default(uuid()) @db.Uuid
-
-  restaurantName  String
-  email           String           @unique
-  phone           String
-
-  ownerName       String
-  ownerEmail      String
-
-  seatingCapacity Int?
-  fssaiNumber     String?
-  gstNumber       String?
-  regNumber       String?
-
-  cuisineType     String?
-
-  status          RestaurantStatus @default(PENDING)
-
-  emailVerifiedAt DateTime?
-
-  isBlocked       Boolean          @default(false)
-  blockReason     String?
-
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  staff           RestaurantStaff[]
-
-  @@map("restaurants")
 }
 
 model RestaurantStaff {

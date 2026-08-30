@@ -60,23 +60,22 @@ export const errorHandler: ErrorRequestHandler = (
 			env.APP_ENV === "production" ? undefined : { stack: err.stack };
 	}
 
+	const errorObj = err instanceof Error ? err : new Error(String(err));
+
 	logger.error(
 		{
 			event: "application.error",
 			requestId: res.locals.requestId,
-			correlationId: res.locals.correlationId,
 			method: req.method,
 			url: req.originalUrl,
 			statusCode,
+			correlationId: res.locals.correlationId,
 			code,
-			error:
-				err instanceof Error
-					? {
-							name: err.name,
-							message: err.message,
-							stack: err.stack,
-						}
-					: err,
+			error: {
+				name: errorObj.name,
+				message: errorObj.message,
+				stack: errorObj.stack,
+			},
 		},
 		messages.UNHANDLED_APP_ERROR,
 	);

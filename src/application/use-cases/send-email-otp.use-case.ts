@@ -1,0 +1,56 @@
+import type { SendRestaurantEmailOtpDto } from "@/application/dto/restaurant-email-verification.dto";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
+import { TYPES } from "@/di/types";
+import { OTP_CONFIG } from "@/shared/constants/otp.constants";
+import { JOB_NAMES } from "@/shared/constants/queue.constants";
+import { generateOtp, getRestaurantEmailOtpKey } from "@/utils/otp.util";
+import type { Queue } from "bullmq";
+import { inject, injectable } from "inversify";
+import type { IOtpService } from "../ports/services/otp.service.port";
+import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
+import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
+
+@injectable()
+export class SendRestaurantEmailOtpUseCase
+	implements ISendRestaurantEmailOtpUseCase
+{
+	constructor(
+		@inject(TYPES.Services.OtpStore)
+		private readonly redisOtpStore: IOtpStore,
+
+		@inject(TYPES.Services.OtpService)
+		private readonly otpService: IOtpService,
+
+		@inject(TYPES.Queue.Email)
+		private readonly emailQueue: Queue,
+
+		@inject(TYPES.Services.OtpHashService)
+		private readonly otpHashService: IOtpHashService,
+	) {}
+
+	async execute(dto: SendRestaurantEmailOtpDto) {
+		const { email } = dto;
+
+		const isRateLimited = await this.otpService.checkSendRateLimit(email);
+
+		if (isRateLimited) {
+			throw new OtpCooldownActiveError();
+		}
+
+		const otp = generateOtp();
+
+		const otpHash = await this.otpHashService.hash(otp);
+
+		const otpKey = getRestaurantEmailOtpKey(email);
+
+		await this.redisOtpStore.save(otpKey, otpHash, OTP_CONFIG.EXPIRY_SECONDS);
+
+		await this.otpService.resetAttempts(email);
+
+		await this.emailQueue.add(JOB_NAMES.EMAIL.VERIFICATION_OTP, {
+			toEmail: email,
+			otp,
+		});
+	}
+}
