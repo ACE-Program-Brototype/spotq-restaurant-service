@@ -7,7 +7,7 @@ import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
-import { StaffController } from "@/presentation/controllers/staff.controller.ts";
+import { StaffController } from "@/presentation/http/controllers/staff.controller.ts";
 
 describe("StaffController", () => {
 	let loginStaffUseCase: jest.Mocked<ILoginStaffUseCase>;

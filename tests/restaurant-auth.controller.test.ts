@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test from "node:test";
+import { test } from "@jest/globals";
 
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";

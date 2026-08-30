@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { resetPasswordSchema } from "@/presentation/validators/staff/reset-password.validator.ts";
+import { resetPasswordSchema } from "@/presentation/http/validators/staff/reset-password.validator.ts";
 
 describe("ResetPasswordValidator", () => {
 	it("should accept strong password with upper, lower, number, special char", () => {

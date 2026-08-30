@@ -1,4 +1,4 @@
-import { loginStaffSchema } from "@/presentation/validators/staff/login-staff.validator.ts";
+import { loginStaffSchema } from "@/presentation/http/validators/staff/login-staff.validator.ts";
 
 describe("loginStaffSchema Validator", () => {
 	it("should parse valid login credentials successfully", async () => {

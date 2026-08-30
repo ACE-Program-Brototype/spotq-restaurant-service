@@ -58,6 +58,7 @@ const config: Config = {
 			},
 		],
 	},
+	transformIgnorePatterns: ["node_modules/(?!.*(inversify|@inversifyjs))"],
 	testMatch: ["<rootDir>/tests/**/*.spec.ts", "<rootDir>/tests/**/*.test.ts"],
 	setupFiles: ["<rootDir>/tests/setup.ts"],
 };
