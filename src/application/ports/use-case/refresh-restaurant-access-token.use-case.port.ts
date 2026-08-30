@@ -1,3 +1,7 @@
+export interface RefreshRestaurantAccessTokenDto {
+	refreshToken: string;
+}
+
 export interface IRefreshRestaurantAccessTokenUseCase {
-	execute(refreshToken: string): Promise<{ accessToken: string }>;
+	execute(dto: RefreshRestaurantAccessTokenDto): Promise<{ accessToken: string }>;
 }

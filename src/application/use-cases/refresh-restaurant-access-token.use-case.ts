@@ -1,7 +1,10 @@
 import { inject, injectable } from "inversify";
 
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
-import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
+import type {
+	IRefreshRestaurantAccessTokenUseCase,
+	RefreshRestaurantAccessTokenDto,
+} from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { TYPES } from "@/di/types";
 
@@ -14,7 +17,9 @@ export class RefreshRestaurantAccessTokenUseCase
 		private readonly authTokenService: IAuthTokenService,
 	) {}
 
-	async execute(refreshToken: string): Promise<{ accessToken: string }> {
+	async execute(dto: RefreshRestaurantAccessTokenDto): Promise<{ accessToken: string }> {
+		const { refreshToken } = dto;
+
 		if (!refreshToken?.trim()) {
 			throw new InvalidRefreshTokenError();
 		}

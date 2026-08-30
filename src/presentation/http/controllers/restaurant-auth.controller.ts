@@ -7,6 +7,7 @@ import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-c
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
 
+import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
@@ -121,18 +122,18 @@ export class RestaurantAuthController {
 			typeof req.query?.refreshToken !== "undefined" ||
 			req.headers.authorization
 		) {
-			throw new InvalidVerificationTokenError();
+			throw new InvalidRefreshTokenError();
 		}
 
 		const refreshToken = this.getCookie(req, "refreshToken");
 
 		if (!refreshToken) {
-			throw new InvalidVerificationTokenError();
+			throw new InvalidRefreshTokenError();
 		}
 
-		const { accessToken } = await this.refreshRestaurantAccessTokenUseCase.execute(
+		const { accessToken } = await this.refreshRestaurantAccessTokenUseCase.execute({
 			refreshToken,
-		);
+		});
 
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
