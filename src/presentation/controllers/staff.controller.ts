@@ -158,8 +158,7 @@ export class StaffController {
 	};
 
 	public resetPassword = async (req: Request, res: Response): Promise<void> => {
-		const tempToken =
-			req.cookies?.[env.COOKIE_NAME_TEMP_TOKEN] || req.body?.tempToken;
+		const tempToken = req.cookies?.[env.COOKIE_NAME_TEMP_TOKEN];
 
 		await this.resetPasswordUseCase.execute({
 			password: req.body.password,
