@@ -22,7 +22,7 @@ describe("ResendForgotPasswordOtpUseCase", () => {
 		phone: "+1234567890",
 		avatarUrl: null,
 		passwordHash: "hashedPassword",
-		role: "MANAGER",
+		role: "STAFF",
 		status: "ACTIVE",
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -34,7 +34,6 @@ describe("ResendForgotPasswordOtpUseCase", () => {
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
-			update: jest.fn(),
 			delete: jest.fn(),
 		};
 

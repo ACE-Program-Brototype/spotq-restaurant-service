@@ -1,13 +1,6 @@
 import { InvalidStaffRoleError } from "@/domain/errors/staff.errors.ts";
 
-export const STAFF_ROLES = [
-	"OWNER",
-	"MANAGER",
-	"CHEF",
-	"WAITER",
-	"CASHIER",
-	"STAFF",
-] as const;
+export const STAFF_ROLES = ["STAFF"] as const;
 
 export type StaffRole = (typeof STAFF_ROLES)[number];
 

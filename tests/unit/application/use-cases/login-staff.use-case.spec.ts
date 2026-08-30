@@ -23,7 +23,7 @@ describe("LoginStaffUseCase", () => {
 		email: "manager@spotq.com",
 		phone: "+1234567890",
 		passwordHash: "$2b$10$hashedpassword",
-		role: "MANAGER",
+		role: "STAFF",
 		status: "ACTIVE",
 	});
 
@@ -33,7 +33,6 @@ describe("LoginStaffUseCase", () => {
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
-			update: jest.fn(),
 			delete: jest.fn(),
 		};
 
@@ -70,7 +69,7 @@ describe("LoginStaffUseCase", () => {
 		});
 
 		expect(result.staff.email).toBe("manager@spotq.com");
-		expect(result.staff.role).toBe("MANAGER");
+		expect(result.staff.role).toBe("STAFF");
 		expect(result.accessToken).toBe("mock-access-token");
 		expect(result.refreshToken).toBe("mock-refresh-token");
 		expect(passwordHasher.compare).toHaveBeenCalledWith(

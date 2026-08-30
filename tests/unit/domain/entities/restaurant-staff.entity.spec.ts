@@ -8,7 +8,7 @@ describe("RestaurantStaff Entity", () => {
 		email: "alice@spotq.com",
 		phone: "+1234567890",
 		passwordHash: "$2b$10$abcdefghijklmnopqrstuvwxyz123456",
-		role: "MANAGER",
+		role: "STAFF",
 		status: "ACTIVE",
 	};
 
@@ -20,7 +20,7 @@ describe("RestaurantStaff Entity", () => {
 		expect(staff.fullname).toBe("Alice Staff");
 		expect(staff.email).toBe("alice@spotq.com");
 		expect(staff.phone).toBe("+1234567890");
-		expect(staff.role).toBe("MANAGER");
+		expect(staff.role).toBe("STAFF");
 		expect(staff.status).toBe("ACTIVE");
 		expect(staff.isActive()).toBe(true);
 		expect(staff.createdAt).toBeInstanceOf(Date);
@@ -36,7 +36,7 @@ describe("RestaurantStaff Entity", () => {
 			phone: "+1234567891",
 			avatarUrl: "https://avatar.com/img.jpg",
 			passwordHash: "hash123",
-			role: "CHEF",
+			role: "STAFF",
 			status: "ACTIVE",
 			createdAt: pastDate,
 			updatedAt: pastDate,

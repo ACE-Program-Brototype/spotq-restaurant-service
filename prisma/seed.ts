@@ -76,7 +76,7 @@ async function main() {
 			phone: "+1234567890",
 			avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
 			passwordHash,
-			role: StaffRole.OWNER,
+			role: StaffRole.STAFF,
 			status: StaffStatus.ACTIVE,
 		},
 		{
@@ -87,7 +87,7 @@ async function main() {
 			phone: "+1234567891",
 			avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9",
 			passwordHash,
-			role: StaffRole.MANAGER,
+			role: StaffRole.STAFF,
 			status: StaffStatus.ACTIVE,
 		},
 		{
@@ -98,7 +98,7 @@ async function main() {
 			phone: "+1234567892",
 			avatarUrl: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c",
 			passwordHash,
-			role: StaffRole.CHEF,
+			role: StaffRole.STAFF,
 			status: StaffStatus.ACTIVE,
 		},
 		{
@@ -109,7 +109,7 @@ async function main() {
 			phone: "+1234567893",
 			avatarUrl: null,
 			passwordHash,
-			role: StaffRole.WAITER,
+			role: StaffRole.STAFF,
 			status: StaffStatus.ACTIVE,
 		},
 		// SpotQ Official Staff Account for Testing Real Emails
@@ -121,7 +121,7 @@ async function main() {
 			phone: "+1234567899",
 			avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
 			passwordHash,
-			role: StaffRole.MANAGER,
+			role: StaffRole.STAFF,
 			status: StaffStatus.ACTIVE,
 		},
 		// Staff for SpotQ Spice Lounge
@@ -133,7 +133,7 @@ async function main() {
 			phone: "+1234567895",
 			avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
 			passwordHash,
-			role: StaffRole.MANAGER,
+			role: StaffRole.STAFF,
 			status: StaffStatus.ACTIVE,
 		},
 		{
@@ -144,7 +144,7 @@ async function main() {
 			phone: "+1234567896",
 			avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e",
 			passwordHash,
-			role: StaffRole.CHEF,
+			role: StaffRole.STAFF,
 			status: StaffStatus.ACTIVE,
 		},
 		// Inactive Test Account

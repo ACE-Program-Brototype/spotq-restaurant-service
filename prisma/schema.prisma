@@ -17,11 +17,6 @@ enum RestaurantStatus {
 }
 
 enum StaffRole {
-  OWNER
-  MANAGER
-  CHEF
-  WAITER
-  CASHIER
   STAFF
 }
 

@@ -29,7 +29,7 @@ describe("RefreshTokenUseCase", () => {
 		phone: "+1234567890",
 		avatarUrl: null,
 		passwordHash: "hashedPassword",
-		role: "MANAGER",
+		role: "STAFF",
 		status: "ACTIVE",
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -39,7 +39,7 @@ describe("RefreshTokenUseCase", () => {
 		id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
 		restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 		email: "manager@spotq.com",
-		role: "MANAGER",
+		role: "STAFF",
 	};
 
 	beforeEach(() => {
@@ -57,7 +57,6 @@ describe("RefreshTokenUseCase", () => {
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
-			update: jest.fn(),
 			delete: jest.fn(),
 		};
 
@@ -137,7 +136,7 @@ describe("RefreshTokenUseCase", () => {
 			phone: "+1234567890",
 			avatarUrl: null,
 			passwordHash: "hashedPassword",
-			role: "MANAGER",
+			role: "STAFF",
 			status: "INACTIVE",
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -161,7 +160,7 @@ describe("RefreshTokenUseCase", () => {
 			phone: "+1234567890",
 			avatarUrl: null,
 			passwordHash: "hashedPassword",
-			role: "MANAGER",
+			role: "STAFF",
 			status: "SUSPENDED",
 			createdAt: new Date(),
 			updatedAt: new Date(),

@@ -26,7 +26,7 @@ describe("ResetPasswordUseCase", () => {
 		phone: "+1234567890",
 		avatarUrl: null,
 		passwordHash: "oldHashedPassword",
-		role: "MANAGER",
+		role: "STAFF",
 		status: "ACTIVE",
 		createdAt: new Date(),
 		updatedAt: new Date(),
@@ -38,7 +38,6 @@ describe("ResetPasswordUseCase", () => {
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
-			update: jest.fn(),
 			delete: jest.fn(),
 		};
 

@@ -64,7 +64,7 @@ describe("StaffController", () => {
 					email: "manager@spotq.com",
 					phone: "+1234567890",
 					avatarUrl: null,
-					role: "MANAGER",
+					role: "STAFF",
 					status: "ACTIVE",
 					createdAt: new Date().toISOString(),
 					updatedAt: new Date().toISOString(),
