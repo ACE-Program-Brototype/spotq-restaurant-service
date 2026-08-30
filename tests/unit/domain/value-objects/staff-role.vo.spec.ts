@@ -11,9 +11,7 @@ describe("StaffRoleVO Value Object", () => {
 	});
 
 	it("should throw InvalidStaffRoleError for unrecognized roles", () => {
-		expect(() => StaffRoleVO.create("MANAGER")).toThrow(
-			InvalidStaffRoleError,
-		);
+		expect(() => StaffRoleVO.create("MANAGER")).toThrow(InvalidStaffRoleError);
 		expect(() => StaffRoleVO.create("SUPERADMIN")).toThrow(
 			InvalidStaffRoleError,
 		);

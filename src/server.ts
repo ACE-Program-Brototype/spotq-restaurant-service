@@ -34,7 +34,7 @@ async function bootstrap() {
 		});
 
 		let isShuttingDown = false;
-				
+
 		async function shutdown(signal: string) {
 			if (isShuttingDown) {
 				return;
@@ -64,15 +64,12 @@ async function bootstrap() {
 
 					logger.info("Graceful shutdown completed successfully");
 					process.exit(0);
-
 				} catch (teardownErr) {
-
 					logger.error({ err: teardownErr }, "Error during resource teardown");
 					process.exit(1);
 				}
 			});
 
-			
 			setTimeout(() => {
 				logger.error("Forced shutdown due to timeout");
 				process.exit(1);
@@ -81,7 +78,6 @@ async function bootstrap() {
 
 		process.on("SIGINT", () => shutdown("SIGINT"));
 		process.on("SIGTERM", () => shutdown("SIGTERM"));
-
 	} catch (error) {
 		logger.fatal({ err: error }, "Failed to start application");
 		process.exit(1);

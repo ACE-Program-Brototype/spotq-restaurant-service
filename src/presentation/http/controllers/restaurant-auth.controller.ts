@@ -36,18 +36,24 @@ export class RestaurantAuthController {
 		const cookieHeader = req.headers.cookie;
 		if (!cookieHeader) return undefined;
 
-		const cookies = cookieHeader.split(";").reduce<Record<string, string>>((acc, rawCookie) => {
-			const [key, ...valueParts] = rawCookie.trim().split("=");
-			if (!key) return acc;
-			const value = valueParts.join("=");
-			acc[key] = decodeURIComponent(value ?? "");
-			return acc;
-		}, {});
+		const cookies = cookieHeader
+			.split(";")
+			.reduce<Record<string, string>>((acc, rawCookie) => {
+				const [key, ...valueParts] = rawCookie.trim().split("=");
+				if (!key) return acc;
+				const value = valueParts.join("=");
+				acc[key] = decodeURIComponent(value ?? "");
+				return acc;
+			}, {});
 
 		return cookies[name];
 	}
 
-	private setAccessAndRefreshCookies(res: Response, accessToken: string, refreshToken: string) {
+	private setAccessAndRefreshCookies(
+		res: Response,
+		accessToken: string,
+		refreshToken: string,
+	) {
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === "production",
@@ -131,9 +137,10 @@ export class RestaurantAuthController {
 			throw new InvalidRefreshTokenError();
 		}
 
-		const { accessToken } = await this.refreshRestaurantAccessTokenUseCase.execute({
-			refreshToken,
-		});
+		const { accessToken } =
+			await this.refreshRestaurantAccessTokenUseCase.execute({
+				refreshToken,
+			});
 
 		res.cookie("accessToken", accessToken, {
 			httpOnly: true,

@@ -3,5 +3,7 @@ export interface RefreshRestaurantAccessTokenDto {
 }
 
 export interface IRefreshRestaurantAccessTokenUseCase {
-	execute(dto: RefreshRestaurantAccessTokenDto): Promise<{ accessToken: string }>;
+	execute(
+		dto: RefreshRestaurantAccessTokenDto,
+	): Promise<{ accessToken: string }>;
 }

@@ -2,7 +2,7 @@ import type { IEmailService } from "@/application/ports/services/email-service.p
 import type { ILogger } from "@/application/ports/services/logger.interface";
 import type { IEmailWorker } from "@/application/ports/workers/email.worker.port";
 import { TYPES } from "@/di/types";
-import { Worker,Job } from "bullmq";
+import { Worker, type Job } from "bullmq";
 import { inject, injectable } from "inversify";
 import { bullMQConnection } from "../bullmq.service";
 import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants";

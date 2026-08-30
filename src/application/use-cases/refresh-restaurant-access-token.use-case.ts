@@ -17,7 +17,9 @@ export class RefreshRestaurantAccessTokenUseCase
 		private readonly authTokenService: IAuthTokenService,
 	) {}
 
-	async execute(dto: RefreshRestaurantAccessTokenDto): Promise<{ accessToken: string }> {
+	async execute(
+		dto: RefreshRestaurantAccessTokenDto,
+	): Promise<{ accessToken: string }> {
 		const { refreshToken } = dto;
 
 		if (!refreshToken?.trim()) {
