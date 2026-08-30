@@ -43,6 +43,9 @@ model Restaurant {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
+  // Relations
+  staff            RestaurantStaff[]
+
   @@map("restaurants")
 }
 
