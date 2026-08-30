@@ -8,7 +8,6 @@ import { systemModule } from "./modules/system.module.ts";
 
 export const container = new Container({
 	defaultScope: "Singleton",
-	autoBindInjectable: true,
 });
 
 container.load(
