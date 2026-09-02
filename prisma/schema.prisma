@@ -35,13 +35,13 @@ model Restaurant {
 
   status           RestaurantStatus @default(PENDING)
 
-  emailVerifiedAt  DateTime?
+  emailVerifiedAt  DateTime?        @db.Timestamptz(3)
 
   isBlocked        Boolean          @default(false)
   blockReason      String?
 
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
 
   // Relations
   staff            RestaurantStaff[]
@@ -70,8 +70,8 @@ model RestaurantStaff {
   passwordHash String      @map("password_hash")
   role         StaffRole   @default(STAFF)
   status       StaffStatus @default(ACTIVE)
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 

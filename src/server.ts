@@ -1,3 +1,5 @@
+process.env.TZ = "UTC";
+
 import app from "@/app";
 import {
 	connectDatabase,
@@ -10,12 +12,12 @@ import {
 } from "@/infrastructure/queue/bullmq.connect";
 import { createEmailWorker } from "@/infrastructure/queue/workers/email.worker";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
-import { PORT } from "@/shared/constants/app.constants";
 import { closeS3Client } from "@/infrastructure/storage/s3.client";
 import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
+import { PORT } from "@/shared/constants/app.constants";
+import type { IEmailWorker } from "./application/ports/workers/email.worker.port";
 import { container } from "./di/container";
 import { TYPES } from "./di/types";
-import type { IEmailWorker } from "./application/ports/workers/email.worker.port";
 
 async function bootstrap() {
 	try {
