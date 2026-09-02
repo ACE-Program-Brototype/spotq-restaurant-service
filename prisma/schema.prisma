@@ -112,7 +112,7 @@ model RestaurantProfile {
   coverImage     String? @map("cover_image")
   avatar         String?
   description    String?
-  fssai_number  String? @map("licence_number")
+  fssai_number  String? @map("fssai_number")
   registerNumber String? @map("register_number")
   gstNumber      String? @map("gst_number")
 
