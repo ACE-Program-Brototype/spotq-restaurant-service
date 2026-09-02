@@ -26,13 +26,6 @@ model Restaurant {
   ownerName        String
   ownerEmail       String
 
-  seatingCapacity  Int?
-  fssaiNumber      String?
-  gstNumber        String?
-  regNumber        String?
-
-  cuisineType      String?
-
   status           RestaurantStatus @default(PENDING)
 
   emailVerifiedAt  DateTime?
