@@ -16,6 +16,11 @@ enum RestaurantStatus {
   INACTIVE
 }
 
+enum OnboardingStatus {
+  PENDING
+  COMPLETED
+}
+
 model Restaurant {
   id               String           @id @default(uuid()) @db.Uuid
 
@@ -27,6 +32,8 @@ model Restaurant {
   ownerEmail       String
 
   status           RestaurantStatus @default(PENDING)
+
+  onboardingStatus OnboardingStatus @default(PENDING)
 
   emailVerifiedAt  DateTime?
 
