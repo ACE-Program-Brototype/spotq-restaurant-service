@@ -101,6 +101,52 @@ const envSchema = z.object({
 			.default(7 * 24 * 60 * 60 * 1000), // 7 days in ms
 	),
 	COOKIE_DOMAIN: z.string().trim().optional(),
+
+	// Rate Limiting Configuration
+	RATE_LIMIT_LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
+	RATE_LIMIT_LOGIN_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_FORGOT_PASSWORD_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(3),
+	RATE_LIMIT_FORGOT_PASSWORD_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(24 * 60 * 60),
+
+	RATE_LIMIT_VERIFY_OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
+	RATE_LIMIT_VERIFY_OTP_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_RESEND_OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(3),
+	RATE_LIMIT_RESEND_OTP_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(60 * 60),
+
+	RATE_LIMIT_RESET_PASSWORD_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(5),
+	RATE_LIMIT_RESET_PASSWORD_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_REFRESH_TOKEN_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_REFRESH_TOKEN_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(60),
 });
 
 export type Env = z.infer<typeof envSchema>;
