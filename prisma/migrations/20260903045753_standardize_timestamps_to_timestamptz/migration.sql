@@ -1,0 +1,15 @@
+-- AlterTable
+ALTER TABLE "restaurant_profile" ALTER COLUMN "created_at" SET DATA TYPE TIMESTAMPTZ(3),
+ALTER COLUMN "updated_at" SET DATA TYPE TIMESTAMPTZ(3);
+
+-- AlterTable
+ALTER TABLE "restaurant_settings" ALTER COLUMN "created_at" SET DATA TYPE TIMESTAMPTZ(3),
+ALTER COLUMN "updated_at" SET DATA TYPE TIMESTAMPTZ(3);
+
+-- AlterTable
+ALTER TABLE "restaurant_staff" ALTER COLUMN "created_at" SET DATA TYPE TIMESTAMPTZ(3),
+ALTER COLUMN "updated_at" SET DATA TYPE TIMESTAMPTZ(3);
+
+-- AlterTable
+ALTER TABLE "restaurants" ALTER COLUMN "createdAt" SET DATA TYPE TIMESTAMPTZ(3),
+ALTER COLUMN "updatedAt" SET DATA TYPE TIMESTAMPTZ(3);
