@@ -43,9 +43,10 @@ model Restaurant {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   // Relations
-  staff    RestaurantStaff[]
-  profile  RestaurantProfile?
-  settings RestaurantSettings?
+  staff          RestaurantStaff[]
+  profile        RestaurantProfile?
+  settings       RestaurantSettings?
+  operatingHours RestaurantOperatingHours[]
 
   @@map("restaurants")
 }
@@ -91,7 +92,6 @@ model RestaurantSettings {
   openTime  DateTime? @map("open_time") @db.Time(0)
   closeTime DateTime? @map("close_time") @db.Time(0)
 
-  isSunday  Boolean @default(false) @map("is_sunday")
   isLoyalty Boolean @default(false) @map("is_loyalty")
 
   cuisineType     String? @map("cuisine_type")
@@ -122,4 +122,17 @@ model RestaurantProfile {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@map("restaurant_profile")
+}
+
+model RestaurantOperatingHours {
+  id           String    @id @default(uuid()) @db.Uuid
+  restaurantId String    @db.Uuid
+  dayOfWeek    Int
+  isOpen       Boolean   @default(false)
+  openTime     DateTime? @db.Time(0)
+  closeTime    DateTime? @db.Time(0)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, dayOfWeek])
 }

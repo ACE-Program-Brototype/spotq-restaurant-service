@@ -20,7 +20,7 @@ async function main() {
 		{
 			id: "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 			restaurantName: "SpotQ Grand Bistro",
-			email: "bistro@spotq.com",
+			email: "sooryanarayanan1082004@gmail.com",
 			phone: "+1234567801",
 			ownerName: "John Owner",
 			ownerEmail: "owner@spotq.com",
