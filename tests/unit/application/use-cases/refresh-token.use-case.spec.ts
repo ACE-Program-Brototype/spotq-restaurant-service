@@ -36,7 +36,7 @@ describe("RefreshTokenUseCase", () => {
 	});
 
 	const mockPayload: StaffTokenPayload = {
-		id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+		sub: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
 		restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 		email: "manager@spotq.com",
 		role: "STAFF",
@@ -90,7 +90,7 @@ describe("RefreshTokenUseCase", () => {
 			"valid-refresh-token",
 		);
 		expect(restaurantStaffRepository.findById).toHaveBeenCalledWith(
-			mockPayload.id,
+			mockPayload.sub,
 		);
 	});
 

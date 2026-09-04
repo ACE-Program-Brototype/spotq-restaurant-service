@@ -1,12 +1,12 @@
 export interface StaffTokenPayload {
-	id: string;
+	sub: string;
 	restaurantId: string;
 	email: string;
 	role: string;
 }
 
 export interface StaffTempTokenPayload {
-	id: string;
+	sub: string;
 	email: string;
 	purpose: string;
 }

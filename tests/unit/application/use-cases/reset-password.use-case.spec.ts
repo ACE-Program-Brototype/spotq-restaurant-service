@@ -71,7 +71,7 @@ describe("ResetPasswordUseCase", () => {
 	it("should verify tempToken, hash new password, save staff, and revoke tempToken", async () => {
 		tokenRevocationRepository.isRevoked.mockResolvedValue(false);
 		tokenService.verifyTempToken.mockReturnValue({
-			id: mockStaff.id,
+			sub: mockStaff.id,
 			email: mockStaff.email,
 			purpose: "password-reset",
 		});
@@ -121,7 +121,7 @@ describe("ResetPasswordUseCase", () => {
 	it("should throw InvalidTempTokenError when token purpose is not password-reset", async () => {
 		tokenRevocationRepository.isRevoked.mockResolvedValue(false);
 		tokenService.verifyTempToken.mockReturnValue({
-			id: mockStaff.id,
+			sub: mockStaff.id,
 			email: mockStaff.email,
 			purpose: "other-purpose",
 		});
@@ -137,7 +137,7 @@ describe("ResetPasswordUseCase", () => {
 	it("should throw StaffNotFoundError when staff is not found", async () => {
 		tokenRevocationRepository.isRevoked.mockResolvedValue(false);
 		tokenService.verifyTempToken.mockReturnValue({
-			id: "unknown-id",
+			sub: "unknown-id",
 			email: "unknown@spotq.com",
 			purpose: "password-reset",
 		});

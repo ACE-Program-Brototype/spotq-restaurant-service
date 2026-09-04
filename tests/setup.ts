@@ -15,6 +15,9 @@ process.env.BREVO_SENDER_EMAIL = "noreply@spotq.com";
 process.env.BREVO_SENDER_NAME = "SpotQ Test";
 process.env.JWT_ACCESS_SECRET =
 	"test-jwt-access-secret-key-1234567890123456789012345678901234567890";
+process.env.JWT_ACCESS_PRIVATE_KEY = "test-jwt-access-private-key";
+process.env.JWT_ACCESS_PUBLIC_KEY = "test-jwt-access-public-key";
+process.env.JWT_ACCESS_TOKEN_KEY_ID = "test-jwt-access-token-key-id";
 process.env.JWT_ACCESS_EXPIRES_IN = "15m";
 process.env.JWT_REFRESH_SECRET =
 	"test-jwt-refresh-secret-key-1234567890123456789012345678901234567890";

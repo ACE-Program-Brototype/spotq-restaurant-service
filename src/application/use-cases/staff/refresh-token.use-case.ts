@@ -51,7 +51,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 		}
 
 		// 3. Verify staff existence
-		const staff = await this.restaurantStaffRepository.findById(payload.id);
+		const staff = await this.restaurantStaffRepository.findById(payload.sub);
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}
@@ -67,7 +67,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 
 		// 5. Generate fresh access token
 		const tokenPayload: StaffTokenPayload = {
-			id: staff.id,
+			sub: staff.id,
 			restaurantId: staff.restaurantId,
 			email: staff.email,
 			role: staff.role,
