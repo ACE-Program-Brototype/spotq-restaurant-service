@@ -1,14 +1,12 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-
-import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
-import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
-import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
-import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
-import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
-
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
+import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
+import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { successResponse } from "@/utils/response.model";
@@ -142,17 +140,11 @@ export class RestaurantAuthController {
 				refreshToken,
 			});
 
-		res.cookie("accessToken", accessToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
-			maxAge: 15 * 60 * 1000,
-		});
-
 		return successResponse(
 			res,
 			"Access token refreshed successfully.",
 			HTTP_STATUS.SUCCESS,
+			{ accessToken },
 		);
 	}
 

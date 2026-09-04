@@ -9,7 +9,7 @@ import { env } from "@/config/env.ts";
 
 @injectable()
 export class JwtTokenService implements ITokenService {
-	private readonly accessSecret = env.JWT_ACCESS_SECRET;
+	private readonly accessPrivateKey = env.JWT_ACCESS_PRIVATE_KEY;
 	private readonly accessExpiresIn = env.JWT_ACCESS_EXPIRES_IN;
 	private readonly refreshSecret = env.JWT_REFRESH_SECRET;
 	private readonly refreshExpiresIn = env.JWT_REFRESH_EXPIRES_IN;
@@ -17,8 +17,10 @@ export class JwtTokenService implements ITokenService {
 	private readonly tempExpiresIn = env.JWT_TEMP_EXPIRES_IN;
 
 	public generateAccessToken(payload: StaffTokenPayload): string {
-		return jwt.sign(payload, this.accessSecret, {
+		return jwt.sign(payload, this.accessPrivateKey, {
 			expiresIn: this.accessExpiresIn as jwt.SignOptions["expiresIn"],
+			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
+			keyid: env.JWT_ACCESS_TOKEN_KEY_ID,
 		});
 	}
 
@@ -29,7 +31,9 @@ export class JwtTokenService implements ITokenService {
 	}
 
 	public verifyAccessToken(token: string): StaffTokenPayload {
-		return jwt.verify(token, this.accessSecret) as StaffTokenPayload;
+		return jwt.verify(token, this.accessPrivateKey, {
+			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
+		}) as StaffTokenPayload;
 	}
 
 	public verifyRefreshToken(token: string): StaffTokenPayload {

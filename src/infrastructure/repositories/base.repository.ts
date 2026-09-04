@@ -1,5 +1,5 @@
-import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
 import type { PrismaClient } from "@prisma/client";
+import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
 
 type PrismaModelDelegate<T> = {
 	create: (args: { data: Partial<T> }) => Promise<T>;

@@ -1,10 +1,10 @@
-import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { RestaurantAlreadyExistsError } from "@/application/errors/restaurant-already-exists.error";
+import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
 import { OtpCooldownActiveError } from "@/application/errors/otp-cooldown-active.error";
 import { OtpVerificationAttemptsExceededError } from "@/application/errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "@/application/errors/restaurant-account-blocked.error";
-import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
+import { RestaurantAlreadyExistsError } from "@/application/errors/restaurant-already-exists.error";
+import { HTTP_STATUS } from "@/shared/constants/http.constants";
 
 type ErrorConstructor = new () => Error;
 
