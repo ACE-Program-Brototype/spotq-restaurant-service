@@ -16,35 +16,37 @@ enum RestaurantStatus {
   INACTIVE
 }
 
+enum OnboardingStatus {
+  PENDING
+  COMPLETED
+}
+
 model Restaurant {
-  id               String           @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 
-  restaurantName   String
-  email            String           @unique
-  phone            String
+  restaurantName String @map("restaurant_name")
+  email          String @unique
+  phone          String
 
-  ownerName        String
-  ownerEmail       String
-
-  seatingCapacity  Int?
-  fssaiNumber      String?
-  gstNumber        String?
-  regNumber        String?
-
-  cuisineType      String?
+  ownerName  String @map("owner_name")
+  ownerEmail String @map("owner_email")
 
   status           RestaurantStatus @default(PENDING)
+  onboardingStatus OnboardingStatus @default(PENDING) @map("onboarding_status")
 
-  emailVerifiedAt  DateTime?
+  emailVerifiedAt DateTime? @map("email_verified_at")
 
-  isBlocked        Boolean          @default(false)
-  blockReason      String?
+  isBlocked   Boolean @default(false) @map("is_blocked")
+  blockReason String? @map("block_reason")
 
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   // Relations
-  staff            RestaurantStaff[]
+  staff          RestaurantStaff[]
+  profile        RestaurantProfile?
+  settings       RestaurantSettings?
+  operatingHours RestaurantOperatingHours[]
 
   @@map("restaurants")
 }
@@ -70,12 +72,68 @@ model RestaurantStaff {
   passwordHash String      @map("password_hash")
   role         StaffRole   @default(STAFF)
   status       StaffStatus @default(ACTIVE)
-  createdAt    DateTime    @default(now()) @map("created_at")
-  updatedAt    DateTime    @updatedAt @map("updated_at")
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId])
   @@index([email])
   @@map("restaurant_staff")
+}
+
+model RestaurantSettings {
+  id           String @id @default(uuid()) @db.Uuid
+  restaurantId String @unique @map("restaurant_id") @db.Uuid
+
+  isOpened   Boolean @default(false) @map("is_opened")
+  isPreorder Boolean @default(false) @map("is_preorder")
+
+  openTime  DateTime? @map("open_time") @db.Time(0)
+  closeTime DateTime? @map("close_time") @db.Time(0)
+
+  isLoyaltyEnabled Boolean @default(false) @map("is_loyalty")
+
+  cuisineType     String? @map("cuisine_type")
+  seatingCapacity Int?    @map("seating_capacity")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_settings")
+}
+
+model RestaurantProfile {
+  id           String @id @default(uuid()) @db.Uuid
+  restaurantId String @unique @map("restaurant_id") @db.Uuid
+
+  coverImage     String? @map("cover_image")
+  avatar         String? @map("avatar")
+  description    String? @map("description")
+  fssaiNumber    String? @map("fssai_number")
+  registerNumber String? @map("register_number")
+  gstNumber      String? @map("gst_number")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_profile")
+}
+
+model RestaurantOperatingHours {
+  id           String    @id @default(uuid()) @db.Uuid
+  restaurantId String    @map("restaurant_id") @db.Uuid
+  dayOfWeek    Int       @map("day_of_week")
+  isOpen       Boolean   @default(false) @map("is_open")
+  openTime     DateTime? @map("open_time") @db.Time(0)
+  closeTime    DateTime? @map("close_time") @db.Time(0)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, dayOfWeek])
+  @@map("restaurant_operating_hours")
 }
