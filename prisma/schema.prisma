@@ -1,3 +1,8 @@
+/**
+ * Restaurant Service Database Schema
+ * Standardized timestamps stored in UTC (TIMESTAMPTZ(3))
+ */
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -31,10 +36,10 @@ model Restaurant {
   ownerName  String @map("owner_name")
   ownerEmail String @map("owner_email")
 
-  status           RestaurantStatus @default(PENDING)
+  status           RestaurantStatus @default(PENDING) @map("status")
   onboardingStatus OnboardingStatus @default(PENDING) @map("onboarding_status")
 
-  emailVerifiedAt DateTime? @map("email_verified_at")
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(3)
 
   isBlocked   Boolean @default(false) @map("is_blocked")
   blockReason String? @map("block_reason")
@@ -42,7 +47,6 @@ model Restaurant {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  // Relations
   staff          RestaurantStaff[]
   profile        RestaurantProfile?
   settings       RestaurantSettings?

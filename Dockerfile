@@ -18,6 +18,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production \
     PORT=3001 \
+    TZ=UTC \
     INFISICAL_DISABLE_UPDATE_CHECK=true
 
 RUN apk add --no-cache bash curl && \
