@@ -1,3 +1,8 @@
+/**
+ * Restaurant Service Database Schema
+ * Standardized timestamps stored in UTC (TIMESTAMPTZ(3))
+ */
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,34 +22,33 @@ enum RestaurantStatus {
 }
 
 model Restaurant {
-  id               String           @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 
-  restaurantName   String
-  email            String           @unique
-  phone            String
+  restaurantName String
+  email          String @unique
+  phone          String
 
-  ownerName        String
-  ownerEmail       String
+  ownerName  String
+  ownerEmail String
 
-  seatingCapacity  Int?
-  fssaiNumber      String?
-  gstNumber        String?
-  regNumber        String?
+  seatingCapacity Int?
+  fssaiNumber     String?
+  gstNumber       String?
+  regNumber       String?
 
-  cuisineType      String?
+  cuisineType String?
 
-  status           RestaurantStatus @default(PENDING)
+  status RestaurantStatus @default(PENDING)
 
-  emailVerifiedAt  DateTime?        @db.Timestamptz(3)
+  emailVerifiedAt DateTime? @db.Timestamptz(3)
 
-  isBlocked        Boolean          @default(false)
-  blockReason      String?
+  isBlocked   Boolean @default(false)
+  blockReason String?
 
-  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  // Relations
-  staff            RestaurantStaff[]
+  staff RestaurantStaff[]
 
   @@map("restaurants")
 }
@@ -73,7 +77,7 @@ model RestaurantStaff {
   createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId])
   @@index([email])
