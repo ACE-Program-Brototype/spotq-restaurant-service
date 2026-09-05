@@ -1,3 +1,4 @@
+import { env } from "@config/env";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
@@ -47,23 +48,12 @@ export class RestaurantAuthController {
 		return cookies[name];
 	}
 
-	private setAccessAndRefreshCookies(
-		res: Response,
-		accessToken: string,
-		refreshToken: string,
-	) {
-		res.cookie("accessToken", accessToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
-			maxAge: 15 * 60 * 1000,
-		});
-
+	private setRefreshCookies(res: Response, refreshToken: string) {
 		res.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
-			maxAge: 7 * 24 * 60 * 60 * 1000,
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
 		});
 	}
 
@@ -102,13 +92,16 @@ export class RestaurantAuthController {
 				);
 			}
 
-			this.setAccessAndRefreshCookies(res, accessToken, refreshToken);
+			this.setRefreshCookies(res, refreshToken);
 
 			return successResponse(
 				res,
 				"Email verified successfully.",
 				HTTP_STATUS.SUCCESS,
-				{ nextStep: dashboardResult.nextStep },
+				{
+					nextStep: dashboardResult.nextStep,
+					accessToken,
+				},
 			);
 		}
 
