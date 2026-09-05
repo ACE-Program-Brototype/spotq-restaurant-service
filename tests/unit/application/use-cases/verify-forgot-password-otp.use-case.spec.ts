@@ -81,7 +81,7 @@ describe("VerifyForgotPasswordOtpUseCase", () => {
 		);
 		expect(otpRepository.deleteOtp).toHaveBeenCalledWith("manager@spotq.com");
 		expect(tokenService.generateTempToken).toHaveBeenCalledWith({
-			id: mockStaff.id,
+			sub: mockStaff.id,
 			email: mockStaff.email,
 			purpose: "password-reset",
 		});

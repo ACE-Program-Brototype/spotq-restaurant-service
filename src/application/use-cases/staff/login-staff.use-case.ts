@@ -54,7 +54,7 @@ export class LoginStaffUseCase implements ILoginStaffUseCase {
 		}
 
 		const tokenPayload: StaffTokenPayload = {
-			id: staff.id,
+			sub: staff.id,
 			restaurantId: staff.restaurantId,
 			email: staff.email,
 			role: staff.role,

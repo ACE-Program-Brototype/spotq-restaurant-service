@@ -1,11 +1,10 @@
 import { inject, injectable } from "inversify";
-
+import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type {
 	IRefreshRestaurantAccessTokenUseCase,
 	RefreshRestaurantAccessTokenDto,
 } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
-import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { TYPES } from "@/di/types";
 
 @injectable()

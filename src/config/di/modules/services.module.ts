@@ -1,3 +1,5 @@
+import type { IJwkService } from "@application/ports/services/IJwk.service";
+import { JwksService } from "@infrastructure/services/jwt.service";
 import { ContainerModule } from "inversify";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type { IOtpService } from "@/application/ports/services/otp-service.port.ts";
@@ -20,4 +22,5 @@ export const servicesModule = new ContainerModule(({ bind }) => {
 	bind<IEmailQueuePort>(TYPES.EmailQueuePort)
 		.to(EmailQueueService)
 		.inSingletonScope();
+	bind<IJwkService>(TYPES.JWKService).to(JwksService).inSingletonScope();
 });

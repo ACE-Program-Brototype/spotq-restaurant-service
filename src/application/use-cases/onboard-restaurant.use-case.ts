@@ -1,11 +1,11 @@
+import { inject, injectable } from "inversify";
 import type { OnboardRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import { TYPES } from "@/di/types";
-import { inject, injectable } from "inversify";
-import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exists.error";
 import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
+import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exists.error";
 
 @injectable()
 export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {

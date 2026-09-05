@@ -59,7 +59,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		}
 
 		// 3. Find staff member
-		const staff = await this.staffRepository.findById(payload.id);
+		const staff = await this.staffRepository.findById(payload.sub);
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}
