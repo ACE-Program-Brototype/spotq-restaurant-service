@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
+import { env } from "@/config/env.ts";
 import redis from "@/config/redis.ts";
 import { RateLimitExceededError } from "@/domain/errors/staff.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface RateLimiterOptions {
 	prefix: string;
@@ -86,60 +88,56 @@ export const createRateLimiter = (options: RateLimiterOptions) => {
 	};
 };
 
-// 1. Login: Max 5 attempts per 15 minutes
+// 1. Login: Max attempts per window from env
 export const loginRateLimiter = createRateLimiter({
 	prefix: "login",
-	maxAttempts: 5,
-	windowSeconds: 15 * 60, // 15 minutes
-	errorMessage: "Too many login attempts. Please try again after 15 minutes.",
+	maxAttempts: env.RATE_LIMIT_LOGIN_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_LOGIN_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_LOGIN_EXCEEDED,
 	keyGenerator: emailOrIpKeyGenerator,
 });
 
-// 2. Forgot Password: Max 3 attempts per 24 hours per email
+// 2. Forgot Password: Max attempts per window per email from env
 export const forgotPasswordRateLimiter = createRateLimiter({
 	prefix: "forgot-password",
-	maxAttempts: 3,
-	windowSeconds: 24 * 60 * 60, // 24 hours
-	errorMessage:
-		"Too many forgot password requests for this email. Maximum 3 attempts per 24 hours.",
+	maxAttempts: env.RATE_LIMIT_FORGOT_PASSWORD_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_FORGOT_PASSWORD_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_FORGOT_PASSWORD_EXCEEDED,
 	keyGenerator: emailKeyGenerator,
 });
 
-// 3. Verify OTP: Max 5 attempts per 15 minutes (protects against OTP brute forcing)
+// 3. Verify OTP: Max attempts per window from env (protects against OTP brute forcing)
 export const verifyOtpRateLimiter = createRateLimiter({
 	prefix: "verify-otp",
-	maxAttempts: 5,
-	windowSeconds: 15 * 60, // 15 minutes
-	errorMessage:
-		"Too many failed OTP verification attempts. Please try again after 15 minutes.",
+	maxAttempts: env.RATE_LIMIT_VERIFY_OTP_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_VERIFY_OTP_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_VERIFY_OTP_EXCEEDED,
 	keyGenerator: emailOrIpKeyGenerator,
 });
 
-// 4. Resend OTP: Max 3 attempts per 1 hour per email
+// 4. Resend OTP: Max attempts per window per email from env
 export const resendOtpRateLimiter = createRateLimiter({
 	prefix: "resend-otp",
-	maxAttempts: 3,
-	windowSeconds: 60 * 60, // 1 hour
-	errorMessage: "Too many OTP resend requests. Maximum 3 attempts per 1 hour.",
+	maxAttempts: env.RATE_LIMIT_RESEND_OTP_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_RESEND_OTP_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_RESEND_OTP_EXCEEDED,
 	keyGenerator: emailKeyGenerator,
 });
 
-// 5. Reset Password: Max 5 attempts per 15 minutes
+// 5. Reset Password: Max attempts per window from env
 export const resetPasswordRateLimiter = createRateLimiter({
 	prefix: "reset-password",
-	maxAttempts: 5,
-	windowSeconds: 15 * 60, // 15 minutes
-	errorMessage:
-		"Too many password reset attempts. Please try again after 15 minutes.",
+	maxAttempts: env.RATE_LIMIT_RESET_PASSWORD_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_RESET_PASSWORD_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_RESET_PASSWORD_EXCEEDED,
 	keyGenerator: getClientIp,
 });
 
-// 6. Refresh Token: Max 30 requests per minute
+// 6. Refresh Token: Max requests per window from env
 export const refreshTokenRateLimiter = createRateLimiter({
 	prefix: "refresh-token",
-	maxAttempts: 30,
-	windowSeconds: 60, // 1 minute
-	errorMessage:
-		"Too many token refresh requests. Please try again after 1 minute.",
+	maxAttempts: env.RATE_LIMIT_REFRESH_TOKEN_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_REFRESH_TOKEN_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_REFRESH_TOKEN_EXCEEDED,
 	keyGenerator: getClientIp,
 });

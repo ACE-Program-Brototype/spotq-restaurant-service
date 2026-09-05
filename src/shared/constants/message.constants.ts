@@ -25,6 +25,18 @@ export const messages = {
 	OTP_EXPIRED: "OTP has expired. Please request a new one",
 	INVALID_TEMP_TOKEN: "Invalid or expired reset token",
 	RATE_LIMIT_EXCEEDED: "Too many requests. Please try again later",
+	RATE_LIMIT_LOGIN_EXCEEDED:
+		"Too many login attempts. Please try again after 15 minutes.",
+	RATE_LIMIT_FORGOT_PASSWORD_EXCEEDED:
+		"Too many forgot password requests for this email. Maximum 3 attempts per 24 hours.",
+	RATE_LIMIT_VERIFY_OTP_EXCEEDED:
+		"Too many failed OTP verification attempts. Please try again after 15 minutes.",
+	RATE_LIMIT_RESEND_OTP_EXCEEDED:
+		"Too many OTP resend requests. Maximum 3 attempts per 1 hour.",
+	RATE_LIMIT_RESET_PASSWORD_EXCEEDED:
+		"Too many password reset attempts. Please try again after 15 minutes.",
+	RATE_LIMIT_REFRESH_TOKEN_EXCEEDED:
+		"Too many token refresh requests. Please try again after 1 minute.",
 	STAFF_NOT_FOUND: "Staff member not found",
 	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
 	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",
