@@ -1,3 +1,5 @@
+process.env.TZ = "UTC";
+
 import app from "@/app";
 import {
 	connectDatabase,
