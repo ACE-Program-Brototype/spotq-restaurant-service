@@ -5,9 +5,14 @@ import type {
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
+import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import type { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";
-import { StaffInvitationAlreadyPendingError } from "@/domain/errors/staff.errors.ts";
+import {
+	StaffAlreadyExistsError,
+	StaffInvitationAlreadyPendingError,
+} from "@/domain/errors/staff.errors.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
+import { StaffPersistenceMapper } from "../mappers/staff.mapper.ts";
 import { StaffInvitationPersistenceMapper } from "../mappers/staff-invitation.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -22,7 +27,7 @@ export class PrismaStaffInvitationRepository
 {
 	constructor(
 		@inject(TYPES.PrismaClient)
-		prisma: PrismaClient,
+		private readonly prisma: PrismaClient,
 	) {
 		super(prisma.staffInvitation, StaffInvitationPersistenceMapper);
 	}
@@ -92,5 +97,50 @@ export class PrismaStaffInvitationRepository
 		});
 
 		return rawList.map((raw) => this.mapper.toDomain(raw));
+	}
+
+	public async createStaffWithInvitation(
+		staff: RestaurantStaff,
+		invitation: StaffInvitation,
+	): Promise<void> {
+		const staffData = StaffPersistenceMapper.toPersistence(staff);
+		const {
+			id: _staffId,
+			createdAt: _staffCreatedAt,
+			...staffUpdateData
+		} = staffData;
+
+		const invitationData =
+			StaffInvitationPersistenceMapper.toPersistence(invitation);
+		const {
+			id: _invId,
+			createdAt: _invCreatedAt,
+			...invUpdateData
+		} = invitationData;
+
+		try {
+			await this.prisma.$transaction([
+				this.prisma.restaurantStaff.upsert({
+					where: { id: staff.id },
+					create: staffData,
+					update: staffUpdateData,
+				}),
+				this.prisma.staffInvitation.upsert({
+					where: { id: invitation.id },
+					create: invitationData,
+					update: invUpdateData,
+				}),
+			]);
+		} catch (error) {
+			if (
+				error instanceof PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new StaffAlreadyExistsError(
+					`Staff with email ${staff.email} already exists`,
+				);
+			}
+			throw error;
+		}
 	}
 }

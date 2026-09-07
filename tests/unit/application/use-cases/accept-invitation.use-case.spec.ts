@@ -28,6 +28,7 @@ describe("AcceptInvitationUseCase", () => {
 			findByEmail: jest.fn(),
 			findPendingByEmailAndRestaurant: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			createStaffWithInvitation: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		};
@@ -86,8 +87,7 @@ describe("AcceptInvitationUseCase", () => {
 
 		staffInvitationRepository.findByTokenHash.mockResolvedValue(invitation);
 		staffRepository.findByEmail.mockResolvedValue(null);
-		staffRepository.save.mockResolvedValue();
-		staffInvitationRepository.save.mockResolvedValue();
+		staffInvitationRepository.createStaffWithInvitation.mockResolvedValue();
 
 		const result = await useCase.execute({
 			token: "raw-token-123",
@@ -105,8 +105,9 @@ describe("AcceptInvitationUseCase", () => {
 
 		expect(invitation.status).toBe("ACCEPTED");
 		expect(invitation.acceptedAt).toBeInstanceOf(Date);
-		expect(staffRepository.save).toHaveBeenCalledTimes(1);
-		expect(staffInvitationRepository.save).toHaveBeenCalledTimes(1);
+		expect(
+			staffInvitationRepository.createStaffWithInvitation,
+		).toHaveBeenCalledTimes(1);
 	});
 
 	it("should throw InvalidInvitationTokenError if invitation not found", async () => {

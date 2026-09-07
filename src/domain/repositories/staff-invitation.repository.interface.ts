@@ -1,3 +1,4 @@
+import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import type { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";
 import type { IBaseRepository } from "./base.repository.interface.ts";
 
@@ -10,4 +11,8 @@ export interface IStaffInvitationRepository
 		restaurantId: string,
 	): Promise<StaffInvitation | null>;
 	findByRestaurantId(restaurantId: string): Promise<StaffInvitation[]>;
+	createStaffWithInvitation(
+		staff: RestaurantStaff,
+		invitation: StaffInvitation,
+	): Promise<void>;
 }

@@ -78,8 +78,10 @@ export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
 
 		invitation.accept();
 
-		await this.staffRepository.save(staff);
-		await this.staffInvitationRepository.save(invitation);
+		await this.staffInvitationRepository.createStaffWithInvitation(
+			staff,
+			invitation,
+		);
 
 		const tokenPayload: StaffTokenPayload = {
 			sub: staff.id,
