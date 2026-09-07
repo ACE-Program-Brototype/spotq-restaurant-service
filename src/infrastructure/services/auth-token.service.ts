@@ -13,7 +13,7 @@ export class AuthTokenService implements IAuthTokenService {
 		return jwt.sign(payload, env.JWT_ACCESS_PRIVATE_KEY, {
 			expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions["expiresIn"],
 			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
-			keyid: env.JWT_ACCESS_PRIVATE_KEY,
+			keyid: env.JWT_ACCESS_TOKEN_KEY_ID,
 		});
 	}
 
