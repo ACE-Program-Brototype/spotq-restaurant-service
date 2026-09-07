@@ -8,6 +8,7 @@ export const messages = {
 	OTP_VERIFIED_SUCCESS: "OTP verified successfully",
 	OTP_RESENT_SUCCESS: "OTP resent to your email successfully",
 	PASSWORD_RESET_SUCCESS: "Password reset successfully",
+	STAFF_INVITATION_SENT_SUCCESS: "Staff invitation sent successfully",
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
 	SERVICE_READY: "Service is ready",
@@ -37,10 +38,16 @@ export const messages = {
 		"Too many password reset attempts. Please try again after 15 minutes.",
 	RATE_LIMIT_REFRESH_TOKEN_EXCEEDED:
 		"Too many token refresh requests. Please try again after 1 minute.",
+	RATE_LIMIT_INVITE_STAFF_EXCEEDED:
+		"Too many staff invitation requests. Please try again later.",
 	STAFF_NOT_FOUND: "Staff member not found",
 	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
 	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",
 	EMAIL_ALREADY_EXISTS: "Staff member with this email already exists",
+	STAFF_INVITATION_ALREADY_PENDING:
+		"An active invitation has already been sent to this email address",
+	RESTAURANT_NOT_FOUND: "Restaurant not found",
+	RESTAURANT_ID_REQUIRED: "Restaurant ID is required in request headers",
 	SERVICE_UNAVAILABLE: "Service temporarily unavailable",
 	REQ_ROUTE_NOT_FOUND: "Requested route not found",
 

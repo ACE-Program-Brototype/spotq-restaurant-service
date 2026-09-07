@@ -2,6 +2,7 @@ import type { CookieOptions, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
+import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
@@ -10,6 +11,7 @@ import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
+import { RestaurantIdRequiredError } from "@/domain/errors/staff.errors.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
@@ -31,6 +33,8 @@ export class StaffController {
 		private readonly resendForgotPasswordOtpUseCase: IResendForgotPasswordOtpUseCase,
 		@inject(TYPES.ResetPasswordUseCase)
 		private readonly resetPasswordUseCase: IResetPasswordUseCase,
+		@inject(TYPES.InviteStaffUseCase)
+		private readonly inviteStaffUseCase: IInviteStaffUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
@@ -180,6 +184,28 @@ export class StaffController {
 			null,
 			messages.PASSWORD_RESET_SUCCESS,
 			HTTP_STATUS.OK,
+		);
+	};
+
+	public inviteStaff = async (req: Request, res: Response): Promise<void> => {
+		const restaurantId =
+			(req.headers["x-restaurant-id"] as string)?.trim() ||
+			(req.headers["x-user-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const result = await this.inviteStaffUseCase.execute({
+			email: req.body.email,
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_SENT_SUCCESS,
+			HTTP_STATUS.CREATED,
 		);
 	};
 }

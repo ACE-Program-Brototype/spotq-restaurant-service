@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
+import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
@@ -17,6 +18,7 @@ describe("StaffController", () => {
 	let verifyForgotPasswordOtpUseCase: jest.Mocked<IVerifyForgotPasswordOtpUseCase>;
 	let resendForgotPasswordOtpUseCase: jest.Mocked<IResendForgotPasswordOtpUseCase>;
 	let resetPasswordUseCase: jest.Mocked<IResetPasswordUseCase>;
+	let inviteStaffUseCase: jest.Mocked<IInviteStaffUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
 
@@ -28,6 +30,7 @@ describe("StaffController", () => {
 		verifyForgotPasswordOtpUseCase = { execute: jest.fn() };
 		resendForgotPasswordOtpUseCase = { execute: jest.fn() };
 		resetPasswordUseCase = { execute: jest.fn() };
+		inviteStaffUseCase = { execute: jest.fn() };
 
 		controller = new StaffController(
 			loginStaffUseCase,
@@ -37,6 +40,7 @@ describe("StaffController", () => {
 			verifyForgotPasswordOtpUseCase,
 			resendForgotPasswordOtpUseCase,
 			resetPasswordUseCase,
+			inviteStaffUseCase,
 		);
 
 		res = {
@@ -247,6 +251,78 @@ describe("StaffController", () => {
 					message: "Password reset successfully",
 				}),
 			);
+		});
+	});
+
+	describe("inviteStaff", () => {
+		it("should invite staff using x-restaurant-id header and return 201", async () => {
+			const req: Partial<Request> = {
+				body: { email: "invited@spotq.com" },
+				headers: { "x-restaurant-id": "rest-uuid-123" },
+			};
+
+			const mockInvitationResult = {
+				id: "inv-uuid-123",
+				email: "invited@spotq.com",
+				restaurantId: "rest-uuid-123",
+				status: "PENDING",
+				expiresAt: new Date(),
+				createdAt: new Date(),
+			};
+
+			inviteStaffUseCase.execute.mockResolvedValue(mockInvitationResult);
+
+			await controller.inviteStaff(req as Request, res as Response);
+
+			expect(inviteStaffUseCase.execute).toHaveBeenCalledWith({
+				email: "invited@spotq.com",
+				restaurantId: "rest-uuid-123",
+			});
+			expect(res.status).toHaveBeenCalledWith(201);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: "Staff invitation sent successfully",
+					data: mockInvitationResult,
+				}),
+			);
+		});
+
+		it("should fall back to x-user-id header if x-restaurant-id is not provided", async () => {
+			const req: Partial<Request> = {
+				body: { email: "invited@spotq.com" },
+				headers: { "x-user-id": "rest-from-user-id" },
+			};
+
+			const mockInvitationResult = {
+				id: "inv-uuid-123",
+				email: "invited@spotq.com",
+				restaurantId: "rest-from-user-id",
+				status: "PENDING",
+				expiresAt: new Date(),
+				createdAt: new Date(),
+			};
+
+			inviteStaffUseCase.execute.mockResolvedValue(mockInvitationResult);
+
+			await controller.inviteStaff(req as Request, res as Response);
+
+			expect(inviteStaffUseCase.execute).toHaveBeenCalledWith({
+				email: "invited@spotq.com",
+				restaurantId: "rest-from-user-id",
+			});
+			expect(res.status).toHaveBeenCalledWith(201);
+		});
+
+		it("should throw RestaurantIdRequiredError when no restaurant header is provided", async () => {
+			const req: Partial<Request> = {
+				body: { email: "invited@spotq.com" },
+				headers: {},
+			};
+
+			await expect(
+				controller.inviteStaff(req as Request, res as Response),
+			).rejects.toThrow();
 		});
 	});
 });

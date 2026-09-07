@@ -3,12 +3,16 @@ export const TYPES = {
 	PrismaClient: Symbol.for("PrismaClient"),
 	RedisClient: Symbol.for("RedisClient"),
 	RestaurantStaffRepository: Symbol.for("RestaurantStaffRepository"),
+	StaffInvitationRepository: Symbol.for("StaffInvitationRepository"),
+	RestaurantRepository: Symbol.for("RestaurantRepository"),
 	TokenRevocationRepository: Symbol.for("TokenRevocationRepository"),
 	OtpRepository: Symbol.for("OtpRepository"),
 
 	// Security, Queue & Ports
 	PasswordHasher: Symbol.for("PasswordHasher"),
 	TokenService: Symbol.for("TokenService"),
+	InvitationTokenService: Symbol.for("InvitationTokenService"),
+	StaffInvitationConfig: Symbol.for("StaffInvitationConfig"),
 	OtpService: Symbol.for("OtpService"),
 	EmailQueuePort: Symbol.for("EmailQueuePort"),
 
@@ -20,6 +24,7 @@ export const TYPES = {
 	VerifyForgotPasswordOtpUseCase: Symbol.for("VerifyForgotPasswordOtpUseCase"),
 	ResendForgotPasswordOtpUseCase: Symbol.for("ResendForgotPasswordOtpUseCase"),
 	ResetPasswordUseCase: Symbol.for("ResetPasswordUseCase"),
+	InviteStaffUseCase: Symbol.for("InviteStaffUseCase"),
 
 	// Controllers
 	StaffController: Symbol.for("StaffController"),

@@ -141,3 +141,11 @@ export const refreshTokenRateLimiter = createRateLimiter({
 	errorMessage: messages.RATE_LIMIT_REFRESH_TOKEN_EXCEEDED,
 	keyGenerator: getClientIp,
 });
+
+export const inviteStaffRateLimiter = createRateLimiter({
+	prefix: "invite-staff",
+	maxAttempts: env.RATE_LIMIT_INVITE_STAFF_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_INVITE_STAFF_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_INVITE_STAFF_EXCEEDED,
+	keyGenerator: emailOrIpKeyGenerator,
+});

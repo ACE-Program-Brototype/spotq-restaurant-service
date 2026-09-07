@@ -111,3 +111,40 @@ export class InvalidStaffStatusError extends DomainError {
 		super(message);
 	}
 }
+
+export class StaffInvitationAlreadyPendingError extends DomainError {
+	public readonly code = "STAFF_INVITATION_ALREADY_PENDING";
+	constructor(
+		message = "An active invitation has already been sent to this email address",
+	) {
+		super(message);
+	}
+}
+
+export class RestaurantNotFoundError extends DomainError {
+	public readonly code = "RESTAURANT_NOT_FOUND";
+	constructor(message = "Restaurant not found") {
+		super(message);
+	}
+}
+
+export class RestaurantIdRequiredError extends DomainError {
+	public readonly code = "RESTAURANT_ID_REQUIRED";
+	constructor(message = "Restaurant ID is required in request headers") {
+		super(message);
+	}
+}
+
+export class InvalidInvitationTokenError extends DomainError {
+	public readonly code = "INVALID_INVITATION_TOKEN";
+	constructor(message = "Invalid or non-existent invitation token") {
+		super(message);
+	}
+}
+
+export class InvitationExpiredError extends DomainError {
+	public readonly code = "INVITATION_EXPIRED";
+	constructor(message = "Invitation has expired") {
+		super(message);
+	}
+}

@@ -4,6 +4,7 @@ import { TYPES } from "@/config/di/types";
 import type { StaffController } from "@/presentation/http/controllers/staff.controller";
 import {
 	forgotPasswordRateLimiter,
+	inviteStaffRateLimiter,
 	loginRateLimiter,
 	refreshTokenRateLimiter,
 	resendOtpRateLimiter,
@@ -12,6 +13,7 @@ import {
 } from "@/presentation/http/middleware/rate-limiter.middleware";
 import { validateRequestBody } from "@/presentation/http/middleware/validation.middleware";
 import { forgotPasswordSchema } from "@/presentation/http/validators/staff/forgot-password.validator";
+import { inviteStaffSchema } from "@/presentation/http/validators/staff/invite-staff.validator";
 import { loginStaffSchema } from "@/presentation/http/validators/staff/login-staff.validator";
 import { resendForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/resend-forgot-password-otp.validator";
 import { resetPasswordSchema } from "@/presentation/http/validators/staff/reset-password.validator";
@@ -21,6 +23,13 @@ import { STAFF_ROUTES } from "@/shared/constants/route.constants";
 const staffRouter = Router();
 
 const staffController = container.get<StaffController>(TYPES.StaffController);
+
+staffRouter.post(
+	STAFF_ROUTES.INVITATIONS,
+	inviteStaffRateLimiter,
+	validateRequestBody(inviteStaffSchema),
+	staffController.inviteStaff,
+);
 
 staffRouter.post(
 	STAFF_ROUTES.LOGIN,
