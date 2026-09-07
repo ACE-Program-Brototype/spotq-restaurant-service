@@ -10,8 +10,10 @@ import { env } from "@/config/env";
 @injectable()
 export class AuthTokenService implements IAuthTokenService {
 	generateAccessToken(payload: AuthTokenPayload): string {
-		return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-			expiresIn: "15m",
+		return jwt.sign(payload, env.JWT_ACCESS_PRIVATE_KEY, {
+			expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions["expiresIn"],
+			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
+			keyid: env.JWT_ACCESS_PRIVATE_KEY,
 		});
 	}
 
@@ -29,7 +31,9 @@ export class AuthTokenService implements IAuthTokenService {
 	}
 
 	verifyAccessToken(token: string): AuthTokenPayload {
-		return jwt.verify(token, env.JWT_ACCESS_SECRET) as AuthTokenPayload;
+		return jwt.verify(token, env.JWT_ACCESS_PUBLIC_KEY, {
+			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
+		}) as AuthTokenPayload;
 	}
 
 	verifyRefreshToken(token: string): AuthTokenPayload {
