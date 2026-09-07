@@ -1,14 +1,20 @@
-import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import express from "express";
+import { restaurantAuthController } from "@/di/controllers.resolutions";
+import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
+import { restaurantStatusController } from "../controllers/restaurant-status.controller.ts";
 import { validate } from "../middleware/validation.middleware";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
-import { restaurantAuthController } from "@/di/controllers.resolutions";
 
 export const restaurantRouter = express.Router();
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.STATUS,
+	restaurantStatusController.getStatus.bind(restaurantStatusController),
+);
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,

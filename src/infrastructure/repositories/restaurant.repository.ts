@@ -1,9 +1,9 @@
-import type { CreateRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
-import { TYPES } from "@/di/types";
 import type { Restaurant } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client/extension";
 import { inject, injectable } from "inversify";
+import type { CreateRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
+import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import { TYPES } from "@/di/types";
 import { BaseRepository } from "@/infrastructure/repositories/base.repository";
 
 @injectable()

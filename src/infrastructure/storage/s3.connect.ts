@@ -1,7 +1,7 @@
 import { HeadBucketCommand } from "@aws-sdk/client-s3";
 import { env } from "@/config/env";
-import { s3Client } from "./s3.client";
 import { logger } from "@/infrastructure/observability/logger";
+import { s3Client } from "./s3.client";
 
 export const checkS3Connection = async (): Promise<void> => {
 	try {

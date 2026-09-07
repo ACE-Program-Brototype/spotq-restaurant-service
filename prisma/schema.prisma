@@ -16,35 +16,39 @@ enum RestaurantStatus {
   INACTIVE
 }
 
+enum OnboardingStatus {
+  PENDING
+  COMPLETED
+}
+
 model Restaurant {
-  id               String           @id @default(uuid()) @db.Uuid
+  id                   String           @id @default(uuid()) @db.Uuid
 
-  restaurantName   String
-  email            String           @unique
-  phone            String
+  restaurantName       String           @map("restaurant_name")
+  email                String           @unique
+  phone                String
 
-  ownerName        String
-  ownerEmail       String
+  ownerName            String           @map("owner_name")
+  ownerEmail           String           @map("owner_email")
 
-  seatingCapacity  Int?
-  fssaiNumber      String?
-  gstNumber        String?
-  regNumber        String?
+  onboardingStatus     OnboardingStatus @default(PENDING) @map("onboarding_status")
+  status               RestaurantStatus @default(PENDING) @map("status")
 
-  cuisineType      String?
+  emailVerifiedAt      DateTime?        @map("email_verified_at")
 
-  status           RestaurantStatus @default(PENDING)
+  // Subscription Caching (Updated via BullMQ event)
+  isSubscriptionActive Boolean          @default(false) @map("is_subscription_active")
+  subscriptionPlanCode String?          @map("subscription_plan_code")
+  subscriptionEndsAt   DateTime?        @map("subscription_ends_at") @db.Timestamptz(3)
 
-  emailVerifiedAt  DateTime?        @db.Timestamptz(3)
+  isBlocked            Boolean          @default(false) @map("is_blocked")
+  blockReason          String?          @map("block_reason")
 
-  isBlocked        Boolean          @default(false)
-  blockReason      String?
-
-  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  createdAt            DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   // Relations
-  staff            RestaurantStaff[]
+  staff                RestaurantStaff[]
 
   @@map("restaurants")
 }
@@ -78,4 +82,12 @@ model RestaurantStaff {
   @@index([restaurantId])
   @@index([email])
   @@map("restaurant_staff")
+}
+
+model ProcessedEvent {
+  id          String   @id
+  eventType   String   @map("event_type")
+  processedAt DateTime @default(now()) @map("processed_at") @db.Timestamptz(3)
+
+  @@map("processed_events")
 }
