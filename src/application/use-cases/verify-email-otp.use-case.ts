@@ -1,9 +1,10 @@
 import { inject, injectable } from "inversify";
+import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
-import type { VerifyRestaurantEmailOtpDto } from "../dto/restaurant-email-verification.dto";
 import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
@@ -12,7 +13,6 @@ import type { IEmailVerificationService } from "../ports/services/email-verifica
 import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 import type { IOtpStore } from "../ports/services/otp-store.port";
-import type { IVerifyRestaurantEmailOtpUseCase } from "../ports/use-case/verify-email-otp.use-case.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase

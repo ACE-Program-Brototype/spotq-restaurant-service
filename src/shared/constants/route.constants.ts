@@ -22,6 +22,10 @@ export const STAFF_ROUTES = {
 	RESEND_FORGOT_PASSWORD_OTP: "/forgot-password/resend-otp",
 	RESET_PASSWORD: "/reset-password",
 	INVITATIONS: "/invitations",
+	VALIDATE_INVITATION: "/invitations/validate",
+	ACCEPT_INVITATION: "/invitations/accept",
+	RESEND_INVITATION: "/invitations/resend",
+	REVOKE_INVITATION: "/invitations/revoke",
 } as const;
 
 export type RestaurantRoute =

@@ -4,7 +4,7 @@ import type { IAuthTokenService } from "@/application/ports/services/auth-token.
 import type {
 	IRefreshRestaurantAccessTokenUseCase,
 	RefreshRestaurantAccessTokenDto,
-} from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
+} from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
 import { TYPES } from "@/di/types";
 
 @injectable()

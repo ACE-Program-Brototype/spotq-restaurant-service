@@ -9,6 +9,11 @@ export const messages = {
 	OTP_RESENT_SUCCESS: "OTP resent to your email successfully",
 	PASSWORD_RESET_SUCCESS: "Password reset successfully",
 	STAFF_INVITATION_SENT_SUCCESS: "Staff invitation sent successfully",
+	STAFF_INVITATION_VALID: "Invitation token is valid",
+	STAFF_INVITATION_ACCEPTED_SUCCESS:
+		"Staff account created and invitation accepted successfully",
+	STAFF_INVITATION_RESENT_SUCCESS: "Staff invitation resent successfully",
+	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
 	SERVICE_READY: "Service is ready",

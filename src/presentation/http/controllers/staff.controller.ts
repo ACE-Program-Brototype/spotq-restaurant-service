@@ -1,13 +1,17 @@
 import type { CookieOptions, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
+import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
+import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
+import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
@@ -35,6 +39,14 @@ export class StaffController {
 		private readonly resetPasswordUseCase: IResetPasswordUseCase,
 		@inject(TYPES.InviteStaffUseCase)
 		private readonly inviteStaffUseCase: IInviteStaffUseCase,
+		@inject(TYPES.ValidateInvitationUseCase)
+		private readonly validateInvitationUseCase: IValidateInvitationUseCase,
+		@inject(TYPES.AcceptInvitationUseCase)
+		private readonly acceptInvitationUseCase: IAcceptInvitationUseCase,
+		@inject(TYPES.ResendStaffInvitationUseCase)
+		private readonly resendStaffInvitationUseCase: IResendStaffInvitationUseCase,
+		@inject(TYPES.RevokeStaffInvitationUseCase)
+		private readonly revokeStaffInvitationUseCase: IRevokeStaffInvitationUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
@@ -130,12 +142,11 @@ export class StaffController {
 			otp: req.body.otp,
 		});
 
-		// Set tempToken in cookie (15 minutes expiry)
 		const cookieOptions: CookieOptions = {
 			httpOnly: env.COOKIE_HTTP_ONLY,
 			secure: env.COOKIE_SECURE,
 			sameSite: env.COOKIE_SAME_SITE,
-			maxAge: 15 * 60 * 1000, // 15 minutes
+			maxAge: env.COOKIE_TEMP_TOKEN_MAX_AGE_MS,
 			path: env.COOKIE_PATH,
 			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
 		};
@@ -206,6 +217,110 @@ export class StaffController {
 			result,
 			messages.STAFF_INVITATION_SENT_SUCCESS,
 			HTTP_STATUS.CREATED,
+		);
+	};
+
+	public validateInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const result = await this.validateInvitationUseCase.execute({
+			token: req.body.token,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_VALID,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public acceptInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const result = await this.acceptInvitationUseCase.execute({
+			token: req.body.token,
+			fullname: req.body.fullname,
+			phone: req.body.phone,
+			password: req.body.password,
+		});
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		res.cookie(
+			env.COOKIE_NAME_REFRESH_TOKEN,
+			result.refreshToken,
+			cookieOptions,
+		);
+
+		sendSuccessResponse(
+			res,
+			{
+				staff: result.staff,
+				accessToken: result.accessToken,
+			},
+			messages.STAFF_INVITATION_ACCEPTED_SUCCESS,
+			HTTP_STATUS.CREATED,
+		);
+	};
+
+	public resendInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId =
+			(req.headers["x-restaurant-id"] as string)?.trim() ||
+			(req.headers["x-user-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const result = await this.resendStaffInvitationUseCase.execute({
+			email: req.body.email,
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_RESENT_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public revokeInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId =
+			(req.headers["x-restaurant-id"] as string)?.trim() ||
+			(req.headers["x-user-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const result = await this.revokeStaffInvitationUseCase.execute({
+			invitationId: req.body.invitationId,
+			email: req.body.email,
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_REVOKED_SUCCESS,
+			HTTP_STATUS.OK,
 		);
 	};
 }

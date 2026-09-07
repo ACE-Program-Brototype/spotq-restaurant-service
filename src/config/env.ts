@@ -106,6 +106,13 @@ const envSchema = z.object({
 			.positive()
 			.default(7 * 24 * 60 * 60 * 1000), // 7 days in ms
 	),
+	COOKIE_TEMP_TOKEN_MAX_AGE_MS: z.preprocess(
+		(val) => (typeof val === "string" ? Number(val) : val),
+		z
+			.number()
+			.positive()
+			.default(15 * 60 * 1000), // 15 minutes in ms
+	),
 	COOKIE_DOMAIN: z.string().trim().optional(),
 
 	// Rate Limiting Configuration

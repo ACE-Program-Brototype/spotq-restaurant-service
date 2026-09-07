@@ -149,3 +149,21 @@ export const inviteStaffRateLimiter = createRateLimiter({
 	errorMessage: messages.RATE_LIMIT_INVITE_STAFF_EXCEEDED,
 	keyGenerator: emailOrIpKeyGenerator,
 });
+
+export const validateInvitationRateLimiter = createRateLimiter({
+	prefix: "validate-invitation",
+	maxAttempts: 30,
+	windowSeconds: 900,
+	errorMessage:
+		"Too many invitation validation attempts. Please try again later.",
+	keyGenerator: getClientIp,
+});
+
+export const acceptInvitationRateLimiter = createRateLimiter({
+	prefix: "accept-invitation",
+	maxAttempts: 10,
+	windowSeconds: 900,
+	errorMessage:
+		"Too many invitation acceptance attempts. Please try again later.",
+	keyGenerator: getClientIp,
+});

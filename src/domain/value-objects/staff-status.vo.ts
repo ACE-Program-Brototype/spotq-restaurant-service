@@ -26,6 +26,18 @@ export class StaffStatusVO {
 		return new StaffStatusVO(upperStatus);
 	}
 
+	public static active(): StaffStatusVO {
+		return new StaffStatusVO("ACTIVE");
+	}
+
+	public static inactive(): StaffStatusVO {
+		return new StaffStatusVO("INACTIVE");
+	}
+
+	public static suspended(): StaffStatusVO {
+		return new StaffStatusVO("SUSPENDED");
+	}
+
 	public get value(): StaffStatus {
 		return this._value;
 	}

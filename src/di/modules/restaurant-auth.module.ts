@@ -8,11 +8,11 @@ import type { IOtpService } from "@/application/ports/services/otp.service.port"
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 // Services
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
-import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
-import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
-import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
-import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
-import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
+import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
+import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port.ts";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import { RefreshRestaurantAccessTokenUseCase } from "@/application/use-cases/refresh-restaurant-access-token.use-case";
 import { ResendRestaurantEmailOtpUseCase } from "@/application/use-cases/resend-email-otp.use-case";

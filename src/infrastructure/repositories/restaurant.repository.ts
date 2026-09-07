@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { inject, injectable } from "inversify";
-import type { CreateRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
+import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import { TYPES } from "@/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";

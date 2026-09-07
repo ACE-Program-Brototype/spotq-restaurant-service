@@ -4,7 +4,6 @@ export interface OnboardRestaurantDto {
 	ownerName: string;
 }
 
-//repo dto
 export interface CreateRestaurantDto {
 	restaurantName: string;
 	email: string;

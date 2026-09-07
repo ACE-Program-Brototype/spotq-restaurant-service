@@ -15,6 +15,7 @@
 		"format": "biome format --write .",
 		"check": "biome check --error-on-warnings --write .",
 		"seed:staff": "tsx prisma/seed.ts",
+		"jwt:generate": "infisical run --env=dev -- tsx scripts/generate-jwt.ts",
 		"validate": "pnpm lint && pnpm build",
 		"prepare": "husky"
 	},

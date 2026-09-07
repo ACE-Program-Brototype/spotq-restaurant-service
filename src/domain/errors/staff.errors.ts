@@ -148,3 +148,10 @@ export class InvitationExpiredError extends DomainError {
 		super(message);
 	}
 }
+
+export class StaffInvitationNotFoundError extends DomainError {
+	public readonly code = "STAFF_INVITATION_NOT_FOUND";
+	constructor(message = "Staff invitation not found") {
+		super(message);
+	}
+}

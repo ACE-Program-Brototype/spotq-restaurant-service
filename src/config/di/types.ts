@@ -25,6 +25,10 @@ export const TYPES = {
 	ResendForgotPasswordOtpUseCase: Symbol.for("ResendForgotPasswordOtpUseCase"),
 	ResetPasswordUseCase: Symbol.for("ResetPasswordUseCase"),
 	InviteStaffUseCase: Symbol.for("InviteStaffUseCase"),
+	ValidateInvitationUseCase: Symbol.for("ValidateInvitationUseCase"),
+	AcceptInvitationUseCase: Symbol.for("AcceptInvitationUseCase"),
+	ResendStaffInvitationUseCase: Symbol.for("ResendStaffInvitationUseCase"),
+	RevokeStaffInvitationUseCase: Symbol.for("RevokeStaffInvitationUseCase"),
 
 	// Controllers
 	StaffController: Symbol.for("StaffController"),

@@ -21,6 +21,10 @@ export class StaffRoleVO {
 		return new StaffRoleVO(upperRole);
 	}
 
+	public static staff(): StaffRoleVO {
+		return new StaffRoleVO("STAFF");
+	}
+
 	public get value(): StaffRole {
 		return this._value;
 	}

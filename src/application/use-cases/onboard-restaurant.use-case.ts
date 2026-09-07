@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
-import type { OnboardRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
+import type { OnboardRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
-import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
 import { TYPES } from "@/di/types";
 import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
 import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exists.error";

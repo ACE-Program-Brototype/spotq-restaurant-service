@@ -1,8 +1,8 @@
 import type { Queue } from "bullmq";
 import { inject, injectable } from "inversify";
-import type { SendRestaurantEmailOtpDto } from "@/application/dto/restaurant-email-verification.dto";
+import type { SendRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
-import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port.ts";
 import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { JOB_NAMES } from "@/shared/constants/queue.constants";

@@ -166,4 +166,11 @@ export class StaffInvitation {
 		this._props.status = InvitationStatusVO.expired();
 		this._props.updatedAt = new Date();
 	}
+
+	public renew(newTokenHash: string, newExpiresAt: Date): void {
+		this._props.tokenHash = newTokenHash;
+		this._props.expiresAt = newExpiresAt;
+		this._props.status = InvitationStatusVO.pending();
+		this._props.updatedAt = new Date();
+	}
 }

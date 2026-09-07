@@ -1,7 +1,7 @@
 import type {
 	VerifyRestaurantEmailOtpDto,
 	VerifyRestaurantEmailOtpResponseDto,
-} from "@/application/dto/restaurant-email-verification.dto";
+} from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
 
 export interface IVerifyRestaurantEmailOtpUseCase {
 	execute(

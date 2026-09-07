@@ -35,6 +35,6 @@
 		"resolveJsonModule": true,
 		"types": ["node", "reflect-metadata", "jest"]
 	},
-	"include": ["src/**/*", "tests/**/*"],
+	"include": ["src/**/*", "tests/**/*", "scripts/**/*", "prisma/**/*"],
 	"exclude": ["node_modules", "dist"]
 }
