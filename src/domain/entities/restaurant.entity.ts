@@ -7,6 +7,7 @@ import {
 	type RestaurantStatus,
 	RestaurantStatusVO,
 } from "@/domain/value-objects/restaurant-status.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface RestaurantProps {
 	id: string;
@@ -67,21 +68,15 @@ export class Restaurant {
 			typeof props.restaurantName !== "string" ||
 			props.restaurantName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(
-				"Restaurant name is required and must be at least 2 characters",
-			);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_INVALID);
 		}
 
 		if (!props.email || typeof props.email !== "string") {
-			throw new InvalidRestaurantDataError(
-				"Valid restaurant email is required",
-			);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_EMAIL_REQUIRED);
 		}
 
 		if (!props.phone || typeof props.phone !== "string") {
-			throw new InvalidRestaurantDataError(
-				"Valid restaurant phone is required",
-			);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_PHONE_REQUIRED);
 		}
 
 		if (
@@ -89,13 +84,11 @@ export class Restaurant {
 			typeof props.ownerName !== "string" ||
 			props.ownerName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(
-				"Owner name is required and must be at least 2 characters",
-			);
+			throw new InvalidRestaurantDataError(messages.OWNER_NAME_INVALID);
 		}
 
 		if (!props.ownerEmail || typeof props.ownerEmail !== "string") {
-			throw new InvalidRestaurantDataError("Valid owner email is required");
+			throw new InvalidRestaurantDataError(messages.OWNER_EMAIL_REQUIRED);
 		}
 
 		const status =

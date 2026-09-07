@@ -50,7 +50,17 @@ export const messages = {
 	STAFF_INVITATION_ALREADY_PENDING:
 		"An active invitation has already been sent to this email address",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
-	RESTAURANT_ID_REQUIRED: "Restaurant ID is required in request headers",
+	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
+	TOKEN_HASH_REQUIRED: "Token hash is required",
+	PASSWORD_HASH_REQUIRED: "Password hash is required",
+	FULLNAME_INVALID: "Fullname is required and must be at least 2 characters",
+	RESTAURANT_NAME_INVALID:
+		"Restaurant name is required and must be at least 2 characters",
+	RESTAURANT_EMAIL_REQUIRED: "Valid restaurant email is required",
+	RESTAURANT_PHONE_REQUIRED: "Valid restaurant phone is required",
+	OWNER_NAME_INVALID:
+		"Owner name is required and must be at least 2 characters",
+	OWNER_EMAIL_REQUIRED: "Valid owner email is required",
 	SERVICE_UNAVAILABLE: "Service temporarily unavailable",
 	REQ_ROUTE_NOT_FOUND: "Requested route not found",
 

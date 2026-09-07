@@ -4,6 +4,7 @@ import {
 	type InvitationStatus,
 	InvitationStatusVO,
 } from "@/domain/value-objects/invitation-status.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface StaffInvitationProps {
 	id: string;
@@ -48,11 +49,11 @@ export class StaffInvitation {
 
 	public static create(props: CreateStaffInvitationProps): StaffInvitation {
 		if (!props.restaurantId || typeof props.restaurantId !== "string") {
-			throw new InvalidStaffDataError("Restaurant ID is required");
+			throw new InvalidStaffDataError(messages.RESTAURANT_ID_REQUIRED);
 		}
 
 		if (!props.tokenHash || typeof props.tokenHash !== "string") {
-			throw new InvalidStaffDataError("Token hash is required");
+			throw new InvalidStaffDataError(messages.TOKEN_HASH_REQUIRED);
 		}
 
 		const email =
