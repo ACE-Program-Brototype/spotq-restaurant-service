@@ -210,9 +210,7 @@ export class RestaurantStaff {
 	): void {
 		if (fullname !== undefined) {
 			if (typeof fullname !== "string" || fullname.trim().length < 2) {
-				throw new InvalidStaffDataError(
-					"Fullname must be at least 2 characters",
-				);
+				throw new InvalidStaffDataError(messages.FULLNAME_INVALID);
 			}
 			this._props.fullname = fullname.trim();
 		}
@@ -230,7 +228,7 @@ export class RestaurantStaff {
 
 	public changePassword(newPasswordHash: string): void {
 		if (!newPasswordHash || typeof newPasswordHash !== "string") {
-			throw new InvalidStaffDataError("Valid password hash is required");
+			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
 		}
 		this._props.passwordHash = newPasswordHash;
 		this._props.updatedAt = new Date();

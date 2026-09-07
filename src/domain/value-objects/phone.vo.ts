@@ -1,4 +1,5 @@
 import { InvalidPhoneError } from "@/domain/errors/staff.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export class StaffPhone {
 	private readonly _value: string;
@@ -22,7 +23,7 @@ export class StaffPhone {
 
 	public static create(rawPhone: string): StaffPhone {
 		if (!rawPhone || typeof rawPhone !== "string") {
-			throw new InvalidPhoneError("Phone number is required");
+			throw new InvalidPhoneError(messages.PHONE_REQUIRED);
 		}
 
 		const cleaned = rawPhone.trim();
@@ -31,7 +32,7 @@ export class StaffPhone {
 			!StaffPhone.GENERIC_PHONE_REGEX.test(cleaned) &&
 			!StaffPhone.INDIAN_PHONE_REGEX.test(cleaned)
 		) {
-			throw new InvalidPhoneError(`Invalid phone number format: ${rawPhone}`);
+			throw new InvalidPhoneError(messages.INVALID_PHONE_FORMAT);
 		}
 
 		return new StaffPhone(StaffPhone.normalize(cleaned));

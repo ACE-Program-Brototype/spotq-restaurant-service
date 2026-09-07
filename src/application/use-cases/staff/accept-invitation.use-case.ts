@@ -22,6 +22,7 @@ import type { IRestaurantStaffRepository } from "@/domain/repositories/restauran
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { StaffRoleVO } from "@/domain/value-objects/staff-role.vo.ts";
 import { StaffStatusVO } from "@/domain/value-objects/staff-status.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
@@ -59,9 +60,7 @@ export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
 			invitation.email,
 		);
 		if (existingStaff) {
-			throw new StaffAlreadyExistsError(
-				"This email is already registered as a staff member",
-			);
+			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 		}
 
 		const passwordHash = await this.passwordHasher.hash(dto.password);

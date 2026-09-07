@@ -1,11 +1,7 @@
-import { DomainError } from "@/domain/errors/domain.error.ts";
+import { InvalidInvitationStatusError } from "@/domain/errors/staff.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
-export class InvalidInvitationStatusError extends DomainError {
-	public readonly code = "INVALID_INVITATION_STATUS";
-	constructor(message = "Invalid invitation status specified") {
-		super(message);
-	}
-}
+export { InvalidInvitationStatusError };
 
 export const INVITATION_STATUSES = [
 	"PENDING",
@@ -27,7 +23,7 @@ export class InvitationStatusVO {
 		const upperStatus = rawStatus?.toUpperCase() as InvitationStatus;
 		if (!INVITATION_STATUSES.includes(upperStatus)) {
 			throw new InvalidInvitationStatusError(
-				`Invalid invitation status: ${rawStatus}. Valid statuses: ${INVITATION_STATUSES.join(", ")}`,
+				messages.INVALID_INVITATION_STATUS,
 			);
 		}
 		return new InvitationStatusVO(upperStatus);

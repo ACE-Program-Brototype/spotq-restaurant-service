@@ -12,6 +12,7 @@ import {
 	StaffInvitationAlreadyPendingError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 import { StaffPersistenceMapper } from "../mappers/staff.mapper.ts";
 import { StaffInvitationPersistenceMapper } from "../mappers/staff-invitation.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
@@ -39,7 +40,7 @@ export class PrismaStaffInvitationRepository
 		if (error instanceof PrismaClientKnownRequestError) {
 			if (error.code === "P2002") {
 				throw new StaffInvitationAlreadyPendingError(
-					"An invitation for this token or email already exists",
+					messages.STAFF_INVITATION_ALREADY_PENDING,
 				);
 			}
 		}
@@ -136,9 +137,7 @@ export class PrismaStaffInvitationRepository
 				error instanceof PrismaClientKnownRequestError &&
 				error.code === "P2002"
 			) {
-				throw new StaffAlreadyExistsError(
-					`Staff with email ${staff.email} already exists`,
-				);
+				throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 			}
 			throw error;
 		}

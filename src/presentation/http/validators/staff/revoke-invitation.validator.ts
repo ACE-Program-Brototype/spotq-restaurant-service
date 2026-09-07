@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export const revokeInvitationSchema = z
 	.object({
@@ -6,13 +7,13 @@ export const revokeInvitationSchema = z
 		email: z
 			.preprocess(
 				(val) => (typeof val === "string" ? val.trim().toLowerCase() : val),
-				z.email({ message: "Invalid email address format" }),
+				z.email({ message: messages.INVALID_EMAIL_FORMAT }),
 			)
 			.optional(),
 	})
 	.refine(
 		(data) => Boolean(data.invitationId || data.email),
-		"Either invitationId or email must be provided",
+		messages.EITHER_INVITATION_ID_OR_EMAIL_REQUIRED,
 	);
 
 export type RevokeInvitationInput = z.infer<typeof revokeInvitationSchema>;

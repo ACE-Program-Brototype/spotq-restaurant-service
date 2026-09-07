@@ -18,6 +18,7 @@ import {
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { InvitationStatusVO } from "@/domain/value-objects/invitation-status.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 
@@ -46,17 +47,13 @@ export class InviteStaffUseCase implements IInviteStaffUseCase {
 
 		const restaurant = await this.restaurantRepository.findById(restaurantId);
 		if (!restaurant) {
-			throw new RestaurantNotFoundError(
-				`Restaurant with id ${restaurantId} not found`,
-			);
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
 		const existingStaff =
 			await this.staffRepository.findByEmail(normalizedEmail);
 		if (existingStaff) {
-			throw new StaffAlreadyExistsError(
-				`Staff member with email ${normalizedEmail} already exists`,
-			);
+			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 		}
 
 		const pendingInvitation =
@@ -66,7 +63,7 @@ export class InviteStaffUseCase implements IInviteStaffUseCase {
 			);
 		if (pendingInvitation?.isPending()) {
 			throw new StaffInvitationAlreadyPendingError(
-				`An active invitation has already been sent to ${normalizedEmail}`,
+				messages.STAFF_INVITATION_ALREADY_PENDING,
 			);
 		}
 

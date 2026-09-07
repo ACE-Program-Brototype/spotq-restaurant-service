@@ -1,18 +1,19 @@
 import { z } from "zod";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export const acceptInvitationSchema = z.object({
-	token: z.string().min(1, "Invitation token is required"),
+	token: z.string().min(1, messages.INVITATION_TOKEN_REQUIRED),
 	fullname: z
 		.string()
 		.trim()
-		.min(2, "Full name must be at least 2 characters")
-		.max(100, "Full name must not exceed 100 characters"),
+		.min(2, messages.FULLNAME_MIN_LENGTH)
+		.max(100, messages.FULLNAME_MAX_LENGTH),
 	phone: z
 		.string()
 		.trim()
 		.regex(
 			/^(?:(?:\+91|91|0)[\s-]?)?[6-9]\d{9}$/,
-			"Invalid Indian phone number format. Must be a 10-digit mobile number starting with 6-9, optionally prefixed with +91, 91, or 0",
+			messages.INVALID_INDIAN_PHONE_FORMAT,
 		)
 		.transform((val) => {
 			const digits = val.replace(/\D/g, "");
@@ -21,16 +22,13 @@ export const acceptInvitationSchema = z.object({
 		}),
 	password: z
 		.string({
-			message: "Password is required",
+			message: messages.PASSWORD_REQUIRED,
 		})
-		.min(8, "Password must be at least 8 characters long")
-		.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-		.regex(/[a-z]/, "Password must contain at least one lowercase letter")
-		.regex(/[0-9]/, "Password must contain at least one digit")
-		.regex(
-			/[^A-Za-z0-9]/,
-			"Password must contain at least one special character",
-		),
+		.min(8, messages.PASSWORD_MIN_LENGTH)
+		.regex(/[A-Z]/, messages.PASSWORD_UPPERCASE_REQUIRED)
+		.regex(/[a-z]/, messages.PASSWORD_LOWERCASE_REQUIRED)
+		.regex(/[0-9]/, messages.PASSWORD_DIGIT_REQUIRED)
+		.regex(/[^A-Za-z0-9]/, messages.PASSWORD_SPECIAL_REQUIRED),
 });
 
 export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;

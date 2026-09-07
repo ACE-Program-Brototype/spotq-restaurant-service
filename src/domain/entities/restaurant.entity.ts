@@ -207,7 +207,7 @@ export class Restaurant {
 
 	public block(reason: string): void {
 		if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
-			throw new InvalidRestaurantDataError("Block reason is required");
+			throw new InvalidRestaurantDataError(messages.BLOCK_REASON_REQUIRED);
 		}
 		this._props.isBlocked = true;
 		this._props.blockReason = reason.trim();
@@ -249,32 +249,30 @@ export class Restaurant {
 				typeof restaurantName !== "string" ||
 				restaurantName.trim().length < 2
 			) {
-				throw new InvalidRestaurantDataError(
-					"Restaurant name must be at least 2 characters",
-				);
+				throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_INVALID);
 			}
 			this._props.restaurantName = restaurantName.trim();
 		}
 
 		if (phone !== undefined) {
 			if (typeof phone !== "string" || phone.trim().length === 0) {
-				throw new InvalidRestaurantDataError("Valid phone number is required");
+				throw new InvalidRestaurantDataError(
+					messages.RESTAURANT_PHONE_REQUIRED,
+				);
 			}
 			this._props.phone = phone.trim();
 		}
 
 		if (ownerName !== undefined) {
 			if (typeof ownerName !== "string" || ownerName.trim().length < 2) {
-				throw new InvalidRestaurantDataError(
-					"Owner name must be at least 2 characters",
-				);
+				throw new InvalidRestaurantDataError(messages.OWNER_NAME_INVALID);
 			}
 			this._props.ownerName = ownerName.trim();
 		}
 
 		if (ownerEmail !== undefined) {
 			if (typeof ownerEmail !== "string" || ownerEmail.trim().length === 0) {
-				throw new InvalidRestaurantDataError("Valid owner email is required");
+				throw new InvalidRestaurantDataError(messages.OWNER_EMAIL_REQUIRED);
 			}
 			this._props.ownerEmail = ownerEmail.trim().toLowerCase();
 		}

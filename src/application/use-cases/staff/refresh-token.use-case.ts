@@ -18,6 +18,7 @@ import {
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
@@ -33,7 +34,7 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 	public async execute(dto: RefreshTokenDTO): Promise<RefreshTokenResponseDTO> {
 		const token = dto.refreshToken;
 		if (!token) {
-			throw new InvalidRefreshTokenError("Refresh token is required");
+			throw new InvalidRefreshTokenError(messages.REFRESH_TOKEN_REQUIRED);
 		}
 
 		const isRevoked = await this.tokenRevocationRepository.isRevoked(token);

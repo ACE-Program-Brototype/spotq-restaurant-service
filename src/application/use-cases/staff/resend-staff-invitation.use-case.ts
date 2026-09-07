@@ -17,6 +17,7 @@ import {
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { StaffEmail } from "@/domain/value-objects/email.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 const MS_PER_HOUR = 60 * 60 * 1000;
 
@@ -75,7 +76,7 @@ export class ResendStaffInvitationUseCase
 
 		if (!invitation) {
 			throw new StaffInvitationNotFoundError(
-				"No existing invitation found for this email",
+				messages.STAFF_INVITATION_NOT_FOUND,
 			);
 		}
 

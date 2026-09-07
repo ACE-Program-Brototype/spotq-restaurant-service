@@ -1,4 +1,5 @@
 import { InvalidStaffStatusError } from "@/domain/errors/staff.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export const STAFF_STATUSES = [
 	"ACTIVE",
@@ -19,9 +20,7 @@ export class StaffStatusVO {
 	public static create(rawStatus: string): StaffStatusVO {
 		const upperStatus = rawStatus?.toUpperCase() as StaffStatus;
 		if (!STAFF_STATUSES.includes(upperStatus)) {
-			throw new InvalidStaffStatusError(
-				`Invalid staff status: ${rawStatus}. Valid statuses: ${STAFF_STATUSES.join(", ")}`,
-			);
+			throw new InvalidStaffStatusError(messages.INVALID_STAFF_STATUS);
 		}
 		return new StaffStatusVO(upperStatus);
 	}

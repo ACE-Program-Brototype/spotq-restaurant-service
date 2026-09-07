@@ -11,6 +11,7 @@ import {
 	StaffNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 import { StaffPersistenceMapper } from "../mappers/staff.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -32,21 +33,14 @@ export class PrismaRestaurantStaffRepository
 
 	protected override handlePrismaError(
 		error: unknown,
-		context?: unknown,
+		_context?: unknown,
 	): void {
 		if (error instanceof PrismaClientKnownRequestError) {
 			if (error.code === "P2002") {
-				const email = (context as RestaurantStaff)?.email ?? "with this email";
-				throw new StaffAlreadyExistsError(
-					`Staff with email ${email} already exists`,
-				);
+				throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 			}
 			if (error.code === "P2025") {
-				const id =
-					typeof context === "string"
-						? context
-						: ((context as RestaurantStaff)?.id ?? "");
-				throw new StaffNotFoundError(`Staff member with id ${id} not found`);
+				throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 			}
 		}
 	}

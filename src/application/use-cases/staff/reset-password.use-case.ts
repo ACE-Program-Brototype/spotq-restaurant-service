@@ -13,6 +13,7 @@ import {
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
@@ -29,13 +30,11 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 
 	public async execute(dto: ResetPasswordDTO): Promise<void> {
 		if (!dto.tempToken) {
-			throw new InvalidTempTokenError("Reset token is required");
+			throw new InvalidTempTokenError(messages.RESET_TOKEN_REQUIRED);
 		}
 
 		if (!dto.password || dto.password.length < 8) {
-			throw new InvalidStaffDataError(
-				"Password must be at least 8 characters long",
-			);
+			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
 		}
 
 		const isRevoked = await this.tokenRevocationRepository.isRevoked(
@@ -53,7 +52,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		}
 
 		if (payload.purpose !== "password-reset") {
-			throw new InvalidTempTokenError("Invalid token purpose");
+			throw new InvalidTempTokenError(messages.INVALID_TOKEN_PURPOSE);
 		}
 
 		const staff = await this.staffRepository.findById(payload.sub);

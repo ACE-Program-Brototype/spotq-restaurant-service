@@ -8,6 +8,7 @@ import { TYPES } from "@/config/di/types.ts";
 import type { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";
 import { StaffInvitationNotFoundError } from "@/domain/errors/staff.errors.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class RevokeStaffInvitationUseCase
@@ -37,7 +38,7 @@ export class RevokeStaffInvitationUseCase
 
 		if (!invitation || invitation.restaurantId !== dto.restaurantId) {
 			throw new StaffInvitationNotFoundError(
-				"Staff invitation not found for this restaurant",
+				messages.STAFF_INVITATION_NOT_FOUND,
 			);
 		}
 

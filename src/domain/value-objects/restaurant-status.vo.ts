@@ -1,4 +1,5 @@
 import { InvalidRestaurantStatusError } from "@/domain/errors/restaurant.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export const RESTAURANT_STATUSES = [
 	"PENDING",
@@ -22,7 +23,7 @@ export class RestaurantStatusVO {
 		const upperStatus = rawStatus?.toUpperCase() as RestaurantStatus;
 		if (!RESTAURANT_STATUSES.includes(upperStatus)) {
 			throw new InvalidRestaurantStatusError(
-				`Invalid restaurant status: ${rawStatus}. Valid statuses: ${RESTAURANT_STATUSES.join(", ")}`,
+				messages.INVALID_RESTAURANT_STATUS,
 			);
 		}
 		return new RestaurantStatusVO(upperStatus);
