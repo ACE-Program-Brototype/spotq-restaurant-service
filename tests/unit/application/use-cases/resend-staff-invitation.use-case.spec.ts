@@ -133,13 +133,24 @@ describe("ResendStaffInvitationUseCase", () => {
 		).rejects.toThrow(RestaurantNotFoundError);
 	});
 
-	it("should throw StaffInvitationNotFoundError when invitation does not exist", async () => {
+	it("should ignore already accepted invitations and throw StaffInvitationNotFoundError if no renewable invitation exists", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		staffRepository.findByEmail.mockResolvedValue(null);
 		staffInvitationRepository.findPendingByEmailAndRestaurant.mockResolvedValue(
 			null,
 		);
-		staffInvitationRepository.findByEmail.mockResolvedValue([]);
+
+		const acceptedInvitation = StaffInvitation.create({
+			restaurantId: mockRestaurant.id,
+			email: "staff@tastybites.com",
+			tokenHash: "accepted-token-hash",
+			expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+		});
+		acceptedInvitation.accept();
+
+		staffInvitationRepository.findByEmail.mockResolvedValue([
+			acceptedInvitation,
+		]);
 
 		await expect(
 			useCase.execute({

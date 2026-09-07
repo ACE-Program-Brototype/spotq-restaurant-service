@@ -67,8 +67,10 @@ export class ResendStaffInvitationUseCase
 				emailVO.value,
 			);
 			invitation =
-				allInvitations.find((inv) => inv.restaurantId === dto.restaurantId) ??
-				null;
+				allInvitations.find(
+					(inv) =>
+						inv.restaurantId === dto.restaurantId && !inv.statusVO.isAccepted(),
+				) ?? null;
 		}
 
 		if (!invitation) {
