@@ -4,3 +4,5 @@ dist
 coverage
 /src/generated/prisma
 .DS_Store
+bruno/
+*.bru
