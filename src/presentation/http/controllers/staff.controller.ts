@@ -199,9 +199,7 @@ export class StaffController {
 	};
 
 	public inviteStaff = async (req: Request, res: Response): Promise<void> => {
-		const restaurantId =
-			(req.headers["x-restaurant-id"] as string)?.trim() ||
-			(req.headers["x-user-id"] as string)?.trim();
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
 
 		if (!restaurantId) {
 			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
@@ -277,9 +275,7 @@ export class StaffController {
 		req: Request,
 		res: Response,
 	): Promise<void> => {
-		const restaurantId =
-			(req.headers["x-restaurant-id"] as string)?.trim() ||
-			(req.headers["x-user-id"] as string)?.trim();
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
 
 		if (!restaurantId) {
 			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
@@ -302,9 +298,7 @@ export class StaffController {
 		req: Request,
 		res: Response,
 	): Promise<void> => {
-		const restaurantId =
-			(req.headers["x-restaurant-id"] as string)?.trim() ||
-			(req.headers["x-user-id"] as string)?.trim();
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
 
 		if (!restaurantId) {
 			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);

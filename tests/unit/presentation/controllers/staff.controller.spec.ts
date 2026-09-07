@@ -1,3 +1,4 @@
+import { RestaurantIdRequiredError } from "@domain/errors/staff.errors";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
@@ -304,30 +305,15 @@ describe("StaffController", () => {
 			);
 		});
 
-		it("should fall back to x-user-id header if x-restaurant-id is not provided", async () => {
+		it("should throw RestaurantIdRequiredError when x-restaurant-id is missing even if x-user-id is present", async () => {
 			const req: Partial<Request> = {
 				body: { email: "invited@spotq.com" },
-				headers: { "x-user-id": "rest-from-user-id" },
+				headers: { "x-user-id": "user-uuid-123" },
 			};
 
-			const mockInvitationResult = {
-				id: "inv-uuid-123",
-				email: "invited@spotq.com",
-				restaurantId: "rest-from-user-id",
-				status: "PENDING",
-				expiresAt: new Date(),
-				createdAt: new Date(),
-			};
-
-			inviteStaffUseCase.execute.mockResolvedValue(mockInvitationResult);
-
-			await controller.inviteStaff(req as Request, res as Response);
-
-			expect(inviteStaffUseCase.execute).toHaveBeenCalledWith({
-				email: "invited@spotq.com",
-				restaurantId: "rest-from-user-id",
-			});
-			expect(res.status).toHaveBeenCalledWith(201);
+			await expect(
+				controller.inviteStaff(req as Request, res as Response),
+			).rejects.toThrow(RestaurantIdRequiredError);
 		});
 
 		it("should throw RestaurantIdRequiredError when no restaurant header is provided", async () => {
