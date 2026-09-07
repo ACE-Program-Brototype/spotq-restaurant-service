@@ -1,7 +1,9 @@
 import type { IJwkService } from "@application/ports/services/IJwk.service";
 import { env } from "@config/env";
+import { injectable } from "inversify";
 import { exportJWK, importSPKI } from "jose";
 
+@injectable()
 export class JwksService implements IJwkService {
 	public async getJwks() {
 		const publicKey = await importSPKI(

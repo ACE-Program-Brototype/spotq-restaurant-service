@@ -1,5 +1,5 @@
 import type { IJwkService } from "@application/ports/services/IJwk.service";
-import { JwksService } from "@infrastructure/services/jwt.service";
+import { JwksService } from "@infrastructure/services/jwk.service";
 import { ContainerModule } from "inversify";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type { IOtpService } from "@/application/ports/services/otp-service.port.ts";

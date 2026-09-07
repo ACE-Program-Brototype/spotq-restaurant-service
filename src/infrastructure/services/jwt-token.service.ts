@@ -31,7 +31,7 @@ export class JwtTokenService implements ITokenService {
 	}
 
 	public verifyAccessToken(token: string): StaffTokenPayload {
-		return jwt.verify(token, this.accessPrivateKey, {
+		return jwt.verify(token, env.JWT_ACCESS_PUBLIC_KEY, {
 			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
 		}) as StaffTokenPayload;
 	}
