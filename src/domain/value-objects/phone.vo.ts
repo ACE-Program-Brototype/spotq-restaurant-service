@@ -2,10 +2,22 @@ import { InvalidPhoneError } from "@/domain/errors/staff.errors.ts";
 
 export class StaffPhone {
 	private readonly _value: string;
-	private static readonly PHONE_REGEX = /^\+?[0-9\s-]{7,15}$/;
+	private static readonly INDIAN_PHONE_REGEX =
+		/^(?:(?:\+91|91|0)[\s-]?)?[6-9]\d{9}$/;
+	private static readonly GENERIC_PHONE_REGEX = /^\+?[0-9\s-]{7,15}$/;
 
 	private constructor(value: string) {
 		this._value = value;
+	}
+
+	public static normalize(rawPhone: string): string {
+		const cleaned = rawPhone.trim();
+		if (StaffPhone.INDIAN_PHONE_REGEX.test(cleaned)) {
+			const digits = cleaned.replace(/\D/g, "");
+			const last10 = digits.slice(-10);
+			return `+91${last10}`;
+		}
+		return cleaned.replace(/[\s-]/g, "");
 	}
 
 	public static create(rawPhone: string): StaffPhone {
@@ -15,11 +27,14 @@ export class StaffPhone {
 
 		const cleaned = rawPhone.trim();
 
-		if (!StaffPhone.PHONE_REGEX.test(cleaned)) {
+		if (
+			!StaffPhone.GENERIC_PHONE_REGEX.test(cleaned) &&
+			!StaffPhone.INDIAN_PHONE_REGEX.test(cleaned)
+		) {
 			throw new InvalidPhoneError(`Invalid phone number format: ${rawPhone}`);
 		}
 
-		return new StaffPhone(cleaned);
+		return new StaffPhone(StaffPhone.normalize(cleaned));
 	}
 
 	public get value(): string {

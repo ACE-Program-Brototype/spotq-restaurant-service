@@ -13,7 +13,12 @@ export const acceptInvitationSchema = z.object({
 		.regex(
 			/^(?:(?:\+91|91|0)[\s-]?)?[6-9]\d{9}$/,
 			"Invalid Indian phone number format. Must be a 10-digit mobile number starting with 6-9, optionally prefixed with +91, 91, or 0",
-		),
+		)
+		.transform((val) => {
+			const digits = val.replace(/\D/g, "");
+			const last10 = digits.slice(-10);
+			return `+91${last10}`;
+		}),
 	password: z
 		.string({
 			message: "Password is required",

@@ -8,6 +8,23 @@ describe("StaffPhone Value Object", () => {
 		expect(phone.toString()).toBe("+1234567890");
 	});
 
+	it("should normalize Indian phone numbers with various prefixes to E.164 (+91XXXXXXXXXX)", () => {
+		const variations = [
+			"9876543210",
+			"09876543210",
+			"919876543210",
+			"+919876543210",
+			"+91 9876543210",
+			"+91-9876543210",
+		];
+
+		for (const variation of variations) {
+			const phone = StaffPhone.create(variation);
+			expect(phone.value).toBe("+919876543210");
+			expect(phone.toString()).toBe("+919876543210");
+		}
+	});
+
 	it("should throw InvalidPhoneError for invalid phone numbers", () => {
 		expect(() => StaffPhone.create("abc")).toThrow(InvalidPhoneError);
 		expect(() => StaffPhone.create("123")).toThrow(InvalidPhoneError);

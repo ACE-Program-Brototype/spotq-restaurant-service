@@ -92,13 +92,14 @@ describe("AcceptInvitationUseCase", () => {
 		const result = await useCase.execute({
 			token: "raw-token-123",
 			fullname: "John Doe",
-			phone: "+1234567890",
+			phone: "9876543210",
 			password: "SecurePassword123!",
 		});
 
 		expect(result.staff).toBeDefined();
 		expect(result.staff.email).toBe("john@example.com");
 		expect(result.staff.fullname).toBe("John Doe");
+		expect(result.staff.phone).toBe("+919876543210");
 		expect(result.staff.restaurantId).toBe("restaurant-uuid-1");
 		expect(result.accessToken).toBe("mock-access-token");
 		expect(result.refreshToken).toBe("mock-refresh-token");

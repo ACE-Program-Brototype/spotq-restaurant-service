@@ -23,6 +23,9 @@ describe("acceptInvitationSchema", () => {
 				password: "SecurePassword1!",
 			});
 			expect(result.success).toBe(true);
+			if (result.success) {
+				expect(result.data.phone).toMatch(/^\+91[6-9]\d{9}$/);
+			}
 		}
 	});
 
