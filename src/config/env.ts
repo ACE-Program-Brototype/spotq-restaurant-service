@@ -57,8 +57,6 @@ const envSchema = z.object({
 
 	OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
 
-	JWT_ACCESS_SECRET: z.string().trim().min(64),
-
 	JWT_ACCESS_PRIVATE_KEY: z.string().trim().min(1),
 
 	JWT_ACCESS_PUBLIC_KEY: z.string().trim().min(1),
