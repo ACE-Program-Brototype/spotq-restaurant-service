@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { injectable } from "inversify";
 import { getRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -7,6 +8,7 @@ import {
 	sendSuccessResponse,
 } from "@/shared/response/api-response.ts";
 
+@injectable()
 export class RestaurantStatusController {
 	async getStatus(req: Request, res: Response): Promise<void> {
 		const restaurantId =

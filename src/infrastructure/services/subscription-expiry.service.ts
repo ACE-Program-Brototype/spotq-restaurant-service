@@ -1,6 +1,8 @@
+import { injectable } from "inversify";
 import { prisma } from "@/config/prisma.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 
+@injectable()
 export class SubscriptionExpiryService {
 	private intervalId: NodeJS.Timeout | null = null;
 	private isRunning = false;
