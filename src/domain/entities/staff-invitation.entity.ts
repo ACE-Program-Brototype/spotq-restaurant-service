@@ -169,6 +169,11 @@ export class StaffInvitation {
 	}
 
 	public renew(newTokenHash: string, newExpiresAt: Date): void {
+		if (this._props.status.isAccepted()) {
+			throw new InvalidStaffDataError(
+				messages.CANNOT_RENEW_ACCEPTED_INVITATION,
+			);
+		}
 		this._props.tokenHash = newTokenHash;
 		this._props.expiresAt = newExpiresAt;
 		this._props.status = InvitationStatusVO.pending();

@@ -15,6 +15,7 @@ describe("RevokeStaffInvitationUseCase", () => {
 			findByEmail: jest.fn(),
 			findPendingByEmailAndRestaurant: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			createStaffWithInvitation: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		};

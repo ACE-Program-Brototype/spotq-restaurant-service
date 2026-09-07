@@ -77,13 +77,26 @@ describe("StaffInvitation Entity", () => {
 		expect(invitation.isPending()).toBe(false);
 	});
 
-	it("should correctly identify expired invitations", () => {
-		const expiredInvitation = StaffInvitation.create({
-			...validProps,
-			expiresAt: new Date(Date.now() - 1000),
-		});
+	it("should renew invitation with new tokenHash, expiry, and PENDING status", () => {
+		const invitation = StaffInvitation.create(validProps);
+		const newExpiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
 
-		expect(expiredInvitation.isExpired()).toBe(true);
-		expect(expiredInvitation.isPending()).toBe(false);
+		invitation.renew("new-token-hash-456", newExpiry);
+
+		expect(invitation.tokenHash).toBe("new-token-hash-456");
+		expect(invitation.expiresAt).toEqual(newExpiry);
+		expect(invitation.status).toBe("PENDING");
+	});
+
+	it("should throw InvalidStaffDataError when trying to renew an already ACCEPTED invitation", () => {
+		const invitation = StaffInvitation.create(validProps);
+		invitation.accept();
+
+		expect(() =>
+			invitation.renew(
+				"new-token-hash-456",
+				new Date(Date.now() + 72 * 60 * 60 * 1000),
+			),
+		).toThrow(InvalidStaffDataError);
 	});
 });

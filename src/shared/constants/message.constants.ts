@@ -49,6 +49,8 @@ export const messages = {
 	EMAIL_ALREADY_EXISTS: "Staff member with this email already exists",
 	STAFF_INVITATION_ALREADY_PENDING:
 		"An active invitation has already been sent to this email address",
+	CANNOT_RENEW_ACCEPTED_INVITATION:
+		"Cannot renew an already accepted invitation",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
 	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
 	TOKEN_HASH_REQUIRED: "Token hash is required",
