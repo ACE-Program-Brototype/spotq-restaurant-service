@@ -58,10 +58,8 @@ export class VerifyForgotPasswordOtpUseCase
 			throw new InvalidOtpError();
 		}
 
-		// Delete verified OTP so it cannot be reused
 		await this.otpRepository.deleteOtp(emailVO.value);
 
-		// Issue temp token with purpose: 'password-reset'
 		const tempToken = this.tokenService.generateTempToken({
 			sub: staff.id,
 			email: staff.email,

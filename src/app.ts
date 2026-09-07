@@ -42,7 +42,6 @@ app.get("/", (_req, res) => {
 	);
 });
 
-// Mount routes
 app.use(STAFF_ROUTES.BASE, staffRouter);
 
 app.use("/", systemRouter);
@@ -51,7 +50,6 @@ app.use("/", restaurantRouter);
 
 app.use("/.well-known", jwksRouter);
 
-// 404 & Error handlers
 app.use(notFoundHandler);
 app.use(errorHandler);
 

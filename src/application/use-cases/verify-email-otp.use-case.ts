@@ -83,8 +83,6 @@ export class VerifyRestaurantEmailOtpUseCase
 			throw new RestaurantAccountBlockedError();
 		}
 
-		// need to verify restaurant status before moving to dashboard.
-
 		const tokenPair = this.authTokenService.generateTokenPair({
 			email,
 			restaurantId: restaurant.id,

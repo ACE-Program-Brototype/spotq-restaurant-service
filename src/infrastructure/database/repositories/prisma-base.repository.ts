@@ -64,7 +64,5 @@ export abstract class PrismaBaseRepository<
 	 * Subclasses can override this hook to translate Prisma errors (e.g., P2002, P2025)
 	 * to domain-specific errors.
 	 */
-	protected handlePrismaError(_error: unknown, _context?: unknown): void {
-		// Subclasses override if needed
-	}
+	protected handlePrismaError(_error: unknown, _context?: unknown): void {}
 }

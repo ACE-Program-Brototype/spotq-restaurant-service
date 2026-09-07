@@ -38,9 +38,7 @@ export class RedisTokenRevocationRepository
 					ttl = remaining;
 				}
 			}
-		} catch {
-			// Fallback to env default ttl
-		}
+		} catch {}
 
 		const key = `${this.keyPrefix}${this.hashToken(token)}`;
 		await this.redis.set(key, "revoked", "EX", ttl);

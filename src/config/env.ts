@@ -81,7 +81,6 @@ const envSchema = z.object({
 
 	JWT_TEMP_EXPIRES_IN: z.string().trim().default("15m"),
 
-	// Cookie Configuration from Environment
 	COOKIE_NAME_REFRESH_TOKEN: z.string().trim().default("refreshToken"),
 	COOKIE_NAME_TEMP_TOKEN: z.string().trim().default("tempToken"),
 	COOKIE_HTTP_ONLY: z.preprocess((val) => {
@@ -104,18 +103,17 @@ const envSchema = z.object({
 		z
 			.number()
 			.positive()
-			.default(7 * 24 * 60 * 60 * 1000), // 7 days in ms
+			.default(7 * 24 * 60 * 60 * 1000),
 	),
 	COOKIE_TEMP_TOKEN_MAX_AGE_MS: z.preprocess(
 		(val) => (typeof val === "string" ? Number(val) : val),
 		z
 			.number()
 			.positive()
-			.default(15 * 60 * 1000), // 15 minutes in ms
+			.default(15 * 60 * 1000),
 	),
 	COOKIE_DOMAIN: z.string().trim().optional(),
 
-	// Rate Limiting Configuration
 	RATE_LIMIT_LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
 	RATE_LIMIT_LOGIN_WINDOW_SECONDS: z.coerce
 		.number()

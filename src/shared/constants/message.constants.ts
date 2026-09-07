@@ -1,5 +1,4 @@
 export const messages = {
-	// Success Messages
 	SUCCESS: "Success",
 	STAFF_LOGIN_SUCCESS: "Staff logged in successfully",
 	STAFF_LOGOUT_SUCCESS: "Staff logged out successfully",
@@ -18,7 +17,6 @@ export const messages = {
 	SERVICE_HEALTHY: "Service health check successful",
 	SERVICE_READY: "Service is ready",
 
-	// Error Messages
 	INTERNAL_SERVER_ERROR: "Internal server error occurred",
 	UNHANDLED_APP_ERROR: "Unhandled application error",
 	UNAUTHORIZED: "Unauthorized access",
@@ -56,7 +54,6 @@ export const messages = {
 	SERVICE_UNAVAILABLE: "Service temporarily unavailable",
 	REQ_ROUTE_NOT_FOUND: "Requested route not found",
 
-	// Logging Messages
 	INCOMMING_HTTP_REQ: "Incoming HTTP Request",
 	OUTGOING_HTTP_RES: "Outgoing HTTP Response",
 } as const;

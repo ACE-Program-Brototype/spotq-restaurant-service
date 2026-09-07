@@ -44,13 +44,10 @@ export class ResendForgotPasswordOtpUseCase
 			throw new StaffInactiveError();
 		}
 
-		// Generate 6-digit OTP using injected port service
 		const otp = this.otpService.generateOtp(6);
 
-		// Refresh OTP in Redis with 5 minutes (300s) TTL
 		await this.otpRepository.saveOtp(emailVO.value, otp, 300);
 
-		// Queue email dispatch via port
 		await this.emailQueuePort.sendVerificationOtp({
 			to: emailVO.value,
 			otp,

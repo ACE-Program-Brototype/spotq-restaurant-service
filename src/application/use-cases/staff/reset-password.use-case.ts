@@ -38,7 +38,6 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			);
 		}
 
-		// 1. Check if temp token is revoked in Redis
 		const isRevoked = await this.tokenRevocationRepository.isRevoked(
 			dto.tempToken,
 		);
@@ -46,7 +45,6 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			throw new InvalidTempTokenError();
 		}
 
-		// 2. Verify and decode JWT temp token
 		let payload: ReturnType<ITokenService["verifyTempToken"]>;
 		try {
 			payload = this.tokenService.verifyTempToken(dto.tempToken);
@@ -58,7 +56,6 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			throw new InvalidTempTokenError("Invalid token purpose");
 		}
 
-		// 3. Find staff member
 		const staff = await this.staffRepository.findById(payload.sub);
 		if (!staff) {
 			throw new StaffNotFoundError();
@@ -72,14 +69,11 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			throw new StaffInactiveError();
 		}
 
-		// 4. Hash new password and update staff entity
 		const hashedPassword = await this.passwordHasher.hash(dto.password);
 		staff.changePassword(hashedPassword);
 
-		// 5. Save changes in PostgreSQL
 		await this.staffRepository.save(staff);
 
-		// 6. Revoke tempToken so it cannot be used again
 		await this.tokenRevocationRepository.revoke(dto.tempToken);
 	}
 }

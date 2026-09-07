@@ -45,7 +45,6 @@ async function bootstrap() {
 
 			logger.info({ signal }, "Graceful shutdown initiated");
 
-			// Close idle keep-alive connections
 			if (typeof server.closeIdleConnections === "function") {
 				server.closeIdleConnections();
 			}

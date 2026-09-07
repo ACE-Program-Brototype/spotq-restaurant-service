@@ -36,13 +36,11 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 			throw new InvalidRefreshTokenError("Refresh token is required");
 		}
 
-		// 1. Check if token has been revoked in Redis
 		const isRevoked = await this.tokenRevocationRepository.isRevoked(token);
 		if (isRevoked) {
 			throw new RevokedTokenError();
 		}
 
-		// 2. Verify and decode JWT refresh token
 		let payload: ReturnType<ITokenService["verifyRefreshToken"]>;
 		try {
 			payload = this.tokenService.verifyRefreshToken(token);
@@ -50,13 +48,11 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 			throw new InvalidRefreshTokenError();
 		}
 
-		// 3. Verify staff existence
 		const staff = await this.restaurantStaffRepository.findById(payload.sub);
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}
 
-		// 4. Verify staff account active status
 		if (staff.isSuspended()) {
 			throw new StaffSuspendedError();
 		}
@@ -65,7 +61,6 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 			throw new StaffInactiveError();
 		}
 
-		// 5. Generate fresh access token
 		const tokenPayload: StaffTokenPayload = {
 			sub: staff.id,
 			restaurantId: staff.restaurantId,
