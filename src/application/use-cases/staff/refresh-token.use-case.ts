@@ -8,7 +8,7 @@ import type {
 	StaffTokenPayload,
 } from "@/application/ports/services/token-service.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 import {
 	InvalidRefreshTokenError,
 	RevokedTokenError,

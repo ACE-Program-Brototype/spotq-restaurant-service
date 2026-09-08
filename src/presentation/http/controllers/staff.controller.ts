@@ -8,7 +8,7 @@ import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 import { env } from "@/config/env.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";

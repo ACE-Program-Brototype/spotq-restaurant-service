@@ -4,7 +4,7 @@ import type {
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import {
 	StaffAlreadyExistsError,

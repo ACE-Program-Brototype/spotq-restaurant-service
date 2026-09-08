@@ -5,7 +5,7 @@ import type {
 } from "@/application/dtos/staff/verify-forgot-password-otp.dto.ts";
 import type { ITokenService } from "@/application/ports/services/token-service.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 import {
 	InvalidOtpError,
 	OtpExpiredError,

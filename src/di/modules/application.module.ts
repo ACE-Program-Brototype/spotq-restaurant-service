@@ -13,7 +13,7 @@ import { RefreshTokenUseCase } from "@/application/use-cases/staff/refresh-token
 import { ResendForgotPasswordOtpUseCase } from "@/application/use-cases/staff/resend-forgot-password-otp.use-case.ts";
 import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-password.use-case.ts";
 import { VerifyForgotPasswordOtpUseCase } from "@/application/use-cases/staff/verify-forgot-password-otp.use-case.ts";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 
 export const applicationModule = new ContainerModule(({ bind }) => {
 	bind<ILoginStaffUseCase>(TYPES.LoginStaffUseCase)

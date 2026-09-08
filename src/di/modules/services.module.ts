@@ -3,7 +3,7 @@ import type { IEmailQueuePort } from "@/application/ports/services/email-queue.p
 import type { IOtpService } from "@/application/ports/services/otp-service.port.ts";
 import type { IPasswordHasher } from "@/application/ports/services/password-hasher.port.ts";
 import type { ITokenService } from "@/application/ports/services/token-service.port.ts";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 import { EmailQueueService } from "@/infrastructure/queue/email.queue.ts";
 import { BcryptPasswordHasher } from "@/infrastructure/services/bcrypt-password-hasher.ts";
 import { CryptoOtpService } from "@/infrastructure/services/crypto-otp.service.ts";

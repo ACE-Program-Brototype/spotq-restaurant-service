@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { ContainerModule } from "inversify";
 import type { Redis } from "ioredis";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 import { prisma } from "@/config/prisma.ts";
 import redis from "@/config/redis.ts";
 import type { IOtpRepository } from "@/domain/repositories/otp.repository.interface.ts";

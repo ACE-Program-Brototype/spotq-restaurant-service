@@ -1,5 +1,5 @@
 import { ContainerModule } from "inversify";
-import { TYPES } from "@/config/di/types.ts";
+import { TYPES } from "@/di/types.ts";
 import {
 	HealthCheckService,
 	type IHealthCheckable,
