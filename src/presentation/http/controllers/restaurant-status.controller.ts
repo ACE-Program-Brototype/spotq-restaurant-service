@@ -5,10 +5,13 @@ import { TYPES } from "@/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
-	ApiResponse,
+	sendErrorResponse,
 	sendSuccessResponse,
 } from "@/shared/response/api-response.ts";
 
+/**
+ * Controller handling restaurant onboarding status and subscription state requests.
+ */
 @injectable()
 export class RestaurantStatusController {
 	constructor(
@@ -23,15 +26,12 @@ export class RestaurantStatusController {
 			(req.headers["x-user-id"] as string);
 
 		if (!restaurantId) {
-			res
-				.status(HTTP_STATUS.UNAUTHORIZED)
-				.json(
-					ApiResponse.error(
-						messages.UNAUTHORIZED_RESTAURANT,
-						"UNAUTHORIZED",
-						HTTP_STATUS.UNAUTHORIZED,
-					),
-				);
+			sendErrorResponse(
+				res,
+				messages.UNAUTHORIZED_RESTAURANT,
+				"UNAUTHORIZED",
+				HTTP_STATUS.UNAUTHORIZED,
+			);
 			return;
 		}
 
@@ -39,15 +39,12 @@ export class RestaurantStatusController {
 			await this.getRestaurantStatusUseCase.execute(restaurantId);
 
 		if (!statusResult) {
-			res
-				.status(HTTP_STATUS.NOT_FOUND)
-				.json(
-					ApiResponse.error(
-						messages.RESTAURANT_NOT_FOUND,
-						"RESTAURANT_NOT_FOUND",
-						HTTP_STATUS.NOT_FOUND,
-					),
-				);
+			sendErrorResponse(
+				res,
+				messages.RESTAURANT_NOT_FOUND,
+				"RESTAURANT_NOT_FOUND",
+				HTTP_STATUS.NOT_FOUND,
+			);
 			return;
 		}
 
