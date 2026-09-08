@@ -1,5 +1,6 @@
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller.ts";
+import { ERROR_CODES } from "@/shared/constants/error-code.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -36,7 +37,7 @@ describe("RestaurantStatusController", () => {
 			expect.objectContaining({
 				success: false,
 				message: messages.UNAUTHORIZED_RESTAURANT,
-				code: "UNAUTHORIZED",
+				code: ERROR_CODES.UNAUTHORIZED,
 			}),
 		);
 	});
@@ -64,7 +65,7 @@ describe("RestaurantStatusController", () => {
 			expect.objectContaining({
 				success: false,
 				message: messages.RESTAURANT_NOT_FOUND,
-				code: "RESTAURANT_NOT_FOUND",
+				code: ERROR_CODES.RESTAURANT_NOT_FOUND,
 			}),
 		);
 	});
