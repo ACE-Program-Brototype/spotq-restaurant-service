@@ -3,16 +3,16 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
-import type { VerifyRestaurantEmailOtpDto } from "../dto/restaurant-email-verification.dto";
-import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
-import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
-import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
-import type { IAuthTokenService } from "../ports/services/auth-token.service.port";
-import type { IEmailVerificationService } from "../ports/services/email-verification.service.port";
-import type { IOtpService } from "../ports/services/otp.service.port";
-import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
-import type { IOtpStore } from "../ports/services/otp-store.port";
-import type { IVerifyRestaurantEmailOtpUseCase } from "../ports/use-case/verify-email-otp.use-case.port";
+import type { VerifyRestaurantEmailOtpDto } from "@/application/dto/restaurant-email-verification.dto";
+import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
+import { OtpVerificationAttemptsExceededError } from "@/application/errors/otp-verification-attempts-exceeded.error";
+import { RestaurantAccountBlockedError } from "@/application/errors/restaurant-account-blocked.error";
+import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
+import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
+import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase

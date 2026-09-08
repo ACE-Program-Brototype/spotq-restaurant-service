@@ -7,9 +7,9 @@ import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { JOB_NAMES } from "@/shared/constants/queue.constants";
 import { generateOtp, getRestaurantEmailOtpKey } from "@/utils/otp.util";
-import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
-import type { IOtpService } from "../ports/services/otp.service.port";
-import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
+import { OtpCooldownActiveError } from "@/application/errors/otp-cooldown-active.error";
+import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
 
 @injectable()
 export class ResendRestaurantEmailOtpUseCase
