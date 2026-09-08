@@ -1,4 +1,5 @@
 import { injectable } from "inversify";
+import { env } from "@/config/env.ts";
 import { prisma } from "@/config/prisma.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 
@@ -11,7 +12,7 @@ export class SubscriptionExpiryService {
 	private intervalId: NodeJS.Timeout | null = null;
 	private isRunning = false;
 
-	start(intervalMs = 60 * 60 * 1000): void {
+	start(intervalMs = env.SUBSCRIPTION_EXPIRY_CHECK_INTERVAL_MS): void {
 		if (this.intervalId) return;
 
 		this.expirePastDueSubscriptions().catch((err) => {
