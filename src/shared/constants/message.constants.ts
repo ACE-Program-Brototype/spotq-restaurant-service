@@ -47,6 +47,12 @@ export const messages = {
 	// Logging Messages
 	INCOMMING_HTTP_REQ: "Incoming HTTP Request",
 	OUTGOING_HTTP_RES: "Outgoing HTTP Response",
+
+	RESTAURANT_EMAIL_OTP_SENT_SUCCESS:
+		"If this email is eligible for registration, a verification code will be sent.",
+	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
+	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
+	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
 } as const;
 
 export type MessageKey = keyof typeof messages;

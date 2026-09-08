@@ -1,4 +1,5 @@
 import { env } from "@config/env";
+import { messages } from "@shared/constants/message.constants";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
@@ -62,7 +63,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"If this email is eligible for registration, a verification code will be sent.",
+			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
 			HTTP_STATUS.ACCEPTED,
 		);
 	}
@@ -72,7 +73,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"If this email is eligible for registration, a verification code will be sent.",
+			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
 			HTTP_STATUS.ACCEPTED,
 		);
 	}
@@ -86,7 +87,7 @@ export class RestaurantAuthController {
 			if (!accessToken || !refreshToken) {
 				return successResponse(
 					res,
-					"Email verified successfully.",
+					messages.EMAIL_VERIFIED_SUCCESS,
 					HTTP_STATUS.SUCCESS,
 					{ nextStep: dashboardResult.nextStep },
 				);
@@ -96,7 +97,7 @@ export class RestaurantAuthController {
 
 			return successResponse(
 				res,
-				"Email verified successfully.",
+				messages.EMAIL_VERIFIED_SUCCESS,
 				HTTP_STATUS.SUCCESS,
 				{
 					nextStep: dashboardResult.nextStep,
@@ -107,7 +108,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"Email verified successfully.",
+			messages.EMAIL_VERIFIED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			result,
 		);
@@ -135,7 +136,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"Access token refreshed successfully.",
+			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			{ accessToken },
 		);
@@ -154,7 +155,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"Restaurant registered successfully",
+			messages.RESTAURANT_REGISTRATION_SUCCESS,
 			HTTP_STATUS.CREATED,
 		);
 	}
