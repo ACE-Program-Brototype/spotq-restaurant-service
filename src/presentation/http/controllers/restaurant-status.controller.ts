@@ -20,10 +20,7 @@ export class RestaurantStatusController {
 	) {}
 
 	getStatus = async (req: Request, res: Response): Promise<void> => {
-		const restaurantId =
-			(req.headers["x-restaurant-id"] as string) ||
-			(req.query.restaurantId as string) ||
-			(req.headers["x-user-id"] as string);
+		const restaurantId = req.headers["x-restaurant-id"] as string | undefined;
 
 		if (!restaurantId) {
 			sendErrorResponse(
