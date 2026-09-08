@@ -16,6 +16,7 @@ export class EmailVerificationService implements IEmailVerificationService {
 	) {}
 
 	async createVerificationToken(email: string): Promise<string> {
+		
 		const token = generateVerificationToken();
 
 		const tokenKey = getRestaurantEmailVerificationTokenKey(token);
@@ -30,6 +31,7 @@ export class EmailVerificationService implements IEmailVerificationService {
 	}
 
 	async getVerifiedEmail(token: string): Promise<string | null> {
+
 		const tokenKey = getRestaurantEmailVerificationTokenKey(token);
 
 		return this.otpStore.get(tokenKey);

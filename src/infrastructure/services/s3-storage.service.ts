@@ -9,6 +9,7 @@ import { s3Client } from "@infrastructure/storage/s3.client";
 
 @injectable()
 export class S3StorageService implements IStorageService {
+	
 	async generatePresignedUploadUrl(params: {
 		key: string;
 		contentType: string;

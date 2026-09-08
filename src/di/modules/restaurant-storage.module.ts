@@ -6,8 +6,13 @@ import type { IStorageService } from "@application/ports/services/storage.servic
 import { S3StorageService } from "@infrastructure/services/s3-storage.service";
 import type { IFilePolicyValidator } from "@application/ports/services/file-policy-validator.port";
 import { FilePolicyValidatorService } from "@infrastructure/services/file-policy-validator.service";
+import { StorageController } from "@presentation/http/controllers/storage.controller";
 
-export const restaurantOnboardModule = new ContainerModule(({ bind }) => {
+export const restaurantStorageModule = new ContainerModule(({ bind }) => {
+
+    bind(TYPES.Controller.StorageController).to(
+        StorageController
+    )
 	
     bind<IGeneratePresignedUrlUseCase>(TYPES.UseCases.GeneratePresignedUrlUseCase).to(
         GeneratePresignedUrlUseCase

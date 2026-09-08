@@ -28,7 +28,7 @@ export class GeneratePresignedUrlUseCase
 		});
 
 		const s3ObjectKey = this.generateS3ObjectKey(
-			dto.entity_id,
+			dto.onboarding_id,
 			dto.file_category,
 			dto.file_name,
 		);
@@ -51,14 +51,14 @@ export class GeneratePresignedUrlUseCase
 	}
 
 	private generateS3ObjectKey(
-		entityId: string,
+		onboarding_id: string,
 		fileCategory: string,
 		fileName: string,
 	): string {
 		const sanitizedFileName = this.sanitizeFileName(fileName);
 		const fileId = crypto.randomUUID();
 
-		return `restaurants/${entityId}/${fileCategory.toLowerCase()}/${fileId}_${sanitizedFileName}`;
+		return `restaurants/${onboarding_id}/${fileCategory.toLowerCase()}/${fileId}_${sanitizedFileName}`;
 	}
 
 	private sanitizeFileName(fileName: string): string {

@@ -11,9 +11,10 @@ import { successResponse } from "@/utils/response.model.ts";
 import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
 import cookieParser from "cookie-parser";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { STAFF_ROUTES } from "@/shared/constants/route.constants.ts";
+import { STAFF_ROUTES, STORAGE_ROUTES } from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 import staffRouter from "@presentation/http/routes/staff.routes";
+import { storageRouter } from "@presentation/http/routes/storage.routes";
 
 const app = express();
 
@@ -47,6 +48,8 @@ app.use(STAFF_ROUTES.BASE, staffRouter);
 app.use("/", systemRouter);
 
 app.use("/", restaurantRouter);
+
+app.use(STORAGE_ROUTES.BASE, storageRouter);
 
 // 404 & Error handlers
 app.use(notFoundHandler);

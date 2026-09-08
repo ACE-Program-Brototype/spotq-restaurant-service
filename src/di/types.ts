@@ -16,6 +16,7 @@ export const TYPES = {
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		StorageController: Symbol.for("storageController")
 	},
 
 	Database: {
