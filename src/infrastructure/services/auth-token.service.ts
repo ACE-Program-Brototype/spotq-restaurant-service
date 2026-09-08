@@ -19,7 +19,7 @@ export class AuthTokenService implements IAuthTokenService {
 
 	generateRefreshToken(payload: AuthTokenPayload): string {
 		return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-			expiresIn: "7d",
+			expiresIn: env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions["expiresIn"],
 		});
 	}
 

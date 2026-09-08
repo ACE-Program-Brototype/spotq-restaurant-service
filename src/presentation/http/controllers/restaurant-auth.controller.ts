@@ -50,7 +50,7 @@ export class RestaurantAuthController {
 	}
 
 	private setRefreshCookies(res: Response, refreshToken: string) {
-		res.cookie("refreshToken", refreshToken, {
+		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN, refreshToken, {
 			httpOnly: env.COOKIE_HTTP_ONLY,
 			secure: env.COOKIE_SECURE,
 			sameSite: env.COOKIE_SAME_SITE,
@@ -98,7 +98,7 @@ export class RestaurantAuthController {
 			return successResponse(
 				res,
 				messages.EMAIL_VERIFIED_SUCCESS,
-				HTTP_STATUS.SUCCESS,
+				HTTP_STATUS.OK,
 				{
 					nextStep: dashboardResult.nextStep,
 					accessToken,
@@ -109,7 +109,7 @@ export class RestaurantAuthController {
 		return successResponse(
 			res,
 			messages.EMAIL_VERIFIED_SUCCESS,
-			HTTP_STATUS.SUCCESS,
+			HTTP_STATUS.OK,
 			result,
 		);
 	}
@@ -137,7 +137,7 @@ export class RestaurantAuthController {
 		return successResponse(
 			res,
 			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
-			HTTP_STATUS.SUCCESS,
+			HTTP_STATUS.OK,
 			{ accessToken },
 		);
 	}
