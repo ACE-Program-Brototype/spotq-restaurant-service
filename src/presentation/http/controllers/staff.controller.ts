@@ -2,6 +2,7 @@ import type { CookieOptions, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
+import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
@@ -10,9 +11,10 @@ import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
+import type { AuthenticatedRequest } from "@/presentation/http/middleware/auth.middleware.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import { ApiResponse, sendSuccessResponse } from "@/shared/response/api-response.ts";
 
 @injectable()
 export class StaffController {
@@ -31,6 +33,8 @@ export class StaffController {
 		private readonly resendForgotPasswordOtpUseCase: IResendForgotPasswordOtpUseCase,
 		@inject(TYPES.ResetPasswordUseCase)
 		private readonly resetPasswordUseCase: IResetPasswordUseCase,
+		@inject(TYPES.GetStaffProfileUseCase)
+		private readonly getStaffProfileUseCase: IGetStaffProfileUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
@@ -179,6 +183,35 @@ export class StaffController {
 			res,
 			null,
 			messages.PASSWORD_RESET_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public getProfile = async (
+		req: AuthenticatedRequest,
+		res: Response,
+	): Promise<void> => {
+		const staffId = req.user?.userId ?? req.userId;
+
+		if (!staffId) {
+			res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.UNAUTHORIZED,
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
+			return;
+		}
+
+		const profile = await this.getStaffProfileUseCase.execute({ staffId });
+
+		sendSuccessResponse(
+			res,
+			profile,
+			messages.STAFF_PROFILE_FETCH_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

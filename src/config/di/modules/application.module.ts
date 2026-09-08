@@ -4,9 +4,11 @@ import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-sta
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
+import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { ForgotPasswordUseCase } from "@/application/use-cases/staff/forgot-password.use-case.ts";
+import { GetStaffProfileUseCase } from "@/application/use-cases/staff/get-staff-profile.use-case.ts";
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case.ts";
 import { LogoutStaffUseCase } from "@/application/use-cases/staff/logout-staff.use-case.ts";
 import { RefreshTokenUseCase } from "@/application/use-cases/staff/refresh-token.use-case.ts";
@@ -42,5 +44,9 @@ export const applicationModule = new ContainerModule(({ bind }) => {
 
 	bind<IResetPasswordUseCase>(TYPES.ResetPasswordUseCase)
 		.to(ResetPasswordUseCase)
+		.inSingletonScope();
+
+	bind<IGetStaffProfileUseCase>(TYPES.GetStaffProfileUseCase)
+		.to(GetStaffProfileUseCase)
 		.inSingletonScope();
 });

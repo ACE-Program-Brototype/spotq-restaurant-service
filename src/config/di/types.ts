@@ -20,6 +20,7 @@ export const TYPES = {
 	VerifyForgotPasswordOtpUseCase: Symbol.for("VerifyForgotPasswordOtpUseCase"),
 	ResendForgotPasswordOtpUseCase: Symbol.for("ResendForgotPasswordOtpUseCase"),
 	ResetPasswordUseCase: Symbol.for("ResetPasswordUseCase"),
+	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
 
 	// Controllers
 	StaffController: Symbol.for("StaffController"),
