@@ -24,6 +24,9 @@ export const TYPES = {
 	// Controllers
 	StaffController: Symbol.for("StaffController"),
 
+	JWKSController: Symbol.for("JWKSController"),
+	JWKService: Symbol.for("JWKService"),
+
 	// Observability & System
 	Logger: Symbol.for("Logger"),
 	HealthCheckService: Symbol.for("HealthCheckService"),

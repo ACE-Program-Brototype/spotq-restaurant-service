@@ -63,7 +63,7 @@ export class VerifyForgotPasswordOtpUseCase
 
 		// Issue temp token with purpose: 'password-reset'
 		const tempToken = this.tokenService.generateTempToken({
-			id: staff.id,
+			sub: staff.id,
 			email: staff.email,
 			purpose: "password-reset",
 		});
