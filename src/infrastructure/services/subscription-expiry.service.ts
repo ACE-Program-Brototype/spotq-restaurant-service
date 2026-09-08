@@ -2,6 +2,10 @@ import { injectable } from "inversify";
 import { prisma } from "@/config/prisma.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 
+/**
+ * Service responsible for periodically checking and marking past-due
+ * restaurant subscriptions as inactive.
+ */
 @injectable()
 export class SubscriptionExpiryService {
 	private intervalId: NodeJS.Timeout | null = null;
@@ -68,4 +72,3 @@ export class SubscriptionExpiryService {
 	}
 }
 
-export const subscriptionExpiryService = new SubscriptionExpiryService();

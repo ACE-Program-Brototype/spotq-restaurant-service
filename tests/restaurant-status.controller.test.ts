@@ -1,11 +1,18 @@
-import { getRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case.ts";
-import { restaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller.ts";
+import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
+import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("RestaurantStatusController", () => {
+	let mockGetRestaurantStatusUseCase: jest.Mocked<IGetRestaurantStatusUseCase>;
+	let controller: RestaurantStatusController;
+
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockGetRestaurantStatusUseCase = {
+			execute: jest.fn(),
+		};
+		controller = new RestaurantStatusController(mockGetRestaurantStatusUseCase);
 	});
 
 	it("should return 401 UNAUTHORIZED when no restaurant id is passed in header or query", async () => {
@@ -22,7 +29,7 @@ describe("RestaurantStatusController", () => {
 			json: jsonMock,
 		} as never;
 
-		await restaurantStatusController.getStatus(req, res);
+		await controller.getStatus(req, res);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -35,9 +42,7 @@ describe("RestaurantStatusController", () => {
 	});
 
 	it("should return 404 NOT_FOUND when restaurant is not found in database", async () => {
-		jest
-			.spyOn(getRestaurantStatusUseCase, "execute")
-			.mockResolvedValueOnce(null);
+		mockGetRestaurantStatusUseCase.execute.mockResolvedValueOnce(null);
 
 		const req = {
 			headers: { "x-restaurant-id": "rest-non-existent" },
@@ -52,7 +57,7 @@ describe("RestaurantStatusController", () => {
 			json: jsonMock,
 		} as never;
 
-		await restaurantStatusController.getStatus(req, res);
+		await controller.getStatus(req, res);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -75,9 +80,7 @@ describe("RestaurantStatusController", () => {
 			navigationTarget: "/restaurant/subscription",
 		};
 
-		jest
-			.spyOn(getRestaurantStatusUseCase, "execute")
-			.mockResolvedValueOnce(mockStatus);
+		mockGetRestaurantStatusUseCase.execute.mockResolvedValueOnce(mockStatus);
 
 		const req = {
 			headers: { "x-restaurant-id": "rest-123" },
@@ -92,7 +95,7 @@ describe("RestaurantStatusController", () => {
 			json: jsonMock,
 		} as never;
 
-		await restaurantStatusController.getStatus(req, res);
+		await controller.getStatus(req, res);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		expect(jsonMock).toHaveBeenCalledWith(

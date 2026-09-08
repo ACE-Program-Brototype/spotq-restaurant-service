@@ -39,6 +39,7 @@ export const TYPES = {
 		EmailVerification: Symbol.for("EmailVerification"),
 		AuthTokenService: Symbol.for("AuthTokenService"),
 		OtpHashService: Symbol.for("OtpHashService"),
+		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 	},
 
 	Logger: {

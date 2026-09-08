@@ -87,4 +87,8 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IAuthTokenService>(TYPES.Services.AuthTokenService).to(AuthTokenService);
 
 	bind<IOtpHashService>(TYPES.Services.OtpHashService).to(OtpHashService);
+
+	bind<SubscriptionExpiryService>(
+		TYPES.Services.SubscriptionExpiryService,
+	).to(SubscriptionExpiryService);
 });
