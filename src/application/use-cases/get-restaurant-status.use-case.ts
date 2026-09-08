@@ -1,14 +1,5 @@
+import type { RestaurantStatusOutput } from "@/application/dtos/restaurant-status.dto.ts";
 import { prisma } from "@/config/prisma.ts";
-
-export interface RestaurantStatusOutput {
-	restaurantId: string;
-	restaurantName: string;
-	verificationStatus: string;
-	isSubscriptionActive: boolean;
-	subscriptionPlanCode: string | null;
-	subscriptionEndsAt: string | null;
-	navigationTarget: string;
-}
 
 export class GetRestaurantStatusUseCase {
 	async execute(restaurantId: string): Promise<RestaurantStatusOutput | null> {
