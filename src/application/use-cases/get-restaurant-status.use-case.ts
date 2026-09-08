@@ -2,6 +2,7 @@ import type { RestaurantStatusOutput } from "@/application/dtos/restaurant-statu
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
 import { TYPES } from "@/di/types.ts";
+import { RESTAURANT_STATUS } from "@/domain/enums/restaurant-status.enum.ts";
 import { inject, injectable } from "inversify";
 
 @injectable()
@@ -20,16 +21,19 @@ export class GetRestaurantStatusUseCase implements IGetRestaurantStatusUseCase {
 
 		let navigationTarget = "/restaurant/dashboard";
 
-		if (restaurant.status === "PENDING") {
+		if (restaurant.status === RESTAURANT_STATUS.PENDING) {
 			navigationTarget = "/restaurant/onboarding";
-		} else if (restaurant.status === "REJECTED") {
+		} else if (restaurant.status === RESTAURANT_STATUS.REJECTED) {
 			navigationTarget = "/restaurant/rejected";
 		} else if (
-			restaurant.status === "APPROVED" &&
+			restaurant.status === RESTAURANT_STATUS.APPROVED &&
 			!restaurant.isSubscriptionActive
 		) {
 			navigationTarget = "/restaurant/subscription";
-		} else if (restaurant.isSubscriptionActive) {
+		} else if (
+			restaurant.status === RESTAURANT_STATUS.ACTIVE ||
+			restaurant.isSubscriptionActive
+		) {
 			navigationTarget = "/restaurant/dashboard";
 		}
 
