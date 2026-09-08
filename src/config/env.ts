@@ -147,6 +147,8 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(60),
+
+	AWS_S3_PRESIGNED_URL_EXPIRATION_SECONDS: z.coerce.number().int().positive()
 });
 
 export type Env = z.infer<typeof envSchema>;
