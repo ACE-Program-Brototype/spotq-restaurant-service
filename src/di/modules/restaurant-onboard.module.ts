@@ -1,10 +1,10 @@
-import { IGeneratePresignedUrlUseCase } from "@application/ports/use-case/generate-presigned-url.use-case.port";
+import type { IGeneratePresignedUrlUseCase } from "@application/ports/use-case/generate-presigned-url.use-case.port";
 import { ContainerModule } from "inversify";
 import { TYPES } from "../types";
 import { GeneratePresignedUrlUseCase } from "@application/use-cases/generate-presigned-url.use-case";
-import { IStorageService } from "@application/ports/services/storage.service.port";
+import type { IStorageService } from "@application/ports/services/storage.service.port";
 import { S3StorageService } from "@infrastructure/services/s3-storage.service";
-import { IFilePolicyValidator } from "@application/ports/services/file-policy-validator.port";
+import type { IFilePolicyValidator } from "@application/ports/services/file-policy-validator.port";
 import { FilePolicyValidatorService } from "@infrastructure/services/file-policy-validator.service";
 
 export const restaurantOnboardModule = new ContainerModule(({ bind }) => {
