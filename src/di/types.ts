@@ -12,6 +12,7 @@ export const TYPES = {
 		),
 		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 	},
 
 	Controller: {

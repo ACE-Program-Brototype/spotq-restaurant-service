@@ -27,6 +27,8 @@ import { OtpService } from "@/infrastructure/services/otp.service";
 import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 // Controllers
+import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port";
+import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
 import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
@@ -61,6 +63,10 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IGetRestaurantStatusUseCase>(
 		TYPES.UseCases.GetRestaurantStatusUseCase,
 	).to(GetRestaurantStatusUseCase);
+
+	bind<IActivateSubscriptionUseCase>(
+		TYPES.UseCases.ActivateSubscriptionUseCase,
+	).to(ActivateSubscriptionUseCase);
 
 	// Repository
 	bind<IRestaurantRepository>(TYPES.Repositories.RestaurantRepository).to(

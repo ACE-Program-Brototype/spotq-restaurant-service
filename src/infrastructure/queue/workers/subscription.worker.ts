@@ -1,5 +1,7 @@
 import { type Job, Worker } from "bullmq";
-import { prisma } from "@/config/prisma.ts";
+import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port.ts";
+import { container } from "@/di/container.ts";
+import { TYPES } from "@/di/types.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants";
 import { bullMQConnection } from "../bullmq.service";
@@ -17,6 +19,11 @@ export interface SubscriptionActivatedJobPayload {
 
 export const createSubscriptionWorker =
 	(): Worker<SubscriptionActivatedJobPayload> => {
+		const activateSubscriptionUseCase =
+			container.get<IActivateSubscriptionUseCase>(
+				TYPES.UseCases.ActivateSubscriptionUseCase,
+			);
+
 		const worker = new Worker<SubscriptionActivatedJobPayload>(
 			QUEUE_NAMES.SUBSCRIPTION_EVENTS,
 			async (job: Job<SubscriptionActivatedJobPayload>) => {
@@ -40,38 +47,21 @@ export const createSubscriptionWorker =
 						"Processing subscription.activated event",
 					);
 
-					// 1. Idempotency Check: Check if this event was already processed
-					const alreadyProcessed = await prisma.processedEvent.findUnique({
-						where: { id: eventId },
+					const processed = await activateSubscriptionUseCase.execute({
+						eventId,
+						subscriptionId,
+						restaurantId,
+						planCode,
+						currentPeriodEnd,
 					});
 
-					if (alreadyProcessed) {
+					if (!processed) {
 						logger.info(
 							{ eventId, restaurantId },
 							"Subscription event already processed. Skipping idempotently.",
 						);
 						return;
 					}
-
-					// 2. Atomic Database Update
-					await prisma.$transaction(async (tx) => {
-						await tx.restaurant.update({
-							where: { id: restaurantId },
-							data: {
-								isSubscriptionActive: true,
-								subscriptionPlanCode: planCode,
-								subscriptionEndsAt: new Date(currentPeriodEnd),
-								status: "ACTIVE",
-							},
-						});
-
-						await tx.processedEvent.create({
-							data: {
-								id: eventId,
-								eventType: "subscription.activated",
-							},
-						});
-					});
 
 					logger.info(
 						{
