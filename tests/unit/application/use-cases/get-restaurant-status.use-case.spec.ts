@@ -1,6 +1,7 @@
 import { RestaurantStatus } from "@prisma/client";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case.ts";
+import { RESTAURANT_NAVIGATION_TARGETS } from "@/shared/constants/navigation.constants.ts";
 
 describe("GetRestaurantStatusUseCase", () => {
 	let useCase: GetRestaurantStatusUseCase;
@@ -59,7 +60,7 @@ describe("GetRestaurantStatusUseCase", () => {
 			isSubscriptionActive: false,
 			subscriptionPlanCode: null,
 			subscriptionEndsAt: null,
-			navigationTarget: "/restaurant/subscription",
+			navigationTarget: RESTAURANT_NAVIGATION_TARGETS.SUBSCRIPTION,
 		});
 		expect(mockRestaurantRepository.findById).toHaveBeenCalledWith("rest-123");
 	});
@@ -92,7 +93,9 @@ describe("GetRestaurantStatusUseCase", () => {
 		const result = await useCase.execute("rest-123");
 
 		expect(result?.isSubscriptionActive).toBe(true);
-		expect(result?.navigationTarget).toBe("/restaurant/dashboard");
+		expect(result?.navigationTarget).toBe(
+			RESTAURANT_NAVIGATION_TARGETS.DASHBOARD,
+		);
 		expect(result?.subscriptionPlanCode).toBe("QUEUE_PRO");
 	});
 
@@ -122,7 +125,9 @@ describe("GetRestaurantStatusUseCase", () => {
 
 		const result = await useCase.execute("rest-123");
 
-		expect(result?.navigationTarget).toBe("/restaurant/onboarding");
+		expect(result?.navigationTarget).toBe(
+			RESTAURANT_NAVIGATION_TARGETS.ONBOARDING,
+		);
 	});
 });
 
