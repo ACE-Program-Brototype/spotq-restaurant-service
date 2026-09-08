@@ -11,10 +11,12 @@ export const TYPES = {
 			"RefreshRestaurantAccessTokenUseCase",
 		),
 		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
+		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 	},
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 	},
 
 	Database: {

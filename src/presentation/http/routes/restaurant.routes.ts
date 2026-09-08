@@ -1,7 +1,9 @@
 import express from "express";
-import { restaurantAuthController } from "@/di/controllers.resolutions";
+import {
+	restaurantAuthController,
+	restaurantStatusController,
+} from "@/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
-import { restaurantStatusController } from "../controllers/restaurant-status.controller.ts";
 import { validate } from "../middleware/validation.middleware";
 import {
 	sendRestaurantEmailOtpSchema,
@@ -13,7 +15,7 @@ export const restaurantRouter = express.Router();
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.STATUS,
-	restaurantStatusController.getStatus.bind(restaurantStatusController),
+	restaurantStatusController.getStatus,
 );
 
 restaurantRouter.post(

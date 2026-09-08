@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
-import { injectable } from "inversify";
-import { getRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case.ts";
+import { inject, injectable } from "inversify";
+import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
+import { TYPES } from "@/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
@@ -10,7 +11,12 @@ import {
 
 @injectable()
 export class RestaurantStatusController {
-	async getStatus(req: Request, res: Response): Promise<void> {
+	constructor(
+		@inject(TYPES.UseCases.GetRestaurantStatusUseCase)
+		private readonly getRestaurantStatusUseCase: IGetRestaurantStatusUseCase,
+	) {}
+
+	getStatus = async (req: Request, res: Response): Promise<void> => {
 		const restaurantId =
 			(req.headers["x-restaurant-id"] as string) ||
 			(req.query.restaurantId as string) ||
@@ -29,7 +35,8 @@ export class RestaurantStatusController {
 			return;
 		}
 
-		const statusResult = await getRestaurantStatusUseCase.execute(restaurantId);
+		const statusResult =
+			await this.getRestaurantStatusUseCase.execute(restaurantId);
 
 		if (!statusResult) {
 			res
@@ -50,7 +57,6 @@ export class RestaurantStatusController {
 			messages.RESTAURANT_STATUS_FETCHED,
 			HTTP_STATUS.OK,
 		);
-	}
+	};
 }
 
-export const restaurantStatusController = new RestaurantStatusController();

@@ -1,22 +1,20 @@
 import type { RestaurantStatusOutput } from "@/application/dtos/restaurant-status.dto.ts";
-import { prisma } from "@/config/prisma.ts";
+import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
+import { TYPES } from "@/di/types.ts";
+import { inject, injectable } from "inversify";
 
-export class GetRestaurantStatusUseCase {
+@injectable()
+export class GetRestaurantStatusUseCase implements IGetRestaurantStatusUseCase {
+	constructor(
+		@inject(TYPES.Repositories.RestaurantRepository)
+		private readonly restaurantRepository: IRestaurantRepository,
+	) {}
+
 	async execute(restaurantId: string): Promise<RestaurantStatusOutput | null> {
 		if (!restaurantId) return null;
 
-		const restaurant = await prisma.restaurant.findUnique({
-			where: { id: restaurantId },
-			select: {
-				id: true,
-				restaurantName: true,
-				status: true,
-				isSubscriptionActive: true,
-				subscriptionPlanCode: true,
-				subscriptionEndsAt: true,
-				isBlocked: true,
-			},
-		});
+		const restaurant = await this.restaurantRepository.findById(restaurantId);
 
 		if (!restaurant) return null;
 
@@ -49,4 +47,3 @@ export class GetRestaurantStatusUseCase {
 	}
 }
 
-export const getRestaurantStatusUseCase = new GetRestaurantStatusUseCase();

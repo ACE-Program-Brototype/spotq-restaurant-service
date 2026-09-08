@@ -27,12 +27,15 @@ import { OtpService } from "@/infrastructure/services/otp.service";
 import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 // Controllers
-import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
+import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
+import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case";
+import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
 import { TYPES } from "../types";
 
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {
-	// Controller
+	// Controllers
 	bind(TYPES.Controller.RestaurantAuthController).to(RestaurantAuthController);
+	bind(TYPES.Controller.RestaurantStatusController).to(RestaurantStatusController);
 
 	// Use Cases
 	bind<ISendRestaurantEmailOtpUseCase>(
@@ -54,6 +57,10 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IOnboardRestaurantUseCase>(TYPES.UseCases.OnboardRestaurantUseCase).to(
 		OnboardRestaurantUseCase,
 	);
+
+	bind<IGetRestaurantStatusUseCase>(
+		TYPES.UseCases.GetRestaurantStatusUseCase,
+	).to(GetRestaurantStatusUseCase);
 
 	// Repository
 	bind<IRestaurantRepository>(TYPES.Repositories.RestaurantRepository).to(
