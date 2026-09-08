@@ -101,6 +101,7 @@ const envSchema = z.object({
 			.default(7 * 24 * 60 * 60 * 1000), // 7 days in ms
 	),
 	COOKIE_DOMAIN: z.string().trim().optional(),
+	BULLMQ_WORKER_CONCURRENCY: z.coerce.number().positive().default(5),
 });
 
 export type Env = z.infer<typeof envSchema>;

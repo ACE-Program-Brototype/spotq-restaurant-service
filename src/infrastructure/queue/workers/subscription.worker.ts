@@ -1,5 +1,6 @@
 import { type Job, Worker } from "bullmq";
 import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port.ts";
+import { env } from "@/config/env.ts";
 import { container } from "@/di/container.ts";
 import { TYPES } from "@/di/types.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
@@ -76,7 +77,7 @@ export const createSubscriptionWorker =
 			},
 			{
 				connection: bullMQConnection,
-				concurrency: 5,
+				concurrency: env.BULLMQ_WORKER_CONCURRENCY,
 			},
 		);
 
@@ -115,7 +116,7 @@ export const createSubscriptionWorker =
 		worker.on("failed", (job, err) => {
 			logger.error(
 				{
-					event: "subscription.worker_job_failed",
+					event: "SUBSCRIPTION_WORKER_JOB_FAILED",
 					jobId: job?.id,
 					error: err.message,
 				},
@@ -126,7 +127,7 @@ export const createSubscriptionWorker =
 		worker.on("error", (err) => {
 			logger.error(
 				{
-					event: "subscription.worker_error",
+					event: "SUBSCRIPTION_WORKER_ERROR",
 					error: err.message,
 				},
 				"Subscription worker encountered error",
