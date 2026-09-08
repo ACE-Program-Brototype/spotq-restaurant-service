@@ -98,14 +98,14 @@ const envSchema = z.object({
 		z
 			.number()
 			.positive()
-			.default(7 * 24 * 60 * 60 * 1000), // 7 days in ms
+			.default(7 * 24 * 60 * 60 * 1000),
 	),
 	COOKIE_DOMAIN: z.string().trim().optional(),
 	BULLMQ_WORKER_CONCURRENCY: z.coerce.number().positive().default(5),
 	SUBSCRIPTION_EXPIRY_CHECK_INTERVAL_MS: z.coerce
 		.number()
 		.positive()
-		.default(60 * 60 * 1000), // 1 hour in ms
+		.default(60 * 60 * 1000),
 });
 
 export type Env = z.infer<typeof envSchema>;
