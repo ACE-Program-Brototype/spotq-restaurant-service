@@ -13,10 +13,14 @@ import {
 	validateInvitationRateLimiter,
 	verifyOtpRateLimiter,
 } from "@/presentation/http/middleware/rate-limiter.middleware";
-import { validateRequestBody } from "@/presentation/http/middleware/validation.middleware";
+import {
+	validateRequestBody,
+	validateRequestQuery,
+} from "@/presentation/http/middleware/validation.middleware";
 import { acceptInvitationSchema } from "@/presentation/http/validators/staff/accept-invitation.validator";
 import { forgotPasswordSchema } from "@/presentation/http/validators/staff/forgot-password.validator";
 import { inviteStaffSchema } from "@/presentation/http/validators/staff/invite-staff.validator";
+import { listStaffInvitationsSchema } from "@/presentation/http/validators/staff/list-invitations.validator";
 import { loginStaffSchema } from "@/presentation/http/validators/staff/login-staff.validator";
 import { resendForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/resend-forgot-password-otp.validator";
 import { resendInvitationSchema } from "@/presentation/http/validators/staff/resend-invitation.validator";
@@ -29,6 +33,12 @@ import { STAFF_ROUTES } from "@/shared/constants/route.constants";
 const staffRouter = Router();
 
 const staffController = container.get<StaffController>(TYPES.StaffController);
+
+staffRouter.get(
+	STAFF_ROUTES.INVITATIONS,
+	validateRequestQuery(listStaffInvitationsSchema),
+	staffController.listInvitations,
+);
 
 staffRouter.post(
 	STAFF_ROUTES.INVITATIONS,

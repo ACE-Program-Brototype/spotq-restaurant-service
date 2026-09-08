@@ -1,4 +1,5 @@
 import type {
+	Prisma,
 	PrismaClient,
 	StaffInvitation as PrismaStaffInvitation,
 } from "@prisma/client";
@@ -11,7 +12,10 @@ import {
 	StaffAlreadyExistsError,
 	StaffInvitationAlreadyPendingError,
 } from "@/domain/errors/staff.errors.ts";
-import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
+import type {
+	IStaffInvitationRepository,
+	StaffInvitationFilterParams,
+} from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { StaffPersistenceMapper } from "../mappers/staff.mapper.ts";
 import { StaffInvitationPersistenceMapper } from "../mappers/staff-invitation.mapper.ts";
@@ -65,7 +69,9 @@ export class PrismaStaffInvitationRepository
 			where: { email: email.toLowerCase().trim() },
 		});
 
-		return rawList.map((raw) => this.mapper.toDomain(raw));
+		return rawList.map((raw: PrismaStaffInvitation) =>
+			this.mapper.toDomain(raw),
+		);
 	}
 
 	public async findPendingByEmailAndRestaurant(
@@ -97,7 +103,46 @@ export class PrismaStaffInvitationRepository
 			where: { restaurantId },
 		});
 
-		return rawList.map((raw) => this.mapper.toDomain(raw));
+		return rawList.map((raw: PrismaStaffInvitation) =>
+			this.mapper.toDomain(raw),
+		);
+	}
+
+	public async findManyWithFilters(
+		params: StaffInvitationFilterParams,
+	): Promise<{ invitations: StaffInvitation[]; total: number }> {
+		const { restaurantId, page, limit, status, search, sortBy, sortOrder } =
+			params;
+
+		const where: Prisma.StaffInvitationWhereInput = {
+			restaurantId,
+			...(status && { status }),
+			...(search && {
+				email: {
+					contains: search,
+					mode: "insensitive",
+				},
+			}),
+		};
+
+		const skip = (page - 1) * limit;
+
+		const [rawList, total] = await Promise.all([
+			this.dbModel.findMany({
+				where,
+				orderBy: { [sortBy]: sortOrder },
+				skip,
+				take: limit,
+			}),
+			this.dbModel.count({ where }),
+		]);
+
+		return {
+			invitations: rawList.map((raw: PrismaStaffInvitation) =>
+				this.mapper.toDomain(raw),
+			),
+			total,
+		};
 	}
 
 	public async createStaffWithInvitation(

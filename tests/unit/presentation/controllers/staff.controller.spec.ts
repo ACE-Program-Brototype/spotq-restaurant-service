@@ -4,6 +4,7 @@ import type { Request, Response } from "express";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
+import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
@@ -28,6 +29,7 @@ describe("StaffController", () => {
 	let acceptInvitationUseCase: jest.Mocked<IAcceptInvitationUseCase>;
 	let resendStaffInvitationUseCase: jest.Mocked<IResendStaffInvitationUseCase>;
 	let revokeStaffInvitationUseCase: jest.Mocked<IRevokeStaffInvitationUseCase>;
+	let listStaffInvitationsUseCase: jest.Mocked<IListStaffInvitationsUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
 
@@ -44,6 +46,7 @@ describe("StaffController", () => {
 		acceptInvitationUseCase = { execute: jest.fn() };
 		resendStaffInvitationUseCase = { execute: jest.fn() };
 		revokeStaffInvitationUseCase = { execute: jest.fn() };
+		listStaffInvitationsUseCase = { execute: jest.fn() };
 
 		controller = new StaffController(
 			loginStaffUseCase,
@@ -58,6 +61,7 @@ describe("StaffController", () => {
 			acceptInvitationUseCase,
 			resendStaffInvitationUseCase,
 			revokeStaffInvitationUseCase,
+			listStaffInvitationsUseCase,
 		);
 
 		res = {
@@ -65,6 +69,7 @@ describe("StaffController", () => {
 			json: jest.fn().mockReturnThis() as never,
 			cookie: jest.fn().mockReturnThis() as never,
 			clearCookie: jest.fn().mockReturnThis() as never,
+			locals: {},
 		};
 	});
 
@@ -463,6 +468,71 @@ describe("StaffController", () => {
 				invitationId: "inv-1",
 				email: undefined,
 				restaurantId: "rest-1",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+		});
+	});
+
+	describe("listInvitations", () => {
+		it("should throw RestaurantIdRequiredError if header is missing", async () => {
+			const req: Partial<Request> = {
+				headers: {},
+				query: {},
+			};
+
+			await expect(
+				controller.listInvitations(req as Request, res as Response),
+			).rejects.toThrow(RestaurantIdRequiredError);
+		});
+
+		it("should forward query params and return paginated invitations", async () => {
+			const req: Partial<Request> = {
+				headers: { "x-restaurant-id": "rest-1" },
+				query: {
+					page: 2 as unknown as string,
+					limit: 10 as unknown as string,
+					status: "PENDING",
+					search: "john",
+					sortBy: "email",
+					sortOrder: "asc",
+				} as never,
+			};
+
+			const mockResult = {
+				invitations: [
+					{
+						id: "inv-1",
+						restaurantId: "rest-1",
+						email: "john@example.com",
+						status: "PENDING",
+						expiresAt: new Date(),
+						acceptedAt: null,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+				],
+				pagination: {
+					page: 2,
+					limit: 10,
+					total: 15,
+					totalPages: 2,
+					hasNextPage: false,
+					hasPrevPage: true,
+				},
+			};
+
+			listStaffInvitationsUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.listInvitations(req as Request, res as Response);
+
+			expect(listStaffInvitationsUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "rest-1",
+				page: 2,
+				limit: 10,
+				status: "PENDING",
+				search: "john",
+				sortBy: "email",
+				sortOrder: "asc",
 			});
 			expect(res.status).toHaveBeenCalledWith(200);
 		});

@@ -26,6 +26,7 @@ export const TYPES = {
 	AcceptInvitationUseCase: Symbol.for("AcceptInvitationUseCase"),
 	ResendStaffInvitationUseCase: Symbol.for("ResendStaffInvitationUseCase"),
 	RevokeStaffInvitationUseCase: Symbol.for("RevokeStaffInvitationUseCase"),
+	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
 
 	StaffController: Symbol.for("StaffController"),
 

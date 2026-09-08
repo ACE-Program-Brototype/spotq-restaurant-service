@@ -4,6 +4,7 @@ import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts"
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
+import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
@@ -16,6 +17,7 @@ import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
 import { RestaurantIdRequiredError } from "@/domain/errors/staff.errors.ts";
+import type { ListStaffInvitationsQuery } from "@/presentation/http/validators/staff/list-invitations.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
@@ -47,6 +49,8 @@ export class StaffController {
 		private readonly resendStaffInvitationUseCase: IResendStaffInvitationUseCase,
 		@inject(TYPES.RevokeStaffInvitationUseCase)
 		private readonly revokeStaffInvitationUseCase: IRevokeStaffInvitationUseCase,
+		@inject(TYPES.ListStaffInvitationsUseCase)
+		private readonly listStaffInvitationsUseCase: IListStaffInvitationsUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
@@ -314,6 +318,37 @@ export class StaffController {
 			res,
 			result,
 			messages.STAFF_INVITATION_REVOKED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public listInvitations = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const query = (res?.locals?.query ??
+			req.query) as unknown as ListStaffInvitationsQuery;
+
+		const result = await this.listStaffInvitationsUseCase.execute({
+			restaurantId,
+			page: query.page,
+			limit: query.limit,
+			status: query.status,
+			search: query.search,
+			sortBy: query.sortBy,
+			sortOrder: query.sortOrder,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATIONS_FETCHED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

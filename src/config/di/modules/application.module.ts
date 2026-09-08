@@ -2,6 +2,7 @@ import { ContainerModule } from "inversify";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
+import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
@@ -14,6 +15,7 @@ import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import { AcceptInvitationUseCase } from "@/application/use-cases/staff/accept-invitation.use-case.ts";
 import { ForgotPasswordUseCase } from "@/application/use-cases/staff/forgot-password.use-case.ts";
 import { InviteStaffUseCase } from "@/application/use-cases/staff/invite-staff.use-case.ts";
+import { ListStaffInvitationsUseCase } from "@/application/use-cases/staff/list-staff-invitations.use-case.ts";
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case.ts";
 import { LogoutStaffUseCase } from "@/application/use-cases/staff/logout-staff.use-case.ts";
 import { RefreshTokenUseCase } from "@/application/use-cases/staff/refresh-token.use-case.ts";
@@ -72,5 +74,9 @@ export const applicationModule = new ContainerModule(({ bind }) => {
 
 	bind<IRevokeStaffInvitationUseCase>(TYPES.RevokeStaffInvitationUseCase)
 		.to(RevokeStaffInvitationUseCase)
+		.inSingletonScope();
+
+	bind<IListStaffInvitationsUseCase>(TYPES.ListStaffInvitationsUseCase)
+		.to(ListStaffInvitationsUseCase)
 		.inSingletonScope();
 });

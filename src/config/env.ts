@@ -159,7 +159,7 @@ const envSchema = z.object({
 		.positive()
 		.default(60),
 
-	FRONTEND_URL: z.string().trim().default("http://localhost:3000"),
+	FRONTEND_URL: z.string().trim().default("http://localhost:5173"),
 	INVITATION_ACCEPT_PATH: z.string().trim().default("/invitations/accept"),
 	INVITATION_TOKEN_TTL_HOURS: z.coerce.number().positive().default(48),
 

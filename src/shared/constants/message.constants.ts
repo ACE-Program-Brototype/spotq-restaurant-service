@@ -13,6 +13,7 @@ export const messages = {
 		"Staff account created and invitation accepted successfully",
 	STAFF_INVITATION_RESENT_SUCCESS: "Staff invitation resent successfully",
 	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
+	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
 	SERVICE_READY: "Service is ready",
