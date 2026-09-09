@@ -31,7 +31,9 @@ import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases
 import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
 import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case";
+import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
+import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { TYPES } from "../types";
 
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {

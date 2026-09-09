@@ -35,7 +35,7 @@ export const TYPES = {
 	Services: {
 		OtpStore: Symbol.for("RedisOtpStore"),
 		Brevo_Email: Symbol.for("BrevoEmail"),
-		OtpService: Symbol.for("OtpService"),
+		OtpService: Symbol.for("RestaurantOtpService"),
 		EmailVerification: Symbol.for("EmailVerification"),
 		AuthTokenService: Symbol.for("AuthTokenService"),
 		OtpHashService: Symbol.for("OtpHashService"),
