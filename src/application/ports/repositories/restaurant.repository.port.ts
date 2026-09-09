@@ -1,4 +1,4 @@
-import type { CreateRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
+import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
 import type { Restaurant } from "@/domain/entities/restaurant.entity";
 

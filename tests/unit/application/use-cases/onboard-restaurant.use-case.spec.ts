@@ -1,5 +1,6 @@
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import { Restaurant } from "@/domain/entities/restaurant.entity";
 
 describe("OnboardRestaurantUseCase", () => {
 	let useCase: OnboardRestaurantUseCase;
@@ -15,6 +16,7 @@ describe("OnboardRestaurantUseCase", () => {
 			find: jest.fn(),
 			create: jest.fn(),
 			update: jest.fn(),
+			save: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		useCase = new OnboardRestaurantUseCase(mockRestaurantRepo);
@@ -32,12 +34,12 @@ describe("OnboardRestaurantUseCase", () => {
 	});
 
 	it("updates restaurant details successfully when found", async () => {
-		const mockRestaurant = {
+		const mockRestaurant = Restaurant.reconstitute({
 			id: "res-123",
-			restaurantName: "",
+			restaurantName: "Pending Name",
 			email: "test@example.com",
-			phone: "",
-			ownerName: "",
+			phone: "1234567890",
+			ownerName: "Owner Name",
 			ownerEmail: "test@example.com",
 			status: "PENDING",
 			onboardingStatus: "PENDING",
@@ -46,10 +48,9 @@ describe("OnboardRestaurantUseCase", () => {
 			blockReason: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
-		};
+		});
 
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-
 		mockRestaurantRepo.update.mockResolvedValue(mockRestaurant);
 
 		await useCase.execute(

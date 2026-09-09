@@ -88,7 +88,6 @@ export const createRateLimiter = (options: RateLimiterOptions) => {
 	};
 };
 
-// 1. Login: Max attempts per window from env
 export const loginRateLimiter = createRateLimiter({
 	prefix: "login",
 	maxAttempts: env.RATE_LIMIT_LOGIN_MAX_ATTEMPTS,
@@ -97,7 +96,6 @@ export const loginRateLimiter = createRateLimiter({
 	keyGenerator: emailOrIpKeyGenerator,
 });
 
-// 2. Forgot Password: Max attempts per window per email from env
 export const forgotPasswordRateLimiter = createRateLimiter({
 	prefix: "forgot-password",
 	maxAttempts: env.RATE_LIMIT_FORGOT_PASSWORD_MAX_ATTEMPTS,
@@ -106,7 +104,6 @@ export const forgotPasswordRateLimiter = createRateLimiter({
 	keyGenerator: emailKeyGenerator,
 });
 
-// 3. Verify OTP: Max attempts per window from env (protects against OTP brute forcing)
 export const verifyOtpRateLimiter = createRateLimiter({
 	prefix: "verify-otp",
 	maxAttempts: env.RATE_LIMIT_VERIFY_OTP_MAX_ATTEMPTS,
@@ -115,7 +112,6 @@ export const verifyOtpRateLimiter = createRateLimiter({
 	keyGenerator: emailOrIpKeyGenerator,
 });
 
-// 4. Resend OTP: Max attempts per window per email from env
 export const resendOtpRateLimiter = createRateLimiter({
 	prefix: "resend-otp",
 	maxAttempts: env.RATE_LIMIT_RESEND_OTP_MAX_ATTEMPTS,
@@ -124,7 +120,6 @@ export const resendOtpRateLimiter = createRateLimiter({
 	keyGenerator: emailKeyGenerator,
 });
 
-// 5. Reset Password: Max attempts per window from env
 export const resetPasswordRateLimiter = createRateLimiter({
 	prefix: "reset-password",
 	maxAttempts: env.RATE_LIMIT_RESET_PASSWORD_MAX_ATTEMPTS,
@@ -133,7 +128,6 @@ export const resetPasswordRateLimiter = createRateLimiter({
 	keyGenerator: getClientIp,
 });
 
-// 6. Refresh Token: Max requests per window from env
 export const refreshTokenRateLimiter = createRateLimiter({
 	prefix: "refresh-token",
 	maxAttempts: env.RATE_LIMIT_REFRESH_TOKEN_MAX_ATTEMPTS,
@@ -141,3 +135,36 @@ export const refreshTokenRateLimiter = createRateLimiter({
 	errorMessage: messages.RATE_LIMIT_REFRESH_TOKEN_EXCEEDED,
 	keyGenerator: getClientIp,
 });
+
+export const inviteStaffRateLimiter = createRateLimiter({
+	prefix: "invite-staff",
+	maxAttempts: env.RATE_LIMIT_INVITE_STAFF_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_INVITE_STAFF_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_INVITE_STAFF_EXCEEDED,
+	keyGenerator: emailOrIpKeyGenerator,
+});
+
+export const validateInvitationRateLimiter = createRateLimiter({
+	prefix: "validate-invitation",
+	maxAttempts: env.RATE_LIMIT_VALIDATE_INVITATION_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_VALIDATE_INVITATION_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_VALIDATE_INVITATION_EXCEEDED,
+	keyGenerator: getClientIp,
+});
+
+export const acceptInvitationRateLimiter = createRateLimiter({
+	prefix: "accept-invitation",
+	maxAttempts: env.RATE_LIMIT_ACCEPT_INVITATION_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_ACCEPT_INVITATION_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED,
+	keyGenerator: getClientIp,
+});
+
+export const revokeInvitationRateLimiter = createRateLimiter({
+	prefix: "revoke-invitation",
+	maxAttempts: env.RATE_LIMIT_REVOKE_INVITATION_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_REVOKE_INVITATION_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_REVOKE_INVITATION_EXCEEDED,
+	keyGenerator: emailOrIpKeyGenerator,
+});
+

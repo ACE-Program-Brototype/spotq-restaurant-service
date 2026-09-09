@@ -1,4 +1,5 @@
 import { InvalidStaffRoleError } from "@/domain/errors/staff.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export const STAFF_ROLES = ["STAFF"] as const;
 
@@ -14,11 +15,13 @@ export class StaffRoleVO {
 	public static create(rawRole: string): StaffRoleVO {
 		const upperRole = rawRole?.toUpperCase() as StaffRole;
 		if (!STAFF_ROLES.includes(upperRole)) {
-			throw new InvalidStaffRoleError(
-				`Invalid staff role: ${rawRole}. Valid roles: ${STAFF_ROLES.join(", ")}`,
-			);
+			throw new InvalidStaffRoleError(messages.INVALID_STAFF_ROLE);
 		}
 		return new StaffRoleVO(upperRole);
+	}
+
+	public static staff(): StaffRoleVO {
+		return new StaffRoleVO("STAFF");
 	}
 
 	public get value(): StaffRole {

@@ -13,6 +13,7 @@ import {
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
@@ -29,16 +30,13 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 
 	public async execute(dto: ResetPasswordDTO): Promise<void> {
 		if (!dto.tempToken) {
-			throw new InvalidTempTokenError("Reset token is required");
+			throw new InvalidTempTokenError(messages.RESET_TOKEN_REQUIRED);
 		}
 
 		if (!dto.password || dto.password.length < 8) {
-			throw new InvalidStaffDataError(
-				"Password must be at least 8 characters long",
-			);
+			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
 		}
 
-		// 1. Check if temp token is revoked in Redis
 		const isRevoked = await this.tokenRevocationRepository.isRevoked(
 			dto.tempToken,
 		);
@@ -46,7 +44,6 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			throw new InvalidTempTokenError();
 		}
 
-		// 2. Verify and decode JWT temp token
 		let payload: ReturnType<ITokenService["verifyTempToken"]>;
 		try {
 			payload = this.tokenService.verifyTempToken(dto.tempToken);
@@ -55,11 +52,11 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 		}
 
 		if (payload.purpose !== "password-reset") {
-			throw new InvalidTempTokenError("Invalid token purpose");
+			throw new InvalidTempTokenError(messages.INVALID_TOKEN_PURPOSE);
 		}
 
-		// 3. Find staff member
-		const staff = await this.staffRepository.findById(payload.sub);
+		const staffId = (payload as unknown as { sub?: string; id?: string }).sub ?? (payload as unknown as { id?: string }).id;
+		const staff = await this.staffRepository.findById(staffId as string);
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}
@@ -72,14 +69,11 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			throw new StaffInactiveError();
 		}
 
-		// 4. Hash new password and update staff entity
 		const hashedPassword = await this.passwordHasher.hash(dto.password);
 		staff.changePassword(hashedPassword);
 
-		// 5. Save changes in PostgreSQL
 		await this.staffRepository.save(staff);
 
-		// 6. Revoke tempToken so it cannot be used again
 		await this.tokenRevocationRepository.revoke(dto.tempToken);
 	}
 }

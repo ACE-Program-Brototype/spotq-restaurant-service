@@ -1,6 +1,6 @@
 import express from "express";
 import { validate } from "@presentation/http/middleware/validation.middleware";
-import { storageController } from "@/di/controllers.resolutions";
+import { storageController } from "@/config/di/controllers.resolutions";
 import { generatePresignedUrlSchema } from "@presentation/http/validators/generate-presigned-url.validator";
 import { STORAGE_ROUTES } from "@shared/constants/route.constants";
 

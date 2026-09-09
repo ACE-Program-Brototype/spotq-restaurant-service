@@ -1,9 +1,10 @@
+import { inject, injectable } from "inversify";
+import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
-import { TYPES } from "@/di/types";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
-import { inject, injectable } from "inversify";
-import type { VerifyRestaurantEmailOtpDto } from "../dto/restaurant-email-verification.dto";
 import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
@@ -11,7 +12,6 @@ import type { IAuthTokenService } from "../ports/services/auth-token.service.por
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 import type { IOtpStore } from "../ports/services/otp-store.port";
 import type { IOtpService } from "../ports/services/otp.service.port";
-import type { IVerifyRestaurantEmailOtpUseCase } from "../ports/use-case/verify-email-otp.use-case.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase

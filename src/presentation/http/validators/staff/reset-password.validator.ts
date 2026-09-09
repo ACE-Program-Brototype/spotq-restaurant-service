@@ -1,18 +1,16 @@
 import { z } from "zod";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export const resetPasswordSchema = z.object({
 	password: z
 		.string({
-			message: "Password is required",
+			message: messages.PASSWORD_REQUIRED,
 		})
-		.min(8, "Password must be at least 8 characters long")
-		.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-		.regex(/[a-z]/, "Password must contain at least one lowercase letter")
-		.regex(/[0-9]/, "Password must contain at least one digit")
-		.regex(
-			/[^A-Za-z0-9]/,
-			"Password must contain at least one special character",
-		),
+		.min(8, messages.PASSWORD_MIN_LENGTH)
+		.regex(/[A-Z]/, messages.PASSWORD_UPPERCASE_REQUIRED)
+		.regex(/[a-z]/, messages.PASSWORD_LOWERCASE_REQUIRED)
+		.regex(/[0-9]/, messages.PASSWORD_DIGIT_REQUIRED)
+		.regex(/[^A-Za-z0-9]/, messages.PASSWORD_SPECIAL_REQUIRED),
 });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

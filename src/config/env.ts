@@ -47,6 +47,12 @@ const envSchema = z.object({
 
 	AWS_S3_BUCKET: z.string().trim().min(1),
 
+	AWS_S3_PRESIGNED_URL_EXPIRATION_SECONDS: z.coerce
+		.number()
+		.int()
+		.positive()
+		.default(900),
+
 	BREVO_API_KEY: z.string().trim().min(1),
 
 	BREVO_SENDER_EMAIL: z.string().trim().email(),
@@ -81,7 +87,6 @@ const envSchema = z.object({
 
 	JWT_TEMP_EXPIRES_IN: z.string().trim().default("15m"),
 
-	// Cookie Configuration from Environment
 	COOKIE_NAME_REFRESH_TOKEN: z.string().trim().default("refreshToken"),
 	COOKIE_NAME_TEMP_TOKEN: z.string().trim().default("tempToken"),
 	COOKIE_HTTP_ONLY: z.preprocess((val) => {
@@ -104,11 +109,17 @@ const envSchema = z.object({
 		z
 			.number()
 			.positive()
-			.default(7 * 24 * 60 * 60 * 1000), // 7 days in ms
+			.default(7 * 24 * 60 * 60 * 1000),
+	),
+	COOKIE_TEMP_TOKEN_MAX_AGE_MS: z.preprocess(
+		(val) => (typeof val === "string" ? Number(val) : val),
+		z
+			.number()
+			.positive()
+			.default(15 * 60 * 1000),
 	),
 	COOKIE_DOMAIN: z.string().trim().optional(),
 
-	// Rate Limiting Configuration
 	RATE_LIMIT_LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
 	RATE_LIMIT_LOGIN_WINDOW_SECONDS: z.coerce
 		.number()
@@ -154,13 +165,67 @@ const envSchema = z.object({
 		.positive()
 		.default(60),
 
-	AWS_S3_PRESIGNED_URL_EXPIRATION_SECONDS: z.coerce
+	FRONTEND_URL: z.string().trim().default("http://localhost:5173"),
+	INVITATION_ACCEPT_PATH: z.string().trim().default("/invitations/accept"),
+	INVITATION_TOKEN_TTL_HOURS: z.coerce.number().positive().default(48),
+
+	RATE_LIMIT_INVITE_STAFF_MAX_ATTEMPTS: z.coerce
 		.number()
-		.int()
 		.positive()
-		.default(900),
+		.default(10),
+	RATE_LIMIT_INVITE_STAFF_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(60 * 60),
+
+	RATE_LIMIT_REVOKE_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_REVOKE_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_VALIDATE_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_VALIDATE_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_ACCEPT_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(10),
+	RATE_LIMIT_ACCEPT_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
 });
 
 export type Env = z.infer<typeof envSchema>;
+
+export function formatJwtKey(key?: string): string {
+	if (!key) return "";
+	let formatted = key.trim();
+	if (
+		!formatted.includes("-----BEGIN") &&
+		!formatted.includes("\n") &&
+		formatted.length > 100
+	) {
+		try {
+			const decoded = Buffer.from(formatted, "base64").toString("utf-8");
+			if (decoded.includes("-----BEGIN")) {
+				formatted = decoded;
+			}
+		} catch {
+			// use formatted as is
+		}
+	}
+	return formatted.replace(/\\n/g, "\n");
+}
 
 export const env = Object.freeze(envSchema.parse(process.env));

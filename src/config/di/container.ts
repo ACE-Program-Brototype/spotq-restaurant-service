@@ -1,19 +1,17 @@
 import "reflect-metadata";
 import { Container } from "inversify";
-import { applicationModule } from "./modules/application.module.ts";
-import { databaseModule } from "./modules/database.module.ts";
-import { presentationModule } from "./modules/presentation.module.ts";
-import { servicesModule } from "./modules/services.module.ts";
-import { systemModule } from "./modules/system.module.ts";
+import { commonModule } from "./modules/common.module";
+import { restaurantAuthModule } from "./modules/restaurant.auth.module";
+import { staffAuthModule } from "./modules/staff.auth.module";
+import { storageModule } from "./modules/storage.module";
 
 export const container = new Container({
 	defaultScope: "Singleton",
 });
 
 container.load(
-	databaseModule,
-	servicesModule,
-	applicationModule,
-	presentationModule,
-	systemModule,
+	commonModule,
+	restaurantAuthModule,
+	staffAuthModule,
+	storageModule,
 );

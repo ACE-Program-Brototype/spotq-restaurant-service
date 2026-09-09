@@ -1,12 +1,19 @@
+import { RestaurantIdRequiredError } from "@domain/errors/staff.errors";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
+import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
 import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
+import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
+import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
+import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
+import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { StaffController } from "@/presentation/http/controllers/staff.controller.ts";
 
@@ -18,6 +25,12 @@ describe("StaffController", () => {
 	let verifyForgotPasswordOtpUseCase: jest.Mocked<IVerifyForgotPasswordOtpUseCase>;
 	let resendForgotPasswordOtpUseCase: jest.Mocked<IResendForgotPasswordOtpUseCase>;
 	let resetPasswordUseCase: jest.Mocked<IResetPasswordUseCase>;
+	let inviteStaffUseCase: jest.Mocked<IInviteStaffUseCase>;
+	let validateInvitationUseCase: jest.Mocked<IValidateInvitationUseCase>;
+	let acceptInvitationUseCase: jest.Mocked<IAcceptInvitationUseCase>;
+	let resendStaffInvitationUseCase: jest.Mocked<IResendStaffInvitationUseCase>;
+	let revokeStaffInvitationUseCase: jest.Mocked<IRevokeStaffInvitationUseCase>;
+	let listStaffInvitationsUseCase: jest.Mocked<IListStaffInvitationsUseCase>;
 	let getStaffProfileUseCase: jest.Mocked<IGetStaffProfileUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
@@ -30,6 +43,12 @@ describe("StaffController", () => {
 		verifyForgotPasswordOtpUseCase = { execute: jest.fn() };
 		resendForgotPasswordOtpUseCase = { execute: jest.fn() };
 		resetPasswordUseCase = { execute: jest.fn() };
+		inviteStaffUseCase = { execute: jest.fn() };
+		validateInvitationUseCase = { execute: jest.fn() };
+		acceptInvitationUseCase = { execute: jest.fn() };
+		resendStaffInvitationUseCase = { execute: jest.fn() };
+		revokeStaffInvitationUseCase = { execute: jest.fn() };
+		listStaffInvitationsUseCase = { execute: jest.fn() };
 		getStaffProfileUseCase = { execute: jest.fn() };
 
 		controller = new StaffController(
@@ -40,6 +59,12 @@ describe("StaffController", () => {
 			verifyForgotPasswordOtpUseCase,
 			resendForgotPasswordOtpUseCase,
 			resetPasswordUseCase,
+			inviteStaffUseCase,
+			validateInvitationUseCase,
+			acceptInvitationUseCase,
+			resendStaffInvitationUseCase,
+			revokeStaffInvitationUseCase,
+			listStaffInvitationsUseCase,
 			getStaffProfileUseCase,
 		);
 
@@ -48,6 +73,7 @@ describe("StaffController", () => {
 			json: jest.fn().mockReturnThis() as never,
 			cookie: jest.fn().mockReturnThis() as never,
 			clearCookie: jest.fn().mockReturnThis() as never,
+			locals: {},
 		};
 	});
 
@@ -251,6 +277,268 @@ describe("StaffController", () => {
 					message: "Password reset successfully",
 				}),
 			);
+		});
+	});
+
+	describe("inviteStaff", () => {
+		it("should invite staff using x-restaurant-id header and return 201", async () => {
+			const req: Partial<Request> = {
+				body: { email: "invited@spotq.com" },
+				headers: { "x-restaurant-id": "rest-uuid-123" },
+			};
+
+			const mockInvitationResult = {
+				id: "inv-uuid-123",
+				email: "invited@spotq.com",
+				restaurantId: "rest-uuid-123",
+				status: "PENDING",
+				expiresAt: new Date(),
+				createdAt: new Date(),
+			};
+
+			inviteStaffUseCase.execute.mockResolvedValue(mockInvitationResult);
+
+			await controller.inviteStaff(req as Request, res as Response);
+
+			expect(inviteStaffUseCase.execute).toHaveBeenCalledWith({
+				email: "invited@spotq.com",
+				restaurantId: "rest-uuid-123",
+			});
+			expect(res.status).toHaveBeenCalledWith(201);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: "Staff invitation sent successfully",
+					data: mockInvitationResult,
+				}),
+			);
+		});
+
+		it("should throw RestaurantIdRequiredError when x-restaurant-id is missing even if x-user-id is present", async () => {
+			const req: Partial<Request> = {
+				body: { email: "invited@spotq.com" },
+				headers: { "x-user-id": "user-uuid-123" },
+			};
+
+			await expect(
+				controller.inviteStaff(req as Request, res as Response),
+			).rejects.toThrow(RestaurantIdRequiredError);
+		});
+
+		it("should throw RestaurantIdRequiredError when no restaurant header is provided", async () => {
+			const req: Partial<Request> = {
+				body: { email: "invited@spotq.com" },
+				headers: {},
+			};
+
+			await expect(
+				controller.inviteStaff(req as Request, res as Response),
+			).rejects.toThrow();
+		});
+	});
+
+	describe("validateInvitation", () => {
+		it("should validate invitation token and return 200", async () => {
+			const req: Partial<Request> = {
+				body: { token: "raw-token-123" },
+			};
+
+			const mockResult = {
+				valid: true,
+				email: "staff@example.com",
+				restaurantName: "Tasty Bites",
+			};
+
+			validateInvitationUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.validateInvitation(req as Request, res as Response);
+
+			expect(validateInvitationUseCase.execute).toHaveBeenCalledWith({
+				token: "raw-token-123",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					data: mockResult,
+				}),
+			);
+		});
+	});
+
+	describe("acceptInvitation", () => {
+		it("should accept invitation, set refresh token cookie, and return 201 with access token", async () => {
+			const req: Partial<Request> = {
+				body: {
+					token: "raw-token-123",
+					fullname: "John Doe",
+					phone: "+919876543210",
+					password: "SecurePassword1!",
+				},
+			};
+
+			const mockResult = {
+				staff: {
+					id: "staff-1",
+					restaurantId: "rest-1",
+					fullname: "John Doe",
+					email: "john@example.com",
+					phone: "+919876543210",
+					avatarUrl: null,
+					role: "STAFF",
+					status: "ACTIVE",
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString(),
+				},
+				accessToken: "new-access-token",
+				refreshToken: "new-refresh-token",
+			};
+
+			acceptInvitationUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.acceptInvitation(req as Request, res as Response);
+
+			expect(acceptInvitationUseCase.execute).toHaveBeenCalledWith({
+				token: "raw-token-123",
+				fullname: "John Doe",
+				phone: "+919876543210",
+				password: "SecurePassword1!",
+			});
+			expect(res.cookie).toHaveBeenCalledWith(
+				"refreshToken",
+				"new-refresh-token",
+				expect.objectContaining({
+					httpOnly: true,
+				}),
+			);
+			expect(res.status).toHaveBeenCalledWith(201);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					data: {
+						staff: mockResult.staff,
+						accessToken: "new-access-token",
+					},
+				}),
+			);
+		});
+	});
+
+	describe("resendInvitation", () => {
+		it("should resend invitation and return 200", async () => {
+			const req: Partial<Request> = {
+				body: { email: "staff@example.com" },
+				headers: { "x-restaurant-id": "rest-1" },
+			};
+
+			const mockResult = {
+				id: "inv-1",
+				restaurantId: "rest-1",
+				email: "staff@example.com",
+				status: "PENDING",
+				expiresAt: new Date(),
+				createdAt: new Date(),
+			};
+
+			resendStaffInvitationUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.resendInvitation(req as Request, res as Response);
+
+			expect(resendStaffInvitationUseCase.execute).toHaveBeenCalledWith({
+				email: "staff@example.com",
+				restaurantId: "rest-1",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+		});
+	});
+
+	describe("revokeInvitation", () => {
+		it("should revoke invitation and return 200", async () => {
+			const req: Partial<Request> = {
+				body: { invitationId: "inv-1" },
+				headers: { "x-restaurant-id": "rest-1" },
+			};
+
+			const mockResult = {
+				revoked: true,
+				invitationId: "inv-1",
+			};
+
+			revokeStaffInvitationUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.revokeInvitation(req as Request, res as Response);
+
+			expect(revokeStaffInvitationUseCase.execute).toHaveBeenCalledWith({
+				invitationId: "inv-1",
+				email: undefined,
+				restaurantId: "rest-1",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+		});
+	});
+
+	describe("listInvitations", () => {
+		it("should throw RestaurantIdRequiredError if header is missing", async () => {
+			const req: Partial<Request> = {
+				headers: {},
+				query: {},
+			};
+
+			await expect(
+				controller.listInvitations(req as Request, res as Response),
+			).rejects.toThrow(RestaurantIdRequiredError);
+		});
+
+		it("should forward query params and return paginated invitations", async () => {
+			const req: Partial<Request> = {
+				headers: { "x-restaurant-id": "rest-1" },
+				query: {
+					page: 2 as unknown as string,
+					limit: 10 as unknown as string,
+					status: "PENDING",
+					search: "john",
+					sortBy: "email",
+					sortOrder: "asc",
+				} as never,
+			};
+
+			const mockResult = {
+				invitations: [
+					{
+						id: "inv-1",
+						restaurantId: "rest-1",
+						email: "john@example.com",
+						status: "PENDING",
+						expiresAt: new Date(),
+						acceptedAt: null,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+				],
+				pagination: {
+					page: 2,
+					limit: 10,
+					total: 15,
+					totalPages: 2,
+					hasNextPage: false,
+					hasPrevPage: true,
+				},
+			};
+
+			listStaffInvitationsUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.listInvitations(req as Request, res as Response);
+
+			expect(listStaffInvitationsUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "rest-1",
+				page: 2,
+				limit: 10,
+				status: "PENDING",
+				search: "john",
+				sortBy: "email",
+				sortOrder: "asc",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
 		});
 	});
 

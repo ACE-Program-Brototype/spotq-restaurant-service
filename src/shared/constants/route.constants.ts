@@ -21,12 +21,17 @@ export const STAFF_ROUTES = {
 	VERIFY_FORGOT_PASSWORD_OTP: "/forgot-password/verify",
 	RESEND_FORGOT_PASSWORD_OTP: "/forgot-password/resend-otp",
 	RESET_PASSWORD: "/reset-password",
+	INVITATIONS: "/invitations",
+	VALIDATE_INVITATION: "/invitations/validate",
+	ACCEPT_INVITATION: "/invitations/accept",
+	RESEND_INVITATION: "/invitations/resend",
+	REVOKE_INVITATION: "/invitations/revoke",
 	GET_PROFILE: "/profile/me",
 } as const;
 
 export const STORAGE_ROUTES = {
-    BASE: "/storage",
-    PRESIGNED_URL: "/presigned-url",
+	BASE: "/storage",
+	PRESIGNED_URL: "/presigned-url",
 } as const;
 
 export type RestaurantRoute =
@@ -37,4 +42,4 @@ export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
 export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
 export type StorageRoute =
-    (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
+	(typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];

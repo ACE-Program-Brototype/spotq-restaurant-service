@@ -3,19 +3,32 @@ import { container } from "@/config/di/container";
 import { TYPES } from "@/config/di/types";
 import type { StaffController } from "@/presentation/http/controllers/staff.controller";
 import {
+	acceptInvitationRateLimiter,
 	forgotPasswordRateLimiter,
+	inviteStaffRateLimiter,
 	loginRateLimiter,
 	refreshTokenRateLimiter,
 	resendOtpRateLimiter,
 	resetPasswordRateLimiter,
+	revokeInvitationRateLimiter,
+	validateInvitationRateLimiter,
 	verifyOtpRateLimiter,
 } from "@/presentation/http/middleware/rate-limiter.middleware";
 import { staffAuthMiddleware } from "@/presentation/http/middleware/staff.auth.middleware";
-import { validateRequestBody } from "@/presentation/http/middleware/validation.middleware";
+import {
+	validateRequestBody,
+	validateRequestQuery,
+} from "@/presentation/http/middleware/validation.middleware";
+import { acceptInvitationSchema } from "@/presentation/http/validators/staff/accept-invitation.validator";
 import { forgotPasswordSchema } from "@/presentation/http/validators/staff/forgot-password.validator";
+import { inviteStaffSchema } from "@/presentation/http/validators/staff/invite-staff.validator";
+import { listStaffInvitationsSchema } from "@/presentation/http/validators/staff/list-invitations.validator";
 import { loginStaffSchema } from "@/presentation/http/validators/staff/login-staff.validator";
 import { resendForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/resend-forgot-password-otp.validator";
+import { resendInvitationSchema } from "@/presentation/http/validators/staff/resend-invitation.validator";
 import { resetPasswordSchema } from "@/presentation/http/validators/staff/reset-password.validator";
+import { revokeInvitationSchema } from "@/presentation/http/validators/staff/revoke-invitation.validator";
+import { validateInvitationSchema } from "@/presentation/http/validators/staff/validate-invitation.validator";
 import { verifyForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/verify-forgot-password-otp.validator";
 import { STAFF_ROUTES } from "@/shared/constants/route.constants";
 
@@ -27,6 +40,47 @@ staffRouter.get(
 	STAFF_ROUTES.GET_PROFILE,
 	staffAuthMiddleware,
 	staffController.getProfile,
+);
+
+staffRouter.get(
+	STAFF_ROUTES.INVITATIONS,
+	validateRequestQuery(listStaffInvitationsSchema),
+	staffController.listInvitations,
+);
+
+staffRouter.post(
+	STAFF_ROUTES.INVITATIONS,
+	inviteStaffRateLimiter,
+	validateRequestBody(inviteStaffSchema),
+	staffController.inviteStaff,
+);
+
+staffRouter.post(
+	STAFF_ROUTES.VALIDATE_INVITATION,
+	validateInvitationRateLimiter,
+	validateRequestBody(validateInvitationSchema),
+	staffController.validateInvitation,
+);
+
+staffRouter.post(
+	STAFF_ROUTES.ACCEPT_INVITATION,
+	acceptInvitationRateLimiter,
+	validateRequestBody(acceptInvitationSchema),
+	staffController.acceptInvitation,
+);
+
+staffRouter.post(
+	STAFF_ROUTES.RESEND_INVITATION,
+	inviteStaffRateLimiter,
+	validateRequestBody(resendInvitationSchema),
+	staffController.resendInvitation,
+);
+
+staffRouter.post(
+	STAFF_ROUTES.REVOKE_INVITATION,
+	revokeInvitationRateLimiter,
+	validateRequestBody(revokeInvitationSchema),
+	staffController.revokeInvitation,
 );
 
 staffRouter.post(

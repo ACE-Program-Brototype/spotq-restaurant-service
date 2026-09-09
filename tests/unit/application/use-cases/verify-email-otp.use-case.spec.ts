@@ -6,6 +6,7 @@ import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import { Restaurant } from "@/domain/entities/restaurant.entity";
 
 describe("VerifyRestaurantEmailOtpUseCase", () => {
 	let useCase: VerifyRestaurantEmailOtpUseCase;
@@ -22,20 +23,23 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 			existsByEmail: jest.fn(),
 			findById: jest.fn(),
 			findUnique: jest.fn(),
-			findMany: jest.fn(),
+			find: jest.fn(),
 			create: jest.fn(),
 			update: jest.fn(),
-			delete: jest.fn(),
+			save: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		mockOtpStore = {
 			get: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
+			exists: jest.fn(),
+			increment: jest.fn(),
 		};
 
 		mockOtpService = {
 			checkSendRateLimit: jest.fn(),
+			checkResendRateLimit: jest.fn(),
 			incrementAttempt: jest.fn(),
 			resetAttempts: jest.fn(),
 		};
@@ -77,21 +81,23 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		mockOtpStore.get.mockResolvedValue("hashed-otp");
 		mockOtpHashService.compare.mockResolvedValue(true);
 		mockRestaurantRepo.findByEmail.mockResolvedValue(null);
-		mockRestaurantRepo.createRestaurant.mockResolvedValue({
-			id: "res-123",
-			restaurantName: "Pending Registration",
-			email: "new@restaurant.com",
-			phone: "0000000000",
-			ownerName: "Pending Owner",
-			ownerEmail: "new@restaurant.com",
-			status: "PENDING",
-			onboardingStatus: "PENDING",
-			emailVerifiedAt: new Date(),
-			isBlocked: false,
-			blockReason: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		mockRestaurantRepo.createRestaurant.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-123",
+				restaurantName: "Pending Registration",
+				email: "new@restaurant.com",
+				phone: "0000000000",
+				ownerName: "Pending Owner",
+				ownerEmail: "new@restaurant.com",
+				status: "PENDING",
+				onboardingStatus: "PENDING",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
 
 		const result = await useCase.execute({
 			email: "new@restaurant.com",
@@ -116,21 +122,23 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 	it("returns DASHBOARD nextStep for existing fully onboarded restaurant", async () => {
 		mockOtpStore.get.mockResolvedValue("hashed-otp");
 		mockOtpHashService.compare.mockResolvedValue(true);
-		mockRestaurantRepo.findByEmail.mockResolvedValue({
-			id: "res-456",
-			restaurantName: "Good Food",
-			email: "existing@restaurant.com",
-			phone: "1234567890",
-			ownerName: "Owner",
-			ownerEmail: "existing@restaurant.com",
-			status: "ACTIVE",
-			onboardingStatus: "COMPLETED",
-			emailVerifiedAt: new Date(),
-			isBlocked: false,
-			blockReason: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-456",
+				restaurantName: "Good Food",
+				email: "existing@restaurant.com",
+				phone: "1234567890",
+				ownerName: "Owner",
+				ownerEmail: "existing@restaurant.com",
+				status: "ACTIVE",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
 
 		const result = await useCase.execute({
 			email: "existing@restaurant.com",
@@ -144,21 +152,23 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 	it("throws RestaurantAccountBlockedError for blocked restaurant", async () => {
 		mockOtpStore.get.mockResolvedValue("hashed-otp");
 		mockOtpHashService.compare.mockResolvedValue(true);
-		mockRestaurantRepo.findByEmail.mockResolvedValue({
-			id: "res-789",
-			restaurantName: "Blocked",
-			email: "blocked@restaurant.com",
-			phone: "123",
-			ownerName: "Owner",
-			ownerEmail: "blocked@restaurant.com",
-			status: "SUSPENDED",
-			onboardingStatus: "PENDING",
-			emailVerifiedAt: new Date(),
-			isBlocked: true,
-			blockReason: "Violation",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-789",
+				restaurantName: "Blocked",
+				email: "blocked@restaurant.com",
+				phone: "123",
+				ownerName: "Owner",
+				ownerEmail: "blocked@restaurant.com",
+				status: "SUSPENDED",
+				onboardingStatus: "PENDING",
+				emailVerifiedAt: new Date(),
+				isBlocked: true,
+				blockReason: "Violation",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
 
 		await expect(
 			useCase.execute({ email: "blocked@restaurant.com", otp: "123456" }),

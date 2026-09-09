@@ -17,8 +17,10 @@ describe("GeneratePresignedUrlUseCase", () => {
 				uploadUrl: "https://s3.amazonaws.com/test-bucket/upload-url",
 				expiresInSeconds: 900,
 			}),
-			getPresignedDownloadUrl: jest.fn(),
-			deleteFile: jest.fn(),
+			generatePresignedGetUrl: jest.fn().mockResolvedValue({
+				downloadUrl: "https://s3.amazonaws.com/test-bucket/download-url",
+				expiresInSeconds: 900,
+			}),
 		};
 
 		useCase = new GeneratePresignedUrlUseCase(

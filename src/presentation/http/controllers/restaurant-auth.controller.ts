@@ -2,13 +2,13 @@ import { env } from "@config/env";
 import { messages } from "@shared/constants/message.constants";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
-import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
-import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
-import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
-import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
-import { TYPES } from "@/di/types";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
+import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
+import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port.ts";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { successResponse } from "@/utils/response.model";
 
@@ -91,7 +91,7 @@ export class RestaurantAuthController {
 			{
 				nextStep: result.nextStep,
 				restaurantId: result.restaurantId,
-				accessToken: result.accessToken,
+				access_token: result.accessToken,
 			},
 		);
 	}
@@ -105,7 +105,9 @@ export class RestaurantAuthController {
 			throw new InvalidRefreshTokenError();
 		}
 
-		const refreshToken = this.getCookie(req, "refreshToken");
+		const refreshToken =
+			this.getCookie(req, env.COOKIE_NAME_REFRESH_TOKEN) ||
+			this.getCookie(req, "refreshToken");
 
 		if (!refreshToken) {
 			throw new InvalidRefreshTokenError();
@@ -119,8 +121,10 @@ export class RestaurantAuthController {
 		return successResponse(
 			res,
 			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
-			HTTP_STATUS.OK,
-			{ accessToken },
+			HTTP_STATUS.SUCCESS,
+			{
+				access_token: accessToken,
+			},
 		);
 	}
 

@@ -3,15 +3,15 @@ import { inject, injectable } from "inversify";
 import type {
 	GeneratePresignedUrlDto,
 	GeneratePresignedUrlResponseDto,
-} from "@/application/dto/generate-presigned-url.dto";
+} from "@/application/dtos/restaurant/generate-presigned-url.dto";
 import type { IFilePolicyValidator } from "@/application/ports/services/file-policy-validator.port";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
 import type {
 	AuthContext,
 	IGeneratePresignedUrlUseCase,
-} from "@/application/ports/use-case/generate-presigned-url.use-case.port";
+} from "@/application/ports/use-cases/generate-presigned-url.use-case.port";
 
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 
 @injectable()
 export class GeneratePresignedUrlUseCase

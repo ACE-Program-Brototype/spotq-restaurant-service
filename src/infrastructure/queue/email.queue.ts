@@ -1,8 +1,12 @@
-import { renderVerificationOtpTemplate } from "@infrastructure/template/email.template";
+import {
+	renderStaffInvitationTemplate,
+	renderVerificationOtpTemplate,
+} from "@infrastructure/template/email.template";
 import { Queue } from "bullmq";
 import { injectable } from "inversify";
 import type {
 	IEmailQueuePort,
+	SendStaffInvitationJobData,
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
 import redis from "@/config/redis.ts";
@@ -39,6 +43,23 @@ export class EmailQueueService implements IEmailQueuePort {
 		const rendered = renderVerificationOtpTemplate({
 			otp: data.otp,
 			validityMinutes: data.validityMinutes ?? 5,
+		});
+
+		await this.queue.add("send-email", {
+			to: data.to,
+			subject: rendered.subject,
+			htmlContent: rendered.htmlContent,
+			recipientName: data.recipientName,
+		});
+	}
+
+	public async sendStaffInvitation(
+		data: SendStaffInvitationJobData,
+	): Promise<void> {
+		const rendered = renderStaffInvitationTemplate({
+			restaurantName: data.restaurantName,
+			invitationUrl: data.invitationUrl,
+			validityHours: data.validityHours,
 		});
 
 		await this.queue.add("send-email", {
