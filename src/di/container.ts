@@ -1,7 +1,7 @@
 import { Container } from "inversify";
-import { restaurantAuthModule } from "./modules/restaurant-auth.module";
 import { commonModule } from "./modules/common.module";
 import { restaurantStorageModule } from "./modules/restaurant-storage.module";
+import { restaurantAuthModule } from "./modules/restaurant-auth.module";
 
 const container = new Container();
 

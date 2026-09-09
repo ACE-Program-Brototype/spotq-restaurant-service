@@ -1,19 +1,19 @@
+import { type Job, Worker } from "bullmq";
+import { inject, injectable } from "inversify";
 import type { IEmailService } from "@/application/ports/services/email-service.port";
 import type { ILogger } from "@/application/ports/services/logger.interface";
 import type { IEmailWorker } from "@/application/ports/workers/email.worker.port";
-import { TYPES } from "@/di/types";
-import { Worker, type Job } from "bullmq";
-import { inject, injectable } from "inversify";
-import { bullMQConnection } from "../bullmq.service";
-import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants";
 import { brevoClient } from "@/config/brevo.client.ts";
 import { env } from "@/config/env.ts";
 import redis from "@/config/redis.ts";
+import { TYPES } from "@/di/types";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import {
 	EMAIL_QUEUE_NAME,
 	type SendEmailJobPayload,
 } from "@/infrastructure/queue/email.queue.ts";
+import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants";
+import { bullMQConnection } from "../bullmq.service";
 
 @injectable()
 export class EmailWorker implements IEmailWorker {

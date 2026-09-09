@@ -12,6 +12,7 @@ export const messages = {
 		"Presigned upload URL generated successfully.",
 	PRESIGNED_GET_URL_GENERATED_SUCCESS:
 		"Presigned download URL generated successfully.",
+	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
 	SERVICE_READY: "Service is ready",
@@ -20,7 +21,11 @@ export const messages = {
 	INTERNAL_SERVER_ERROR: "Internal server error occurred",
 	UNHANDLED_APP_ERROR: "Unhandled application error",
 	UNAUTHORIZED: "Unauthorized access",
+	GATEWAY_UNAUTHORIZED: "Unauthorized request from gateway",
+	AUTH_HEADER_REQUIRED: "Authorization header with Bearer token is required",
+	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
+	STAFF_FORBIDDEN: "Forbidden: Staff access required",
 	VALIDATION_ERROR: "Validation error occurred",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
@@ -51,6 +56,12 @@ export const messages = {
 	// Logging Messages
 	INCOMMING_HTTP_REQ: "Incoming HTTP Request",
 	OUTGOING_HTTP_RES: "Outgoing HTTP Response",
+
+	RESTAURANT_EMAIL_OTP_SENT_SUCCESS:
+		"If this email is eligible for registration, a verification code will be sent.",
+	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
+	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
+	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
 } as const;
 
 export type MessageKey = keyof typeof messages;

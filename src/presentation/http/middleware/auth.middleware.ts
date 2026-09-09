@@ -49,3 +49,4 @@ export const authenticate = (
 		return;
 	}
 };
+export * from "./staff.auth.middleware.ts";

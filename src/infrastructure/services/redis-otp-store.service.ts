@@ -1,7 +1,7 @@
-import type { IOtpStore } from "@/application/ports/services/otp-store.port";
-import { TYPES } from "@/di/types";
 import { inject, injectable } from "inversify";
 import type Redis from "ioredis";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import { TYPES } from "@/di/types";
 
 @injectable()
 export class RedisOtpStore implements IOtpStore {

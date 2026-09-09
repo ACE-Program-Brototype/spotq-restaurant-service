@@ -1,3 +1,4 @@
+import { renderVerificationOtpTemplate } from "@infrastructure/template/email.template";
 import { Queue } from "bullmq";
 import { injectable } from "inversify";
 import type {
@@ -5,7 +6,6 @@ import type {
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
 import redis from "@/config/redis.ts";
-import { renderVerificationOtpTemplate } from "@infrastructure/template/email.template";
 
 export const EMAIL_QUEUE_NAME = "email-queue";
 

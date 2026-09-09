@@ -1,3 +1,4 @@
+import { inject, injectable } from "inversify";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import { TYPES } from "@/di/types";
@@ -6,7 +7,6 @@ import {
 	generateVerificationToken,
 	getRestaurantEmailVerificationTokenKey,
 } from "@/utils/otp.util";
-import { inject, injectable } from "inversify";
 
 @injectable()
 export class EmailVerificationService implements IEmailVerificationService {

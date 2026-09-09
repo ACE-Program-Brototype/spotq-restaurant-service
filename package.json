@@ -40,6 +40,7 @@
 		"express": "^5.2.1",
 		"inversify": "^8.2.3",
 		"ioredis": "^6.0.0",
+		"jose": "^6.2.10",
 		"jsonwebtoken": "^9.0.3",
 		"pg": "^8.22.0",
 		"pino": "^10.3.1",

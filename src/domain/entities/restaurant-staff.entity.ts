@@ -17,11 +17,11 @@ export interface RestaurantStaffProps {
 	email: StaffEmail;
 	phone: StaffPhone;
 	avatarUrl: string | null;
-	passwordHash: string;
+	passwordHash?: string;
 	role: StaffRoleVO;
 	status: StaffStatusVO;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 export interface CreateRestaurantStaffProps {
@@ -43,11 +43,11 @@ export interface ReconstituteRestaurantStaffProps {
 	email: string;
 	phone: string;
 	avatarUrl: string | null;
-	passwordHash: string;
+	passwordHash?: string;
 	role: string;
 	status: string;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 export class RestaurantStaff {
@@ -121,6 +121,7 @@ export class RestaurantStaff {
 	public static reconstitute(
 		props: ReconstituteRestaurantStaffProps,
 	): RestaurantStaff {
+		const now = new Date();
 		return new RestaurantStaff({
 			id: props.id,
 			restaurantId: props.restaurantId,
@@ -128,11 +129,11 @@ export class RestaurantStaff {
 			email: StaffEmail.create(props.email),
 			phone: StaffPhone.create(props.phone),
 			avatarUrl: props.avatarUrl,
-			passwordHash: props.passwordHash,
+			passwordHash: props.passwordHash ?? "",
 			role: StaffRoleVO.create(props.role),
 			status: StaffStatusVO.create(props.status),
-			createdAt: props.createdAt,
-			updatedAt: props.updatedAt,
+			createdAt: props.createdAt ?? now,
+			updatedAt: props.updatedAt ?? now,
 		});
 	}
 
@@ -169,7 +170,7 @@ export class RestaurantStaff {
 	}
 
 	public get passwordHash(): string {
-		return this._props.passwordHash;
+		return this._props.passwordHash ?? "";
 	}
 
 	public get role(): StaffRole {
@@ -189,11 +190,11 @@ export class RestaurantStaff {
 	}
 
 	public get createdAt(): Date {
-		return this._props.createdAt;
+		return this._props.createdAt ?? new Date();
 	}
 
 	public get updatedAt(): Date {
-		return this._props.updatedAt;
+		return this._props.updatedAt ?? new Date();
 	}
 
 	public isActive(): boolean {

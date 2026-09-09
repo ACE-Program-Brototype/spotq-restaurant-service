@@ -10,6 +10,7 @@ import {
 	resetPasswordRateLimiter,
 	verifyOtpRateLimiter,
 } from "@/presentation/http/middleware/rate-limiter.middleware";
+import { staffAuthMiddleware } from "@/presentation/http/middleware/staff.auth.middleware";
 import { validateRequestBody } from "@/presentation/http/middleware/validation.middleware";
 import { forgotPasswordSchema } from "@/presentation/http/validators/staff/forgot-password.validator";
 import { loginStaffSchema } from "@/presentation/http/validators/staff/login-staff.validator";
@@ -21,6 +22,12 @@ import { STAFF_ROUTES } from "@/shared/constants/route.constants";
 const staffRouter = Router();
 
 const staffController = container.get<StaffController>(TYPES.StaffController);
+
+staffRouter.get(
+	STAFF_ROUTES.GET_PROFILE,
+	staffAuthMiddleware,
+	staffController.getProfile,
+);
 
 staffRouter.post(
 	STAFF_ROUTES.LOGIN,

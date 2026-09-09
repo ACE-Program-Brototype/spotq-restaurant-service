@@ -1,5 +1,6 @@
-import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import { inject, injectable } from "inversify";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import {
@@ -7,7 +8,6 @@ import {
 	getRestaurantEmailOtpResendKey,
 	getRestaurantEmailOtpSendKey,
 } from "@/utils/otp.util";
-import { inject, injectable } from "inversify";
 
 @injectable()
 export class OtpService implements IOtpService {
