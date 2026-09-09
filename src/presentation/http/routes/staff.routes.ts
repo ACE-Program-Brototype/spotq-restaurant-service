@@ -2,7 +2,6 @@ import { Router } from "express";
 import { container } from "@/config/di/container";
 import { TYPES } from "@/config/di/types";
 import type { StaffController } from "@/presentation/http/controllers/staff.controller";
-import { staffAuthMiddleware } from "@/presentation/http/middleware/staff.auth.middleware";
 import {
 	forgotPasswordRateLimiter,
 	loginRateLimiter,
@@ -11,6 +10,7 @@ import {
 	resetPasswordRateLimiter,
 	verifyOtpRateLimiter,
 } from "@/presentation/http/middleware/rate-limiter.middleware";
+import { staffAuthMiddleware } from "@/presentation/http/middleware/staff.auth.middleware";
 import { validateRequestBody } from "@/presentation/http/middleware/validation.middleware";
 import { forgotPasswordSchema } from "@/presentation/http/validators/staff/forgot-password.validator";
 import { loginStaffSchema } from "@/presentation/http/validators/staff/login-staff.validator";

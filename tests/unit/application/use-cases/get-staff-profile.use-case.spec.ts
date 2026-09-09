@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { GetStaffProfileUseCase } from "@/application/use-cases/staff/get-staff-profile.use-case.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
-import { StaffNotFoundError } from "@/domain/errors/staff.errors.ts";
+import {
+	StaffInactiveError,
+	StaffNotFoundError,
+	StaffSuspendedError,
+} from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("GetStaffProfileUseCase", () => {
@@ -55,9 +59,15 @@ describe("GetStaffProfileUseCase", () => {
 			created_at: "2026-01-01T12:00:00.000Z",
 		});
 		// Ensure password_hash and internal updated_at are not exposed
-		expect((result as Record<string, unknown>).password_hash).toBeUndefined();
-		expect((result as Record<string, unknown>).passwordHash).toBeUndefined();
-		expect((result as Record<string, unknown>).updated_at).toBeUndefined();
+		expect(
+			(result as unknown as Record<string, unknown>).password_hash,
+		).toBeUndefined();
+		expect(
+			(result as unknown as Record<string, unknown>).passwordHash,
+		).toBeUndefined();
+		expect(
+			(result as unknown as Record<string, unknown>).updated_at,
+		).toBeUndefined();
 	});
 
 	it("should throw StaffNotFoundError when staff record does not exist", async () => {
@@ -83,5 +93,41 @@ describe("GetStaffProfileUseCase", () => {
 		await expect(
 			useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" }),
 		).rejects.toThrow("Database connection lost");
+	});
+
+	it("should throw StaffInactiveError when staff status is INACTIVE", async () => {
+		const inactiveStaff = RestaurantStaff.reconstitute({
+			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+			fullname: "John Doe",
+			email: "john.doe@spiceroute.com",
+			phone: "+919876543210",
+			avatarUrl: null,
+			role: "STAFF",
+			status: "INACTIVE",
+		});
+		staffRepository.findById.mockResolvedValue(inactiveStaff);
+
+		await expect(
+			useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" }),
+		).rejects.toThrow(StaffInactiveError);
+	});
+
+	it("should throw StaffSuspendedError when staff status is SUSPENDED", async () => {
+		const suspendedStaff = RestaurantStaff.reconstitute({
+			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+			fullname: "John Doe",
+			email: "john.doe@spiceroute.com",
+			phone: "+919876543210",
+			avatarUrl: null,
+			role: "STAFF",
+			status: "SUSPENDED",
+		});
+		staffRepository.findById.mockResolvedValue(suspendedStaff);
+
+		await expect(
+			useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" }),
+		).rejects.toThrow(StaffSuspendedError);
 	});
 });

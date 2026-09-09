@@ -1,10 +1,10 @@
 import { ContainerModule } from "inversify";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
+import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
-import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { ForgotPasswordUseCase } from "@/application/use-cases/staff/forgot-password.use-case.ts";

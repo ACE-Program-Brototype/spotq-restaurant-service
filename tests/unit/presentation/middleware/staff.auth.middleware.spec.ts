@@ -18,7 +18,7 @@ describe("staffAuthMiddleware", () => {
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
 		};
-		mockNext = jest.fn();
+		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
 	it("should return 401 when x-user-id header is missing", () => {

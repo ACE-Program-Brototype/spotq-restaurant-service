@@ -4,7 +4,11 @@ import type { StaffProfileResponseDTO } from "@/application/dtos/staff/staff-pro
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
 import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
-import { StaffNotFoundError } from "@/domain/errors/staff.errors.ts";
+import {
+	StaffInactiveError,
+	StaffNotFoundError,
+	StaffSuspendedError,
+} from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -23,8 +27,17 @@ export class GetStaffProfileUseCase implements IGetStaffProfileUseCase {
 		}
 
 		const staff = await this.staffRepository.findById(dto.staffId);
+
 		if (!staff) {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
+		}
+
+		if (staff?.status === "INACTIVE") {
+			throw new StaffInactiveError();
+		}
+
+		if (staff?.status === "SUSPENDED") {
+			throw new StaffSuspendedError();
 		}
 
 		return StaffMapper.toProfileDTO(staff);

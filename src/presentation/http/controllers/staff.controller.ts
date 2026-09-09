@@ -14,7 +14,10 @@ import { env } from "@/config/env.ts";
 import type { AuthenticatedRequest } from "@/presentation/http/middleware/auth.middleware.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { ApiResponse, sendSuccessResponse } from "@/shared/response/api-response.ts";
+import {
+	ApiResponse,
+	sendSuccessResponse,
+} from "@/shared/response/api-response.ts";
 
 @injectable()
 export class StaffController {

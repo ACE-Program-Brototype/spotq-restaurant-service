@@ -18,7 +18,7 @@ describe("authMiddleware alias", () => {
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
 		};
-		mockNext = jest.fn();
+		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
 	it("should work as an alias for staffAuthMiddleware", () => {
