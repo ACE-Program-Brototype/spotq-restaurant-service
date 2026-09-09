@@ -10,6 +10,8 @@ export const messages = {
 	PASSWORD_RESET_SUCCESS: "Password reset successfully",
 	PRESIGNED_URL_GENERATED_SUCCESS:
 		"Presigned upload URL generated successfully.",
+	PRESIGNED_GET_URL_GENERATED_SUCCESS:
+		"Presigned download URL generated successfully.",
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
 	SERVICE_READY: "Service is ready",
