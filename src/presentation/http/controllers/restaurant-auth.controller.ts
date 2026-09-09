@@ -91,7 +91,6 @@ export class RestaurantAuthController {
 			{
 				nextStep: result.nextStep,
 				restaurantId: result.restaurantId,
-				accessToken: result.accessToken,
 				access_token: result.accessToken,
 			},
 		);
@@ -124,7 +123,6 @@ export class RestaurantAuthController {
 			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			{
-				accessToken,
 				access_token: accessToken,
 			},
 		);
