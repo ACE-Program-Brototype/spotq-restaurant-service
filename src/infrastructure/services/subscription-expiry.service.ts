@@ -64,7 +64,15 @@ export class SubscriptionExpiryService {
 			}
 
 			return result.count;
-		} catch (error) {
+		} catch (error: unknown) {
+			const prismaError = error as { code?: string; message?: string };
+			if (prismaError?.code === "P2022") {
+				logger.warn(
+					{ err: prismaError.message },
+					"Subscription columns not found in database. Run 'pnpm exec prisma db push' or 'pnpm exec prisma migrate deploy'.",
+				);
+				return 0;
+			}
 			logger.error({ err: error }, "Failed to expire past-due subscriptions");
 			throw error;
 		} finally {
