@@ -8,7 +8,7 @@ import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/u
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port.ts";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { successResponse } from "@/utils/response.model";
 

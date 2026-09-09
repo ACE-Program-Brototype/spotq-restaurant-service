@@ -16,8 +16,8 @@ import { closeS3Client } from "@/infrastructure/storage/s3.client";
 import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
 import { PORT } from "@/shared/constants/app.constants";
 import type { IEmailWorker } from "./application/ports/workers/email.worker.port";
-import { container } from "./di/container";
-import { TYPES } from "./di/types";
+import { container } from "@/config/di/container";
+import { TYPES } from "@/config/di/types";
 
 async function bootstrap() {
 	try {

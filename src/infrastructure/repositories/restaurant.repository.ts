@@ -1,8 +1,8 @@
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { inject, injectable } from "inversify";
 import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
 
@@ -70,8 +70,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 	}
 
 	async update(id: string, data: Partial<Restaurant>): Promise<Restaurant> {
-		// biome-ignore lint/suspicious/noExplicitAny: Partial dynamic update
-		const updateData: any = {};
+		const updateData: Prisma.RestaurantUpdateInput = {};
 		if (data.restaurantName !== undefined) updateData.restaurantName = data.restaurantName;
 		if (data.email !== undefined) updateData.email = data.email;
 		if (data.phone !== undefined) updateData.phone = data.phone;

@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import {
 	getRestaurantEmailOtpAttemptsKey,

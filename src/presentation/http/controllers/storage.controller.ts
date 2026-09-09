@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 
 import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-cases/generate-presigned-url.use-case.port";
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { messages } from "@/shared/constants/message.constants";
 import { successResponse } from "@/utils/response.model";

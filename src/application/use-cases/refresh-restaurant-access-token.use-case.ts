@@ -5,7 +5,7 @@ import type {
 	IRefreshRestaurantAccessTokenUseCase,
 	RefreshRestaurantAccessTokenDto,
 } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 
 @injectable()
 export class RefreshRestaurantAccessTokenUseCase

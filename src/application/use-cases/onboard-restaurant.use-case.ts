@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import type { OnboardRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors";
 
 @injectable()
