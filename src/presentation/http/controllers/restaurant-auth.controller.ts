@@ -92,7 +92,6 @@ export class RestaurantAuthController {
 				nextStep: result.nextStep,
 				restaurantId: result.restaurantId,
 				accessToken: result.accessToken,
-				refreshToken: result.refreshToken,
 			},
 		);
 	}
