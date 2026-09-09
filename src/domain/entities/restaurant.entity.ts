@@ -1,4 +1,7 @@
-import { InvalidRestaurantDataError, messages } from "@/domain/errors/restaurant.errors.ts";
+import {
+	InvalidRestaurantDataError,
+	messages,
+} from "@/domain/errors/restaurant.errors.ts";
 import {
 	type OnboardingStatus,
 	OnboardingStatusVO,
@@ -67,21 +70,15 @@ export class Restaurant {
 			typeof props.restaurantName !== "string" ||
 			props.restaurantName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(
-				messages.RESTAUARANT_NAME_REQUIRED,
-			);
+			throw new InvalidRestaurantDataError(messages.RESTAUARANT_NAME_REQUIRED);
 		}
 
 		if (!props.email || typeof props.email !== "string") {
-			throw new InvalidRestaurantDataError(
-				messages.RESTAURANT_EMAIL_REQUIRED,
-			);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_EMAIL_REQUIRED);
 		}
 
 		if (!props.phone || typeof props.phone !== "string") {
-			throw new InvalidRestaurantDataError(
-				messages.RESTAURANT_PHONE_REQUIRED,
-			);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_PHONE_REQUIRED);
 		}
 
 		if (
@@ -89,9 +86,7 @@ export class Restaurant {
 			typeof props.ownerName !== "string" ||
 			props.ownerName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(
-				messages.OWNER_NAME_REQUIRED,
-			);
+			throw new InvalidRestaurantDataError(messages.OWNER_NAME_REQUIRED);
 		}
 
 		if (!props.ownerEmail || typeof props.ownerEmail !== "string") {
@@ -265,16 +260,16 @@ export class Restaurant {
 
 		if (phone !== undefined) {
 			if (typeof phone !== "string" || phone.trim().length === 0) {
-				throw new InvalidRestaurantDataError(messages.RESTAURANT_PHONE_REQUIRED);
+				throw new InvalidRestaurantDataError(
+					messages.RESTAURANT_PHONE_REQUIRED,
+				);
 			}
 			this._props.phone = phone.trim();
 		}
 
 		if (ownerName !== undefined) {
 			if (typeof ownerName !== "string" || ownerName.trim().length < 2) {
-				throw new InvalidRestaurantDataError(
-					messages.OWNER_NAME_REQUIRED,
-				);
+				throw new InvalidRestaurantDataError(messages.OWNER_NAME_REQUIRED);
 			}
 			this._props.ownerName = ownerName.trim();
 		}
