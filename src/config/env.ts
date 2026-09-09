@@ -47,6 +47,12 @@ const envSchema = z.object({
 
 	AWS_S3_BUCKET: z.string().trim().min(1),
 
+	AWS_S3_PRESIGNED_URL_EXPIRATION_SECONDS: z.coerce
+		.number()
+		.int()
+		.positive()
+		.default(900),
+
 	BREVO_API_KEY: z.string().trim().min(1),
 
 	BREVO_SENDER_EMAIL: z.string().trim().email(),
@@ -201,5 +207,25 @@ const envSchema = z.object({
 });
 
 export type Env = z.infer<typeof envSchema>;
+
+export function formatJwtKey(key?: string): string {
+	if (!key) return "";
+	let formatted = key.trim();
+	if (
+		!formatted.includes("-----BEGIN") &&
+		!formatted.includes("\n") &&
+		formatted.length > 100
+	) {
+		try {
+			const decoded = Buffer.from(formatted, "base64").toString("utf-8");
+			if (decoded.includes("-----BEGIN")) {
+				formatted = decoded;
+			}
+		} catch {
+			// use formatted as is
+		}
+	}
+	return formatted.replace(/\\n/g, "\n");
+}
 
 export const env = Object.freeze(envSchema.parse(process.env));

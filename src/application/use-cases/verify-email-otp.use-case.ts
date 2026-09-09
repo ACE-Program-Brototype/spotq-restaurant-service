@@ -5,14 +5,13 @@ import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-c
 import { TYPES } from "@/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
-import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
+import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
 import type { IAuthTokenService } from "../ports/services/auth-token.service.port";
-import type { IEmailVerificationService } from "../ports/services/email-verification.service.port";
-import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 import type { IOtpStore } from "../ports/services/otp-store.port";
+import type { IOtpService } from "../ports/services/otp.service.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
@@ -27,9 +26,6 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		@inject(TYPES.Services.OtpService)
 		private readonly otpService: IOtpService,
-
-		@inject(TYPES.Services.EmailVerification)
-		private readonly emailVerificationService: IEmailVerificationService,
 
 		@inject(TYPES.Services.AuthTokenService)
 		private readonly authTokenService: IAuthTokenService,
@@ -46,7 +42,7 @@ export class VerifyRestaurantEmailOtpUseCase
 		const storedOtp = await this.redisOtpStore.get(otpKey);
 
 		if (!storedOtp) {
-			throw new InvalidVerificationTokenError();
+			throw new InvalidOtpError();
 		}
 
 		const isValid = await this.otpHashService.compare(otp, storedOtp);
@@ -61,22 +57,23 @@ export class VerifyRestaurantEmailOtpUseCase
 				throw new OtpVerificationAttemptsExceededError();
 			}
 
-			throw new InvalidVerificationTokenError();
+			throw new InvalidOtpError();
 		}
 
 		await this.redisOtpStore.delete(otpKey);
 		await this.otpService.resetAttempts(email);
 
-		const restaurant = await this.restaurantRepository.findByEmail(email);
+		let restaurant = await this.restaurantRepository.findByEmail(email);
 
 		if (!restaurant) {
-			const verificationToken =
-				await this.emailVerificationService.createVerificationToken(email);
-
-			return {
-				nextStep: "ONBOARDING" as const,
-				verificationToken,
-			};
+			restaurant = await this.restaurantRepository.createRestaurant({
+				restaurantName: "Pending Registration",
+				email,
+				phone: "0000000000",
+				ownerName: "Pending Owner",
+				ownerEmail: email,
+				emailVerifiedAt: new Date(),
+			});
 		}
 
 		if (restaurant.isBlocked) {
@@ -84,13 +81,20 @@ export class VerifyRestaurantEmailOtpUseCase
 		}
 
 		const tokenPair = this.authTokenService.generateTokenPair({
-			email,
+			email: restaurant.email,
 			restaurantId: restaurant.id,
 		});
 
+		const nextStep =
+			restaurant.onboardingStatus === "PENDING" || restaurant.status === "PENDING"
+				? ("ONBOARDING" as const)
+				: ("DASHBOARD" as const);
+
 		return {
-			nextStep: "DASHBOARD" as const,
-			...tokenPair,
+			nextStep,
+			restaurantId: restaurant.id,
+			accessToken: tokenPair.accessToken,
+			refreshToken: tokenPair.refreshToken,
 		};
 	}
 }

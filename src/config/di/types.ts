@@ -27,12 +27,14 @@ export const TYPES = {
 	ResendStaffInvitationUseCase: Symbol.for("ResendStaffInvitationUseCase"),
 	RevokeStaffInvitationUseCase: Symbol.for("RevokeStaffInvitationUseCase"),
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
+	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
 
 	StaffController: Symbol.for("StaffController"),
 
 	JWKSController: Symbol.for("JWKSController"),
 	JWKService: Symbol.for("JWKService"),
 
+	// Observability & System
 	Logger: Symbol.for("Logger"),
 	HealthCheckService: Symbol.for("HealthCheckService"),
 } as const;

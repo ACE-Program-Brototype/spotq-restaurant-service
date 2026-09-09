@@ -2,10 +2,9 @@ import { ContainerModule } from "inversify";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IEmailService } from "@/application/ports/services/email-service.port";
-import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
-import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
@@ -19,9 +18,8 @@ import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-
 import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
 import { AuthTokenService } from "@/infrastructure/services/auth-token.service";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
-import { EmailVerificationService } from "@/infrastructure/services/email-verification.service";
-import { OtpService } from "@/infrastructure/services/otp.service";
 import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
+import { OtpService } from "@/infrastructure/services/otp.service";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import { TYPES } from "../types";
@@ -58,10 +56,6 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<IEmailService>(TYPES.Services.Brevo_Email).to(BrevoEmailService);
 
 	bind<IOtpService>(TYPES.Services.OtpService).to(OtpService);
-
-	bind<IEmailVerificationService>(TYPES.Services.EmailVerification).to(
-		EmailVerificationService,
-	);
 
 	bind<IAuthTokenService>(TYPES.Services.AuthTokenService).to(AuthTokenService);
 

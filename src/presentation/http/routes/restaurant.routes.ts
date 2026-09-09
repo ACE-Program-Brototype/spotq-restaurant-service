@@ -1,6 +1,6 @@
-import express from "express";
 import { restaurantAuthController } from "@/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
+import express from "express";
 import { validate } from "../middleware/validation.middleware";
 import {
 	sendRestaurantEmailOtpSchema,

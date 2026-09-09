@@ -1,4 +1,7 @@
-import { InvalidRestaurantDataError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	InvalidRestaurantDataError,
+	messages,
+} from "@/domain/errors/restaurant.errors.ts";
 import {
 	type OnboardingStatus,
 	OnboardingStatusVO,
@@ -7,7 +10,6 @@ import {
 	type RestaurantStatus,
 	RestaurantStatusVO,
 } from "@/domain/value-objects/restaurant-status.vo.ts";
-import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface RestaurantProps {
 	id: string;
@@ -68,7 +70,7 @@ export class Restaurant {
 			typeof props.restaurantName !== "string" ||
 			props.restaurantName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_INVALID);
+			throw new InvalidRestaurantDataError(messages.RESTAUARANT_NAME_REQUIRED);
 		}
 
 		if (!props.email || typeof props.email !== "string") {
@@ -84,7 +86,7 @@ export class Restaurant {
 			typeof props.ownerName !== "string" ||
 			props.ownerName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(messages.OWNER_NAME_INVALID);
+			throw new InvalidRestaurantDataError(messages.OWNER_NAME_REQUIRED);
 		}
 
 		if (!props.ownerEmail || typeof props.ownerEmail !== "string") {
@@ -249,7 +251,9 @@ export class Restaurant {
 				typeof restaurantName !== "string" ||
 				restaurantName.trim().length < 2
 			) {
-				throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_INVALID);
+				throw new InvalidRestaurantDataError(
+					messages.RESTAUARANT_NAME_REQUIRED,
+				);
 			}
 			this._props.restaurantName = restaurantName.trim();
 		}
@@ -265,7 +269,7 @@ export class Restaurant {
 
 		if (ownerName !== undefined) {
 			if (typeof ownerName !== "string" || ownerName.trim().length < 2) {
-				throw new InvalidRestaurantDataError(messages.OWNER_NAME_INVALID);
+				throw new InvalidRestaurantDataError(messages.OWNER_NAME_REQUIRED);
 			}
 			this._props.ownerName = ownerName.trim();
 		}

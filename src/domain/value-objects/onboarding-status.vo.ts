@@ -16,7 +16,7 @@ export class OnboardingStatusVO {
 		const upperStatus = rawStatus?.toUpperCase() as OnboardingStatus;
 		if (!ONBOARDING_STATUSES.includes(upperStatus)) {
 			throw new InvalidOnboardingStatusError(
-				messages.INVALID_ONBOARDING_STATUS,
+				messages.INVALID_ONBOARDING_STATUS || `Invalid onboarding status: ${rawStatus}`,
 			);
 		}
 		return new OnboardingStatusVO(upperStatus);

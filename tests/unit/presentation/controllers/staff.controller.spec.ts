@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
+import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
@@ -30,6 +31,7 @@ describe("StaffController", () => {
 	let resendStaffInvitationUseCase: jest.Mocked<IResendStaffInvitationUseCase>;
 	let revokeStaffInvitationUseCase: jest.Mocked<IRevokeStaffInvitationUseCase>;
 	let listStaffInvitationsUseCase: jest.Mocked<IListStaffInvitationsUseCase>;
+	let getStaffProfileUseCase: jest.Mocked<IGetStaffProfileUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
 
@@ -47,6 +49,7 @@ describe("StaffController", () => {
 		resendStaffInvitationUseCase = { execute: jest.fn() };
 		revokeStaffInvitationUseCase = { execute: jest.fn() };
 		listStaffInvitationsUseCase = { execute: jest.fn() };
+		getStaffProfileUseCase = { execute: jest.fn() };
 
 		controller = new StaffController(
 			loginStaffUseCase,
@@ -62,6 +65,7 @@ describe("StaffController", () => {
 			resendStaffInvitationUseCase,
 			revokeStaffInvitationUseCase,
 			listStaffInvitationsUseCase,
+			getStaffProfileUseCase,
 		);
 
 		res = {
@@ -535,6 +539,65 @@ describe("StaffController", () => {
 				sortOrder: "asc",
 			});
 			expect(res.status).toHaveBeenCalledWith(200);
+		});
+	});
+
+	describe("getProfile", () => {
+		it("should return staff profile for authenticated user with 200 OK", async () => {
+			const req = {
+				user: {
+					userId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+					restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+					email: "john.doe@spiceroute.com",
+					role: "STAFF",
+				},
+				userId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			};
+
+			const mockProfile = {
+				id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+				restaurant_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				fullname: "John Doe",
+				email: "john.doe@spiceroute.com",
+				phone: "+919876543210",
+				avatar_url: "restaurants/uuid/staff/uuid_avatar.jpg",
+				role: "STAFF",
+				status: "ACTIVE",
+				created_at: new Date().toISOString(),
+			};
+
+			getStaffProfileUseCase.execute.mockResolvedValue(mockProfile);
+
+			await controller.getProfile(req as never, res as Response);
+
+			expect(getStaffProfileUseCase.execute).toHaveBeenCalledWith({
+				staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: "Staff profile retrieved successfully",
+					data: mockProfile,
+					statusCode: 200,
+				}),
+			);
+		});
+
+		it("should return 401 when authenticated user context is missing", async () => {
+			const req = {};
+
+			await controller.getProfile(req as never, res as Response);
+
+			expect(getStaffProfileUseCase.execute).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(401);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: false,
+					statusCode: 401,
+					code: "UNAUTHORIZED",
+				}),
+			);
 		});
 	});
 });

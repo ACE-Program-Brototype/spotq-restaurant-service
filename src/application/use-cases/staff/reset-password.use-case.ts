@@ -55,7 +55,8 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 			throw new InvalidTempTokenError(messages.INVALID_TOKEN_PURPOSE);
 		}
 
-		const staff = await this.staffRepository.findById(payload.sub);
+		const staffId = (payload as unknown as { sub?: string; id?: string }).sub ?? (payload as unknown as { id?: string }).id;
+		const staff = await this.staffRepository.findById(staffId as string);
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}

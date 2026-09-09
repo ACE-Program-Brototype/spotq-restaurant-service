@@ -69,6 +69,28 @@ export class RestaurantRepository implements IRestaurantRepository {
 		return rawList.map((raw) => RestaurantPersistenceMapper.toDomain(raw));
 	}
 
+	async update(id: string, data: Partial<Restaurant>): Promise<Restaurant> {
+		// biome-ignore lint/suspicious/noExplicitAny: Partial dynamic update
+		const updateData: any = {};
+		if (data.restaurantName !== undefined) updateData.restaurantName = data.restaurantName;
+		if (data.email !== undefined) updateData.email = data.email;
+		if (data.phone !== undefined) updateData.phone = data.phone;
+		if (data.ownerName !== undefined) updateData.ownerName = data.ownerName;
+		if (data.ownerEmail !== undefined) updateData.ownerEmail = data.ownerEmail;
+		if (data.status !== undefined) updateData.status = data.status;
+		if (data.onboardingStatus !== undefined) updateData.onboardingStatus = data.onboardingStatus;
+		if (data.emailVerifiedAt !== undefined) updateData.emailVerifiedAt = data.emailVerifiedAt;
+		if (data.isBlocked !== undefined) updateData.isBlocked = data.isBlocked;
+		if (data.blockReason !== undefined) updateData.blockReason = data.blockReason;
+
+		const raw = await this.prisma.restaurant.update({
+			where: { id },
+			data: updateData,
+		});
+
+		return RestaurantPersistenceMapper.toDomain(raw);
+	}
+
 	async existsByEmail(email: string): Promise<boolean> {
 		const count = await this.prisma.restaurant.count({
 			where: { email },

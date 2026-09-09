@@ -45,6 +45,7 @@ describe("ValidateInvitationUseCase", () => {
 			existsByEmail: jest.fn(),
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
+			update: jest.fn(),
 		};
 
 		invitationTokenService = {

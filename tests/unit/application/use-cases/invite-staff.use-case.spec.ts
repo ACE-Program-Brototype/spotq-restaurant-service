@@ -67,6 +67,7 @@ describe("InviteStaffUseCase", () => {
 			existsByEmail: jest.fn(),
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
+			update: jest.fn(),
 		};
 
 		emailQueueService = {

@@ -3,6 +3,7 @@ import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
+import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
@@ -17,10 +18,14 @@ import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
 import { RestaurantIdRequiredError } from "@/domain/errors/staff.errors.ts";
+import type { AuthenticatedRequest } from "@/presentation/http/middleware/staff.auth.middleware.ts";
 import type { ListStaffInvitationsQuery } from "@/presentation/http/validators/staff/list-invitations.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import {
+	ApiResponse,
+	sendSuccessResponse,
+} from "@/shared/response/api-response.ts";
 
 @injectable()
 export class StaffController {
@@ -51,6 +56,8 @@ export class StaffController {
 		private readonly revokeStaffInvitationUseCase: IRevokeStaffInvitationUseCase,
 		@inject(TYPES.ListStaffInvitationsUseCase)
 		private readonly listStaffInvitationsUseCase: IListStaffInvitationsUseCase,
+		@inject(TYPES.GetStaffProfileUseCase)
+		private readonly getStaffProfileUseCase: IGetStaffProfileUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
@@ -349,6 +356,36 @@ export class StaffController {
 			res,
 			result,
 			messages.STAFF_INVITATIONS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public getProfile = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const authReq = req as AuthenticatedRequest;
+		const staffId = authReq.user?.userId ?? authReq.userId;
+
+		if (!staffId) {
+			res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.UNAUTHORIZED,
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
+			return;
+		}
+
+		const profile = await this.getStaffProfileUseCase.execute({ staffId });
+
+		sendSuccessResponse(
+			res,
+			profile,
+			messages.STAFF_PROFILE_FETCH_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

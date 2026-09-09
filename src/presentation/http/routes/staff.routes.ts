@@ -14,6 +14,7 @@ import {
 	validateInvitationRateLimiter,
 	verifyOtpRateLimiter,
 } from "@/presentation/http/middleware/rate-limiter.middleware";
+import { staffAuthMiddleware } from "@/presentation/http/middleware/staff.auth.middleware";
 import {
 	validateRequestBody,
 	validateRequestQuery,
@@ -34,6 +35,12 @@ import { STAFF_ROUTES } from "@/shared/constants/route.constants";
 const staffRouter = Router();
 
 const staffController = container.get<StaffController>(TYPES.StaffController);
+
+staffRouter.get(
+	STAFF_ROUTES.GET_PROFILE,
+	staffAuthMiddleware,
+	staffController.getProfile,
+);
 
 staffRouter.get(
 	STAFF_ROUTES.INVITATIONS,

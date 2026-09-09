@@ -11,10 +11,12 @@ export const TYPES = {
 			"RefreshRestaurantAccessTokenUseCase",
 		),
 		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
+		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase")
 	},
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		StorageController: Symbol.for("storageController")
 	},
 
 	Database: {
@@ -36,6 +38,8 @@ export const TYPES = {
 		EmailVerification: Symbol.for("EmailVerification"),
 		AuthTokenService: Symbol.for("AuthTokenService"),
 		OtpHashService: Symbol.for("OtpHashService"),
+		Storage: Symbol.for("StorageService"),
+		FilePolicyValidator: Symbol.for("FilePolicyValidator")
 	},
 
 	Logger: {

@@ -1,8 +1,8 @@
 import { env } from "@config/env";
+import { messages } from "@shared/constants/message.constants";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
-import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
@@ -49,7 +49,7 @@ export class RestaurantAuthController {
 	}
 
 	private setRefreshCookies(res: Response, refreshToken: string) {
-		res.cookie("refreshToken", refreshToken, {
+		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN, refreshToken, {
 			httpOnly: env.COOKIE_HTTP_ONLY,
 			secure: env.COOKIE_SECURE,
 			sameSite: env.COOKIE_SAME_SITE,
@@ -62,7 +62,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"If this email is eligible for registration, a verification code will be sent.",
+			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
 			HTTP_STATUS.ACCEPTED,
 		);
 	}
@@ -72,7 +72,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"If this email is eligible for registration, a verification code will be sent.",
+			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
 			HTTP_STATUS.ACCEPTED,
 		);
 	}
@@ -80,36 +80,20 @@ export class RestaurantAuthController {
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
-		if (result.nextStep === "DASHBOARD") {
-			const { accessToken, refreshToken, ...dashboardResult } = result;
-
-			if (!accessToken || !refreshToken) {
-				return successResponse(
-					res,
-					"Email verified successfully.",
-					HTTP_STATUS.SUCCESS,
-					{ nextStep: dashboardResult.nextStep },
-				);
-			}
-
-			this.setRefreshCookies(res, refreshToken);
-
-			return successResponse(
-				res,
-				"Email verified successfully.",
-				HTTP_STATUS.SUCCESS,
-				{
-					nextStep: dashboardResult.nextStep,
-					accessToken,
-				},
-			);
+		if (result.accessToken && result.refreshToken) {
+			this.setRefreshCookies(res, result.refreshToken);
 		}
 
 		return successResponse(
 			res,
-			"Email verified successfully.",
+			messages.EMAIL_VERIFIED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
-			result,
+			{
+				nextStep: result.nextStep,
+				restaurantId: result.restaurantId,
+				accessToken: result.accessToken,
+				access_token: result.accessToken,
+			},
 		);
 	}
 
@@ -122,7 +106,9 @@ export class RestaurantAuthController {
 			throw new InvalidRefreshTokenError();
 		}
 
-		const refreshToken = this.getCookie(req, "refreshToken");
+		const refreshToken =
+			this.getCookie(req, env.COOKIE_NAME_REFRESH_TOKEN) ||
+			this.getCookie(req, "refreshToken");
 
 		if (!refreshToken) {
 			throw new InvalidRefreshTokenError();
@@ -135,26 +121,30 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"Access token refreshed successfully.",
+			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
-			{ accessToken },
+			{
+				accessToken,
+				access_token: accessToken,
+			},
 		);
 	}
 
 	async onboard(req: Request, res: Response): Promise<Response> {
-		const authorizationHeader = req.headers.authorization;
+		const restaurantId = (req as Request & { user?: { restaurantId?: string } }).user?.restaurantId;
 
-		if (!authorizationHeader?.startsWith("Bearer ")) {
-			throw new InvalidVerificationTokenError();
+		if (!restaurantId) {
+			return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+				success: false,
+				message: "Unauthorized",
+			});
 		}
 
-		const verificationToken = authorizationHeader.substring(7);
-
-		await this.onboardRestaurantUseCase.execute(req.body, verificationToken);
+		await this.onboardRestaurantUseCase.execute(req.body, restaurantId);
 
 		return successResponse(
 			res,
-			"Restaurant registered successfully",
+			messages.RESTAURANT_REGISTRATION_SUCCESS,
 			HTTP_STATUS.CREATED,
 		);
 	}

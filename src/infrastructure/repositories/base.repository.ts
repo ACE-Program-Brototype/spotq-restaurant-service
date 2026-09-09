@@ -5,6 +5,7 @@ type PrismaModelDelegate<T> = {
 	create: (args: { data: Partial<T> }) => Promise<T>;
 	findUnique: (args: { where: Record<string, unknown> }) => Promise<T | null>;
 	findMany: () => Promise<T[]>;
+	update: (args: { where: Record<string, unknown>; data: Partial<T> }) => Promise<T>;
 };
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
@@ -41,5 +42,13 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
 	async find(): Promise<T[]> {
 		const model = this.getModel();
 		return model.findMany();
+	}
+
+	async update(id: string, data: Partial<T>): Promise<T> {
+		const model = this.getModel();
+		return model.update({
+			where: { id },
+			data,
+		});
 	}
 }

@@ -29,7 +29,7 @@ export class SendRestaurantEmailOtpUseCase
 		private readonly otpHashService: IOtpHashService,
 	) {}
 
-	async execute(dto: SendRestaurantEmailOtpDto) {
+	async execute(dto: SendRestaurantEmailOtpDto): Promise<void> {
 		const { email } = dto;
 
 		const isRateLimited = await this.otpService.checkSendRateLimit(email);
