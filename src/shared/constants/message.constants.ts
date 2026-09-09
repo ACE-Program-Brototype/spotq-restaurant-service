@@ -44,6 +44,12 @@ export const messages = {
 		"Too many token refresh requests. Please try again after 1 minute.",
 	RATE_LIMIT_INVITE_STAFF_EXCEEDED:
 		"Too many staff invitation requests. Please try again later.",
+	RATE_LIMIT_REVOKE_INVITATION_EXCEEDED:
+		"Too many invitation revocation attempts. Please try again later.",
+	RATE_LIMIT_VALIDATE_INVITATION_EXCEEDED:
+		"Too many invitation validation attempts. Please try again later.",
+	RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED:
+		"Too many invitation acceptance attempts. Please try again later.",
 	STAFF_NOT_FOUND: "Staff member not found",
 	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
 	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",

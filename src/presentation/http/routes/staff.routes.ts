@@ -10,6 +10,7 @@ import {
 	refreshTokenRateLimiter,
 	resendOtpRateLimiter,
 	resetPasswordRateLimiter,
+	revokeInvitationRateLimiter,
 	validateInvitationRateLimiter,
 	verifyOtpRateLimiter,
 } from "@/presentation/http/middleware/rate-limiter.middleware";
@@ -70,6 +71,7 @@ staffRouter.post(
 
 staffRouter.post(
 	STAFF_ROUTES.REVOKE_INVITATION,
+	revokeInvitationRateLimiter,
 	validateRequestBody(revokeInvitationSchema),
 	staffController.revokeInvitation,
 );

@@ -171,6 +171,33 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(60 * 60),
+
+	RATE_LIMIT_REVOKE_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_REVOKE_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_VALIDATE_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_VALIDATE_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_ACCEPT_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(10),
+	RATE_LIMIT_ACCEPT_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
 });
 
 export type Env = z.infer<typeof envSchema>;

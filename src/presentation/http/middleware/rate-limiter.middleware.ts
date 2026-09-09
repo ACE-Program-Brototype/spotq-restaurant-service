@@ -146,18 +146,25 @@ export const inviteStaffRateLimiter = createRateLimiter({
 
 export const validateInvitationRateLimiter = createRateLimiter({
 	prefix: "validate-invitation",
-	maxAttempts: 30,
-	windowSeconds: 900,
-	errorMessage:
-		"Too many invitation validation attempts. Please try again later.",
+	maxAttempts: env.RATE_LIMIT_VALIDATE_INVITATION_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_VALIDATE_INVITATION_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_VALIDATE_INVITATION_EXCEEDED,
 	keyGenerator: getClientIp,
 });
 
 export const acceptInvitationRateLimiter = createRateLimiter({
 	prefix: "accept-invitation",
-	maxAttempts: 10,
-	windowSeconds: 900,
-	errorMessage:
-		"Too many invitation acceptance attempts. Please try again later.",
+	maxAttempts: env.RATE_LIMIT_ACCEPT_INVITATION_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_ACCEPT_INVITATION_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED,
 	keyGenerator: getClientIp,
 });
+
+export const revokeInvitationRateLimiter = createRateLimiter({
+	prefix: "revoke-invitation",
+	maxAttempts: env.RATE_LIMIT_REVOKE_INVITATION_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_REVOKE_INVITATION_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_REVOKE_INVITATION_EXCEEDED,
+	keyGenerator: emailOrIpKeyGenerator,
+});
+
