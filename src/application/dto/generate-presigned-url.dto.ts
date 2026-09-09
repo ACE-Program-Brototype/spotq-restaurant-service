@@ -1,6 +1,15 @@
-import type { generatePresignedUrlSchema } from "@presentation/http/validators/generate-presigned-url.validator";
-import type z from "zod";
+import type { FileCategory } from "@/shared/storage/file-category.enum";
 
-export type GeneratePresignedUrlDto = z.infer<
-	typeof generatePresignedUrlSchema
->
+export interface GeneratePresignedUrlDto {
+	onboarding_id: string;
+	file_name: string;
+	content_type: string;
+	file_category: FileCategory;
+	file_size: number;
+}
+
+export interface GeneratePresignedUrlResponseDto {
+	uploadUrl: string;
+	s3ObjectKey: string;
+	expiresInSeconds: number;
+}

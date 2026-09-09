@@ -4,6 +4,7 @@ import { inject, injectable } from "inversify";
 import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-case/generate-presigned-url.use-case.port";
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
+import { messages } from "@/shared/constants/message.constants";
 import { successResponse } from "@/utils/response.model";
 
 @injectable()
@@ -23,7 +24,7 @@ export class StorageController {
 
 		return successResponse(
 			res,
-			"Presigned upload URL generated successfully.",
+			messages.PRESIGNED_URL_GENERATED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			result,
 		);
