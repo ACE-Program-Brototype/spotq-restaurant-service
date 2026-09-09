@@ -21,7 +21,7 @@ function getHeaderValue(
 }
 
 export function staffAuthMiddleware(
-	req: AuthenticatedRequest,
+	req: Request,
 	res: Response,
 	next: NextFunction,
 ): void {

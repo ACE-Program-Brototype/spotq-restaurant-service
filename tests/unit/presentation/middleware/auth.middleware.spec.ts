@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { env } from "@/config/env";
 import {
 	type AuthenticatedRequest,
+	type AuthenticatedStaff,
 	authMiddleware,
 	authenticate,
 } from "@/presentation/http/middleware/auth.middleware";
@@ -27,7 +27,7 @@ describe("auth.middleware authenticate", () => {
 	});
 
 	it("returns 401 Unauthorized if token is missing", () => {
-		authenticate(req, res, next);
+		authenticate(req as AuthenticatedRequest, res, next);
 
 		expect(res.status).toHaveBeenCalledWith(401);
 		expect(next).not.toHaveBeenCalled();
@@ -36,7 +36,7 @@ describe("auth.middleware authenticate", () => {
 	it("returns 401 Unauthorized if Bearer token is invalid", () => {
 		req.headers.authorization = "Bearer invalid-token";
 
-		authenticate(req, res, next);
+		authenticate(req as AuthenticatedRequest, res, next);
 
 		expect(res.status).toHaveBeenCalledWith(401);
 		expect(next).not.toHaveBeenCalled();
@@ -44,12 +44,12 @@ describe("auth.middleware authenticate", () => {
 
 	it("attaches decoded user payload and calls next() for valid Bearer token", () => {
 		const payload = { restaurantId: "res-123", email: "owner@spotq.com" };
-		const token = jwt.sign(payload, env.JWT_ACCESS_SECRET);
-		req.headers.authorization = `Bearer ${token}`;
+		jest.spyOn(jwt, "verify").mockReturnValue(payload as never);
+		req.headers.authorization = "Bearer valid-token";
 
-		authenticate(req, res, next);
+		authenticate(req as AuthenticatedRequest, res, next);
 
-		expect((req as Request & { user?: unknown }).user).toMatchObject(payload);
+		expect((req as AuthenticatedRequest).user).toMatchObject(payload);
 		expect(next).toHaveBeenCalled();
 	});
 });
@@ -78,13 +78,14 @@ describe("authMiddleware alias", () => {
 		};
 
 		authMiddleware(
-			mockReq as AuthenticatedRequest,
+			mockReq as unknown as Request,
 			mockRes as Response,
 			mockNext,
 		);
 
-		expect(mockReq.user?.userId).toBe("staff-uuid-123");
+		expect((mockReq.user as AuthenticatedStaff)?.userId).toBe("staff-uuid-123");
 		expect(mockReq.userId).toBe("staff-uuid-123");
 		expect(mockNext).toHaveBeenCalled();
 	});
 });
+

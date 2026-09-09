@@ -4,9 +4,10 @@ import { env } from "@/config/env";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { messages } from "@/shared/constants/message.constants";
 import { ApiResponse } from "@/shared/response/api-response";
+import type { AuthenticatedStaff } from "@/types/express.d";
 
 export interface AuthenticatedRequest extends Request {
-	user?: jwt.JwtPayload | string;
+	user?: jwt.JwtPayload | string | AuthenticatedStaff;
 }
 
 export const authenticate = (
@@ -33,7 +34,9 @@ export const authenticate = (
 	}
 
 	try {
-		const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET);
+		const decoded = jwt.verify(token, env.JWT_ACCESS_PUBLIC_KEY, {
+			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
+		});
 		req.user = decoded;
 		next();
 	} catch {
@@ -50,3 +53,4 @@ export const authenticate = (
 	}
 };
 export * from "./staff.auth.middleware.ts";
+
