@@ -24,9 +24,17 @@ export const STAFF_ROUTES = {
 	GET_PROFILE: "/profile/me",
 } as const;
 
+export const STORAGE_ROUTES = {
+    BASE: "/storage",
+    PRESIGNED_URL: "/presigned-url",
+} as const;
+
 export type RestaurantRoute =
 	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
 
 export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
 
 export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
+
+export type StorageRoute =
+    (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];

@@ -41,6 +41,10 @@ export const DOMAIN_ERROR_STATUS_MAP: Record<string, HttpStatusCode> = {
 	OtpCooldownActiveError: HTTP_STATUS.TOO_MANY_REQUESTS,
 	OtpVerificationAttemptsExceededError: HTTP_STATUS.TOO_MANY_REQUESTS,
 	RestaurantAccountBlockedError: HTTP_STATUS.FORBIDDEN,
+
+	UnsupportedFileCategoryError: HTTP_STATUS.BAD_REQUEST,
+	UnsupportedFileTypeError: HTTP_STATUS.BAD_REQUEST,
+	FileSizeExceededError: HTTP_STATUS.BAD_REQUEST
 };
 
 export function getStatusCodeForDomainError(

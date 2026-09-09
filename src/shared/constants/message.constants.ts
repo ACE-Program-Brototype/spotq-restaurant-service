@@ -8,6 +8,10 @@ export const messages = {
 	OTP_VERIFIED_SUCCESS: "OTP verified successfully",
 	OTP_RESENT_SUCCESS: "OTP resent to your email successfully",
 	PASSWORD_RESET_SUCCESS: "Password reset successfully",
+	PRESIGNED_URL_GENERATED_SUCCESS:
+		"Presigned upload URL generated successfully.",
+	PRESIGNED_GET_URL_GENERATED_SUCCESS:
+		"Presigned download URL generated successfully.",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",

@@ -11,7 +11,7 @@ import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
-import type { AuthenticatedRequest } from "@/presentation/http/middleware/auth.middleware.ts";
+import type { AuthenticatedRequest } from "@/presentation/http/middleware/staff.auth.middleware.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
@@ -191,10 +191,11 @@ export class StaffController {
 	};
 
 	public getProfile = async (
-		req: AuthenticatedRequest,
+		req: Request,
 		res: Response,
 	): Promise<void> => {
-		const staffId = req.user?.userId ?? req.userId;
+		const authReq = req as AuthenticatedRequest;
+		const staffId = authReq.user?.userId ?? authReq.userId;
 
 		if (!staffId) {
 			res

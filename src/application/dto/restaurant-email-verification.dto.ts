@@ -9,7 +9,7 @@ export interface VerifyRestaurantEmailOtpDto {
 
 export interface VerifyRestaurantEmailOtpResponseDto {
 	nextStep: "ONBOARDING" | "DASHBOARD";
-	verificationToken?: string;
-	accessToken?: string;
-	refreshToken?: string;
+	restaurantId: string;
+	accessToken: string;
+	refreshToken: string;
 }
