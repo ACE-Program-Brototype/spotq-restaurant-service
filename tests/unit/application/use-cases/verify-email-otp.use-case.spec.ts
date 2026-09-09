@@ -79,10 +79,10 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		mockRestaurantRepo.findByEmail.mockResolvedValue(null);
 		mockRestaurantRepo.createRestaurant.mockResolvedValue({
 			id: "res-123",
-			restaurantName: "",
+			restaurantName: "Pending Registration",
 			email: "new@restaurant.com",
-			phone: "",
-			ownerName: "",
+			phone: "0000000000",
+			ownerName: "Pending Owner",
 			ownerEmail: "new@restaurant.com",
 			status: "PENDING",
 			onboardingStatus: "PENDING",

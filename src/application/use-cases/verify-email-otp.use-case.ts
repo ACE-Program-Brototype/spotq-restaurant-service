@@ -67,10 +67,10 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		if (!restaurant) {
 			restaurant = await this.restaurantRepository.createRestaurant({
-				restaurantName: "",
+				restaurantName: "Pending Registration",
 				email,
-				phone: "",
-				ownerName: "",
+				phone: "0000000000",
+				ownerName: "Pending Owner",
 				ownerEmail: email,
 				emailVerifiedAt: new Date(),
 			});
