@@ -2,13 +2,12 @@ import { env } from "@config/env";
 import { messages } from "@shared/constants/message.constants";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
-import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
+import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { TYPES } from "@/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { successResponse } from "@/utils/response.model";
@@ -81,36 +80,20 @@ export class RestaurantAuthController {
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
-		if (result.nextStep === "DASHBOARD") {
-			const { accessToken, refreshToken, ...dashboardResult } = result;
-
-			if (!accessToken || !refreshToken) {
-				return successResponse(
-					res,
-					messages.EMAIL_VERIFIED_SUCCESS,
-					HTTP_STATUS.SUCCESS,
-					{ nextStep: dashboardResult.nextStep },
-				);
-			}
-
-			this.setRefreshCookies(res, refreshToken);
-
-			return successResponse(
-				res,
-				messages.EMAIL_VERIFIED_SUCCESS,
-				HTTP_STATUS.OK,
-				{
-					nextStep: dashboardResult.nextStep,
-					accessToken,
-				},
-			);
+		if (result.accessToken && result.refreshToken) {
+			this.setRefreshCookies(res, result.refreshToken);
 		}
 
 		return successResponse(
 			res,
 			messages.EMAIL_VERIFIED_SUCCESS,
-			HTTP_STATUS.OK,
-			result,
+			HTTP_STATUS.SUCCESS,
+			{
+				nextStep: result.nextStep,
+				restaurantId: result.restaurantId,
+				accessToken: result.accessToken,
+				refreshToken: result.refreshToken,
+			},
 		);
 	}
 
@@ -143,15 +126,16 @@ export class RestaurantAuthController {
 	}
 
 	async onboard(req: Request, res: Response): Promise<Response> {
-		const authorizationHeader = req.headers.authorization;
+		const restaurantId = (req as Request & { user?: { restaurantId?: string } }).user?.restaurantId;
 
-		if (!authorizationHeader?.startsWith("Bearer ")) {
-			throw new InvalidVerificationTokenError();
+		if (!restaurantId) {
+			return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+				success: false,
+				message: "Unauthorized",
+			});
 		}
 
-		const verificationToken = authorizationHeader.substring(7);
-
-		await this.onboardRestaurantUseCase.execute(req.body, verificationToken);
+		await this.onboardRestaurantUseCase.execute(req.body, restaurantId);
 
 		return successResponse(
 			res,

@@ -6,4 +6,6 @@ export interface IBaseRepository<T> {
 	findUnique(where: Record<string, unknown>): Promise<T | null>;
 
 	find(): Promise<T[]>;
+
+	update(id: string, data: Partial<T>): Promise<T>;
 }

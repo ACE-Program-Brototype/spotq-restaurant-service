@@ -1,51 +1,30 @@
-import { inject, injectable } from "inversify";
 import type { OnboardRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
-import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import { TYPES } from "@/di/types";
-import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
-import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exists.error";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
-
-		@inject(TYPES.Services.EmailVerification)
-		private readonly emailVerificationService: IEmailVerificationService,
 	) {}
 
 	async execute(
 		dto: OnboardRestaurantDto,
-		verificationToken: string,
+		restaurantId: string,
 	): Promise<void> {
-		const email =
-			await this.emailVerificationService.getVerifiedEmail(verificationToken);
+		const restaurant = await this.restaurantRepository.findById(restaurantId);
 
-		if (!email) {
-			throw new InvalidVerificationTokenError();
+		if (!restaurant) {
+			throw new Error("Restaurant not found");
 		}
 
-		const restaurantExists =
-			await this.restaurantRepository.existsByEmail(email);
-
-		if (restaurantExists) {
-			throw new RestaurantAlreadyExistsError();
-		}
-
-		await this.restaurantRepository.createRestaurant({
+		await this.restaurantRepository.update(restaurantId, {
 			restaurantName: dto.restaurantName,
-			email,
 			phone: dto.phone,
 			ownerName: dto.ownerName,
-			ownerEmail: email,
-			emailVerifiedAt: new Date(),
 		});
-
-		await this.emailVerificationService.deleteVerificationToken(
-			verificationToken,
-		);
 	}
 }

@@ -6,7 +6,10 @@ import type {
 } from "@/application/dto/generate-presigned-url.dto";
 import type { IFilePolicyValidator } from "@/application/ports/services/file-policy-validator.port";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
-import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-case/generate-presigned-url.use-case.port";
+import type {
+	AuthContext,
+	IGeneratePresignedUrlUseCase,
+} from "@/application/ports/use-case/generate-presigned-url.use-case.port";
 
 import { TYPES } from "@/di/types";
 
@@ -24,6 +27,7 @@ export class GeneratePresignedUrlUseCase
 
 	async execute(
 		dto: GeneratePresignedUrlDto,
+		authContext?: AuthContext,
 	): Promise<GeneratePresignedUrlResponseDto> {
 		this.filePolicyValidator.validate({
 			fileCategory: dto.file_category,
@@ -31,8 +35,21 @@ export class GeneratePresignedUrlUseCase
 			fileSize: dto.file_size,
 		});
 
+		const normalizedEntityType = this.sanitizeEntityType(dto.entity_type);
+		const sanitizedEntityId = this.sanitizeEntityId(dto.entity_id);
+
+		if (
+			authContext?.restaurantId &&
+			(normalizedEntityType === "restaurants" || normalizedEntityType === "restaurant")
+		) {
+			if (authContext.restaurantId !== sanitizedEntityId) {
+				throw new Error("Unauthorized entity access");
+			}
+		}
+
 		const s3ObjectKey = this.generateS3ObjectKey(
-			dto.onboarding_id,
+			normalizedEntityType,
+			sanitizedEntityId,
 			dto.file_category,
 			dto.file_name,
 		);
@@ -51,14 +68,31 @@ export class GeneratePresignedUrlUseCase
 	}
 
 	private generateS3ObjectKey(
-		onboarding_id: string,
+		entityType: string,
+		entityId: string,
 		fileCategory: string,
 		fileName: string,
 	): string {
 		const sanitizedFileName = this.sanitizeFileName(fileName);
 		const fileId = crypto.randomUUID();
 
-		return `restaurants/${onboarding_id}/${fileCategory.toLowerCase()}/${fileId}_${sanitizedFileName}`;
+		return `${entityType}/${entityId}/${fileCategory.toLowerCase()}/${fileId}_${sanitizedFileName}`;
+	}
+
+	private sanitizeEntityType(entityType: string): string {
+		const normalized = entityType.trim().toLowerCase();
+		if (/[/\\.]/.test(normalized) || normalized.includes("..")) {
+			throw new Error("Invalid entity_type");
+		}
+		return normalized.replace(/[^a-z0-9_-]/g, "");
+	}
+
+	private sanitizeEntityId(entityId: string): string {
+		const trimmed = entityId.trim();
+		if (/[/\\.]/.test(trimmed) || trimmed.includes("..")) {
+			throw new Error("Invalid entity_id");
+		}
+		return trimmed;
 	}
 
 	private sanitizeFileName(fileName: string): string {

@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import jwksRouter from "@presentation/http/routes/jwks.routes";
-import staffRouter from "@presentation/http/routes/staff.routes";
 import cookieParser from "cookie-parser";
 import express from "express";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware";
