@@ -1,4 +1,5 @@
 import {
+	OnboardingStatus,
 	PrismaClient,
 	RestaurantStatus,
 	StaffRole,
@@ -24,7 +25,8 @@ async function main() {
 			phone: "+1234567801",
 			ownerName: "John Owner",
 			ownerEmail: "owner@spotq.com",
-			status: RestaurantStatus.ACTIVE,
+			status: RestaurantStatus.APPROVED,
+			onboardingStatus: OnboardingStatus.COMPLETED,
 		},
 		{
 			id: "a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
@@ -33,7 +35,8 @@ async function main() {
 			phone: "+1234567802",
 			ownerName: "Sarah Owner",
 			ownerEmail: "sarah.owner@spotq.com",
-			status: RestaurantStatus.ACTIVE,
+			status: RestaurantStatus.APPROVED,
+			onboardingStatus: OnboardingStatus.COMPLETED,
 		},
 	];
 
@@ -47,6 +50,7 @@ async function main() {
 				ownerName: restaurant.ownerName,
 				ownerEmail: restaurant.ownerEmail,
 				status: restaurant.status,
+				onboardingStatus: restaurant.onboardingStatus,
 			},
 			create: restaurant,
 		});

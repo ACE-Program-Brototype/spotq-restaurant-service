@@ -11,6 +11,8 @@ import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-s
 import { TYPES } from "@/config/di/types.ts";
 import { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";
 import {
+	RestaurantAccountBlockedError,
+	RestaurantInactiveError,
 	RestaurantNotFoundError,
 	StaffAlreadyExistsError,
 	StaffInvitationAlreadyPendingError,
@@ -48,6 +50,16 @@ export class InviteStaffUseCase implements IInviteStaffUseCase {
 		const restaurant = await this.restaurantRepository.findById(restaurantId);
 		if (!restaurant) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError(
+				messages.RESTAURANT_ACCOUNT_BLOCKED,
+			);
+		}
+
+		if (!restaurant.statusVO.isActive() && !restaurant.statusVO.isApproved()) {
+			throw new RestaurantInactiveError(messages.RESTAURANT_INACTIVE);
 		}
 
 		const existingStaff =

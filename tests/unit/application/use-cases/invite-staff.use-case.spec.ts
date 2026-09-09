@@ -11,6 +11,8 @@ import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";
 import {
+	RestaurantAccountBlockedError,
+	RestaurantInactiveError,
 	RestaurantNotFoundError,
 	StaffAlreadyExistsError,
 	StaffInvitationAlreadyPendingError,
@@ -33,6 +35,7 @@ describe("InviteStaffUseCase", () => {
 		phone: "+1234567890",
 		ownerName: "John Owner",
 		ownerEmail: "owner@tastybites.com",
+		status: "ACTIVE",
 	});
 
 	beforeEach(() => {
@@ -42,6 +45,7 @@ describe("InviteStaffUseCase", () => {
 			findByEmail: jest.fn(),
 			findPendingByEmailAndRestaurant: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			findManyWithFilters: jest.fn(),
 			createStaffWithInvitation: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
@@ -137,6 +141,45 @@ describe("InviteStaffUseCase", () => {
 				restaurantId: "nonexistent-id",
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
+	});
+
+	it("should throw RestaurantAccountBlockedError when restaurant is blocked", async () => {
+		const blockedRestaurant = Restaurant.create({
+			restaurantName: "Blocked Bistro",
+			email: "blocked@bistro.com",
+			phone: "+1234567890",
+			ownerName: "Blocked Owner",
+			ownerEmail: "blocked@bistro.com",
+			status: "ACTIVE",
+			isBlocked: true,
+		});
+		restaurantRepository.findById.mockResolvedValue(blockedRestaurant);
+
+		await expect(
+			useCase.execute({
+				email: "newstaff@tastybites.com",
+				restaurantId: blockedRestaurant.id,
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
+	});
+
+	it("should throw RestaurantInactiveError when restaurant status is not ACTIVE or APPROVED", async () => {
+		const pendingRestaurant = Restaurant.create({
+			restaurantName: "Pending Bistro",
+			email: "pending@bistro.com",
+			phone: "+1234567890",
+			ownerName: "Pending Owner",
+			ownerEmail: "pending@bistro.com",
+			status: "PENDING",
+		});
+		restaurantRepository.findById.mockResolvedValue(pendingRestaurant);
+
+		await expect(
+			useCase.execute({
+				email: "newstaff@tastybites.com",
+				restaurantId: pendingRestaurant.id,
+			}),
+		).rejects.toThrow(RestaurantInactiveError);
 	});
 
 	it("should throw StaffAlreadyExistsError when staff member already exists", async () => {

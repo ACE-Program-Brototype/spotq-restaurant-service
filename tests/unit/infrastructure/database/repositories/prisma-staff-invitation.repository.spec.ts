@@ -8,17 +8,17 @@ import { PrismaStaffInvitationRepository } from "@/infrastructure/database/repos
 describe("PrismaStaffInvitationRepository", () => {
 	let mockPrisma: {
 		staffInvitation: {
-			findUnique: jest.Mock;
-			findFirst: jest.Mock;
-			findMany: jest.Mock;
-			upsert: jest.Mock;
-			count: jest.Mock;
-			delete: jest.Mock;
+			findUnique: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+			findFirst: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+			findMany: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+			upsert: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+			count: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+			delete: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 		};
 		restaurantStaff: {
-			upsert: jest.Mock;
+			upsert: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 		};
-		$transaction: jest.Mock;
+		$transaction: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 	};
 	let repository: PrismaStaffInvitationRepository;
 

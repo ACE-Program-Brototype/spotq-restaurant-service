@@ -10,6 +10,8 @@ import type { IInvitationTokenService } from "@/application/ports/services/invit
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
+	RestaurantAccountBlockedError,
+	RestaurantInactiveError,
 	RestaurantNotFoundError,
 	StaffAlreadyExistsError,
 	StaffInvitationNotFoundError,
@@ -49,7 +51,17 @@ export class ResendStaffInvitationUseCase
 			dto.restaurantId,
 		);
 		if (!restaurant) {
-			throw new RestaurantNotFoundError();
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError(
+				messages.RESTAURANT_ACCOUNT_BLOCKED,
+			);
+		}
+
+		if (!restaurant.statusVO.isActive() && !restaurant.statusVO.isApproved()) {
+			throw new RestaurantInactiveError(messages.RESTAURANT_INACTIVE);
 		}
 
 		const existingStaff = await this.staffRepository.findByEmail(emailVO.value);

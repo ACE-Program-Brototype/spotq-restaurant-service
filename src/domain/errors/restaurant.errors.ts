@@ -32,3 +32,18 @@ export class InvalidOnboardingStatusError extends DomainError {
 		super(message);
 	}
 }
+
+export class RestaurantAccountBlockedError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.RESTAURANT_ACCOUNT_BLOCKED;
+	constructor(message: string = messages.RESTAURANT_ACCOUNT_BLOCKED) {
+		super(message);
+	}
+}
+
+export class RestaurantInactiveError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.RESTAURANT_INACTIVE;
+	constructor(message: string = messages.RESTAURANT_INACTIVE) {
+		super(message);
+	}
+}
+

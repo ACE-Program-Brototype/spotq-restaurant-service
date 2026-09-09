@@ -3,7 +3,11 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import { ListStaffInvitationsUseCase } from "@/application/use-cases/staff/list-staff-invitations.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/staff.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantInactiveError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/staff.errors.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 
 describe("ListStaffInvitationsUseCase", () => {
@@ -17,6 +21,7 @@ describe("ListStaffInvitationsUseCase", () => {
 		phone: "+1234567890",
 		ownerName: "John Owner",
 		ownerEmail: "owner@tastybites.com",
+		status: "ACTIVE",
 	});
 
 	const mockInvitation = StaffInvitation.create({
@@ -64,6 +69,43 @@ describe("ListStaffInvitationsUseCase", () => {
 				restaurantId: "non-existent-id",
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
+	});
+
+	it("should throw RestaurantAccountBlockedError when restaurant is blocked", async () => {
+		const blockedRestaurant = Restaurant.create({
+			restaurantName: "Blocked Bistro",
+			email: "blocked@bistro.com",
+			phone: "+1234567890",
+			ownerName: "Blocked Owner",
+			ownerEmail: "blocked@bistro.com",
+			status: "ACTIVE",
+			isBlocked: true,
+		});
+		restaurantRepository.findById.mockResolvedValue(blockedRestaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId: blockedRestaurant.id,
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
+	});
+
+	it("should throw RestaurantInactiveError when restaurant status is not ACTIVE or APPROVED", async () => {
+		const inactiveRestaurant = Restaurant.create({
+			restaurantName: "Inactive Bistro",
+			email: "inactive@bistro.com",
+			phone: "+1234567890",
+			ownerName: "Inactive Owner",
+			ownerEmail: "inactive@bistro.com",
+			status: "INACTIVE",
+		});
+		restaurantRepository.findById.mockResolvedValue(inactiveRestaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId: inactiveRestaurant.id,
+			}),
+		).rejects.toThrow(RestaurantInactiveError);
 	});
 
 	it("should list invitations with default pagination and sorting when options are omitted", async () => {

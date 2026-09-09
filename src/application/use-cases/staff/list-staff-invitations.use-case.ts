@@ -6,7 +6,11 @@ import type {
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/staff.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantInactiveError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/staff.errors.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -34,6 +38,16 @@ export class ListStaffInvitationsUseCase
 		const restaurant = await this.restaurantRepository.findById(restaurantId);
 		if (!restaurant) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError(
+				messages.RESTAURANT_ACCOUNT_BLOCKED,
+			);
+		}
+
+		if (!restaurant.statusVO.isActive() && !restaurant.statusVO.isApproved()) {
+			throw new RestaurantInactiveError(messages.RESTAURANT_INACTIVE);
 		}
 
 		const page = dto.page && dto.page > 0 ? dto.page : DEFAULT_PAGE;

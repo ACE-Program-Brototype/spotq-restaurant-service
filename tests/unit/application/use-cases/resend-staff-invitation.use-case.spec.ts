@@ -10,6 +10,8 @@ import { ResendStaffInvitationUseCase } from "@/application/use-cases/staff/rese
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";
 import {
+	RestaurantAccountBlockedError,
+	RestaurantInactiveError,
 	RestaurantNotFoundError,
 	StaffInvitationNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
@@ -31,6 +33,7 @@ describe("ResendStaffInvitationUseCase", () => {
 		phone: "+1234567890",
 		ownerName: "John Owner",
 		ownerEmail: "owner@tastybites.com",
+		status: "ACTIVE",
 	});
 
 	beforeEach(() => {
@@ -40,6 +43,7 @@ describe("ResendStaffInvitationUseCase", () => {
 			findByEmail: jest.fn(),
 			findPendingByEmailAndRestaurant: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			findManyWithFilters: jest.fn(),
 			createStaffWithInvitation: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
@@ -131,6 +135,45 @@ describe("ResendStaffInvitationUseCase", () => {
 				email: "staff@tastybites.com",
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
+	});
+
+	it("should throw RestaurantAccountBlockedError when restaurant is blocked", async () => {
+		const blockedRestaurant = Restaurant.create({
+			restaurantName: "Blocked Bistro",
+			email: "blocked@bistro.com",
+			phone: "+1234567890",
+			ownerName: "Blocked Owner",
+			ownerEmail: "blocked@bistro.com",
+			status: "ACTIVE",
+			isBlocked: true,
+		});
+		restaurantRepository.findById.mockResolvedValue(blockedRestaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId: blockedRestaurant.id,
+				email: "staff@tastybites.com",
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
+	});
+
+	it("should throw RestaurantInactiveError when restaurant status is not ACTIVE or APPROVED", async () => {
+		const suspendedRestaurant = Restaurant.create({
+			restaurantName: "Suspended Bistro",
+			email: "suspended@bistro.com",
+			phone: "+1234567890",
+			ownerName: "Suspended Owner",
+			ownerEmail: "suspended@bistro.com",
+			status: "SUSPENDED",
+		});
+		restaurantRepository.findById.mockResolvedValue(suspendedRestaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId: suspendedRestaurant.id,
+				email: "staff@tastybites.com",
+			}),
+		).rejects.toThrow(RestaurantInactiveError);
 	});
 
 	it("should ignore already accepted invitations and throw StaffInvitationNotFoundError if no renewable invitation exists", async () => {
