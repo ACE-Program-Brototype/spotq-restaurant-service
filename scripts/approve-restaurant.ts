@@ -1,9 +1,16 @@
-import { OnboardingStatus, PrismaClient, RestaurantStatus } from "@prisma/client";
+import {
+	OnboardingStatus,
+	PrismaClient,
+	RestaurantStatus,
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-	const email = process.argv[2] || process.env.TEST_RESTAURANT_EMAIL || "ajexjoshywork@gmail.com";
+	const email =
+		process.argv[2] ||
+		process.env.TEST_RESTAURANT_EMAIL ||
+		"ajexjoshywork@gmail.com";
 
 	console.log(`\nFinding/Updating restaurant for email: ${email}...`);
 
@@ -33,7 +40,9 @@ async function main() {
 		},
 	});
 
-	console.log("\nRestaurant successfully approved and ready for subscription testing.");
+	console.log(
+		"\nRestaurant successfully approved and ready for subscription testing.",
+	);
 	console.log("------------------------------------------------------------");
 	console.log(`Restaurant ID:        ${restaurant.id}`);
 	console.log(`Restaurant Name:      ${restaurant.restaurantName}`);

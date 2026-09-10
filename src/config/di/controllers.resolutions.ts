@@ -10,9 +10,10 @@ export const restaurantAuthController = container.get<RestaurantAuthController>(
 	TYPES.Controller.RestaurantAuthController,
 );
 
-export const restaurantStatusController = container.get<RestaurantStatusController>(
-	TYPES.Controller.RestaurantStatusController,
-);
+export const restaurantStatusController =
+	container.get<RestaurantStatusController>(
+		TYPES.Controller.RestaurantStatusController,
+	);
 
 export const storageController = container.get<StorageController>(
 	TYPES.Controller.StorageController,

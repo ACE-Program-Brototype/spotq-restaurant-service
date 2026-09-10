@@ -1,3 +1,4 @@
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type {
 	RefreshTokenDTO,
@@ -8,7 +9,6 @@ import type {
 	StaffTokenPayload,
 } from "@/application/ports/services/token-service.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
-import { TYPES } from "@di/types.ts";
 import {
 	InvalidRefreshTokenError,
 	RevokedTokenError,
@@ -49,8 +49,12 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 			throw new InvalidRefreshTokenError();
 		}
 
-		const staffId = (payload as unknown as { sub?: string; id?: string }).sub ?? (payload as unknown as { id?: string }).id;
-		const staff = await this.restaurantStaffRepository.findById(staffId as string);
+		const staffId =
+			(payload as unknown as { sub?: string; id?: string }).sub ??
+			(payload as unknown as { id?: string }).id;
+		const staff = await this.restaurantStaffRepository.findById(
+			staffId as string,
+		);
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}

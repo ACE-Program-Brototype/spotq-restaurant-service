@@ -1,6 +1,6 @@
-import { Router } from "express";
 import { container } from "@di/container";
 import { TYPES } from "@di/types";
+import { Router } from "express";
 import type { StaffController } from "@/presentation/http/controllers/staff.controller";
 import {
 	acceptInvitationRateLimiter,

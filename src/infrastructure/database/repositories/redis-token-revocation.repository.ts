@@ -1,9 +1,9 @@
 import crypto from "node:crypto";
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type { Redis } from "ioredis";
 import jwt from "jsonwebtoken";
 import { env } from "@/config/env.ts";
-import { TYPES } from "@di/types.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 

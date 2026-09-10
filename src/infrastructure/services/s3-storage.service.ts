@@ -1,7 +1,7 @@
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { s3Client } from "@infrastructure/storage/s3.client";
 import { injectable } from "inversify";
-
 import type {
 	GeneratePresignedGetUrlInput,
 	GeneratePresignedGetUrlResult,
@@ -10,7 +10,6 @@ import type {
 	IStorageService,
 } from "@/application/ports/services/storage.service.port";
 import { env } from "@/config/env";
-import { s3Client } from "@infrastructure/storage/s3.client";
 
 @injectable()
 export class S3StorageService implements IStorageService {

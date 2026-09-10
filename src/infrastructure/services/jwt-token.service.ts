@@ -9,7 +9,8 @@ import { env } from "@/config/env.ts";
 
 @injectable()
 export class JwtTokenService implements ITokenService {
-	private readonly privateKey = env.JWT_PRIVATE_KEY || env.JWT_ACCESS_PRIVATE_KEY;
+	private readonly privateKey =
+		env.JWT_PRIVATE_KEY || env.JWT_ACCESS_PRIVATE_KEY;
 	private readonly publicKey = env.JWT_PUBLIC_KEY || env.JWT_ACCESS_PUBLIC_KEY;
 	private readonly keyId = env.JWT_KEY_ID || env.JWT_ACCESS_TOKEN_KEY_ID;
 	private readonly algorithm = (env.JWT_ALGORITHM || "RS256") as jwt.Algorithm;

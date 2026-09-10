@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type { Redis } from "ioredis";
-import { TYPES } from "@di/types.ts";
 import type { IOtpRepository } from "@/domain/repositories/otp.repository.interface.ts";
 
 @injectable()

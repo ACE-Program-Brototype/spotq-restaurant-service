@@ -1,3 +1,4 @@
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { LoginStaffResponseDTO } from "@/application/dtos/staff/staff-response.dto.ts";
@@ -9,7 +10,6 @@ import type {
 	StaffTokenPayload,
 } from "@/application/ports/services/token-service.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
-import { TYPES } from "@di/types.ts";
 import {
 	InvalidCredentialsError,
 	RestaurantAccountBlockedError,

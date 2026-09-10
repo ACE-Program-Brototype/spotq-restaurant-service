@@ -78,65 +78,71 @@ const envSchema = z.object({
 
 	OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
 
-	JWT_ACCESS_PRIVATE_KEY: z.preprocess(
-		(val) => {
-			if (typeof val === "string" && val.trim().length > 0) {
-				return val.replace(/\\n/g, "\n").trim();
-			}
-			if (typeof process.env.JWT_PRIVATE_KEY === "string" && process.env.JWT_PRIVATE_KEY.trim().length > 0) {
-				return process.env.JWT_PRIVATE_KEY.replace(/\\n/g, "\n").trim();
-			}
-			return getTestKeyPair().privateKey;
-		},
-		z.string().min(1),
-	),
+	JWT_ACCESS_PRIVATE_KEY: z.preprocess((val) => {
+		if (typeof val === "string" && val.trim().length > 0) {
+			return val.replace(/\\n/g, "\n").trim();
+		}
+		if (
+			typeof process.env.JWT_PRIVATE_KEY === "string" &&
+			process.env.JWT_PRIVATE_KEY.trim().length > 0
+		) {
+			return process.env.JWT_PRIVATE_KEY.replace(/\\n/g, "\n").trim();
+		}
+		return getTestKeyPair().privateKey;
+	}, z.string().min(1)),
 
-	JWT_ACCESS_PUBLIC_KEY: z.preprocess(
-		(val) => {
-			if (typeof val === "string" && val.trim().length > 0) {
-				return val.replace(/\\n/g, "\n").trim();
-			}
-			if (typeof process.env.JWT_PUBLIC_KEY === "string" && process.env.JWT_PUBLIC_KEY.trim().length > 0) {
-				return process.env.JWT_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
-			}
-			return getTestKeyPair().publicKey;
-		},
-		z.string().min(1),
-	),
+	JWT_ACCESS_PUBLIC_KEY: z.preprocess((val) => {
+		if (typeof val === "string" && val.trim().length > 0) {
+			return val.replace(/\\n/g, "\n").trim();
+		}
+		if (
+			typeof process.env.JWT_PUBLIC_KEY === "string" &&
+			process.env.JWT_PUBLIC_KEY.trim().length > 0
+		) {
+			return process.env.JWT_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
+		}
+		return getTestKeyPair().publicKey;
+	}, z.string().min(1)),
 
 	JWT_ACCESS_TOKEN_KEY_ID: z.preprocess(
-		(val) => (typeof val === "string" && val.trim().length > 0 ? val.trim() : process.env.JWT_KEY_ID ?? "spotq-main-key"),
+		(val) =>
+			typeof val === "string" && val.trim().length > 0
+				? val.trim()
+				: (process.env.JWT_KEY_ID ?? "spotq-main-key"),
 		z.string().min(1),
 	),
 
-	JWT_PRIVATE_KEY: z.preprocess(
-		(val) => {
-			if (typeof val === "string" && val.trim().length > 0) {
-				return val.replace(/\\n/g, "\n").trim();
-			}
-			if (typeof process.env.JWT_ACCESS_PRIVATE_KEY === "string" && process.env.JWT_ACCESS_PRIVATE_KEY.trim().length > 0) {
-				return process.env.JWT_ACCESS_PRIVATE_KEY.replace(/\\n/g, "\n").trim();
-			}
-			return getTestKeyPair().privateKey;
-		},
-		z.string().min(1),
-	),
+	JWT_PRIVATE_KEY: z.preprocess((val) => {
+		if (typeof val === "string" && val.trim().length > 0) {
+			return val.replace(/\\n/g, "\n").trim();
+		}
+		if (
+			typeof process.env.JWT_ACCESS_PRIVATE_KEY === "string" &&
+			process.env.JWT_ACCESS_PRIVATE_KEY.trim().length > 0
+		) {
+			return process.env.JWT_ACCESS_PRIVATE_KEY.replace(/\\n/g, "\n").trim();
+		}
+		return getTestKeyPair().privateKey;
+	}, z.string().min(1)),
 
-	JWT_PUBLIC_KEY: z.preprocess(
-		(val) => {
-			if (typeof val === "string" && val.trim().length > 0) {
-				return val.replace(/\\n/g, "\n").trim();
-			}
-			if (typeof process.env.JWT_ACCESS_PUBLIC_KEY === "string" && process.env.JWT_ACCESS_PUBLIC_KEY.trim().length > 0) {
-				return process.env.JWT_ACCESS_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
-			}
-			return getTestKeyPair().publicKey;
-		},
-		z.string().min(1),
-	),
+	JWT_PUBLIC_KEY: z.preprocess((val) => {
+		if (typeof val === "string" && val.trim().length > 0) {
+			return val.replace(/\\n/g, "\n").trim();
+		}
+		if (
+			typeof process.env.JWT_ACCESS_PUBLIC_KEY === "string" &&
+			process.env.JWT_ACCESS_PUBLIC_KEY.trim().length > 0
+		) {
+			return process.env.JWT_ACCESS_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
+		}
+		return getTestKeyPair().publicKey;
+	}, z.string().min(1)),
 
 	JWT_KEY_ID: z.preprocess(
-		(val) => (typeof val === "string" && val.trim().length > 0 ? val.trim() : process.env.JWT_ACCESS_TOKEN_KEY_ID ?? "spotq-main-key"),
+		(val) =>
+			typeof val === "string" && val.trim().length > 0
+				? val.trim()
+				: (process.env.JWT_ACCESS_TOKEN_KEY_ID ?? "spotq-main-key"),
 		z.string().trim().default("spotq-main-key"),
 	),
 
@@ -145,12 +151,18 @@ const envSchema = z.object({
 	JWT_ALGORITHM: z.enum(["RS256", "RS384", "RS512"]).default("RS256"),
 
 	JWT_ACCESS_SECRET: z.preprocess(
-		(val) => (typeof val === "string" && val.trim().length >= 16 ? val.trim() : "default_access_secret_for_signing_jwt_tokens_min_32_chars"),
+		(val) =>
+			typeof val === "string" && val.trim().length >= 16
+				? val.trim()
+				: "default_access_secret_for_signing_jwt_tokens_min_32_chars",
 		z.string().trim().min(16),
 	),
 
 	JWT_REFRESH_SECRET: z.preprocess(
-		(val) => (typeof val === "string" && val.trim().length >= 16 ? val.trim() : "default_refresh_secret_for_signing_jwt_tokens_min_32_chars"),
+		(val) =>
+			typeof val === "string" && val.trim().length >= 16
+				? val.trim()
+				: "default_refresh_secret_for_signing_jwt_tokens_min_32_chars",
 		z.string().trim().min(16),
 	),
 

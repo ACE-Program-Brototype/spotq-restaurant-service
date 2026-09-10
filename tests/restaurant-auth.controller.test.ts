@@ -3,8 +3,8 @@ import { test } from "@jest/globals";
 import type { Request, Response } from "express";
 
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
-import { messages } from "@/shared/constants/message.constants";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
+import { messages } from "@/shared/constants/message.constants";
 
 test("refreshAccessToken rejects a missing refresh cookie with InvalidRefreshTokenError", async () => {
 	const controller = new RestaurantAuthController(
@@ -73,7 +73,11 @@ test("onboard executes use case and returns 201 with restaurantId", async () => 
 
 	const req = {
 		headers: { "x-restaurant-id": "rest-123" },
-		body: { restaurantName: "The Grill", phone: "9876543210", ownerName: "John" },
+		body: {
+			restaurantName: "The Grill",
+			phone: "9876543210",
+			ownerName: "John",
+		},
 	} as unknown as Request;
 
 	const res = {

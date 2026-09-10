@@ -1,3 +1,4 @@
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
@@ -5,7 +6,6 @@ import type {
 	ActivateSubscriptionInput,
 	IActivateSubscriptionUseCase,
 } from "@/application/ports/use-cases/activate-subscription.use-case.port.ts";
-import { TYPES } from "@di/types.ts";
 
 @injectable()
 export class ActivateSubscriptionUseCase
@@ -36,7 +36,10 @@ export class ActivateSubscriptionUseCase
 		if (targetEmail) {
 			await this.emailQueuePort.sendSubscriptionActivatedEmail({
 				to: targetEmail,
-				ownerName: restaurant?.ownerName || restaurant?.restaurantName || "Valued Partner",
+				ownerName:
+					restaurant?.ownerName ||
+					restaurant?.restaurantName ||
+					"Valued Partner",
 				restaurantName: restaurant?.restaurantName || "Your Restaurant",
 				planCode,
 				subscriptionEndsAt: new Date(currentPeriodEnd),

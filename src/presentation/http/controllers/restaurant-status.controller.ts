@@ -1,7 +1,7 @@
+import { TYPES } from "@di/types.ts";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
-import { TYPES } from "@di/types.ts";
 import { ERROR_CODES } from "@/shared/constants/error-code.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";

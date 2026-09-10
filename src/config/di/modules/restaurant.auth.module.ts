@@ -2,9 +2,9 @@ import { ContainerModule } from "inversify";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IEmailService } from "@/application/ports/services/email-service.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
-import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port";
@@ -23,8 +23,8 @@ import { TYPES } from "@/config/di/types";
 import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
 import { AuthTokenService } from "@/infrastructure/services/auth-token.service";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
-import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 import { OtpService } from "@/infrastructure/services/otp.service";
+import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
@@ -69,15 +69,11 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 		.to(OnboardRestaurantUseCase)
 		.inSingletonScope();
 
-	bind<IGetRestaurantStatusUseCase>(
-		TYPES.UseCases.GetRestaurantStatusUseCase,
-	)
+	bind<IGetRestaurantStatusUseCase>(TYPES.UseCases.GetRestaurantStatusUseCase)
 		.to(GetRestaurantStatusUseCase)
 		.inSingletonScope();
 
-	bind<IActivateSubscriptionUseCase>(
-		TYPES.UseCases.ActivateSubscriptionUseCase,
-	)
+	bind<IActivateSubscriptionUseCase>(TYPES.UseCases.ActivateSubscriptionUseCase)
 		.to(ActivateSubscriptionUseCase)
 		.inSingletonScope();
 
@@ -87,9 +83,7 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 		.inSingletonScope();
 
 	// Services
-	bind<IOtpStore>(TYPES.Services.OtpStore)
-		.to(RedisOtpStore)
-		.inSingletonScope();
+	bind<IOtpStore>(TYPES.Services.OtpStore).to(RedisOtpStore).inSingletonScope();
 
 	bind<IEmailService>(TYPES.Services.Brevo_Email)
 		.to(BrevoEmailService)

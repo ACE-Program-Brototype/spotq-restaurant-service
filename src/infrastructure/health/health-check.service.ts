@@ -1,7 +1,7 @@
+import { TYPES } from "@di/types.ts";
 import type { PrismaClient } from "@prisma/client";
 import { inject, injectable } from "inversify";
 import redis from "@/config/redis.ts";
-import { TYPES } from "@di/types.ts";
 import { emailQueue } from "@/infrastructure/queue/email.queue.ts";
 
 export interface HealthCheckResult {
