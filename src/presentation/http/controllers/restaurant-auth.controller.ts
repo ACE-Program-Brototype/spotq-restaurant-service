@@ -48,23 +48,13 @@ export class RestaurantAuthController {
 		return cookies[name];
 	}
 
-	private setAccessAndRefreshCookies(
-		res: Response,
-		accessToken: string,
-		refreshToken: string,
-	) {
-		res.cookie("accessToken", accessToken, {
-			httpOnly: env.COOKIE_HTTP_ONLY,
-			secure: env.COOKIE_SECURE,
-			sameSite: env.COOKIE_SAME_SITE,
-			maxAge: 15 * 60 * 1000,
-		});
-
+	private setRefreshCookie(res: Response, refreshToken: string) {
 		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN || "refreshToken", refreshToken, {
 			httpOnly: env.COOKIE_HTTP_ONLY,
 			secure: env.COOKIE_SECURE,
 			sameSite: env.COOKIE_SAME_SITE,
 			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH || "/",
 		});
 	}
 
@@ -91,12 +81,8 @@ export class RestaurantAuthController {
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
-		if (result.accessToken && result.refreshToken) {
-			this.setAccessAndRefreshCookies(
-				res,
-				result.accessToken,
-				result.refreshToken,
-			);
+		if (result.refreshToken) {
+			this.setRefreshCookie(res, result.refreshToken);
 		}
 
 		return successResponse(
@@ -106,6 +92,7 @@ export class RestaurantAuthController {
 			{
 				nextStep: result.nextStep,
 				restaurantId: result.restaurantId,
+				accessToken: result.accessToken,
 				access_token: result.accessToken,
 			},
 		);
@@ -133,18 +120,12 @@ export class RestaurantAuthController {
 				refreshToken,
 			});
 
-		res.cookie("accessToken", accessToken, {
-			httpOnly: env.COOKIE_HTTP_ONLY,
-			secure: env.COOKIE_SECURE,
-			sameSite: env.COOKIE_SAME_SITE,
-			maxAge: 15 * 60 * 1000,
-		});
-
 		return successResponse(
 			res,
 			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			{
+				accessToken,
 				access_token: accessToken,
 			},
 		);
