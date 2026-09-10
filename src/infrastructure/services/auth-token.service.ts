@@ -6,6 +6,7 @@ import type {
 	TokenPair,
 } from "@/application/ports/services/auth-token.service.port";
 import { env } from "@/config/env";
+import { AUTH_ROLES, TOKEN_TYPES } from "@/shared/constants/auth.constants";
 
 @injectable()
 export class AuthTokenService implements IAuthTokenService {
@@ -13,7 +14,7 @@ export class AuthTokenService implements IAuthTokenService {
 		const claims = {
 			sub: payload.restaurantId,
 			email: payload.email,
-			role: "restaurant_owner",
+			role: AUTH_ROLES.RESTAURANT_OWNER,
 			restaurantId: payload.restaurantId,
 		};
 
@@ -30,9 +31,9 @@ export class AuthTokenService implements IAuthTokenService {
 		const claims = {
 			sub: payload.restaurantId,
 			email: payload.email,
-			role: "restaurant_owner",
+			role: AUTH_ROLES.RESTAURANT_OWNER,
 			restaurantId: payload.restaurantId,
-			type: "refresh",
+			type: TOKEN_TYPES.REFRESH,
 		};
 
 		return jwt.sign(claims, env.JWT_REFRESH_SECRET, {
