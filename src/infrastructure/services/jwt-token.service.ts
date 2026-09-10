@@ -9,7 +9,10 @@ import { env } from "@/config/env.ts";
 
 @injectable()
 export class JwtTokenService implements ITokenService {
-	private readonly accessSecret = env.JWT_ACCESS_SECRET;
+	private readonly privateKey = env.JWT_PRIVATE_KEY;
+	private readonly publicKey = env.JWT_PUBLIC_KEY;
+	private readonly keyId = env.JWT_KEY_ID;
+	private readonly algorithm = env.JWT_ALGORITHM;
 	private readonly accessExpiresIn = env.JWT_ACCESS_EXPIRES_IN;
 	private readonly refreshSecret = env.JWT_REFRESH_SECRET;
 	private readonly refreshExpiresIn = env.JWT_REFRESH_EXPIRES_IN;
@@ -17,9 +20,21 @@ export class JwtTokenService implements ITokenService {
 	private readonly tempExpiresIn = env.JWT_TEMP_EXPIRES_IN;
 
 	public generateAccessToken(payload: StaffTokenPayload): string {
-		return jwt.sign(payload, this.accessSecret, {
+		const claims = {
+			sub: payload.id,
+			id: payload.id,
+			restaurantId: payload.restaurantId,
+			email: payload.email,
+			role: payload.role,
+		};
+
+		const signOptions: jwt.SignOptions = {
+			algorithm: this.algorithm,
+			keyid: this.keyId,
 			expiresIn: this.accessExpiresIn as jwt.SignOptions["expiresIn"],
-		});
+		};
+
+		return jwt.sign(claims, this.privateKey, signOptions);
 	}
 
 	public generateRefreshToken(payload: StaffTokenPayload): string {
@@ -29,7 +44,16 @@ export class JwtTokenService implements ITokenService {
 	}
 
 	public verifyAccessToken(token: string): StaffTokenPayload {
-		return jwt.verify(token, this.accessSecret) as StaffTokenPayload;
+		const decoded = jwt.verify(token, this.publicKey, {
+			algorithms: [this.algorithm],
+		}) as StaffTokenPayload & { sub?: string };
+
+		return {
+			id: decoded.id ?? decoded.sub ?? "",
+			restaurantId: decoded.restaurantId ?? "",
+			email: decoded.email ?? "",
+			role: decoded.role ?? "",
+		};
 	}
 
 	public verifyRefreshToken(token: string): StaffTokenPayload {

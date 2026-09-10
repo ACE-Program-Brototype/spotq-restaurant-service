@@ -108,7 +108,7 @@ export class RestaurantAuthController {
 				res,
 				"Email verified successfully.",
 				HTTP_STATUS.SUCCESS,
-				{ nextStep: dashboardResult.nextStep },
+				{ nextStep: dashboardResult.nextStep, accessToken },
 			);
 		}
 
@@ -163,12 +163,25 @@ export class RestaurantAuthController {
 
 		const verificationToken = authorizationHeader.substring(7);
 
-		await this.onboardRestaurantUseCase.execute(req.body, verificationToken);
+		const result = await this.onboardRestaurantUseCase.execute(
+			req.body,
+			verificationToken,
+		);
+
+		this.setAccessAndRefreshCookies(
+			res,
+			result.accessToken,
+			result.refreshToken,
+		);
 
 		return successResponse(
 			res,
 			"Restaurant registered successfully",
 			HTTP_STATUS.CREATED,
+			{
+				restaurant: result.restaurant,
+				accessToken: result.accessToken,
+			},
 		);
 	}
 }

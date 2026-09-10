@@ -1,8 +1,12 @@
 import { inject, injectable } from "inversify";
 import type { OnboardRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
-import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
+import type {
+	IOnboardRestaurantUseCase,
+	OnboardRestaurantResult,
+} from "@/application/ports/use-case/onboard-restaurant.use-case.port";
 import { TYPES } from "@/di/types";
 import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
 import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exists.error";
@@ -15,12 +19,15 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 
 		@inject(TYPES.Services.EmailVerification)
 		private readonly emailVerificationService: IEmailVerificationService,
+
+		@inject(TYPES.Services.AuthTokenService)
+		private readonly authTokenService: IAuthTokenService,
 	) {}
 
 	async execute(
 		dto: OnboardRestaurantDto,
 		verificationToken: string,
-	): Promise<void> {
+	): Promise<OnboardRestaurantResult> {
 		const email =
 			await this.emailVerificationService.getVerifiedEmail(verificationToken);
 
@@ -35,7 +42,7 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 			throw new RestaurantAlreadyExistsError();
 		}
 
-		await this.restaurantRepository.createRestaurant({
+		const restaurant = await this.restaurantRepository.createRestaurant({
 			restaurantName: dto.restaurantName,
 			email,
 			phone: dto.phone,
@@ -47,5 +54,15 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 		await this.emailVerificationService.deleteVerificationToken(
 			verificationToken,
 		);
+
+		const tokenPair = this.authTokenService.generateTokenPair({
+			email,
+			restaurantId: restaurant.id,
+		});
+
+		return {
+			restaurant,
+			...tokenPair,
+		};
 	}
 }

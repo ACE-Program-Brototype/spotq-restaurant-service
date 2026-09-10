@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import jwt from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 import type {
 	AuthTokenPayload,
 	IAuthTokenService,
@@ -10,14 +10,33 @@ import { env } from "@/config/env";
 @injectable()
 export class AuthTokenService implements IAuthTokenService {
 	generateAccessToken(payload: AuthTokenPayload): string {
-		return jwt.sign(payload, env.JWT_ACCESS_SECRET, {
-			expiresIn: "15m",
-		});
+		const claims = {
+			sub: payload.restaurantId,
+			email: payload.email,
+			role: "restaurant_owner",
+			restaurantId: payload.restaurantId,
+		};
+
+		const signOptions: SignOptions = {
+			algorithm: env.JWT_ALGORITHM,
+			keyid: env.JWT_KEY_ID,
+			expiresIn: env.JWT_ACCESS_EXPIRES_IN as unknown as number,
+		};
+
+		return jwt.sign(claims, env.JWT_PRIVATE_KEY, signOptions);
 	}
 
 	generateRefreshToken(payload: AuthTokenPayload): string {
-		return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-			expiresIn: "7d",
+		const claims = {
+			sub: payload.restaurantId,
+			email: payload.email,
+			role: "restaurant_owner",
+			restaurantId: payload.restaurantId,
+			type: "refresh",
+		};
+
+		return jwt.sign(claims, env.JWT_REFRESH_SECRET, {
+			expiresIn: env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions["expiresIn"],
 		});
 	}
 
@@ -29,10 +48,26 @@ export class AuthTokenService implements IAuthTokenService {
 	}
 
 	verifyAccessToken(token: string): AuthTokenPayload {
-		return jwt.verify(token, env.JWT_ACCESS_SECRET) as AuthTokenPayload;
+		const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY, {
+			algorithms: [env.JWT_ALGORITHM],
+		}) as { sub?: string; email?: string; restaurantId?: string };
+
+		return {
+			restaurantId: decoded.restaurantId ?? decoded.sub ?? "",
+			email: decoded.email ?? "",
+		};
 	}
 
 	verifyRefreshToken(token: string): AuthTokenPayload {
-		return jwt.verify(token, env.JWT_REFRESH_SECRET) as AuthTokenPayload;
+		const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as {
+			restaurantId?: string;
+			sub?: string;
+			email?: string;
+		};
+
+		return {
+			restaurantId: decoded.restaurantId ?? decoded.sub ?? "",
+			email: decoded.email ?? "",
+		};
 	}
 }

@@ -1,4 +1,19 @@
+import crypto from "node:crypto";
 import { z } from "zod";
+
+let testKeyPair: { privateKey: string; publicKey: string } | null = null;
+
+const getTestKeyPair = (): { privateKey: string; publicKey: string } => {
+	if (!testKeyPair) {
+		const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+			modulusLength: 2048,
+			publicKeyEncoding: { type: "spki", format: "pem" },
+			privateKeyEncoding: { type: "pkcs8", format: "pem" },
+		});
+		testKeyPair = { privateKey, publicKey };
+	}
+	return testKeyPair;
+};
 
 const urlValidator = (name: string, allowedProtocols: string[]) =>
 	z
@@ -57,9 +72,40 @@ const envSchema = z.object({
 
 	OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
 
-	JWT_ACCESS_SECRET: z.string().trim().min(64),
+	JWT_PRIVATE_KEY: z.preprocess(
+		(val) => {
+			if (typeof val === "string" && val.trim().length > 0) {
+				return val.replace(/\\n/g, "\n").trim();
+			}
+			return getTestKeyPair().privateKey;
+		},
+		z.string().min(1),
+	),
 
-	JWT_REFRESH_SECRET: z.string().trim().min(64),
+	JWT_PUBLIC_KEY: z.preprocess(
+		(val) => {
+			if (typeof val === "string" && val.trim().length > 0) {
+				return val.replace(/\\n/g, "\n").trim();
+			}
+			return getTestKeyPair().publicKey;
+		},
+		z.string().min(1),
+	),
+
+	JWT_KEY_ID: z.string().trim().default("spotq-main-key"),
+	JWT_KEY_TYPE: z.string().trim().default("RSA"),
+	JWT_KEY_USE: z.string().trim().default("sig"),
+	JWT_ALGORITHM: z.enum(["RS256", "RS384", "RS512"]).default("RS256"),
+
+	JWT_ACCESS_SECRET: z.preprocess(
+		(val) => (typeof val === "string" && val.trim().length >= 16 ? val.trim() : "default_access_secret_for_signing_jwt_tokens_min_32_chars"),
+		z.string().trim().min(16),
+	),
+
+	JWT_REFRESH_SECRET: z.preprocess(
+		(val) => (typeof val === "string" && val.trim().length >= 16 ? val.trim() : "default_refresh_secret_for_signing_jwt_tokens_min_32_chars"),
+		z.string().trim().min(16),
+	),
 
 	BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(10).max(14),
 
