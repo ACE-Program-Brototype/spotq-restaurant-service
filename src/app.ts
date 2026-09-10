@@ -1,5 +1,7 @@
 import "reflect-metadata";
+import jwksRouter from "@presentation/http/routes/jwks.routes";
 import staffRouter from "@presentation/http/routes/staff.routes";
+import { storageRouter } from "@presentation/http/routes/storage.routes";
 import cookieParser from "cookie-parser";
 import express from "express";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware";
@@ -23,7 +25,8 @@ app.use(cookieParser());
 app.use(httpLogger);
 app.use(metricsMiddleware);
 
-// Standard JWKS endpoint for API Gateway / Envoy JWT verification
+// JWKS Endpoint
+app.use("/.well-known", jwksRouter);
 app.get("/.well-known/jwks.json", (_req, res) => {
 	res.json(getJwks());
 });
@@ -43,10 +46,9 @@ app.get("/", (_req, res) => {
 
 // Mount routes
 app.use(STAFF_ROUTES.BASE, staffRouter);
-
 app.use("/", systemRouter);
-
 app.use("/", restaurantRouter);
+app.use("/", storageRouter);
 
 // 404 & Error handlers
 app.use(notFoundHandler);

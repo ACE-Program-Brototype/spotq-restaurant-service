@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "@jest/globals";
-import type { Response } from "express";
+import type { Request, Response } from "express";
 
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
-import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 
 test("refreshAccessToken rejects a missing refresh cookie with InvalidRefreshTokenError", async () => {
@@ -31,7 +30,7 @@ test("refreshAccessToken rejects a missing refresh cookie with InvalidRefreshTok
 	);
 });
 
-test("onboard rejects missing Bearer token in authorization header", async () => {
+test("onboard rejects missing restaurant identification with 401", async () => {
 	const controller = new RestaurantAuthController(
 		{} as never,
 		{} as never,
@@ -43,26 +42,25 @@ test("onboard rejects missing Bearer token in authorization header", async () =>
 	const req = {
 		headers: {},
 		body: { restaurantName: "Test" },
-	} as never;
+	} as unknown as Request;
 
+	const jsonMock = jest.fn();
+	const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
 	const res = {
-		cookie: jest.fn(),
-		status: jest.fn().mockReturnThis(),
-		json: jest.fn(),
+		status: statusMock,
 	} as unknown as Response;
 
-	await assert.rejects(
-		() => controller.onboard(req, res),
-		InvalidVerificationTokenError,
-	);
+	await controller.onboard(req, res);
+
+	expect(statusMock).toHaveBeenCalledWith(401);
+	expect(jsonMock).toHaveBeenCalledWith({
+		success: false,
+		message: "Unauthorized",
+	});
 });
 
-test("onboard executes use case, sets access/refresh cookies, and returns 201 with restaurant and token", async () => {
-	const mockExecute = jest.fn().mockResolvedValue({
-		restaurant: { id: "rest-123", restaurantName: "The Grill" },
-		accessToken: "jwt-access-token-123",
-		refreshToken: "jwt-refresh-token-123",
-	});
+test("onboard executes use case and returns 201 with restaurantId", async () => {
+	const mockExecute = jest.fn().mockResolvedValue(undefined);
 
 	const controller = new RestaurantAuthController(
 		{} as never,
@@ -73,15 +71,12 @@ test("onboard executes use case, sets access/refresh cookies, and returns 201 wi
 	);
 
 	const req = {
-		headers: { authorization: "Bearer verify-token-123" },
+		headers: { "x-restaurant-id": "rest-123" },
 		body: { restaurantName: "The Grill", phone: "9876543210", ownerName: "John" },
-	} as never;
+	} as unknown as Request;
 
-	const cookieCalls: [string, string, unknown][] = [];
 	const res = {
-		cookie: (name: string, val: string, opts: unknown) => {
-			cookieCalls.push([name, val, opts]);
-		},
+		cookie: jest.fn(),
 		status: jest.fn().mockReturnThis(),
 		json: jest.fn().mockImplementation((data) => data),
 	} as unknown as Response;
@@ -90,11 +85,6 @@ test("onboard executes use case, sets access/refresh cookies, and returns 201 wi
 
 	expect(mockExecute).toHaveBeenCalledWith(
 		{ restaurantName: "The Grill", phone: "9876543210", ownerName: "John" },
-		"verify-token-123",
+		"rest-123",
 	);
-	expect(cookieCalls.length).toBe(2);
-	expect(cookieCalls[0][0]).toBe("accessToken");
-	expect(cookieCalls[0][1]).toBe("jwt-access-token-123");
-	expect(cookieCalls[1][0]).toBe("refreshToken");
-	expect(cookieCalls[1][1]).toBe("jwt-refresh-token-123");
 });

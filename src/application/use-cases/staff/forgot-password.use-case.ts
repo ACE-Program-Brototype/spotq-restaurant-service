@@ -3,7 +3,7 @@ import type { ForgotPasswordDTO } from "@/application/dtos/staff/forgot-password
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type { IOtpService } from "@/application/ports/services/otp-service.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
-import { TYPES } from "@/di/types.ts";
+import { TYPES } from "@di/types.ts";
 import {
 	StaffInactiveError,
 	StaffNotFoundError,
@@ -42,13 +42,10 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
 			throw new StaffInactiveError();
 		}
 
-		// Generate 6-digit OTP using injected port service
 		const otp = this.otpService.generateOtp(6);
 
-		// Save OTP in Redis with 5 minutes (300s) TTL
 		await this.otpRepository.saveOtp(emailVO.value, otp, 300);
 
-		// Queue email dispatch via port
 		await this.emailQueuePort.sendVerificationOtp({
 			to: emailVO.value,
 			otp,

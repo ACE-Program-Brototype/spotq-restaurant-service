@@ -10,11 +10,16 @@ export const validate = (schema: ZodType) => {
 		const result = schema.safeParse(req.body);
 
 		if (!result.success) {
-			res.status(400).json({
-				success: false,
-				message: "Validation failed",
-				errors: result.error.flatten(),
-			});
+			res
+				.status(HTTP_STATUS.BAD_REQUEST)
+				.json(
+					ApiResponse.error(
+						messages.VALIDATION_ERROR,
+						"VALIDATION_ERROR",
+						HTTP_STATUS.BAD_REQUEST,
+						result.error.flatten(),
+					),
+				);
 
 			return;
 		}
@@ -38,6 +43,46 @@ export function validateRequestBody(schema: ZodType) {
 			if (error instanceof z.ZodError) {
 				const formattedErrors = error.issues.map((issue) => ({
 					field: issue.path.length > 0 ? issue.path.join(".") : "body",
+					message: issue.message,
+				}));
+
+				res
+					.status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+					.json(
+						ApiResponse.error(
+							messages.VALIDATION_ERROR,
+							"VALIDATION_ERROR",
+							HTTP_STATUS.UNPROCESSABLE_ENTITY,
+							formattedErrors,
+						),
+					);
+				return;
+			}
+			next(error);
+		}
+	};
+}
+
+export function validateRequestQuery(schema: ZodType) {
+	return async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		try {
+			const parsed = await schema.parseAsync(req.query ?? {});
+			res.locals.query = parsed;
+			if (req.query && typeof req.query === "object") {
+				for (const key of Object.keys(req.query)) {
+					delete (req.query as Record<string, unknown>)[key];
+				}
+				Object.assign(req.query, parsed);
+			}
+			next();
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				const formattedErrors = error.issues.map((issue) => ({
+					field: issue.path.length > 0 ? issue.path.join(".") : "query",
 					message: issue.message,
 				}));
 

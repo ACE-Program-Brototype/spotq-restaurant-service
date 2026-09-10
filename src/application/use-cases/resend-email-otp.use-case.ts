@@ -1,15 +1,15 @@
 import type { Queue } from "bullmq";
 import { inject, injectable } from "inversify";
-import type { SendRestaurantEmailOtpDto } from "@/application/dto/restaurant-email-verification.dto";
-import { OtpCooldownActiveError } from "@/application/errors/otp-cooldown-active.error";
-import type { IOtpService } from "@/application/ports/services/otp.service.port";
-import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import type { SendRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
-import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
-import { TYPES } from "@/di/types";
+import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { JOB_NAMES } from "@/shared/constants/queue.constants";
 import { generateOtp, getRestaurantEmailOtpKey } from "@/utils/otp.util";
+import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
+import type { IOtpService } from "../ports/services/otp.service.port";
+import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 
 @injectable()
 export class ResendRestaurantEmailOtpUseCase

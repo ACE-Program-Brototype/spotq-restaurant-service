@@ -2,7 +2,7 @@ import express from "express";
 import {
 	restaurantAuthController,
 	restaurantStatusController,
-} from "@/di/controllers.resolutions";
+} from "@/config/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import { validate } from "../middleware/validation.middleware";
 import {
@@ -15,7 +15,7 @@ export const restaurantRouter = express.Router();
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.STATUS,
-	restaurantStatusController.getStatus,
+	restaurantStatusController.getStatus.bind(restaurantStatusController),
 );
 
 restaurantRouter.post(

@@ -8,7 +8,7 @@ import type {
 	StaffTokenPayload,
 } from "@/application/ports/services/token-service.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
-import { TYPES } from "@/di/types.ts";
+import { TYPES } from "@di/types.ts";
 import {
 	InvalidRefreshTokenError,
 	RevokedTokenError,
@@ -18,6 +18,7 @@ import {
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class RefreshTokenUseCase implements IRefreshTokenUseCase {
@@ -33,16 +34,14 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 	public async execute(dto: RefreshTokenDTO): Promise<RefreshTokenResponseDTO> {
 		const token = dto.refreshToken;
 		if (!token) {
-			throw new InvalidRefreshTokenError("Refresh token is required");
+			throw new InvalidRefreshTokenError(messages.REFRESH_TOKEN_REQUIRED);
 		}
 
-		// 1. Check if token has been revoked in Redis
 		const isRevoked = await this.tokenRevocationRepository.isRevoked(token);
 		if (isRevoked) {
 			throw new RevokedTokenError();
 		}
 
-		// 2. Verify and decode JWT refresh token
 		let payload: ReturnType<ITokenService["verifyRefreshToken"]>;
 		try {
 			payload = this.tokenService.verifyRefreshToken(token);
@@ -50,13 +49,12 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 			throw new InvalidRefreshTokenError();
 		}
 
-		// 3. Verify staff existence
-		const staff = await this.restaurantStaffRepository.findById(payload.id);
+		const staffId = (payload as unknown as { sub?: string; id?: string }).sub ?? (payload as unknown as { id?: string }).id;
+		const staff = await this.restaurantStaffRepository.findById(staffId as string);
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}
 
-		// 4. Verify staff account active status
 		if (staff.isSuspended()) {
 			throw new StaffSuspendedError();
 		}
@@ -65,13 +63,13 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 			throw new StaffInactiveError();
 		}
 
-		// 5. Generate fresh access token
 		const tokenPayload: StaffTokenPayload = {
 			id: staff.id,
+			sub: staff.id,
 			restaurantId: staff.restaurantId,
 			email: staff.email,
 			role: staff.role,
-		};
+		} as StaffTokenPayload;
 
 		const accessToken = this.tokenService.generateAccessToken(tokenPayload);
 

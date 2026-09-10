@@ -9,10 +9,10 @@ import { env } from "@/config/env.ts";
 
 @injectable()
 export class JwtTokenService implements ITokenService {
-	private readonly privateKey = env.JWT_PRIVATE_KEY;
-	private readonly publicKey = env.JWT_PUBLIC_KEY;
-	private readonly keyId = env.JWT_KEY_ID;
-	private readonly algorithm = env.JWT_ALGORITHM;
+	private readonly privateKey = env.JWT_PRIVATE_KEY || env.JWT_ACCESS_PRIVATE_KEY;
+	private readonly publicKey = env.JWT_PUBLIC_KEY || env.JWT_ACCESS_PUBLIC_KEY;
+	private readonly keyId = env.JWT_KEY_ID || env.JWT_ACCESS_TOKEN_KEY_ID;
+	private readonly algorithm = (env.JWT_ALGORITHM || "RS256") as jwt.Algorithm;
 	private readonly accessExpiresIn = env.JWT_ACCESS_EXPIRES_IN;
 	private readonly refreshSecret = env.JWT_REFRESH_SECRET;
 	private readonly refreshExpiresIn = env.JWT_REFRESH_EXPIRES_IN;
@@ -21,8 +21,8 @@ export class JwtTokenService implements ITokenService {
 
 	public generateAccessToken(payload: StaffTokenPayload): string {
 		const claims = {
-			sub: payload.id,
-			id: payload.id,
+			sub: payload.sub,
+			id: payload.sub,
 			restaurantId: payload.restaurantId,
 			email: payload.email,
 			role: payload.role,
@@ -46,10 +46,10 @@ export class JwtTokenService implements ITokenService {
 	public verifyAccessToken(token: string): StaffTokenPayload {
 		const decoded = jwt.verify(token, this.publicKey, {
 			algorithms: [this.algorithm],
-		}) as StaffTokenPayload & { sub?: string };
+		}) as StaffTokenPayload & { id?: string };
 
 		return {
-			id: decoded.id ?? decoded.sub ?? "",
+			sub: decoded.sub ?? decoded.id ?? "",
 			restaurantId: decoded.restaurantId ?? "",
 			email: decoded.email ?? "",
 			role: decoded.role ?? "",

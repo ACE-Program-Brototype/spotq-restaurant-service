@@ -7,6 +7,7 @@ import {
 	emailOrIpKeyGenerator,
 	getClientIp,
 	loginRateLimiter,
+	revokeInvitationRateLimiter,
 } from "@/presentation/http/middleware/rate-limiter.middleware.ts";
 
 jest.mock("@/config/redis.ts", () => ({
@@ -146,6 +147,22 @@ describe("Rate Limiter Middleware", () => {
 			).rejects.toThrow(
 				"Too many login attempts. Please try again after 15 minutes.",
 			);
+		});
+	});
+
+	describe("revokeInvitationRateLimiter", () => {
+		it("should block when revoke limit exceeded", async () => {
+			mockReq.body = { email: "staff@example.com" };
+			(redis.incr as jest.Mock).mockResolvedValue(31);
+			(redis.ttl as jest.Mock).mockResolvedValue(600);
+
+			await expect(
+				revokeInvitationRateLimiter(
+					mockReq as Request,
+					mockRes as Response,
+					mockNext,
+				),
+			).rejects.toThrow(RateLimitExceededError);
 		});
 	});
 });

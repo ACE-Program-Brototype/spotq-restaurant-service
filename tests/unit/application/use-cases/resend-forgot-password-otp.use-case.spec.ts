@@ -51,6 +51,7 @@ describe("ResendForgotPasswordOtpUseCase", () => {
 		emailQueuePort = {
 			sendVerificationOtp: jest.fn(),
 			sendSubscriptionActivatedEmail: jest.fn(),
+			sendStaffInvitation: jest.fn(),
 		};
 
 		useCase = new ResendForgotPasswordOtpUseCase(

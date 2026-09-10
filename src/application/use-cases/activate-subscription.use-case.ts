@@ -5,7 +5,7 @@ import type {
 	ActivateSubscriptionInput,
 	IActivateSubscriptionUseCase,
 } from "@/application/ports/use-cases/activate-subscription.use-case.port.ts";
-import { TYPES } from "@/di/types.ts";
+import { TYPES } from "@di/types.ts";
 
 @injectable()
 export class ActivateSubscriptionUseCase

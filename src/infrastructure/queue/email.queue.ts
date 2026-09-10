@@ -2,11 +2,13 @@ import { Queue } from "bullmq";
 import { injectable } from "inversify";
 import type {
 	IEmailQueuePort,
+	SendStaffInvitationJobData,
 	SendSubscriptionActivatedEmailJobData,
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
 import redis from "@/config/redis.ts";
 import {
+	renderStaffInvitationTemplate,
 	renderSubscriptionActivatedTemplate,
 	renderVerificationOtpTemplate,
 } from "@/infrastructure/template/email.template.ts";
@@ -68,6 +70,23 @@ export class EmailQueueService implements IEmailQueuePort {
 			subject: rendered.subject,
 			htmlContent: rendered.htmlContent,
 			recipientName: data.ownerName,
+		});
+	}
+
+	public async sendStaffInvitation(
+		data: SendStaffInvitationJobData,
+	): Promise<void> {
+		const rendered = renderStaffInvitationTemplate({
+			restaurantName: data.restaurantName,
+			invitationUrl: data.invitationUrl,
+			validityHours: data.validityHours,
+		});
+
+		await this.queue.add("send-email", {
+			to: data.to,
+			subject: rendered.subject,
+			htmlContent: rendered.htmlContent,
+			recipientName: data.recipientName,
 		});
 	}
 }

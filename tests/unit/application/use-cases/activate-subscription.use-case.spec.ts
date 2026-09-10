@@ -1,7 +1,7 @@
-import type { Restaurant } from "@prisma/client";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity";
 
 describe("ActivateSubscriptionUseCase", () => {
 	let useCase: ActivateSubscriptionUseCase;
@@ -17,11 +17,14 @@ describe("ActivateSubscriptionUseCase", () => {
 			existsByEmail: jest.fn(),
 			createRestaurant: jest.fn(),
 			findByEmail: jest.fn(),
+			update: jest.fn(),
+			save: jest.fn(),
 			activateSubscription: jest.fn(),
 		};
 		mockEmailQueuePort = {
 			sendVerificationOtp: jest.fn(),
 			sendSubscriptionActivatedEmail: jest.fn(),
+			sendStaffInvitation: jest.fn(),
 		};
 		useCase = new ActivateSubscriptionUseCase(
 			mockRestaurantRepository,
@@ -32,12 +35,15 @@ describe("ActivateSubscriptionUseCase", () => {
 
 	it("should activate subscription, fetch restaurant and enqueue activation email", async () => {
 		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(true);
-		mockRestaurantRepository.findById.mockResolvedValueOnce({
+		const mockRestaurant = Restaurant.create({
 			id: "rest-123",
 			restaurantName: "Spicy Treats",
 			ownerName: "John Doe",
 			ownerEmail: "owner@spicytreats.com",
-		} as Restaurant);
+			email: "owner@spicytreats.com",
+			phone: "1234567890",
+		});
+		mockRestaurantRepository.findById.mockResolvedValueOnce(mockRestaurant);
 
 		const input = {
 			eventId: "evt-123",

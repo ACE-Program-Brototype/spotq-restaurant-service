@@ -1,6 +1,7 @@
 import { RestaurantStatus } from "@prisma/client";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity";
 import { RESTAURANT_NAVIGATION_TARGETS } from "@/shared/constants/navigation.constants.ts";
 
 describe("GetRestaurantStatusUseCase", () => {
@@ -16,6 +17,8 @@ describe("GetRestaurantStatusUseCase", () => {
 			existsByEmail: jest.fn(),
 			createRestaurant: jest.fn(),
 			findByEmail: jest.fn(),
+			update: jest.fn(),
+			save: jest.fn(),
 			activateSubscription: jest.fn(),
 		};
 		useCase = new GetRestaurantStatusUseCase(mockRestaurantRepository);
@@ -29,7 +32,7 @@ describe("GetRestaurantStatusUseCase", () => {
 	});
 
 	it("should return navigationTarget '/restaurant/subscription' when restaurant is APPROVED but has no active subscription", async () => {
-		const mockRestaurant = {
+		const mockRestaurant = Restaurant.create({
 			id: "rest-123",
 			restaurantName: "Grand Bistro",
 			email: "bistro@example.com",
@@ -42,15 +45,9 @@ describe("GetRestaurantStatusUseCase", () => {
 			subscriptionPlanCode: null,
 			subscriptionEndsAt: null,
 			emailVerifiedAt: new Date(),
-			isBlocked: false,
-			blockReason: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		};
+		});
 
-		mockRestaurantRepository.findById.mockResolvedValueOnce(
-			mockRestaurant as unknown as never,
-		);
+		mockRestaurantRepository.findById.mockResolvedValueOnce(mockRestaurant);
 
 		const result = await useCase.execute("rest-123");
 
@@ -67,7 +64,7 @@ describe("GetRestaurantStatusUseCase", () => {
 	});
 
 	it("should return navigationTarget '/restaurant/subscription' when restaurant status is ACTIVE but subscription is expired (inactive)", async () => {
-		const mockRestaurant = {
+		const mockRestaurant = Restaurant.create({
 			id: "rest-123",
 			restaurantName: "Grand Bistro",
 			email: "bistro@example.com",
@@ -80,15 +77,9 @@ describe("GetRestaurantStatusUseCase", () => {
 			subscriptionPlanCode: "QUEUE_PRO",
 			subscriptionEndsAt: new Date(Date.now() - 86400000),
 			emailVerifiedAt: new Date(),
-			isBlocked: false,
-			blockReason: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		};
+		});
 
-		mockRestaurantRepository.findById.mockResolvedValueOnce(
-			mockRestaurant as unknown as never,
-		);
+		mockRestaurantRepository.findById.mockResolvedValueOnce(mockRestaurant);
 
 		const result = await useCase.execute("rest-123");
 
@@ -100,7 +91,7 @@ describe("GetRestaurantStatusUseCase", () => {
 
 	it("should return navigationTarget '/restaurant/dashboard' when restaurant has active subscription", async () => {
 		const futureDate = new Date(Date.now() + 86400000 * 30);
-		const mockRestaurant = {
+		const mockRestaurant = Restaurant.create({
 			id: "rest-123",
 			restaurantName: "Grand Bistro",
 			email: "bistro@example.com",
@@ -113,15 +104,9 @@ describe("GetRestaurantStatusUseCase", () => {
 			subscriptionPlanCode: "QUEUE_PRO",
 			subscriptionEndsAt: futureDate,
 			emailVerifiedAt: new Date(),
-			isBlocked: false,
-			blockReason: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		};
+		});
 
-		mockRestaurantRepository.findById.mockResolvedValueOnce(
-			mockRestaurant as unknown as never,
-		);
+		mockRestaurantRepository.findById.mockResolvedValueOnce(mockRestaurant);
 
 		const result = await useCase.execute("rest-123");
 
@@ -133,7 +118,7 @@ describe("GetRestaurantStatusUseCase", () => {
 	});
 
 	it("should return navigationTarget '/restaurant/onboarding' when restaurant is PENDING", async () => {
-		const mockRestaurant = {
+		const mockRestaurant = Restaurant.create({
 			id: "rest-123",
 			restaurantName: "Grand Bistro",
 			email: "bistro@example.com",
@@ -146,15 +131,9 @@ describe("GetRestaurantStatusUseCase", () => {
 			subscriptionPlanCode: null,
 			subscriptionEndsAt: null,
 			emailVerifiedAt: new Date(),
-			isBlocked: false,
-			blockReason: null,
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		};
+		});
 
-		mockRestaurantRepository.findById.mockResolvedValueOnce(
-			mockRestaurant as unknown as never,
-		);
+		mockRestaurantRepository.findById.mockResolvedValueOnce(mockRestaurant);
 
 		const result = await useCase.execute("rest-123");
 

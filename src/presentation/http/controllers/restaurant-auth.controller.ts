@@ -1,13 +1,14 @@
+import { env } from "@config/env";
+import { messages } from "@shared/constants/message.constants";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
-import { InvalidVerificationTokenError } from "@/application/errors/invalid-verification-token.error";
-import type { IOnboardRestaurantUseCase } from "@/application/ports/use-case/onboard-restaurant.use-case.port";
-import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
-import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
-import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
-import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
-import { TYPES } from "@/di/types";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
+import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
+import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
+import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port.ts";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { successResponse } from "@/utils/response.model";
 
@@ -53,17 +54,17 @@ export class RestaurantAuthController {
 		refreshToken: string,
 	) {
 		res.cookie("accessToken", accessToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
 			maxAge: 15 * 60 * 1000,
 		});
 
-		res.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
-			maxAge: 7 * 24 * 60 * 60 * 1000,
+		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN || "refreshToken", refreshToken, {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
 		});
 	}
 
@@ -72,7 +73,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"If this email is eligible for registration, a verification code will be sent.",
+			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
 			HTTP_STATUS.ACCEPTED,
 		);
 	}
@@ -82,7 +83,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"If this email is eligible for registration, a verification code will be sent.",
+			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
 			HTTP_STATUS.ACCEPTED,
 		);
 	}
@@ -90,33 +91,23 @@ export class RestaurantAuthController {
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
-		if (result.nextStep === "DASHBOARD") {
-			const { accessToken, refreshToken, ...dashboardResult } = result;
-
-			if (!accessToken || !refreshToken) {
-				return successResponse(
-					res,
-					"Email verified successfully.",
-					HTTP_STATUS.SUCCESS,
-					{ nextStep: dashboardResult.nextStep },
-				);
-			}
-
-			this.setAccessAndRefreshCookies(res, accessToken, refreshToken);
-
-			return successResponse(
+		if (result.accessToken && result.refreshToken) {
+			this.setAccessAndRefreshCookies(
 				res,
-				"Email verified successfully.",
-				HTTP_STATUS.SUCCESS,
-				{ nextStep: dashboardResult.nextStep, accessToken },
+				result.accessToken,
+				result.refreshToken,
 			);
 		}
 
 		return successResponse(
 			res,
-			"Email verified successfully.",
+			messages.EMAIL_VERIFIED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
-			result,
+			{
+				nextStep: result.nextStep,
+				restaurantId: result.restaurantId,
+				access_token: result.accessToken,
+			},
 		);
 	}
 
@@ -129,7 +120,9 @@ export class RestaurantAuthController {
 			throw new InvalidRefreshTokenError();
 		}
 
-		const refreshToken = this.getCookie(req, "refreshToken");
+		const refreshToken =
+			this.getCookie(req, env.COOKIE_NAME_REFRESH_TOKEN) ||
+			this.getCookie(req, "refreshToken");
 
 		if (!refreshToken) {
 			throw new InvalidRefreshTokenError();
@@ -141,46 +134,44 @@ export class RestaurantAuthController {
 			});
 
 		res.cookie("accessToken", accessToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
 			maxAge: 15 * 60 * 1000,
 		});
 
 		return successResponse(
 			res,
-			"Access token refreshed successfully.",
+			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
+			{
+				access_token: accessToken,
+			},
 		);
 	}
 
 	async onboard(req: Request, res: Response): Promise<Response> {
-		const authorizationHeader = req.headers.authorization;
+		const restaurantId =
+			(req as Request & { user?: { restaurantId?: string } }).user?.restaurantId ||
+			(req.headers["x-restaurant-id"] as string) ||
+			(req.headers["x-user-id"] as string) ||
+			req.body?.restaurantId;
 
-		if (!authorizationHeader?.startsWith("Bearer ")) {
-			throw new InvalidVerificationTokenError();
+		if (!restaurantId) {
+			return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+				success: false,
+				message: "Unauthorized",
+			});
 		}
 
-		const verificationToken = authorizationHeader.substring(7);
-
-		const result = await this.onboardRestaurantUseCase.execute(
-			req.body,
-			verificationToken,
-		);
-
-		this.setAccessAndRefreshCookies(
-			res,
-			result.accessToken,
-			result.refreshToken,
-		);
+		await this.onboardRestaurantUseCase.execute(req.body, restaurantId);
 
 		return successResponse(
 			res,
-			"Restaurant registered successfully",
+			messages.RESTAURANT_REGISTRATION_SUCCESS,
 			HTTP_STATUS.CREATED,
 			{
-				restaurant: result.restaurant,
-				accessToken: result.accessToken,
+				restaurantId,
 			},
 		);
 	}

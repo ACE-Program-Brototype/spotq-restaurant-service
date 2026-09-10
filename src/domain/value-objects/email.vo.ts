@@ -1,4 +1,5 @@
 import { InvalidEmailError } from "@/domain/errors/staff.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export class StaffEmail {
 	private readonly _value: string;
@@ -11,13 +12,13 @@ export class StaffEmail {
 
 	public static create(rawEmail: string): StaffEmail {
 		if (!rawEmail || typeof rawEmail !== "string") {
-			throw new InvalidEmailError("Email is required");
+			throw new InvalidEmailError(messages.EMAIL_REQUIRED);
 		}
 
 		const normalized = rawEmail.trim().toLowerCase();
 
 		if (!StaffEmail.EMAIL_REGEX.test(normalized)) {
-			throw new InvalidEmailError(`Invalid email format: ${rawEmail}`);
+			throw new InvalidEmailError(messages.INVALID_EMAIL_FORMAT);
 		}
 
 		return new StaffEmail(normalized);

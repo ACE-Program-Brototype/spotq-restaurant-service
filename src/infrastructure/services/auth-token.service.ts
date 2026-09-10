@@ -18,7 +18,7 @@ export class AuthTokenService implements IAuthTokenService {
 		};
 
 		const signOptions: SignOptions = {
-			algorithm: env.JWT_ALGORITHM,
+			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
 			keyid: env.JWT_KEY_ID,
 			expiresIn: env.JWT_ACCESS_EXPIRES_IN as unknown as number,
 		};
@@ -49,7 +49,7 @@ export class AuthTokenService implements IAuthTokenService {
 
 	verifyAccessToken(token: string): AuthTokenPayload {
 		const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY, {
-			algorithms: [env.JWT_ALGORITHM],
+			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
 		}) as { sub?: string; email?: string; restaurantId?: string };
 
 		return {

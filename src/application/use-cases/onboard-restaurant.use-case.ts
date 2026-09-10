@@ -1,68 +1,35 @@
 import { inject, injectable } from "inversify";
-import type { OnboardRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
+import type { OnboardRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
-import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
-import type { IEmailVerificationService } from "@/application/ports/services/email-verification.service.port";
-import type {
-	IOnboardRestaurantUseCase,
-	OnboardRestaurantResult,
-} from "@/application/ports/use-case/onboard-restaurant.use-case.port";
-import { TYPES } from "@/di/types";
-import { InvalidVerificationTokenError } from "../errors/invalid-verification-token.error";
-import { RestaurantAlreadyExistsError } from "../errors/restaurant-already-exists.error";
+import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
+import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors";
 
 @injectable()
 export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
-
-		@inject(TYPES.Services.EmailVerification)
-		private readonly emailVerificationService: IEmailVerificationService,
-
-		@inject(TYPES.Services.AuthTokenService)
-		private readonly authTokenService: IAuthTokenService,
 	) {}
 
 	async execute(
 		dto: OnboardRestaurantDto,
-		verificationToken: string,
-	): Promise<OnboardRestaurantResult> {
-		const email =
-			await this.emailVerificationService.getVerifiedEmail(verificationToken);
+		restaurantId: string,
+	): Promise<void> {
+		const restaurant = await this.restaurantRepository.findById(restaurantId);
 
-		if (!email) {
-			throw new InvalidVerificationTokenError();
+		if (!restaurant) {
+			throw new RestaurantNotFoundError();
 		}
 
-		const restaurantExists =
-			await this.restaurantRepository.existsByEmail(email);
-
-		if (restaurantExists) {
-			throw new RestaurantAlreadyExistsError();
-		}
-
-		const restaurant = await this.restaurantRepository.createRestaurant({
-			restaurantName: dto.restaurantName,
-			email,
-			phone: dto.phone,
-			ownerName: dto.ownerName,
-			ownerEmail: email,
-			emailVerifiedAt: new Date(),
-		});
-
-		await this.emailVerificationService.deleteVerificationToken(
-			verificationToken,
+		restaurant.updateProfile(
+			dto.restaurantName,
+			dto.phone,
+			dto.ownerName,
+			restaurant.ownerEmail,
 		);
+		restaurant.completeOnboarding();
 
-		const tokenPair = this.authTokenService.generateTokenPair({
-			email,
-			restaurantId: restaurant.id,
-		});
-
-		return {
-			restaurant,
-			...tokenPair,
-		};
+		await this.restaurantRepository.save(restaurant);
 	}
 }

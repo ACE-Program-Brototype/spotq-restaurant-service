@@ -1,6 +1,6 @@
-import type { Restaurant } from "@prisma/client";
-import type { CreateRestaurantDto } from "@/application/dto/restaurant-onboarding.dto";
+import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
+import type { Restaurant } from "@/domain/entities/restaurant.entity";
 
 export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	existsByEmail(email: string): Promise<boolean>;
@@ -8,6 +8,8 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	createRestaurant(data: CreateRestaurantDto): Promise<Restaurant>;
 
 	findByEmail(email: string): Promise<Restaurant | null>;
+
+	save(restaurant: Restaurant): Promise<void>;
 
 	activateSubscription(
 		restaurantId: string,

@@ -4,8 +4,8 @@ import type { IAuthTokenService } from "@/application/ports/services/auth-token.
 import type {
 	IRefreshRestaurantAccessTokenUseCase,
 	RefreshRestaurantAccessTokenDto,
-} from "@/application/ports/use-case/refresh-restaurant-access-token.use-case.port";
-import { TYPES } from "@/di/types";
+} from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
 
 @injectable()
 export class RefreshRestaurantAccessTokenUseCase
@@ -21,23 +21,17 @@ export class RefreshRestaurantAccessTokenUseCase
 	): Promise<{ accessToken: string }> {
 		const { refreshToken } = dto;
 
-		if (!refreshToken?.trim()) {
-			throw new InvalidRefreshTokenError();
-		}
-
-		let payload: { restaurantId: string; email: string };
-
 		try {
-			payload = this.authTokenService.verifyRefreshToken(refreshToken);
+			const payload = this.authTokenService.verifyRefreshToken(refreshToken);
+
+			const accessToken = this.authTokenService.generateAccessToken({
+				restaurantId: payload.restaurantId,
+				email: payload.email,
+			});
+
+			return { accessToken };
 		} catch {
 			throw new InvalidRefreshTokenError();
 		}
-
-		return {
-			accessToken: this.authTokenService.generateAccessToken({
-				restaurantId: payload.restaurantId,
-				email: payload.email,
-			}),
-		};
 	}
 }

@@ -9,6 +9,7 @@ import {
 	type StaffStatus,
 	StaffStatusVO,
 } from "@/domain/value-objects/staff-status.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface RestaurantStaffProps {
 	id: string;
@@ -17,11 +18,11 @@ export interface RestaurantStaffProps {
 	email: StaffEmail;
 	phone: StaffPhone;
 	avatarUrl: string | null;
-	passwordHash: string;
+	passwordHash?: string;
 	role: StaffRoleVO;
 	status: StaffStatusVO;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 export interface CreateRestaurantStaffProps {
@@ -43,11 +44,11 @@ export interface ReconstituteRestaurantStaffProps {
 	email: string;
 	phone: string;
 	avatarUrl: string | null;
-	passwordHash: string;
+	passwordHash?: string;
 	role: string;
 	status: string;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 export class RestaurantStaff {
@@ -59,7 +60,7 @@ export class RestaurantStaff {
 
 	public static create(props: CreateRestaurantStaffProps): RestaurantStaff {
 		if (!props.restaurantId || typeof props.restaurantId !== "string") {
-			throw new InvalidStaffDataError("Restaurant ID is required");
+			throw new InvalidStaffDataError(messages.RESTAURANT_ID_REQUIRED);
 		}
 
 		if (
@@ -67,13 +68,11 @@ export class RestaurantStaff {
 			typeof props.fullname !== "string" ||
 			props.fullname.trim().length < 2
 		) {
-			throw new InvalidStaffDataError(
-				"Fullname is required and must be at least 2 characters",
-			);
+			throw new InvalidStaffDataError(messages.FULLNAME_INVALID);
 		}
 
 		if (!props.passwordHash || typeof props.passwordHash !== "string") {
-			throw new InvalidStaffDataError("Password hash is required");
+			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
 		}
 
 		const email =
@@ -121,6 +120,7 @@ export class RestaurantStaff {
 	public static reconstitute(
 		props: ReconstituteRestaurantStaffProps,
 	): RestaurantStaff {
+		const now = new Date();
 		return new RestaurantStaff({
 			id: props.id,
 			restaurantId: props.restaurantId,
@@ -128,11 +128,11 @@ export class RestaurantStaff {
 			email: StaffEmail.create(props.email),
 			phone: StaffPhone.create(props.phone),
 			avatarUrl: props.avatarUrl,
-			passwordHash: props.passwordHash,
+			passwordHash: props.passwordHash ?? "",
 			role: StaffRoleVO.create(props.role),
 			status: StaffStatusVO.create(props.status),
-			createdAt: props.createdAt,
-			updatedAt: props.updatedAt,
+			createdAt: props.createdAt ?? now,
+			updatedAt: props.updatedAt ?? now,
 		});
 	}
 
@@ -169,7 +169,7 @@ export class RestaurantStaff {
 	}
 
 	public get passwordHash(): string {
-		return this._props.passwordHash;
+		return this._props.passwordHash ?? "";
 	}
 
 	public get role(): StaffRole {
@@ -189,11 +189,11 @@ export class RestaurantStaff {
 	}
 
 	public get createdAt(): Date {
-		return this._props.createdAt;
+		return this._props.createdAt ?? new Date();
 	}
 
 	public get updatedAt(): Date {
-		return this._props.updatedAt;
+		return this._props.updatedAt ?? new Date();
 	}
 
 	public isActive(): boolean {
@@ -211,9 +211,7 @@ export class RestaurantStaff {
 	): void {
 		if (fullname !== undefined) {
 			if (typeof fullname !== "string" || fullname.trim().length < 2) {
-				throw new InvalidStaffDataError(
-					"Fullname must be at least 2 characters",
-				);
+				throw new InvalidStaffDataError(messages.FULLNAME_INVALID);
 			}
 			this._props.fullname = fullname.trim();
 		}
@@ -231,7 +229,7 @@ export class RestaurantStaff {
 
 	public changePassword(newPasswordHash: string): void {
 		if (!newPasswordHash || typeof newPasswordHash !== "string") {
-			throw new InvalidStaffDataError("Valid password hash is required");
+			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
 		}
 		this._props.passwordHash = newPasswordHash;
 		this._props.updatedAt = new Date();

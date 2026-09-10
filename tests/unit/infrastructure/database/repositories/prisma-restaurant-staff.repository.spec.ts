@@ -29,7 +29,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 		restaurantId: "rest-123",
 		fullname: "John Doe",
 		email: "john@example.com",
-		phone: "9876543210",
+		phone: "+919876543210",
 		avatarUrl: null,
 		passwordHash: "hashed_pwd",
 		role: "STAFF",
@@ -43,7 +43,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 		restaurantId: "rest-123",
 		fullname: "John Doe",
 		email: "john@example.com",
-		phone: "9876543210",
+		phone: "+919876543210",
 		avatarUrl: null,
 		passwordHash: "hashed_pwd",
 		role: "STAFF",
@@ -130,7 +130,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 				where: { id: "staff-123" },
 				update: expect.objectContaining({
 					fullname: "John Doe",
-					phone: "9876543210",
+					phone: "+919876543210",
 				}),
 				create: expect.objectContaining({
 					id: "staff-123",

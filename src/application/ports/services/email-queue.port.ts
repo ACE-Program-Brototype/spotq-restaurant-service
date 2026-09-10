@@ -13,9 +13,18 @@ export interface SendSubscriptionActivatedEmailJobData {
 	subscriptionEndsAt: Date | string;
 }
 
+export interface SendStaffInvitationJobData {
+	to: string;
+	invitationUrl: string;
+	restaurantName: string;
+	validityHours?: number;
+	recipientName?: string;
+}
+
 export interface IEmailQueuePort {
 	sendVerificationOtp(data: SendVerificationOtpJobData): Promise<void>;
 	sendSubscriptionActivatedEmail(
 		data: SendSubscriptionActivatedEmailJobData,
 	): Promise<void>;
+	sendStaffInvitation(data: SendStaffInvitationJobData): Promise<void>;
 }

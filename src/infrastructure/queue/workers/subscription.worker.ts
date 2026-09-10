@@ -1,8 +1,8 @@
 import { type Job, Worker } from "bullmq";
 import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port.ts";
 import { env } from "@/config/env.ts";
-import { container } from "@/di/container.ts";
-import { TYPES } from "@/di/types.ts";
+import { container } from "@di/container.ts";
+import { TYPES } from "@di/types.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants";
 import { bullMQConnection } from "../bullmq.service";

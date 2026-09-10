@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { inject, injectable } from "inversify";
 import redis from "@/config/redis.ts";
-import { TYPES } from "@/di/types.ts";
+import { TYPES } from "@di/types.ts";
 import { emailQueue } from "@/infrastructure/queue/email.queue.ts";
 
 export interface HealthCheckResult {
@@ -51,7 +51,6 @@ export class HealthCheckService implements IHealthCheckable {
 			},
 		};
 
-		// Database Check
 		try {
 			const dbStart = Date.now();
 			await this.prisma.$queryRaw`SELECT 1`;
@@ -67,7 +66,6 @@ export class HealthCheckService implements IHealthCheckable {
 			};
 		}
 
-		// Redis Check
 		try {
 			const redisStart = Date.now();
 			await redis.ping();
@@ -83,7 +81,6 @@ export class HealthCheckService implements IHealthCheckable {
 			};
 		}
 
-		// BullMQ Check
 		try {
 			const bmqStart = Date.now();
 			await emailQueue.waitUntilReady();

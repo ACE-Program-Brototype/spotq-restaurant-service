@@ -62,6 +62,12 @@ const envSchema = z.object({
 
 	AWS_S3_BUCKET: z.string().trim().min(1),
 
+	AWS_S3_PRESIGNED_URL_EXPIRATION_SECONDS: z.coerce
+		.number()
+		.int()
+		.positive()
+		.default(900),
+
 	BREVO_API_KEY: z.string().trim().min(1),
 
 	BREVO_SENDER_EMAIL: z.string().trim().email(),
@@ -72,10 +78,44 @@ const envSchema = z.object({
 
 	OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
 
+	JWT_ACCESS_PRIVATE_KEY: z.preprocess(
+		(val) => {
+			if (typeof val === "string" && val.trim().length > 0) {
+				return val.replace(/\\n/g, "\n").trim();
+			}
+			if (typeof process.env.JWT_PRIVATE_KEY === "string" && process.env.JWT_PRIVATE_KEY.trim().length > 0) {
+				return process.env.JWT_PRIVATE_KEY.replace(/\\n/g, "\n").trim();
+			}
+			return getTestKeyPair().privateKey;
+		},
+		z.string().min(1),
+	),
+
+	JWT_ACCESS_PUBLIC_KEY: z.preprocess(
+		(val) => {
+			if (typeof val === "string" && val.trim().length > 0) {
+				return val.replace(/\\n/g, "\n").trim();
+			}
+			if (typeof process.env.JWT_PUBLIC_KEY === "string" && process.env.JWT_PUBLIC_KEY.trim().length > 0) {
+				return process.env.JWT_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
+			}
+			return getTestKeyPair().publicKey;
+		},
+		z.string().min(1),
+	),
+
+	JWT_ACCESS_TOKEN_KEY_ID: z.preprocess(
+		(val) => (typeof val === "string" && val.trim().length > 0 ? val.trim() : process.env.JWT_KEY_ID ?? "spotq-main-key"),
+		z.string().min(1),
+	),
+
 	JWT_PRIVATE_KEY: z.preprocess(
 		(val) => {
 			if (typeof val === "string" && val.trim().length > 0) {
 				return val.replace(/\\n/g, "\n").trim();
+			}
+			if (typeof process.env.JWT_ACCESS_PRIVATE_KEY === "string" && process.env.JWT_ACCESS_PRIVATE_KEY.trim().length > 0) {
+				return process.env.JWT_ACCESS_PRIVATE_KEY.replace(/\\n/g, "\n").trim();
 			}
 			return getTestKeyPair().privateKey;
 		},
@@ -87,12 +127,19 @@ const envSchema = z.object({
 			if (typeof val === "string" && val.trim().length > 0) {
 				return val.replace(/\\n/g, "\n").trim();
 			}
+			if (typeof process.env.JWT_ACCESS_PUBLIC_KEY === "string" && process.env.JWT_ACCESS_PUBLIC_KEY.trim().length > 0) {
+				return process.env.JWT_ACCESS_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
+			}
 			return getTestKeyPair().publicKey;
 		},
 		z.string().min(1),
 	),
 
-	JWT_KEY_ID: z.string().trim().default("spotq-main-key"),
+	JWT_KEY_ID: z.preprocess(
+		(val) => (typeof val === "string" && val.trim().length > 0 ? val.trim() : process.env.JWT_ACCESS_TOKEN_KEY_ID ?? "spotq-main-key"),
+		z.string().trim().default("spotq-main-key"),
+	),
+
 	JWT_KEY_TYPE: z.string().trim().default("RSA"),
 	JWT_KEY_USE: z.string().trim().default("sig"),
 	JWT_ALGORITHM: z.enum(["RS256", "RS384", "RS512"]).default("RS256"),
@@ -146,7 +193,100 @@ const envSchema = z.object({
 			.positive()
 			.default(7 * 24 * 60 * 60 * 1000),
 	),
+	COOKIE_TEMP_TOKEN_MAX_AGE_MS: z.preprocess(
+		(val) => (typeof val === "string" ? Number(val) : val),
+		z
+			.number()
+			.positive()
+			.default(15 * 60 * 1000),
+	),
 	COOKIE_DOMAIN: z.string().trim().optional(),
+
+	RATE_LIMIT_LOGIN_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
+	RATE_LIMIT_LOGIN_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_FORGOT_PASSWORD_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(3),
+	RATE_LIMIT_FORGOT_PASSWORD_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(24 * 60 * 60),
+
+	RATE_LIMIT_VERIFY_OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(5),
+	RATE_LIMIT_VERIFY_OTP_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_RESEND_OTP_MAX_ATTEMPTS: z.coerce.number().positive().default(3),
+	RATE_LIMIT_RESEND_OTP_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(60 * 60),
+
+	RATE_LIMIT_RESET_PASSWORD_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(5),
+	RATE_LIMIT_RESET_PASSWORD_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_REFRESH_TOKEN_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_REFRESH_TOKEN_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(60),
+
+	FRONTEND_URL: z.string().trim().default("http://localhost:5173"),
+	INVITATION_ACCEPT_PATH: z.string().trim().default("/invitations/accept"),
+	INVITATION_TOKEN_TTL_HOURS: z.coerce.number().positive().default(48),
+
+	RATE_LIMIT_INVITE_STAFF_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(10),
+	RATE_LIMIT_INVITE_STAFF_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(60 * 60),
+
+	RATE_LIMIT_REVOKE_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_REVOKE_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_VALIDATE_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_VALIDATE_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_ACCEPT_INVITATION_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(10),
+	RATE_LIMIT_ACCEPT_INVITATION_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
 	BULLMQ_WORKER_CONCURRENCY: z.coerce.number().positive().default(5),
 	SUBSCRIPTION_EXPIRY_CHECK_INTERVAL_MS: z.coerce
 		.number()

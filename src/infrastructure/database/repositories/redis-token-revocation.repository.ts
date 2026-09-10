@@ -3,8 +3,9 @@ import { inject, injectable } from "inversify";
 import type { Redis } from "ioredis";
 import jwt from "jsonwebtoken";
 import { env } from "@/config/env.ts";
-import { TYPES } from "@/di/types.ts";
+import { TYPES } from "@di/types.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
+import { logger } from "@/infrastructure/observability/logger.ts";
 
 @injectable()
 export class RedisTokenRevocationRepository
@@ -38,8 +39,11 @@ export class RedisTokenRevocationRepository
 					ttl = remaining;
 				}
 			}
-		} catch {
-			// Fallback to env default ttl
+		} catch (error) {
+			logger.warn(
+				{ err: error },
+				"Failed to decode token exp for dynamic revocation TTL, falling back to default TTL",
+			);
 		}
 
 		const key = `${this.keyPrefix}${this.hashToken(token)}`;

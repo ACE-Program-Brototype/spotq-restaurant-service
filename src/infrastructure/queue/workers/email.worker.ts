@@ -6,7 +6,7 @@ import type { IEmailWorker } from "@/application/ports/workers/email.worker.port
 import { brevoClient } from "@/config/brevo.client.ts";
 import { env } from "@/config/env.ts";
 import redis from "@/config/redis.ts";
-import { TYPES } from "@/di/types";
+import { TYPES } from "@/config/di/types";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import {
 	EMAIL_QUEUE_NAME,
