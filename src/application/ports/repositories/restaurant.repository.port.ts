@@ -16,4 +16,3 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 		eventId: string,
 	): Promise<boolean>;
 }
-

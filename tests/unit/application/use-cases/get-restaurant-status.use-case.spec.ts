@@ -16,6 +16,7 @@ describe("GetRestaurantStatusUseCase", () => {
 			existsByEmail: jest.fn(),
 			createRestaurant: jest.fn(),
 			findByEmail: jest.fn(),
+			activateSubscription: jest.fn(),
 		};
 		useCase = new GetRestaurantStatusUseCase(mockRestaurantRepository);
 		jest.clearAllMocks();
@@ -63,6 +64,38 @@ describe("GetRestaurantStatusUseCase", () => {
 			navigationTarget: RESTAURANT_NAVIGATION_TARGETS.SUBSCRIPTION,
 		});
 		expect(mockRestaurantRepository.findById).toHaveBeenCalledWith("rest-123");
+	});
+
+	it("should return navigationTarget '/restaurant/subscription' when restaurant status is ACTIVE but subscription is expired (inactive)", async () => {
+		const mockRestaurant = {
+			id: "rest-123",
+			restaurantName: "Grand Bistro",
+			email: "bistro@example.com",
+			phone: "+919876543210",
+			ownerName: "Owner",
+			ownerEmail: "owner@example.com",
+			status: RestaurantStatus.ACTIVE,
+			onboardingStatus: "COMPLETED",
+			isSubscriptionActive: false,
+			subscriptionPlanCode: "QUEUE_PRO",
+			subscriptionEndsAt: new Date(Date.now() - 86400000),
+			emailVerifiedAt: new Date(),
+			isBlocked: false,
+			blockReason: null,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+
+		mockRestaurantRepository.findById.mockResolvedValueOnce(
+			mockRestaurant as unknown as never,
+		);
+
+		const result = await useCase.execute("rest-123");
+
+		expect(result?.isSubscriptionActive).toBe(false);
+		expect(result?.navigationTarget).toBe(
+			RESTAURANT_NAVIGATION_TARGETS.SUBSCRIPTION,
+		);
 	});
 
 	it("should return navigationTarget '/restaurant/dashboard' when restaurant has active subscription", async () => {
@@ -130,4 +163,3 @@ describe("GetRestaurantStatusUseCase", () => {
 		);
 	});
 });
-

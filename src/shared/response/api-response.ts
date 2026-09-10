@@ -70,4 +70,3 @@ export function sendErrorResponse(
 		.status(statusCode)
 		.json(ApiResponse.error(message, code, statusCode, error));
 }
-

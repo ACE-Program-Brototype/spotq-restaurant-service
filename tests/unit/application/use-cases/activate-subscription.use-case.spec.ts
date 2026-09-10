@@ -34,9 +34,7 @@ describe("ActivateSubscriptionUseCase", () => {
 		const result = await useCase.execute(input);
 
 		expect(result).toBe(true);
-		expect(
-			mockRestaurantRepository.activateSubscription,
-		).toHaveBeenCalledWith(
+		expect(mockRestaurantRepository.activateSubscription).toHaveBeenCalledWith(
 			"rest-123",
 			"QUEUE_PRO",
 			new Date("2026-10-01T00:00:00.000Z"),

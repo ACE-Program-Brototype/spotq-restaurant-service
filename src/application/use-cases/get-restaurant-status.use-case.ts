@@ -1,10 +1,10 @@
+import { inject, injectable } from "inversify";
 import type { RestaurantStatusOutput } from "@/application/dtos/restaurant-status.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
 import { TYPES } from "@/di/types.ts";
 import { RESTAURANT_STATUS } from "@/domain/enums/restaurant-status.enum.ts";
 import { RESTAURANT_NAVIGATION_TARGETS } from "@/shared/constants/navigation.constants.ts";
-import { inject, injectable } from "inversify";
 
 @injectable()
 export class GetRestaurantStatusUseCase implements IGetRestaurantStatusUseCase {
@@ -26,13 +26,10 @@ export class GetRestaurantStatusUseCase implements IGetRestaurantStatusUseCase {
 			navigationTarget = RESTAURANT_NAVIGATION_TARGETS.ONBOARDING;
 		} else if (restaurant.status === RESTAURANT_STATUS.REJECTED) {
 			navigationTarget = RESTAURANT_NAVIGATION_TARGETS.REJECTED;
-		} else if (
-			restaurant.status === RESTAURANT_STATUS.APPROVED &&
-			!restaurant.isSubscriptionActive
-		) {
+		} else if (!restaurant.isSubscriptionActive) {
 			navigationTarget = RESTAURANT_NAVIGATION_TARGETS.SUBSCRIPTION;
 		} else if (
-			restaurant.status === RESTAURANT_STATUS.ACTIVE ||
+			restaurant.status === RESTAURANT_STATUS.ACTIVE &&
 			restaurant.isSubscriptionActive
 		) {
 			navigationTarget = RESTAURANT_NAVIGATION_TARGETS.DASHBOARD;
@@ -51,4 +48,3 @@ export class GetRestaurantStatusUseCase implements IGetRestaurantStatusUseCase {
 		};
 	}
 }
-

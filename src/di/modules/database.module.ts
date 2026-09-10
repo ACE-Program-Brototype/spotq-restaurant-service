@@ -1,7 +1,7 @@
 import { ContainerModule } from "inversify";
 import type { Redis } from "ioredis";
-import { TYPES } from "@/di/types.ts";
 import redis from "@/config/redis.ts";
+import { TYPES } from "@/di/types.ts";
 import type { IOtpRepository } from "@/domain/repositories/otp.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";

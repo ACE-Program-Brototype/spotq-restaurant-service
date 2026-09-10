@@ -13,6 +13,11 @@ import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/u
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/resend-email-otp.use-case.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-case/send-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-case/verify-email-otp.use-case.port";
+// Controllers
+import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port";
+import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
+import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case";
+import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case";
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import { RefreshRestaurantAccessTokenUseCase } from "@/application/use-cases/refresh-restaurant-access-token.use-case";
 import { ResendRestaurantEmailOtpUseCase } from "@/application/use-cases/resend-email-otp.use-case";
@@ -26,20 +31,17 @@ import { EmailVerificationService } from "@/infrastructure/services/email-verifi
 import { OtpService } from "@/infrastructure/services/otp.service";
 import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
-// Controllers
-import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port";
-import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case";
-import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
-import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case";
+import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
-import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { TYPES } from "../types";
 
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	// Controllers
 	bind(TYPES.Controller.RestaurantAuthController).to(RestaurantAuthController);
-	bind(TYPES.Controller.RestaurantStatusController).to(RestaurantStatusController);
+	bind(TYPES.Controller.RestaurantStatusController).to(
+		RestaurantStatusController,
+	);
 
 	// Use Cases
 	bind<ISendRestaurantEmailOtpUseCase>(
@@ -90,7 +92,7 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 
 	bind<IOtpHashService>(TYPES.Services.OtpHashService).to(OtpHashService);
 
-	bind<SubscriptionExpiryService>(
-		TYPES.Services.SubscriptionExpiryService,
-	).to(SubscriptionExpiryService);
+	bind<SubscriptionExpiryService>(TYPES.Services.SubscriptionExpiryService).to(
+		SubscriptionExpiryService,
+	);
 });

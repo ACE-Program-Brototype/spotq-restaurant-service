@@ -11,4 +11,3 @@ export const restaurantStatusController =
 	container.get<RestaurantStatusController>(
 		TYPES.Controller.RestaurantStatusController,
 	);
-
