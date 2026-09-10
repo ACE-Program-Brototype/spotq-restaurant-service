@@ -93,3 +93,32 @@ test("onboard executes use case and returns 201 with restaurantId", async () => 
 		"rest-123",
 	);
 });
+
+test("onboard rejects client body.restaurantId or headers['x-user-id'] without x-restaurant-id with 401", async () => {
+	const controller = new RestaurantAuthController(
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		{ execute: jest.fn() } as never,
+	);
+
+	const req = {
+		headers: { "x-user-id": "user-123" },
+		body: { restaurantId: "rest-spoofed", restaurantName: "Test" },
+	} as unknown as Request;
+
+	const jsonMock = jest.fn();
+	const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+	const res = {
+		status: statusMock,
+	} as unknown as Response;
+
+	await controller.onboard(req, res);
+
+	expect(statusMock).toHaveBeenCalledWith(401);
+	expect(jsonMock).toHaveBeenCalledWith({
+		success: false,
+		message: messages.UNAUTHORIZED_RESTAURANT,
+	});
+});

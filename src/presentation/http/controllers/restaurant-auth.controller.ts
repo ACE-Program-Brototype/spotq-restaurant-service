@@ -133,11 +133,9 @@ export class RestaurantAuthController {
 
 	async onboard(req: Request, res: Response): Promise<Response> {
 		const restaurantId =
+			(req.headers["x-restaurant-id"] as string | undefined) ||
 			(req as Request & { user?: { restaurantId?: string } }).user
-				?.restaurantId ||
-			(req.headers["x-restaurant-id"] as string) ||
-			(req.headers["x-user-id"] as string) ||
-			req.body?.restaurantId;
+				?.restaurantId;
 
 		if (!restaurantId) {
 			return res.status(HTTP_STATUS.UNAUTHORIZED).json({
