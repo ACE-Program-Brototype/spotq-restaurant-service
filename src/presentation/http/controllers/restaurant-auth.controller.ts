@@ -141,7 +141,7 @@ export class RestaurantAuthController {
 		if (!restaurantId) {
 			return res.status(HTTP_STATUS.UNAUTHORIZED).json({
 				success: false,
-				message: "Unauthorized",
+				message: messages.UNAUTHORIZED_RESTAURANT,
 			});
 		}
 

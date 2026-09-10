@@ -3,6 +3,7 @@ import { test } from "@jest/globals";
 import type { Request, Response } from "express";
 
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
+import { messages } from "@/shared/constants/message.constants";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 
 test("refreshAccessToken rejects a missing refresh cookie with InvalidRefreshTokenError", async () => {
@@ -55,7 +56,7 @@ test("onboard rejects missing restaurant identification with 401", async () => {
 	expect(statusMock).toHaveBeenCalledWith(401);
 	expect(jsonMock).toHaveBeenCalledWith({
 		success: false,
-		message: "Unauthorized",
+		message: messages.UNAUTHORIZED_RESTAURANT,
 	});
 });
 
