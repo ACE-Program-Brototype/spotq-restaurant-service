@@ -32,11 +32,12 @@ export class ActivateSubscriptionUseCase
 		}
 
 		const restaurant = await this.restaurantRepository.findById(restaurantId);
-		if (restaurant?.ownerEmail) {
+		const targetEmail = restaurant?.ownerEmail || restaurant?.email;
+		if (targetEmail) {
 			await this.emailQueuePort.sendSubscriptionActivatedEmail({
-				to: restaurant.ownerEmail,
-				ownerName: restaurant.ownerName,
-				restaurantName: restaurant.restaurantName,
+				to: targetEmail,
+				ownerName: restaurant?.ownerName || restaurant?.restaurantName || "Valued Partner",
+				restaurantName: restaurant?.restaurantName || "Your Restaurant",
 				planCode,
 				subscriptionEndsAt: new Date(currentPeriodEnd),
 			});
