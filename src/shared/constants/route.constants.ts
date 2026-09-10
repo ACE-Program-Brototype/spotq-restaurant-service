@@ -9,6 +9,7 @@ export const RESTAURANT_ROUTES = {
 	VERIFY_EMAIL: "/registration/email-otp/verify",
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
 	REFRESH_ACCESS_TOKEN: "/auth/refresh",
+	REGISTRATION_REFRESH_TOKEN: "/registration/refresh-token",
 	ONBOARD: "/onboard",
 	STATUS: "/me/status",
 } as const;

@@ -23,9 +23,7 @@ import { JwksController } from "@/presentation/http/controllers/jwks.controller"
 export const commonModule = new ContainerModule(({ bind }) => {
 	// Database & Cache
 	bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(prisma);
-	bind<PrismaClient>(TYPES.Database.PrismaClient).toConstantValue(prisma);
 	bind<Redis>(TYPES.RedisClient).toConstantValue(redis);
-	bind<Redis>(TYPES.Redis.Client).toConstantValue(redis);
 
 	// Observability & System
 	bind<ILogger>(TYPES.Logger.PinoClient).toConstantValue(logger);

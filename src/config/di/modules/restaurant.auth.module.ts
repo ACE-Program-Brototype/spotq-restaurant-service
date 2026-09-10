@@ -40,10 +40,6 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 		.to(RestaurantStatusController)
 		.inSingletonScope();
 
-	bind(TYPES.RestaurantStatusController)
-		.to(RestaurantStatusController)
-		.inSingletonScope();
-
 	// Use Cases
 	bind<ISendRestaurantEmailOtpUseCase>(
 		TYPES.UseCases.SendRestaurantEmailOtpUseCase,
@@ -79,26 +75,14 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 		.to(GetRestaurantStatusUseCase)
 		.inSingletonScope();
 
-	bind<IGetRestaurantStatusUseCase>(TYPES.GetRestaurantStatusUseCase)
-		.to(GetRestaurantStatusUseCase)
-		.inSingletonScope();
-
 	bind<IActivateSubscriptionUseCase>(
 		TYPES.UseCases.ActivateSubscriptionUseCase,
 	)
 		.to(ActivateSubscriptionUseCase)
 		.inSingletonScope();
 
-	bind<IActivateSubscriptionUseCase>(TYPES.ActivateSubscriptionUseCase)
-		.to(ActivateSubscriptionUseCase)
-		.inSingletonScope();
-
 	// Repository
 	bind<IRestaurantRepository>(TYPES.RestaurantRepository)
-		.to(RestaurantRepository)
-		.inSingletonScope();
-
-	bind<IRestaurantRepository>(TYPES.Repositories.RestaurantRepository)
 		.to(RestaurantRepository)
 		.inSingletonScope();
 
