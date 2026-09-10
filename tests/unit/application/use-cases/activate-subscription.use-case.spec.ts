@@ -1,9 +1,12 @@
+import type { Restaurant } from "@prisma/client";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case.ts";
 
 describe("ActivateSubscriptionUseCase", () => {
 	let useCase: ActivateSubscriptionUseCase;
 	let mockRestaurantRepository: jest.Mocked<IRestaurantRepository>;
+	let mockEmailQueuePort: jest.Mocked<IEmailQueuePort>;
 
 	beforeEach(() => {
 		mockRestaurantRepository = {
@@ -16,12 +19,25 @@ describe("ActivateSubscriptionUseCase", () => {
 			findByEmail: jest.fn(),
 			activateSubscription: jest.fn(),
 		};
-		useCase = new ActivateSubscriptionUseCase(mockRestaurantRepository);
+		mockEmailQueuePort = {
+			sendVerificationOtp: jest.fn(),
+			sendSubscriptionActivatedEmail: jest.fn(),
+		};
+		useCase = new ActivateSubscriptionUseCase(
+			mockRestaurantRepository,
+			mockEmailQueuePort,
+		);
 		jest.clearAllMocks();
 	});
 
-	it("should call restaurantRepository.activateSubscription and return true on success", async () => {
+	it("should activate subscription, fetch restaurant and enqueue activation email", async () => {
 		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(true);
+		mockRestaurantRepository.findById.mockResolvedValueOnce({
+			id: "rest-123",
+			restaurantName: "Spicy Treats",
+			ownerName: "John Doe",
+			ownerEmail: "owner@spicytreats.com",
+		} as Restaurant);
 
 		const input = {
 			eventId: "evt-123",
@@ -40,9 +56,19 @@ describe("ActivateSubscriptionUseCase", () => {
 			new Date("2026-10-01T00:00:00.000Z"),
 			"evt-123",
 		);
+		expect(mockRestaurantRepository.findById).toHaveBeenCalledWith("rest-123");
+		expect(
+			mockEmailQueuePort.sendSubscriptionActivatedEmail,
+		).toHaveBeenCalledWith({
+			to: "owner@spicytreats.com",
+			ownerName: "John Doe",
+			restaurantName: "Spicy Treats",
+			planCode: "QUEUE_PRO",
+			subscriptionEndsAt: new Date("2026-10-01T00:00:00.000Z"),
+		});
 	});
 
-	it("should return false if event was already processed", async () => {
+	it("should return false and not send email if event was already processed", async () => {
 		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(false);
 
 		const input = {
@@ -56,5 +82,9 @@ describe("ActivateSubscriptionUseCase", () => {
 		const result = await useCase.execute(input);
 
 		expect(result).toBe(false);
+		expect(mockRestaurantRepository.findById).not.toHaveBeenCalled();
+		expect(
+			mockEmailQueuePort.sendSubscriptionActivatedEmail,
+		).not.toHaveBeenCalled();
 	});
 });

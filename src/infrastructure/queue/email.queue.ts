@@ -1,11 +1,15 @@
-import { renderVerificationOtpTemplate } from "@infrastructure/template/email.template";
 import { Queue } from "bullmq";
 import { injectable } from "inversify";
 import type {
 	IEmailQueuePort,
+	SendSubscriptionActivatedEmailJobData,
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
 import redis from "@/config/redis.ts";
+import {
+	renderSubscriptionActivatedTemplate,
+	renderVerificationOtpTemplate,
+} from "@/infrastructure/template/email.template.ts";
 
 export const EMAIL_QUEUE_NAME = "email-queue";
 
@@ -46,6 +50,24 @@ export class EmailQueueService implements IEmailQueuePort {
 			subject: rendered.subject,
 			htmlContent: rendered.htmlContent,
 			recipientName: data.recipientName,
+		});
+	}
+
+	public async sendSubscriptionActivatedEmail(
+		data: SendSubscriptionActivatedEmailJobData,
+	): Promise<void> {
+		const rendered = renderSubscriptionActivatedTemplate({
+			ownerName: data.ownerName,
+			restaurantName: data.restaurantName,
+			planCode: data.planCode,
+			subscriptionEndsAt: data.subscriptionEndsAt,
+		});
+
+		await this.queue.add("send-email", {
+			to: data.to,
+			subject: rendered.subject,
+			htmlContent: rendered.htmlContent,
+			recipientName: data.ownerName,
 		});
 	}
 }
