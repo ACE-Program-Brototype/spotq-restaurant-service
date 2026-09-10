@@ -14,7 +14,6 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { STAFF_ROUTES } from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
-import { getJwks } from "@/utils/jwks.util.ts";
 import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
 
 const app = express();
@@ -27,9 +26,6 @@ app.use(metricsMiddleware);
 
 // JWKS Endpoint
 app.use("/.well-known", jwksRouter);
-app.get("/.well-known/jwks.json", (_req, res) => {
-	res.json(getJwks());
-});
 
 app.get("/", (_req, res) => {
 	sendSuccessResponse(
