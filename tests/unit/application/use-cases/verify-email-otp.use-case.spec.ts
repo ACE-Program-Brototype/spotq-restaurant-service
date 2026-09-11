@@ -119,7 +119,7 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		expect(result).not.toHaveProperty("verificationToken");
 	});
 
-	it("returns SUBSCRIPTION nextStep for existing fully onboarded and approved restaurant", async () => {
+	it("returns DASHBOARD nextStep for existing fully onboarded and approved restaurant", async () => {
 		mockOtpStore.get.mockResolvedValue("hashed-otp");
 		mockOtpHashService.compare.mockResolvedValue(true);
 		mockRestaurantRepo.findByEmail.mockResolvedValue(
@@ -145,7 +145,7 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 			otp: "123456",
 		});
 
-		expect(result.nextStep).toBe("SUBSCRIPTION");
+		expect(result.nextStep).toBe("DASHBOARD");
 		expect(result.restaurantId).toBe("res-456");
 	});
 

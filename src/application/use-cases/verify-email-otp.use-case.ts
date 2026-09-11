@@ -99,7 +99,7 @@ export class VerifyRestaurantEmailOtpUseCase
 			restaurant.status === "APPROVED" ||
 			restaurant.status === "ACTIVE"
 		) {
-			nextStep = "SUBSCRIPTION";
+			nextStep = "DASHBOARD";
 		} else {
 			nextStep = "DASHBOARD";
 		}
