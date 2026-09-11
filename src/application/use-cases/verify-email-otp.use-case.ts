@@ -95,8 +95,7 @@ export class VerifyRestaurantEmailOtpUseCase
 		} else if (restaurant.status === "PENDING") {
 			nextStep = "VERIFICATION_STATUS";
 		} else if (
-			restaurant.status === "APPROVED" ||
-			restaurant.status === "ACTIVE"
+			restaurant.status === "APPROVED"
 		) {
 			nextStep = "SUBSCRIPTION";
 		} else {
