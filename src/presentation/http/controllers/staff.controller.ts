@@ -360,10 +360,7 @@ export class StaffController {
 		);
 	};
 
-	public getProfile = async (
-		req: Request,
-		res: Response,
-	): Promise<void> => {
+	public getProfile = async (req: Request, res: Response): Promise<void> => {
 		const authReq = req as AuthenticatedRequest;
 		const staffId = authReq.user?.userId ?? authReq.userId;
 
