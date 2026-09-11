@@ -56,20 +56,24 @@ export const listRestaurantsQuerySchema = z
 			.transform((val) => (val === "" ? undefined : val))
 			.optional(),
 		is_subscription_active: z.preprocess((val) => {
+			if (val === undefined || val === null || val === "") return undefined;
 			if (typeof val === "string") {
-				if (val.toLowerCase() === "true") return true;
-				if (val.toLowerCase() === "false") return false;
+				const lower = val.trim().toLowerCase();
+				if (lower === "true") return true;
+				if (lower === "false") return false;
 			}
 			if (typeof val === "boolean") return val;
-			return undefined;
+			return val;
 		}, z.boolean().optional()),
 		isSubscriptionActive: z.preprocess((val) => {
+			if (val === undefined || val === null || val === "") return undefined;
 			if (typeof val === "string") {
-				if (val.toLowerCase() === "true") return true;
-				if (val.toLowerCase() === "false") return false;
+				const lower = val.trim().toLowerCase();
+				if (lower === "true") return true;
+				if (lower === "false") return false;
 			}
 			if (typeof val === "boolean") return val;
-			return undefined;
+			return val;
 		}, z.boolean().optional()),
 		onboarding_status: z.enum(ONBOARDING_STATUSES).optional(),
 		onboardingStatus: z.enum(ONBOARDING_STATUSES).optional(),

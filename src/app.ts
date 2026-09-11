@@ -1,13 +1,15 @@
 import "reflect-metadata";
-import jwksRouter from "@presentation/http/routes/jwks.routes";
-import staffRouter from "@presentation/http/routes/staff.routes";
-import { storageRouter } from "@presentation/http/routes/storage.routes";
 import cookieParser from "cookie-parser";
 import express from "express";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware";
 import { httpLogger } from "@/presentation/http/middleware/log.middleware";
 import { metricsMiddleware } from "@/presentation/http/middleware/metrics.middleware";
 import { notFoundHandler } from "@/presentation/http/middleware/notfound.middleware";
+import { adminRouter } from "@/presentation/http/routes/admin.routes";
+import jwksRouter from "@/presentation/http/routes/jwks.routes";
+import { restaurantRouter } from "@/presentation/http/routes/restaurant.routes";
+import staffRouter from "@/presentation/http/routes/staff.routes";
+import { storageRouter } from "@/presentation/http/routes/storage.routes";
 import systemRouter from "@/presentation/http/routes/system.routes";
 import { APP_ENV, APP_NAME } from "@/shared/constants/app.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -18,8 +20,6 @@ import {
 	STORAGE_ROUTES,
 } from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
-import { adminRouter } from "./presentation/http/routes/admin.routes";
-import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
 
 const app = express();
 

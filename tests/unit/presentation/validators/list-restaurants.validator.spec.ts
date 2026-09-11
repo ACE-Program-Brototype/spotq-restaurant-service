@@ -130,6 +130,23 @@ describe("listRestaurantsQuerySchema", () => {
 		}
 	});
 
+	it("should reject invalid is_subscription_active or isSubscriptionActive values", () => {
+		const result1 = listRestaurantsQuerySchema.safeParse({
+			is_subscription_active: "invalid",
+		});
+		expect(result1.success).toBe(false);
+
+		const result2 = listRestaurantsQuerySchema.safeParse({
+			isSubscriptionActive: "123",
+		});
+		expect(result2.success).toBe(false);
+
+		const result3 = listRestaurantsQuerySchema.safeParse({
+			is_subscription_active: "not_a_boolean",
+		});
+		expect(result3.success).toBe(false);
+	});
+
 	it("should reject invalid page or limit", () => {
 		const result = listRestaurantsQuerySchema.safeParse({
 			page: "0",
