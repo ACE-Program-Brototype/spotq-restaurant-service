@@ -35,13 +35,20 @@ export class PrismaRestaurantStaffRepository
 		error: unknown,
 		_context?: unknown,
 	): void {
-		if (error instanceof PrismaClientKnownRequestError) {
-			if (error.code === "P2002") {
-				throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
-			}
-			if (error.code === "P2025") {
-				throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
-			}
+		const code = (error as { code?: string })?.code;
+		if (
+			code === "P2002" ||
+			(error instanceof PrismaClientKnownRequestError &&
+				error.code === "P2002")
+		) {
+			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
+		}
+		if (
+			code === "P2025" ||
+			(error instanceof PrismaClientKnownRequestError &&
+				error.code === "P2025")
+		) {
+			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 	}
 
@@ -49,7 +56,7 @@ export class PrismaRestaurantStaffRepository
 		if (!email) {
 			return null;
 		}
-		const raw = await this.dbModel.findUnique({
+		const raw = await this.dbModel.findFirst({
 			where: { email: email.toLowerCase().trim() },
 		});
 
@@ -67,10 +74,12 @@ export class PrismaRestaurantStaffRepository
 		if (!email || !restaurantId) {
 			return null;
 		}
-		const raw = await this.dbModel.findFirst({
+		const raw = await this.dbModel.findUnique({
 			where: {
-				email: email.toLowerCase().trim(),
-				restaurantId,
+				restaurantId_email: {
+					email: email.toLowerCase().trim(),
+					restaurantId,
+				},
 			},
 		});
 

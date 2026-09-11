@@ -41,8 +41,9 @@ export class PrismaStaffInvitationRepository
 		error: unknown,
 		_context?: unknown,
 	): void {
-		if (error instanceof PrismaClientKnownRequestError) {
-			if (error.code === "P2002") {
+		const code = (error as { code?: string })?.code;
+		if (code === "P2002" || error instanceof PrismaClientKnownRequestError) {
+			if ((error as PrismaClientKnownRequestError).code === "P2002" || code === "P2002") {
 				throw new StaffInvitationAlreadyPendingError(
 					messages.STAFF_INVITATION_ALREADY_PENDING,
 				);
@@ -178,9 +179,11 @@ export class PrismaStaffInvitationRepository
 				}),
 			]);
 		} catch (error) {
+			const code = (error as { code?: string })?.code;
 			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code === "P2002"
+				code === "P2002" ||
+				(error instanceof PrismaClientKnownRequestError &&
+					error.code === "P2002")
 			) {
 				throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 			}
