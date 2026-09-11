@@ -1,15 +1,15 @@
 import type { BrevoClient } from "@getbrevo/brevo";
 import type { PrismaClient } from "@prisma/client";
+import type { Queue } from "bullmq";
 import { ContainerModule } from "inversify";
 import type Redis from "ioredis";
-import type { Queue } from "bullmq";
 import type { IJwkService } from "@/application/ports/services/IJwk.service";
 import type { ILogger } from "@/application/ports/services/logger.interface";
 import type { IEmailWorker } from "@/application/ports/workers/email.worker.port";
 import { brevoClient } from "@/config/brevo.client";
+import { TYPES } from "@/config/di/types";
 import { prisma } from "@/config/prisma";
 import redis from "@/config/redis";
-import { TYPES } from "@/config/di/types";
 import {
 	HealthCheckService,
 	type IHealthCheckable,

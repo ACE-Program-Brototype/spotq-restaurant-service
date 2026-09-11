@@ -56,10 +56,12 @@ export const TYPES = {
 		),
 		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
+		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
 	},
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		AdminRestaurantController: Symbol.for("AdminRestaurantController"),
 		StorageController: Symbol.for("StorageController"),
 	},
 

@@ -35,19 +35,52 @@ export class PrismaRestaurantStaffRepository
 		error: unknown,
 		_context?: unknown,
 	): void {
-		if (error instanceof PrismaClientKnownRequestError) {
-			if (error.code === "P2002") {
-				throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
-			}
-			if (error.code === "P2025") {
-				throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
-			}
+		const code = (error as { code?: string })?.code;
+		if (
+			code === "P2002" ||
+			(error instanceof PrismaClientKnownRequestError &&
+				error.code === "P2002")
+		) {
+			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
+		}
+		if (
+			code === "P2025" ||
+			(error instanceof PrismaClientKnownRequestError &&
+				error.code === "P2025")
+		) {
+			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 	}
 
 	public async findByEmail(email: string): Promise<RestaurantStaff | null> {
-		const raw = await this.dbModel.findUnique({
+		if (!email) {
+			return null;
+		}
+		const raw = await this.dbModel.findFirst({
 			where: { email: email.toLowerCase().trim() },
+		});
+
+		if (!raw) {
+			return null;
+		}
+
+		return this.mapper.toDomain(raw);
+	}
+
+	public async findByEmailAndRestaurantId(
+		email: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null> {
+		if (!email || !restaurantId) {
+			return null;
+		}
+		const raw = await this.dbModel.findUnique({
+			where: {
+				restaurantId_email: {
+					email: email.toLowerCase().trim(),
+					restaurantId,
+				},
+			},
 		});
 
 		if (!raw) {
@@ -60,6 +93,9 @@ export class PrismaRestaurantStaffRepository
 	public async findByRestaurantId(
 		restaurantId: string,
 	): Promise<RestaurantStaff[]> {
+		if (!restaurantId) {
+			return [];
+		}
 		const rawList = await this.dbModel.findMany({
 			where: { restaurantId },
 		});

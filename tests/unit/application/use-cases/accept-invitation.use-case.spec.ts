@@ -37,6 +37,7 @@ describe("AcceptInvitationUseCase", () => {
 		staffRepository = {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
+			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
@@ -87,7 +88,7 @@ describe("AcceptInvitationUseCase", () => {
 		});
 
 		staffInvitationRepository.findByTokenHash.mockResolvedValue(invitation);
-		staffRepository.findByEmail.mockResolvedValue(null);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(null);
 		staffInvitationRepository.createStaffWithInvitation.mockResolvedValue();
 
 		const result = await useCase.execute({
@@ -167,7 +168,7 @@ describe("AcceptInvitationUseCase", () => {
 		});
 
 		staffInvitationRepository.findByTokenHash.mockResolvedValue(invitation);
-		staffRepository.findByEmail.mockResolvedValue(existingStaff);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(existingStaff);
 
 		await expect(
 			useCase.execute({

@@ -23,7 +23,8 @@ export class RestaurantStatusVO {
 		const upperStatus = rawStatus?.toUpperCase() as RestaurantStatus;
 		if (!RESTAURANT_STATUSES.includes(upperStatus)) {
 			throw new InvalidRestaurantStatusError(
-				messages.INVALID_RESTAURANT_STATUS || `Invalid restaurant status: ${rawStatus}`,
+				messages.INVALID_RESTAURANT_STATUS ||
+					`Invalid restaurant status: ${rawStatus}`,
 			);
 		}
 		return new RestaurantStatusVO(upperStatus);

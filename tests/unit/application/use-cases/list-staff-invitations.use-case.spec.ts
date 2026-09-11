@@ -54,6 +54,7 @@ describe("ListStaffInvitationsUseCase", () => {
 			findUnique: jest.fn(),
 			find: jest.fn(),
 			update: jest.fn(),
+			findManyWithFilters: jest.fn(),
 		};
 
 		useCase = new ListStaffInvitationsUseCase(
