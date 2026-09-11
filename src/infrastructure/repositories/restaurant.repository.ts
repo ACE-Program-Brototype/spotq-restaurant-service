@@ -7,6 +7,7 @@ import type {
 } from "@/application/ports/repositories/restaurant.repository.port";
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
+import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
 
 @injectable()
@@ -141,7 +142,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 		} = params;
 
 		const where: Prisma.RestaurantWhereInput = {
-			onboardingStatus: "COMPLETED",
+			onboardingStatus: ONBOARDING_STATUS.COMPLETED,
 			...(status && { status }),
 			...(plan && { subscriptionPlanCode: plan }),
 			...(isSubscriptionActive !== undefined && { isSubscriptionActive }),
