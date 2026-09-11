@@ -20,7 +20,7 @@ describe("listRestaurantsQuerySchema", () => {
 			limit: "25",
 			search: "burger",
 			status: "APPROVED" as const,
-			plan: "PRO",
+			plan: "QUEUE_PRO" as const,
 			is_subscription_active: "true",
 			sort_by: "restaurantName",
 			sort_order: "asc",
@@ -34,11 +34,34 @@ describe("listRestaurantsQuerySchema", () => {
 			expect(result.data.limit).toBe(25);
 			expect(result.data.search).toBe("burger");
 			expect(result.data.status).toBe("APPROVED");
-			expect(result.data.plan).toBe("PRO");
+			expect(result.data.plan).toBe("QUEUE_PRO");
 			expect(result.data.isSubscriptionActive).toBe(true);
 			expect(result.data.sortBy).toBe("restaurantName");
 			expect(result.data.sortOrder).toBe("asc");
 		}
+	});
+
+	it("should accept valid supported plans (QUEUE_PRO and SELF_SERVICE_PRO) and reject unsupported ones", () => {
+		const queueProResult = listRestaurantsQuerySchema.safeParse({
+			plan: "QUEUE_PRO",
+		});
+		expect(queueProResult.success).toBe(true);
+		if (queueProResult.success) {
+			expect(queueProResult.data.plan).toBe("QUEUE_PRO");
+		}
+
+		const selfServiceResult = listRestaurantsQuerySchema.safeParse({
+			plan: "SELF_SERVICE_PRO",
+		});
+		expect(selfServiceResult.success).toBe(true);
+		if (selfServiceResult.success) {
+			expect(selfServiceResult.data.plan).toBe("SELF_SERVICE_PRO");
+		}
+
+		const invalidPlanResult = listRestaurantsQuerySchema.safeParse({
+			plan: "INVALID_PLAN",
+		});
+		expect(invalidPlanResult.success).toBe(false);
 	});
 
 	it("should parse camelCase parameters properly", () => {
