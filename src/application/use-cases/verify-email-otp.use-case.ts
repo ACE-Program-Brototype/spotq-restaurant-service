@@ -15,8 +15,7 @@ import type { IOtpStore } from "../ports/services/otp-store.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
-	implements IVerifyRestaurantEmailOtpUseCase
-{
+	implements IVerifyRestaurantEmailOtpUseCase {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
@@ -32,7 +31,7 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		@inject(TYPES.Services.OtpHashService)
 		private readonly otpHashService: IOtpHashService,
-	) {}
+	) { }
 
 	async execute(dto: VerifyRestaurantEmailOtpDto) {
 		const { email, otp } = dto;
@@ -99,7 +98,7 @@ export class VerifyRestaurantEmailOtpUseCase
 			restaurant.status === "APPROVED" ||
 			restaurant.status === "ACTIVE"
 		) {
-			nextStep = "DASHBOARD";
+			nextStep = "SUBSCRIPTION";
 		} else {
 			nextStep = "DASHBOARD";
 		}
