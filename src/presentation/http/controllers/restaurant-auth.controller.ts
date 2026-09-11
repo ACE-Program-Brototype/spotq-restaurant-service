@@ -129,7 +129,8 @@ export class RestaurantAuthController {
 	}
 
 	async onboard(req: Request, res: Response): Promise<Response> {
-		const restaurantId = (req as Request & { user?: { restaurantId?: string } }).user?.restaurantId;
+		const restaurantId = (req as Request & { user?: { restaurantId?: string } })
+			.user?.restaurantId;
 
 		if (!restaurantId) {
 			return res.status(HTTP_STATUS.UNAUTHORIZED).json({

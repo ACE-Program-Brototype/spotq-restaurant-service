@@ -13,6 +13,7 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { StaffController } from "@/presentation/http/controllers/staff.controller.ts";
@@ -32,6 +33,7 @@ describe("StaffController", () => {
 	let revokeStaffInvitationUseCase: jest.Mocked<IRevokeStaffInvitationUseCase>;
 	let listStaffInvitationsUseCase: jest.Mocked<IListStaffInvitationsUseCase>;
 	let getStaffProfileUseCase: jest.Mocked<IGetStaffProfileUseCase>;
+	let updateStaffProfileUseCase: jest.Mocked<IUpdateStaffProfileUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
 
@@ -50,6 +52,7 @@ describe("StaffController", () => {
 		revokeStaffInvitationUseCase = { execute: jest.fn() };
 		listStaffInvitationsUseCase = { execute: jest.fn() };
 		getStaffProfileUseCase = { execute: jest.fn() };
+		updateStaffProfileUseCase = { execute: jest.fn() };
 
 		controller = new StaffController(
 			loginStaffUseCase,
@@ -66,6 +69,7 @@ describe("StaffController", () => {
 			revokeStaffInvitationUseCase,
 			listStaffInvitationsUseCase,
 			getStaffProfileUseCase,
+			updateStaffProfileUseCase,
 		);
 
 		res = {

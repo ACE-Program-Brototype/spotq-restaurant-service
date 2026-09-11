@@ -89,6 +89,13 @@ export class StaffSuspendedError extends DomainError {
 	}
 }
 
+export class StaffForbiddenError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.STAFF_FORBIDDEN;
+	constructor(message: string = messages.STAFF_FORBIDDEN) {
+		super(message);
+	}
+}
+
 export class InvalidEmailError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.INVALID_EMAIL;
 	constructor(message: string = messages.INVALID_EMAIL_FORMAT) {

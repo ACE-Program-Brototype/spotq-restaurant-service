@@ -9,9 +9,9 @@ import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
 import type { IAuthTokenService } from "../ports/services/auth-token.service.port";
+import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 import type { IOtpStore } from "../ports/services/otp-store.port";
-import type { IOtpService } from "../ports/services/otp.service.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
@@ -86,7 +86,8 @@ export class VerifyRestaurantEmailOtpUseCase
 		});
 
 		const nextStep =
-			restaurant.onboardingStatus === "PENDING" || restaurant.status === "PENDING"
+			restaurant.onboardingStatus === "PENDING" ||
+			restaurant.status === "PENDING"
 				? ("ONBOARDING" as const)
 				: ("DASHBOARD" as const);
 
