@@ -87,9 +87,7 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 		invitationAcceptPath: env.INVITATION_ACCEPT_PATH,
 	});
 
-	bind<IOtpService>(TYPES.OtpService)
-		.to(CryptoOtpService)
-		.inSingletonScope();
+	bind<IOtpService>(TYPES.OtpService).to(CryptoOtpService).inSingletonScope();
 
 	bind<IEmailQueuePort>(TYPES.EmailQueuePort)
 		.to(EmailQueueService)
