@@ -58,6 +58,78 @@ describe("listRestaurantsQuerySchema", () => {
 		}
 	});
 
+	it("should parse snake_case sort_by parameters and map them to Prisma fields", () => {
+		const rawQuery1 = {
+			sort_by: "restaurant_name",
+			sort_order: "asc",
+		};
+		const result1 = listRestaurantsQuerySchema.safeParse(rawQuery1);
+		expect(result1.success).toBe(true);
+		if (result1.success) {
+			expect(result1.data.sortBy).toBe("restaurantName");
+			expect(result1.data.sortOrder).toBe("asc");
+		}
+
+		const rawQuery2 = {
+			sort_by: "plan",
+			sort_order: "desc",
+		};
+		const result2 = listRestaurantsQuerySchema.safeParse(rawQuery2);
+		expect(result2.success).toBe(true);
+		if (result2.success) {
+			expect(result2.data.sortBy).toBe("subscriptionPlanCode");
+			expect(result2.data.sortOrder).toBe("desc");
+		}
+
+		const rawQuery3 = {
+			sort_by: "created_at",
+		};
+		const result3 = listRestaurantsQuerySchema.safeParse(rawQuery3);
+		expect(result3.success).toBe(true);
+		if (result3.success) {
+			expect(result3.data.sortBy).toBe("createdAt");
+		}
+	});
+
+	it("should accept valid date range when created_from is before or equal to created_to", () => {
+		const validRange = {
+			created_from: "2026-01-01T00:00:00.000Z",
+			created_to: "2026-01-31T23:59:59.999Z",
+		};
+		const result = listRestaurantsQuerySchema.safeParse(validRange);
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.createdFrom).toEqual(
+				new Date("2026-01-01T00:00:00.000Z"),
+			);
+			expect(result.data.createdTo).toEqual(
+				new Date("2026-01-31T23:59:59.999Z"),
+			);
+		}
+
+		const sameDate = {
+			createdFrom: "2026-01-01T00:00:00.000Z",
+			createdTo: "2026-01-01T00:00:00.000Z",
+		};
+		const sameDateResult = listRestaurantsQuerySchema.safeParse(sameDate);
+		expect(sameDateResult.success).toBe(true);
+	});
+
+	it("should reject when created_from is later than created_to (inverted date range)", () => {
+		const invertedRange = {
+			created_from: "2026-02-01T00:00:00.000Z",
+			created_to: "2026-01-01T00:00:00.000Z",
+		};
+		const result = listRestaurantsQuerySchema.safeParse(invertedRange);
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues[0].message).toBe(
+				"created_from must not be later than created_to",
+			);
+			expect(result.error.issues[0].path).toContain("created_from");
+		}
+	});
+
 	it("should reject invalid page or limit", () => {
 		const result = listRestaurantsQuerySchema.safeParse({
 			page: "0",

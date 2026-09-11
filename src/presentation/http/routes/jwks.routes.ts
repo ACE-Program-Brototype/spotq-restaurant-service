@@ -1,5 +1,5 @@
-import { container } from "@/config/di/container";
 import { Router } from "express";
+import { container } from "@/config/di/container";
 import { TYPES } from "@/config/di/types";
 import type { JwksController } from "../controllers/jwks.controller";
 

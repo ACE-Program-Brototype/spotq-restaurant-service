@@ -4,7 +4,5 @@ import type {
 } from "@/application/dtos/admin/list-restaurants.dto.ts";
 
 export interface IListRestaurantsUseCase {
-	execute(
-		dto: ListRestaurantsDTO,
-	): Promise<PaginatedRestaurantsResponseDTO>;
+	execute(dto: ListRestaurantsDTO): Promise<PaginatedRestaurantsResponseDTO>;
 }
