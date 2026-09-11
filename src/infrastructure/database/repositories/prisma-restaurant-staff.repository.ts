@@ -46,8 +46,32 @@ export class PrismaRestaurantStaffRepository
 	}
 
 	public async findByEmail(email: string): Promise<RestaurantStaff | null> {
+		if (!email?.trim()) {
+			return null;
+		}
 		const raw = await this.dbModel.findUnique({
 			where: { email: email.toLowerCase().trim() },
+		});
+
+		if (!raw) {
+			return null;
+		}
+
+		return this.mapper.toDomain(raw);
+	}
+
+	public async findByEmailAndRestaurantId(
+		email: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null> {
+		if (!email?.trim() || !restaurantId?.trim()) {
+			return null;
+		}
+		const raw = await this.dbModel.findFirst({
+			where: {
+				email: email.toLowerCase().trim(),
+				restaurantId: restaurantId.trim(),
+			},
 		});
 
 		if (!raw) {
@@ -60,8 +84,11 @@ export class PrismaRestaurantStaffRepository
 	public async findByRestaurantId(
 		restaurantId: string,
 	): Promise<RestaurantStaff[]> {
+		if (!restaurantId?.trim()) {
+			return [];
+		}
 		const rawList = await this.dbModel.findMany({
-			where: { restaurantId },
+			where: { restaurantId: restaurantId.trim() },
 		});
 
 		return rawList.map((raw) => this.mapper.toDomain(raw));

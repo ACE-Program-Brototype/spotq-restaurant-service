@@ -54,6 +54,7 @@ describe("InviteStaffUseCase", () => {
 		staffRepository = {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
+			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
@@ -105,7 +106,7 @@ describe("InviteStaffUseCase", () => {
 
 	it("should successfully invite staff when restaurant exists and no duplicate staff/invitation", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
-		staffRepository.findByEmail.mockResolvedValue(null);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(null);
 		staffInvitationRepository.findPendingByEmailAndRestaurant.mockResolvedValue(
 			null,
 		);
@@ -198,7 +199,9 @@ describe("InviteStaffUseCase", () => {
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});
-		staffRepository.findByEmail.mockResolvedValue(existingStaff);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(
+			existingStaff,
+		);
 
 		await expect(
 			useCase.execute({
@@ -210,7 +213,7 @@ describe("InviteStaffUseCase", () => {
 
 	it("should throw StaffInvitationAlreadyPendingError when active invitation already pending", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
-		staffRepository.findByEmail.mockResolvedValue(null);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(null);
 		const pendingInvitation = StaffInvitation.create({
 			restaurantId: mockRestaurant.id,
 			email: "pending@tastybites.com",
