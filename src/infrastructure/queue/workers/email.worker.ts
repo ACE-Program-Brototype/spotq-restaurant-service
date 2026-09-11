@@ -24,54 +24,56 @@ export class EmailWorker implements IEmailWorker {
 		private readonly logger: ILogger,
 	) {}
 
+	async processJob(job: Job): Promise<void> {
+		this.logger.info(
+			{
+				jobId: job.id,
+				jobName: job.name,
+				event: "EMAIL_JOB_PROCESSING",
+			},
+			"Processing email job",
+		);
+
+		if (job.name === JOB_NAMES.EMAIL.VERIFICATION_OTP) {
+			const { toEmail, otp } = job.data;
+			await this.emailService.sendVerificationEmail(toEmail, otp);
+		} else if (job.name === JOB_NAMES.EMAIL.TRANSACTIONAL) {
+			const { to, subject, htmlContent, recipientName } = job.data;
+			await this.brevoClient.transactionalEmails.sendTransacEmail({
+				subject,
+				htmlContent,
+				sender: {
+					name: env.BREVO_SENDER_NAME,
+					email: env.BREVO_SENDER_EMAIL,
+				},
+				to: [
+					{
+						email: to,
+						name: recipientName,
+					},
+				],
+			});
+		} else {
+			this.logger.warn(
+				{ jobId: job.id, jobName: job.name },
+				"Unknown email job type received",
+			);
+		}
+
+		this.logger.info(
+			{
+				jobId: job.id,
+				jobName: job.name,
+				event: "EMAIL_JOB_COMPLETED",
+			},
+			"Email job completed successfully",
+		);
+	}
+
 	start(): void {
 		this.worker = new Worker(
 			QUEUE_NAMES.EMAIL,
-			async (job: Job) => {
-				this.logger.info(
-					{
-						jobId: job.id,
-						jobName: job.name,
-						event: "EMAIL_JOB_PROCESSING",
-					},
-					"Processing email job",
-				);
-
-				if (job.name === JOB_NAMES.EMAIL.VERIFICATION_OTP) {
-					const { toEmail, otp } = job.data;
-					await this.emailService.sendVerificationEmail(toEmail, otp);
-				} else if (job.name === JOB_NAMES.EMAIL.TRANSACTIONAL) {
-					const { to, subject, htmlContent, recipientName } = job.data;
-					await this.brevoClient.transactionalEmails.sendTransacEmail({
-						subject,
-						htmlContent,
-						sender: {
-							name: env.BREVO_SENDER_NAME,
-							email: env.BREVO_SENDER_EMAIL,
-						},
-						to: [
-							{
-								email: to,
-								name: recipientName,
-							},
-						],
-					});
-				} else {
-					this.logger.warn(
-						{ jobId: job.id, jobName: job.name },
-						"Unknown email job type received",
-					);
-				}
-
-				this.logger.info(
-					{
-						jobId: job.id,
-						jobName: job.name,
-						event: "EMAIL_JOB_COMPLETED",
-					},
-					"Email job completed successfully",
-				);
-			},
+			(job: Job) => this.processJob(job),
 			{
 				connection: bullMQConnection,
 				concurrency: env.BULLMQ_WORKER_CONCURRENCY ?? 5,

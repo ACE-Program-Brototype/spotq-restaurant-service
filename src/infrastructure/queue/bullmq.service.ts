@@ -18,4 +18,3 @@ export const emailQueue = new Queue(QUEUE_NAMES.EMAIL, {
 		removeOnFail: env.QUEUE_EMAIL_REMOVE_ON_FAIL,
 	},
 });
-

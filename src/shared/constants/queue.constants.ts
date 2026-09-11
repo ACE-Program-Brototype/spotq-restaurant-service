@@ -13,5 +13,3 @@ export const QUEUE_CONFIG = {
 	BACKOFF_TYPE: "exponential" as const,
 	REMOVE_ON_COMPLETE: true,
 } as const;
-
-
