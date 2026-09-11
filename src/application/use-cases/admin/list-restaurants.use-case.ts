@@ -34,7 +34,7 @@ export class ListRestaurantsUseCase implements IListRestaurantsUseCase {
 				limit,
 				search: dto.search?.trim(),
 				status: dto.status,
-				plan: dto.plan?.trim(),
+				plan: dto.plan,
 				isSubscriptionActive: dto.isSubscriptionActive,
 				onboardingStatus: dto.onboardingStatus,
 				createdFrom: dto.createdFrom,

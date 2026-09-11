@@ -143,12 +143,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 
 		const where: Prisma.RestaurantWhereInput = {
 			...(status && { status }),
-			...(plan && {
-				subscriptionPlanCode: {
-					equals: plan,
-					mode: "insensitive",
-				},
-			}),
+			...(plan && { subscriptionPlanCode: plan }),
 			...(isSubscriptionActive !== undefined && { isSubscriptionActive }),
 			...(onboardingStatus && { onboardingStatus }),
 			...((createdFrom || createdTo) && {

@@ -3,13 +3,14 @@ import type { IBaseRepository } from "@/application/ports/repositories/base.repo
 import type { Restaurant } from "@/domain/entities/restaurant.entity";
 import type { OnboardingStatus } from "@/domain/value-objects/onboarding-status.vo.ts";
 import type { RestaurantStatus } from "@/domain/value-objects/restaurant-status.vo.ts";
+import type { SubscriptionPlan } from "@/domain/value-objects/subscription-plan.vo.ts";
 
 export interface RestaurantFilterParams {
 	page: number;
 	limit: number;
 	search?: string;
 	status?: RestaurantStatus;
-	plan?: string;
+	plan?: SubscriptionPlan;
 	isSubscriptionActive?: boolean;
 	onboardingStatus?: OnboardingStatus;
 	createdFrom?: Date;
