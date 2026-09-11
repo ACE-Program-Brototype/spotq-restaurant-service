@@ -22,10 +22,6 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
-		await this.restaurantRepository.update(restaurantId, {
-			restaurantName: dto.restaurantName,
-			phone: dto.phone,
-			ownerName: dto.ownerName,
-		});
+		await this.restaurantRepository.completeOnboarding(restaurantId, dto);
 	}
 }
