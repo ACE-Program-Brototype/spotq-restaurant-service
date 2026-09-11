@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
@@ -127,59 +128,65 @@ export class RestaurantRepository implements IRestaurantRepository {
 		currentPeriodEnd: Date,
 		eventId: string,
 	): Promise<boolean> {
-		const alreadyProcessed = await (
-			this.prisma as unknown as {
-				processedEvent: {
-					findUnique: (args: {
-						where: { id: string };
-					}) => Promise<{ id: string } | null>;
-				};
-			}
-		).processedEvent.findUnique({
-			where: { id: eventId },
-		});
+		try {
+			return await (
+				this.prisma as unknown as {
+					$transaction: (
+						fn: (tx: {
+							restaurant: {
+								update: (args: {
+									where: { id: string };
+									data: Record<string, unknown>;
+								}) => Promise<unknown>;
+							};
+							processedEvent: {
+								findUnique: (args: {
+									where: { id: string };
+								}) => Promise<{ id: string } | null>;
+								create: (args: {
+									data: { id: string; eventType: string };
+								}) => Promise<unknown>;
+							};
+						}) => Promise<boolean>,
+					) => Promise<boolean>;
+				}
+			).$transaction(async (tx) => {
+				const alreadyProcessed = await tx.processedEvent.findUnique({
+					where: { id: eventId },
+				});
 
-		if (alreadyProcessed) {
-			return false;
+				if (alreadyProcessed) {
+					return false;
+				}
+
+				await tx.restaurant.update({
+					where: { id: restaurantId },
+					data: {
+						isSubscriptionActive: true,
+						subscriptionPlanCode: planCode,
+						subscriptionEndsAt: currentPeriodEnd,
+						status: "ACTIVE",
+					},
+				});
+
+				await tx.processedEvent.create({
+					data: {
+						id: eventId,
+						eventType: "subscription.activated",
+					},
+				});
+
+				return true;
+			});
+		} catch (error: unknown) {
+			if (
+				(error instanceof PrismaClientKnownRequestError &&
+					error.code === "P2002") ||
+				(error as { code?: string })?.code === "P2002"
+			) {
+				return false;
+			}
+			throw error;
 		}
-
-		await (
-			this.prisma as unknown as {
-				$transaction: (
-					fn: (tx: {
-						restaurant: {
-							update: (args: {
-								where: { id: string };
-								data: Record<string, unknown>;
-							}) => Promise<unknown>;
-						};
-						processedEvent: {
-							create: (args: {
-								data: { id: string; eventType: string };
-							}) => Promise<unknown>;
-						};
-					}) => Promise<unknown>,
-				) => Promise<unknown>;
-			}
-		).$transaction(async (tx) => {
-			await tx.restaurant.update({
-				where: { id: restaurantId },
-				data: {
-					isSubscriptionActive: true,
-					subscriptionPlanCode: planCode,
-					subscriptionEndsAt: currentPeriodEnd,
-					status: "ACTIVE",
-				},
-			});
-
-			await tx.processedEvent.create({
-				data: {
-					id: eventId,
-					eventType: "subscription.activated",
-				},
-			});
-		});
-
-		return true;
 	}
 }
