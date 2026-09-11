@@ -27,10 +27,6 @@ export class ActivateSubscriptionUseCase
 			eventId,
 		);
 
-		if (!activated) {
-			return false;
-		}
-
 		const restaurant = await this.restaurantRepository.findById(restaurantId);
 		const targetEmail = restaurant?.ownerEmail || restaurant?.email;
 		if (targetEmail) {
@@ -43,9 +39,10 @@ export class ActivateSubscriptionUseCase
 				restaurantName: restaurant?.restaurantName || "Your Restaurant",
 				planCode,
 				subscriptionEndsAt: new Date(currentPeriodEnd),
+				eventId,
 			});
 		}
 
-		return true;
+		return activated;
 	}
 }

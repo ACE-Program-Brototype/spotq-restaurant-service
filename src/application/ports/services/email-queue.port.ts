@@ -11,6 +11,7 @@ export interface SendSubscriptionActivatedEmailJobData {
 	restaurantName: string;
 	planCode: string;
 	subscriptionEndsAt: Date | string;
+	eventId?: string;
 }
 
 export interface SendStaffInvitationJobData {

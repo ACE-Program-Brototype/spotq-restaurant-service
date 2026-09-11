@@ -71,14 +71,24 @@ describe("ActivateSubscriptionUseCase", () => {
 			restaurantName: "Spicy Treats",
 			planCode: "QUEUE_PRO",
 			subscriptionEndsAt: new Date("2026-10-01T00:00:00.000Z"),
+			eventId: "evt-123",
 		});
 	});
 
-	it("should return false and not send email if event was already processed", async () => {
+	it("should attempt to enqueue activation email even if event was already recorded on retry", async () => {
 		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(false);
+		const mockRestaurant = Restaurant.create({
+			id: "rest-123",
+			restaurantName: "Spicy Treats",
+			ownerName: "John Doe",
+			ownerEmail: "owner@spicytreats.com",
+			email: "owner@spicytreats.com",
+			phone: "1234567890",
+		});
+		mockRestaurantRepository.findById.mockResolvedValueOnce(mockRestaurant);
 
 		const input = {
-			eventId: "evt-duplicate",
+			eventId: "evt-retry",
 			subscriptionId: "sub-123",
 			restaurantId: "rest-123",
 			planCode: "QUEUE_PRO",
@@ -88,7 +98,35 @@ describe("ActivateSubscriptionUseCase", () => {
 		const result = await useCase.execute(input);
 
 		expect(result).toBe(false);
-		expect(mockRestaurantRepository.findById).not.toHaveBeenCalled();
+		expect(mockRestaurantRepository.findById).toHaveBeenCalledWith("rest-123");
+		expect(
+			mockEmailQueuePort.sendSubscriptionActivatedEmail,
+		).toHaveBeenCalledWith({
+			to: "owner@spicytreats.com",
+			ownerName: "John Doe",
+			restaurantName: "Spicy Treats",
+			planCode: "QUEUE_PRO",
+			subscriptionEndsAt: new Date("2026-10-01T00:00:00.000Z"),
+			eventId: "evt-retry",
+		});
+	});
+
+	it("should return false and not send email if restaurant has no email", async () => {
+		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(false);
+		mockRestaurantRepository.findById.mockResolvedValueOnce(null);
+
+		const input = {
+			eventId: "evt-no-email",
+			subscriptionId: "sub-123",
+			restaurantId: "rest-123",
+			planCode: "QUEUE_PRO",
+			currentPeriodEnd: "2026-10-01T00:00:00.000Z",
+		};
+
+		const result = await useCase.execute(input);
+
+		expect(result).toBe(false);
+		expect(mockRestaurantRepository.findById).toHaveBeenCalledWith("rest-123");
 		expect(
 			mockEmailQueuePort.sendSubscriptionActivatedEmail,
 		).not.toHaveBeenCalled();

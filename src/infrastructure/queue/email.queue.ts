@@ -30,7 +30,10 @@ export const emailQueue = new Queue<SendEmailJobPayload>(EMAIL_QUEUE_NAME, {
 			type: "exponential",
 			delay: 2000,
 		},
-		removeOnComplete: true,
+		removeOnComplete: {
+			count: 1000,
+			age: 604800,
+		},
 		removeOnFail: 1000,
 	},
 });
@@ -65,12 +68,20 @@ export class EmailQueueService implements IEmailQueuePort {
 			subscriptionEndsAt: data.subscriptionEndsAt,
 		});
 
-		await this.queue.add("send-email", {
-			to: data.to,
-			subject: rendered.subject,
-			htmlContent: rendered.htmlContent,
-			recipientName: data.ownerName,
-		});
+		await this.queue.add(
+			"send-email",
+			{
+				to: data.to,
+				subject: rendered.subject,
+				htmlContent: rendered.htmlContent,
+				recipientName: data.ownerName,
+			},
+			data.eventId
+				? {
+						jobId: `sub-activated-${data.eventId}`,
+					}
+				: undefined,
+		);
 	}
 
 	public async sendStaffInvitation(
