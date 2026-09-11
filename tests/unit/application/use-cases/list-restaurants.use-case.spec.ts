@@ -58,7 +58,6 @@ describe("ListRestaurantsUseCase", () => {
 			status: undefined,
 			plan: undefined,
 			isSubscriptionActive: undefined,
-			onboardingStatus: undefined,
 			createdFrom: undefined,
 			createdTo: undefined,
 			sortBy: "createdAt",
@@ -113,7 +112,6 @@ describe("ListRestaurantsUseCase", () => {
 			status: "PENDING" as const,
 			plan: "SELF_SERVICE_PRO" as const,
 			isSubscriptionActive: false,
-			onboardingStatus: "PENDING" as const,
 			sortBy: "restaurantName" as const,
 			sortOrder: "asc" as const,
 		};
@@ -127,7 +125,6 @@ describe("ListRestaurantsUseCase", () => {
 			status: "PENDING",
 			plan: "SELF_SERVICE_PRO",
 			isSubscriptionActive: false,
-			onboardingStatus: "PENDING",
 			createdFrom: undefined,
 			createdTo: undefined,
 			sortBy: "restaurantName",

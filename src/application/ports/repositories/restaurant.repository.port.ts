@@ -1,7 +1,6 @@
 import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
 import type { Restaurant } from "@/domain/entities/restaurant.entity";
-import type { OnboardingStatus } from "@/domain/value-objects/onboarding-status.vo.ts";
 import type { RestaurantStatus } from "@/domain/value-objects/restaurant-status.vo.ts";
 import type { SubscriptionPlan } from "@/domain/value-objects/subscription-plan.vo.ts";
 
@@ -12,7 +11,6 @@ export interface RestaurantFilterParams {
 	status?: RestaurantStatus;
 	plan?: SubscriptionPlan;
 	isSubscriptionActive?: boolean;
-	onboardingStatus?: OnboardingStatus;
 	createdFrom?: Date;
 	createdTo?: Date;
 	sortBy: string;

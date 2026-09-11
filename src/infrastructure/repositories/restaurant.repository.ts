@@ -134,7 +134,6 @@ export class RestaurantRepository implements IRestaurantRepository {
 			status,
 			plan,
 			isSubscriptionActive,
-			onboardingStatus,
 			createdFrom,
 			createdTo,
 			sortBy,
@@ -142,10 +141,10 @@ export class RestaurantRepository implements IRestaurantRepository {
 		} = params;
 
 		const where: Prisma.RestaurantWhereInput = {
+			onboardingStatus: "COMPLETED",
 			...(status && { status }),
 			...(plan && { subscriptionPlanCode: plan }),
 			...(isSubscriptionActive !== undefined && { isSubscriptionActive }),
-			...(onboardingStatus && { onboardingStatus }),
 			...((createdFrom || createdTo) && {
 				createdAt: {
 					...(createdFrom && { gte: createdFrom }),

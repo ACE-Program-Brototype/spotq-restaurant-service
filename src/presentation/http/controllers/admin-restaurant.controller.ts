@@ -27,7 +27,6 @@ export class AdminRestaurantController {
 			status: query.status,
 			plan: query.plan,
 			isSubscriptionActive: query.isSubscriptionActive,
-			onboardingStatus: query.onboardingStatus,
 			createdFrom: query.createdFrom,
 			createdTo: query.createdTo,
 			sortBy: query.sortBy,

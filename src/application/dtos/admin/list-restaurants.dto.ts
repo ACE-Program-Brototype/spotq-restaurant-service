@@ -1,4 +1,3 @@
-import type { OnboardingStatus } from "@/domain/value-objects/onboarding-status.vo.ts";
 import type { RestaurantStatus } from "@/domain/value-objects/restaurant-status.vo.ts";
 import type { SubscriptionPlan } from "@/domain/value-objects/subscription-plan.vo.ts";
 
@@ -9,7 +8,6 @@ export interface ListRestaurantsDTO {
 	status?: RestaurantStatus;
 	plan?: SubscriptionPlan;
 	isSubscriptionActive?: boolean;
-	onboardingStatus?: OnboardingStatus;
 	createdFrom?: Date;
 	createdTo?: Date;
 	sortBy?:

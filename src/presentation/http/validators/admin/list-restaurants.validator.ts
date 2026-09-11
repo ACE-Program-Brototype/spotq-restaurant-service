@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { ONBOARDING_STATUSES } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUSES } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { SUBSCRIPTION_PLANS } from "@/domain/value-objects/subscription-plan.vo.ts";
 
@@ -72,8 +71,6 @@ export const listRestaurantsQuerySchema = z
 			if (typeof val === "boolean") return val;
 			return val;
 		}, z.boolean().optional()),
-		onboarding_status: z.enum(ONBOARDING_STATUSES).optional(),
-		onboardingStatus: z.enum(ONBOARDING_STATUSES).optional(),
 		created_from: z.coerce.date().optional(),
 		createdFrom: z.coerce.date().optional(),
 		created_to: z.coerce.date().optional(),
@@ -111,7 +108,6 @@ export const listRestaurantsQuerySchema = z
 			plan: data.plan,
 			isSubscriptionActive:
 				data.is_subscription_active ?? data.isSubscriptionActive,
-			onboardingStatus: data.onboarding_status ?? data.onboardingStatus,
 			createdFrom: data.created_from ?? data.createdFrom,
 			createdTo: data.created_to ?? data.createdTo,
 			sortBy: mappedSortBy,
@@ -120,3 +116,4 @@ export const listRestaurantsQuerySchema = z
 	});
 
 export type ListRestaurantsQuery = z.infer<typeof listRestaurantsQuerySchema>;
+

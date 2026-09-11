@@ -36,7 +36,6 @@ export class ListRestaurantsUseCase implements IListRestaurantsUseCase {
 				status: dto.status,
 				plan: dto.plan,
 				isSubscriptionActive: dto.isSubscriptionActive,
-				onboardingStatus: dto.onboardingStatus,
 				createdFrom: dto.createdFrom,
 				createdTo: dto.createdTo,
 				sortBy,
