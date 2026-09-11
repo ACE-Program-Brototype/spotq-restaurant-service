@@ -1,4 +1,17 @@
 import "reflect-metadata";
+import crypto from "node:crypto";
+
+const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+	modulusLength: 2048,
+	publicKeyEncoding: {
+		type: "spki",
+		format: "pem",
+	},
+	privateKeyEncoding: {
+		type: "pkcs8",
+		format: "pem",
+	},
+});
 
 process.env.PORT = "3000";
 process.env.DATABASE_URL =
@@ -15,9 +28,12 @@ process.env.BREVO_SENDER_EMAIL = "noreply@spotq.com";
 process.env.BREVO_SENDER_NAME = "SpotQ Test";
 process.env.JWT_ACCESS_SECRET =
 	"test-jwt-access-secret-key-1234567890123456789012345678901234567890";
-process.env.JWT_ACCESS_PRIVATE_KEY = "test-jwt-access-private-key";
-process.env.JWT_ACCESS_PUBLIC_KEY = "test-jwt-access-public-key";
-process.env.JWT_ACCESS_TOKEN_KEY_ID = "test-jwt-access-token-key-id";
+process.env.JWT_ACCESS_PRIVATE_KEY = privateKey;
+process.env.JWT_ACCESS_PUBLIC_KEY = publicKey;
+process.env.JWT_PRIVATE_KEY = privateKey;
+process.env.JWT_PUBLIC_KEY = publicKey;
+process.env.JWT_ACCESS_TOKEN_KEY_ID = "spotq-main-key";
+process.env.JWT_KEY_ID = "spotq-main-key";
 process.env.JWT_ACCESS_EXPIRES_IN = "15m";
 process.env.JWT_REFRESH_SECRET =
 	"test-jwt-refresh-secret-key-1234567890123456789012345678901234567890";

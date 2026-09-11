@@ -8,7 +8,10 @@ import { ZodError } from "zod";
 import { env } from "@/config/env.ts";
 import { DomainError } from "@/domain/errors/domain.error.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
-import { getStatusCodeForDomainError } from "@/shared/constants/domain-error-map.constants.ts";
+import {
+	DOMAIN_ERROR_STATUS_MAP,
+	getStatusCodeForDomainError,
+} from "@/shared/constants/domain-error-map.constants.ts";
 import {
 	HTTP_STATUS,
 	type HttpStatusCode,
@@ -50,14 +53,21 @@ export const errorHandler: ErrorRequestHandler = (
 		message = err.message;
 		errorDetails = err.details;
 	} else if (err instanceof Error) {
-		statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
-		code = "INTERNAL_SERVER_ERROR";
-		message =
-			env.APP_ENV === "production"
-				? messages.INTERNAL_SERVER_ERROR
-				: err.message || messages.INTERNAL_SERVER_ERROR;
-		errorDetails =
-			env.APP_ENV === "production" ? undefined : { stack: err.stack };
+		const mappedStatus = DOMAIN_ERROR_STATUS_MAP[err.name];
+		if (mappedStatus) {
+			statusCode = mappedStatus;
+			code = err.name;
+			message = err.message;
+		} else {
+			statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+			code = "INTERNAL_SERVER_ERROR";
+			message =
+				env.APP_ENV === "production"
+					? messages.INTERNAL_SERVER_ERROR
+					: err.message || messages.INTERNAL_SERVER_ERROR;
+			errorDetails =
+				env.APP_ENV === "production" ? undefined : { stack: err.stack };
+		}
 	}
 
 	const errorObj = err instanceof Error ? err : new Error(String(err));

@@ -40,7 +40,8 @@ export class GeneratePresignedUrlUseCase
 
 		if (
 			authContext?.restaurantId &&
-			(normalizedEntityType === "restaurants" || normalizedEntityType === "restaurant")
+			(normalizedEntityType === "restaurants" ||
+				normalizedEntityType === "restaurant")
 		) {
 			if (authContext.restaurantId !== sanitizedEntityId) {
 				throw new Error("Unauthorized entity access");

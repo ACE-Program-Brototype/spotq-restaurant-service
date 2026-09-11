@@ -1,15 +1,17 @@
-import {
-	renderStaffInvitationTemplate,
-	renderVerificationOtpTemplate,
-} from "@infrastructure/template/email.template";
 import { Queue } from "bullmq";
 import { injectable } from "inversify";
 import type {
 	IEmailQueuePort,
 	SendStaffInvitationJobData,
+	SendSubscriptionActivatedEmailJobData,
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
 import redis from "@/config/redis.ts";
+import {
+	renderStaffInvitationTemplate,
+	renderSubscriptionActivatedTemplate,
+	renderVerificationOtpTemplate,
+} from "@/infrastructure/template/email.template.ts";
 
 export const EMAIL_QUEUE_NAME = "email-queue";
 
@@ -28,7 +30,10 @@ export const emailQueue = new Queue<SendEmailJobPayload>(EMAIL_QUEUE_NAME, {
 			type: "exponential",
 			delay: 2000,
 		},
-		removeOnComplete: true,
+		removeOnComplete: {
+			count: 1000,
+			age: 604800,
+		},
 		removeOnFail: 1000,
 	},
 });
@@ -51,6 +56,32 @@ export class EmailQueueService implements IEmailQueuePort {
 			htmlContent: rendered.htmlContent,
 			recipientName: data.recipientName,
 		});
+	}
+
+	public async sendSubscriptionActivatedEmail(
+		data: SendSubscriptionActivatedEmailJobData,
+	): Promise<void> {
+		const rendered = renderSubscriptionActivatedTemplate({
+			ownerName: data.ownerName,
+			restaurantName: data.restaurantName,
+			planCode: data.planCode,
+			subscriptionEndsAt: data.subscriptionEndsAt,
+		});
+
+		await this.queue.add(
+			"send-email",
+			{
+				to: data.to,
+				subject: rendered.subject,
+				htmlContent: rendered.htmlContent,
+				recipientName: data.ownerName,
+			},
+			data.eventId
+				? {
+						jobId: `sub-activated-${data.eventId}`,
+					}
+				: undefined,
+		);
 	}
 
 	public async sendStaffInvitation(

@@ -9,7 +9,11 @@ import { env } from "@/config/env.ts";
 
 @injectable()
 export class JwtTokenService implements ITokenService {
-	private readonly accessPrivateKey = env.JWT_ACCESS_PRIVATE_KEY;
+	private readonly privateKey =
+		env.JWT_PRIVATE_KEY || env.JWT_ACCESS_PRIVATE_KEY;
+	private readonly publicKey = env.JWT_PUBLIC_KEY || env.JWT_ACCESS_PUBLIC_KEY;
+	private readonly keyId = env.JWT_KEY_ID || env.JWT_ACCESS_TOKEN_KEY_ID;
+	private readonly algorithm = (env.JWT_ALGORITHM || "RS256") as jwt.Algorithm;
 	private readonly accessExpiresIn = env.JWT_ACCESS_EXPIRES_IN;
 	private readonly refreshSecret = env.JWT_REFRESH_SECRET;
 	private readonly refreshExpiresIn = env.JWT_REFRESH_EXPIRES_IN;
@@ -17,11 +21,21 @@ export class JwtTokenService implements ITokenService {
 	private readonly tempExpiresIn = env.JWT_TEMP_EXPIRES_IN;
 
 	public generateAccessToken(payload: StaffTokenPayload): string {
-		return jwt.sign(payload, this.accessPrivateKey, {
+		const claims = {
+			sub: payload.sub,
+			id: payload.sub,
+			restaurantId: payload.restaurantId,
+			email: payload.email,
+			role: payload.role,
+		};
+
+		const signOptions: jwt.SignOptions = {
+			algorithm: this.algorithm,
+			keyid: this.keyId,
 			expiresIn: this.accessExpiresIn as jwt.SignOptions["expiresIn"],
-			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
-			keyid: env.JWT_ACCESS_TOKEN_KEY_ID,
-		});
+		};
+
+		return jwt.sign(claims, this.privateKey, signOptions);
 	}
 
 	public generateRefreshToken(payload: StaffTokenPayload): string {
@@ -31,9 +45,16 @@ export class JwtTokenService implements ITokenService {
 	}
 
 	public verifyAccessToken(token: string): StaffTokenPayload {
-		return jwt.verify(token, env.JWT_ACCESS_PUBLIC_KEY, {
-			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
-		}) as StaffTokenPayload;
+		const decoded = jwt.verify(token, this.publicKey, {
+			algorithms: [this.algorithm],
+		}) as StaffTokenPayload & { id?: string };
+
+		return {
+			sub: decoded.sub ?? decoded.id ?? "",
+			restaurantId: decoded.restaurantId ?? "",
+			email: decoded.email ?? "",
+			role: decoded.role ?? "",
+		};
 	}
 
 	public verifyRefreshToken(token: string): StaffTokenPayload {

@@ -2,8 +2,8 @@ import type { BrevoClient } from "@getbrevo/brevo";
 import { inject, injectable } from "inversify";
 import type { IEmailService } from "@/application/ports/services/email-service.port";
 import type { ILogger } from "@/application/ports/services/logger.interface";
-import { env } from "@/config/env";
 import { TYPES } from "@/config/di/types";
+import { env } from "@/config/env";
 import { renderVerificationOtpTemplate } from "@/infrastructure/template/email.template";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 

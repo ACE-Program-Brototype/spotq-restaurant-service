@@ -1,9 +1,9 @@
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type { ResendForgotPasswordOtpDTO } from "@/application/dtos/staff/resend-forgot-password-otp.dto.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type { IOtpService } from "@/application/ports/services/otp-service.port.ts";
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
 import {
 	StaffInactiveError,
 	StaffNotFoundError,

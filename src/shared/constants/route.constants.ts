@@ -9,7 +9,9 @@ export const RESTAURANT_ROUTES = {
 	VERIFY_EMAIL: "/registration/email-otp/verify",
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
 	REFRESH_ACCESS_TOKEN: "/auth/refresh",
+	REGISTRATION_REFRESH_TOKEN: "/registration/refresh-token",
 	ONBOARD: "/onboard",
+	STATUS: "/me/status",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -41,5 +43,4 @@ export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
 
 export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
-export type StorageRoute =
-	(typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
+export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];

@@ -1,6 +1,6 @@
+import { container } from "@di/container.ts";
+import { TYPES } from "@di/types.ts";
 import { Router } from "express";
-import { container } from "@/config/di/container.ts";
-import { TYPES } from "@/config/di/types.ts";
 import register from "@/config/prom.client.ts";
 import type { IHealthCheckable } from "@/infrastructure/health/health-check.service.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";

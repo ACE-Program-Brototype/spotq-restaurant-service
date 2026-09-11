@@ -1,5 +1,5 @@
-import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 
 describe("OnboardRestaurantUseCase", () => {
@@ -17,6 +17,7 @@ describe("OnboardRestaurantUseCase", () => {
 			create: jest.fn(),
 			update: jest.fn(),
 			save: jest.fn(),
+			activateSubscription: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		useCase = new OnboardRestaurantUseCase(mockRestaurantRepo);
@@ -33,7 +34,7 @@ describe("OnboardRestaurantUseCase", () => {
 		).rejects.toThrow("Restaurant not found");
 	});
 
-	it("updates restaurant details successfully when found", async () => {
+	it("updates restaurant details and saves entity when found", async () => {
 		const mockRestaurant = Restaurant.reconstitute({
 			id: "res-123",
 			restaurantName: "Pending Name",
@@ -51,17 +52,17 @@ describe("OnboardRestaurantUseCase", () => {
 		});
 
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockRestaurantRepo.update.mockResolvedValue(mockRestaurant);
+		mockRestaurantRepo.save.mockResolvedValue();
 
 		await useCase.execute(
 			{ restaurantName: "New Name", phone: "9876543210", ownerName: "Jane" },
 			"res-123",
 		);
 
-		expect(mockRestaurantRepo.update).toHaveBeenCalledWith("res-123", {
-			restaurantName: "New Name",
-			phone: "9876543210",
-			ownerName: "Jane",
-		});
+		expect(mockRestaurantRepo.save).toHaveBeenCalled();
+		expect(mockRestaurant.restaurantName).toBe("New Name");
+		expect(mockRestaurant.phone).toBe("9876543210");
+		expect(mockRestaurant.ownerName).toBe("Jane");
+		expect(mockRestaurant.onboardingStatus).toBe("COMPLETED");
 	});
 });
