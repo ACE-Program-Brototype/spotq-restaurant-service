@@ -85,11 +85,24 @@ export class VerifyRestaurantEmailOtpUseCase
 			restaurantId: restaurant.id,
 		});
 
-		const nextStep =
-			restaurant.onboardingStatus === "PENDING" ||
-			restaurant.status === "PENDING"
-				? ("ONBOARDING" as const)
-				: ("DASHBOARD" as const);
+		let nextStep:
+			| "ONBOARDING"
+			| "VERIFICATION_STATUS"
+			| "SUBSCRIPTION"
+			| "DASHBOARD";
+
+		if (restaurant.onboardingStatus === "PENDING") {
+			nextStep = "ONBOARDING";
+		} else if (restaurant.status === "PENDING") {
+			nextStep = "VERIFICATION_STATUS";
+		} else if (
+			restaurant.status === "APPROVED" ||
+			restaurant.status === "ACTIVE"
+		) {
+			nextStep = "SUBSCRIPTION";
+		} else {
+			nextStep = "DASHBOARD";
+		}
 
 		return {
 			nextStep,
