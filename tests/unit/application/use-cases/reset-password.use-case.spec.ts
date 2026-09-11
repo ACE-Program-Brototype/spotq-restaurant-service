@@ -36,6 +36,7 @@ describe("ResetPasswordUseCase", () => {
 		staffRepository = {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
+			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
