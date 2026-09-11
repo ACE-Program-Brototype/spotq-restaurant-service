@@ -1,17 +1,19 @@
-import {
-	renderStaffInvitationTemplate,
-	renderVerificationOtpTemplate,
-} from "@infrastructure/template/email.template";
-import { Queue } from "bullmq";
-import { injectable } from "inversify";
+import type { Queue } from "bullmq";
+import { inject, injectable } from "inversify";
 import type {
 	IEmailQueuePort,
 	SendStaffInvitationJobData,
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
-import redis from "@/config/redis.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { emailQueue } from "@/infrastructure/queue/bullmq.service.ts";
+import {
+	renderStaffInvitationTemplate,
+	renderVerificationOtpTemplate,
+} from "@/infrastructure/template/email.template";
+import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants.ts";
 
-export const EMAIL_QUEUE_NAME = "email-queue";
+export const EMAIL_QUEUE_NAME = QUEUE_NAMES.EMAIL;
 
 export interface SendEmailJobPayload {
 	to: string;
@@ -20,22 +22,14 @@ export interface SendEmailJobPayload {
 	recipientName?: string;
 }
 
-export const emailQueue = new Queue<SendEmailJobPayload>(EMAIL_QUEUE_NAME, {
-	connection: redis,
-	defaultJobOptions: {
-		attempts: 3,
-		backoff: {
-			type: "exponential",
-			delay: 2000,
-		},
-		removeOnComplete: true,
-		removeOnFail: 1000,
-	},
-});
+export { emailQueue };
 
 @injectable()
 export class EmailQueueService implements IEmailQueuePort {
-	private readonly queue = emailQueue;
+	constructor(
+		@inject(TYPES.Queue.Email)
+		private readonly queue: Queue = emailQueue,
+	) {}
 
 	public async sendVerificationOtp(
 		data: SendVerificationOtpJobData,
@@ -45,7 +39,7 @@ export class EmailQueueService implements IEmailQueuePort {
 			validityMinutes: data.validityMinutes ?? 5,
 		});
 
-		await this.queue.add("send-email", {
+		await this.queue.add(JOB_NAMES.EMAIL.TRANSACTIONAL, {
 			to: data.to,
 			subject: rendered.subject,
 			htmlContent: rendered.htmlContent,
@@ -62,7 +56,7 @@ export class EmailQueueService implements IEmailQueuePort {
 			validityHours: data.validityHours,
 		});
 
-		await this.queue.add("send-email", {
+		await this.queue.add(JOB_NAMES.EMAIL.TRANSACTIONAL, {
 			to: data.to,
 			subject: rendered.subject,
 			htmlContent: rendered.htmlContent,

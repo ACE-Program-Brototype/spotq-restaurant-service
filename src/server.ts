@@ -12,7 +12,6 @@ import {
 	connectBullMQ,
 	disconnectBullMQ,
 } from "@/infrastructure/queue/bullmq.connect";
-import { createEmailWorker } from "@/infrastructure/queue/workers/email.worker";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
 import { closeS3Client } from "@/infrastructure/storage/s3.client";
 import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
@@ -26,10 +25,8 @@ async function bootstrap() {
 		await connectBullMQ();
 		await checkS3Connection();
 
-		const emailWorkerAdmin = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
-		emailWorkerAdmin.start();
-
-		const emailWorkerStaff = createEmailWorker();
+		const emailWorker = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
+		emailWorker.start();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -55,8 +52,7 @@ async function bootstrap() {
 				}
 
 				try {
-					await emailWorkerStaff.close();
-					await emailWorkerAdmin.stop();
+					await emailWorker.stop();
 					await closeS3Client();
 
 					await disconnectBullMQ();
