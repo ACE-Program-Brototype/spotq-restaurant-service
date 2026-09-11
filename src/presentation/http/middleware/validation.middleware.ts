@@ -49,7 +49,7 @@ export const validateRequestParams = (schema: ZodType) => {
 			return;
 		}
 
-		req.params = result.data;
+		req.params = result.data as Request["params"];
 
 		next();
 	};
