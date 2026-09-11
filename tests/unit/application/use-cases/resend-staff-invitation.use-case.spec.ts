@@ -66,6 +66,7 @@ describe("ResendStaffInvitationUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
+			completeOnboarding: jest.fn(),
 		};
 
 		emailQueuePort = {
