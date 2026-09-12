@@ -52,7 +52,7 @@ describe("OnboardRestaurantUseCase", () => {
 						gst: { documentName: "GST", documentKey: "key4" },
 						businessPan: { documentName: "PAN", documentKey: "key5" },
 					},
-					restaurantImages: [{ objectKey: "img1" }],
+					restaurantImages: [{ objectKey: "img1", displayOrder: 1 }],
 				},
 				"res-123",
 			),
@@ -104,7 +104,7 @@ describe("OnboardRestaurantUseCase", () => {
 						gst: { documentName: "GST", documentKey: "key4" },
 						businessPan: { documentName: "PAN", documentKey: "key5" },
 					},
-					restaurantImages: [{ objectKey: "img1" }],
+					restaurantImages: [{ objectKey: "img1", displayOrder: 1 }],
 				},
 				"res-123",
 			),
@@ -155,7 +155,7 @@ describe("OnboardRestaurantUseCase", () => {
 				gst: { documentName: "GST", documentKey: "key4" },
 				businessPan: { documentName: "PAN", documentKey: "key5" },
 			},
-			restaurantImages: [{ objectKey: "img1" }],
+			restaurantImages: [{ objectKey: "img1", displayOrder: 1 }],
 		};
 
 		await useCase.execute(dto, "res-123");

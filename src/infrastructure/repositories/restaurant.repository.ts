@@ -112,10 +112,10 @@ export class RestaurantRepository implements IRestaurantRepository {
 		return raw ? RestaurantPersistenceMapper.toDomain(raw) : null;
 	}
 
-	async find(where: { email?: string }): Promise<Restaurant[]> {
+	async find(where?: { email?: string }): Promise<Restaurant[]> {
 		const list = await this.prisma.restaurant.findMany({
 			where: {
-				...(where.email && { email: where.email }),
+				...(where?.email && { email: where.email }),
 			},
 		});
 

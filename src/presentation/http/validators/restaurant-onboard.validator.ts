@@ -71,7 +71,7 @@ export const onboardRestaurantSchema = z.preprocess(
 		phone: z.string().trim().min(1, "Phone number is required"),
 		ownerName: z.string().trim().min(1, "Owner name is required"),
 		seatingCapacity: z.coerce
-			.number({ required_error: "Seating capacity is required" })
+			.number({ message: "Seating capacity is required" })
 			.int("Seating capacity must be an integer")
 			.positive("Seating capacity must be positive"),
 		documents: onboardDocumentsSchema,
