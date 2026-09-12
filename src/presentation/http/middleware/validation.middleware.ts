@@ -30,6 +30,33 @@ export const validate = (schema: ZodType) => {
 	};
 };
 
+export const validateRequestParams = (schema: ZodType) => {
+	return (req: Request, res: Response, next: NextFunction): void => {
+		const result = schema.safeParse(req.params);
+
+		if (!result.success) {
+			const firstError =
+				result.error.issues[0]?.message || messages.VALIDATION_ERROR;
+			res
+				.status(HTTP_STATUS.BAD_REQUEST)
+				.json(
+					ApiResponse.error(
+						firstError,
+						"VALIDATION_ERROR",
+						HTTP_STATUS.BAD_REQUEST,
+						result.error.flatten(),
+					),
+				);
+
+			return;
+		}
+
+		req.params = result.data as Request["params"];
+
+		next();
+	};
+};
+
 export function validateRequestBody(schema: ZodType) {
 	return async (
 		req: Request,
