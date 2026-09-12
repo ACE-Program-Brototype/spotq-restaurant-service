@@ -66,7 +66,6 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(mockNext).toHaveBeenCalled();
 	});
 
-
 	it("should return 403 when x-user-role is not an owner role (e.g. staff or customer)", () => {
 		mockReq.headers = {
 			"x-user-id": "user-123",

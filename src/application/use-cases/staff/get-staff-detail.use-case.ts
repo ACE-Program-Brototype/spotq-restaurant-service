@@ -43,9 +43,7 @@ export class GetStaffDetailUseCase implements IGetStaffDetailUseCase {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 
-
 		// 3. Select only the non-sensitive fields required for the response
 		return StaffMapper.toDetailDTO(staff);
 	}
 }
-

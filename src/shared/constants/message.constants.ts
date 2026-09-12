@@ -139,7 +139,8 @@ export const messages = {
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	OWNER_FORBIDDEN: "Forbidden: Restaurant owner access required",
-	RESTAURANT_ACCESS_FORBIDDEN: "Forbidden: Access to requested restaurant is denied",
+	RESTAURANT_ACCESS_FORBIDDEN:
+		"Forbidden: Access to requested restaurant is denied",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 } as const;
 

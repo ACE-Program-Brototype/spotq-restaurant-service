@@ -186,4 +186,3 @@ export class UnauthorizedRestaurantAccessError extends DomainError {
 		super(message);
 	}
 }
-

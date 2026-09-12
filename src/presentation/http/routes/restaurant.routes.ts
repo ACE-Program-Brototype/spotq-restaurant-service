@@ -1,9 +1,9 @@
+import express from "express";
 import {
 	restaurantAuthController,
 	restaurantStaffManagementController,
 } from "@/config/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
-import express from "express";
 import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import {
 	validate,
@@ -59,5 +59,3 @@ restaurantRouter.get(
 		restaurantStaffManagementController,
 	),
 );
-
-

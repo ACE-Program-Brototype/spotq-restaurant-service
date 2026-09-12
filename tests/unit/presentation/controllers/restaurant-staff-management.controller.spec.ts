@@ -146,5 +146,4 @@ describe("RestaurantStaffManagementController", () => {
 			expect(res.status).toHaveBeenCalledWith(200);
 		});
 	});
-
 });
