@@ -28,10 +28,87 @@ describe("OnboardRestaurantUseCase", () => {
 
 		await expect(
 			useCase.execute(
-				{ restaurantName: "Test", phone: "1234567890", ownerName: "John" },
+				{
+					restaurantName: "Test",
+					phone: "1234567890",
+					ownerName: "John",
+					seatingCapacity: 50,
+					location: {
+						addressLine1: "123 Main St",
+						city: "City",
+						state: "State",
+						country: "Country",
+						pincode: "123456",
+						latitude: 10,
+						longitude: 20,
+					},
+					documents: {
+						fssai: { documentName: "FSSAI", documentKey: "key1" },
+						businessRegistration: {
+							documentName: "Reg",
+							documentKey: "key2",
+						},
+						ownerIdentity: { documentName: "ID", documentKey: "key3" },
+						gst: { documentName: "GST", documentKey: "key4" },
+						businessPan: { documentName: "PAN", documentKey: "key5" },
+					},
+					restaurantImages: [{ objectKey: "img1" }],
+				},
 				"res-123",
 			),
 		).rejects.toThrow("Restaurant not found");
+	});
+
+	it("throws an error if restaurant is blocked", async () => {
+		const blockedRestaurant = Restaurant.reconstitute({
+			id: "res-123",
+			restaurantName: "Blocked Rest",
+			email: "blocked@example.com",
+			phone: "1234567890",
+			ownerName: "Owner",
+			ownerEmail: "blocked@example.com",
+			status: "PENDING",
+			onboardingStatus: "PENDING",
+			emailVerifiedAt: new Date(),
+			isBlocked: true,
+			blockReason: "Violation",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+
+		mockRestaurantRepo.findById.mockResolvedValue(blockedRestaurant);
+
+		await expect(
+			useCase.execute(
+				{
+					restaurantName: "New Name",
+					phone: "9876543210",
+					ownerName: "Jane",
+					seatingCapacity: 50,
+					location: {
+						addressLine1: "123 Main St",
+						city: "City",
+						state: "State",
+						country: "Country",
+						pincode: "123456",
+						latitude: 10,
+						longitude: 20,
+					},
+					documents: {
+						fssai: { documentName: "FSSAI", documentKey: "key1" },
+						businessRegistration: {
+							documentName: "Reg",
+							documentKey: "key2",
+						},
+						ownerIdentity: { documentName: "ID", documentKey: "key3" },
+						gst: { documentName: "GST", documentKey: "key4" },
+						businessPan: { documentName: "PAN", documentKey: "key5" },
+					},
+					restaurantImages: [{ objectKey: "img1" }],
+				},
+				"res-123",
+			),
+		).rejects.toThrow();
 	});
 
 	it("completes restaurant onboarding successfully when found", async () => {
@@ -58,13 +135,35 @@ describe("OnboardRestaurantUseCase", () => {
 			restaurantName: "New Name",
 			phone: "9876543210",
 			ownerName: "Jane",
+			seatingCapacity: 50,
+			location: {
+				addressLine1: "123 Main St",
+				city: "City",
+				state: "State",
+				country: "Country",
+				pincode: "123456",
+				latitude: 10,
+				longitude: 20,
+			},
+			documents: {
+				fssai: { documentName: "FSSAI", documentKey: "key1" },
+				businessRegistration: {
+					documentName: "Reg",
+					documentKey: "key2",
+				},
+				ownerIdentity: { documentName: "ID", documentKey: "key3" },
+				gst: { documentName: "GST", documentKey: "key4" },
+				businessPan: { documentName: "PAN", documentKey: "key5" },
+			},
+			restaurantImages: [{ objectKey: "img1" }],
 		};
 
 		await useCase.execute(dto, "res-123");
 
 		expect(mockRestaurantRepo.completeOnboarding).toHaveBeenCalledWith(
-			"res-123",
+			expect.any(Restaurant),
 			dto,
 		);
+		expect(mockRestaurant.onboardingStatus).toBe("COMPLETED");
 	});
 });

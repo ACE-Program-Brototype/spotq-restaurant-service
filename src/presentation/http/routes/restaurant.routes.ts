@@ -1,6 +1,7 @@
 import express from "express";
 import { restaurantAuthController } from "@/config/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
+import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
 import { validate } from "../middleware/validation.middleware";
 import {
 	sendRestaurantEmailOtpSchema,
@@ -35,6 +36,7 @@ restaurantRouter.post(
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.ONBOARD,
+	restaurantAuthMiddleware,
 	validate(onboardRestaurantSchema),
 	restaurantAuthController.onboard.bind(restaurantAuthController),
 );

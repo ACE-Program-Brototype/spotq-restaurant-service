@@ -1,4 +1,11 @@
-import type { DocumentType, Prisma, PrismaClient } from "@prisma/client";
+import {
+	DocumentType,
+	DocumentVerificationStatus,
+	OnboardingStatus,
+	type Prisma,
+	type PrismaClient,
+	RestaurantStatus,
+} from "@prisma/client";
 import { inject, injectable } from "inversify";
 import type {
 	CreateRestaurantDto,
@@ -8,6 +15,14 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
+
+const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
+	fssai: DocumentType.FSSAI,
+	businessRegistration: DocumentType.BUSINESS_REGISTRATION,
+	ownerIdentity: DocumentType.OWNER_IDENTITY,
+	gst: DocumentType.GST,
+	businessPan: DocumentType.BUSINESS_PAN,
+};
 
 @injectable()
 export class RestaurantRepository implements IRestaurantRepository {
@@ -50,39 +65,17 @@ export class RestaurantRepository implements IRestaurantRepository {
 		return RestaurantPersistenceMapper.toDomain(raw);
 	}
 
-	async findById(id: string): Promise<Restaurant | null> {
-		const raw = await this.prisma.restaurant.findUnique({
-			where: { id },
-		});
-
-		return raw ? RestaurantPersistenceMapper.toDomain(raw) : null;
-	}
-
-	async findUnique(where: Record<string, unknown>): Promise<Restaurant | null> {
-		// biome-ignore lint/suspicious/noExplicitAny: Dynamic query support
-		const raw = await (this.prisma.restaurant as any).findUnique({
-			where,
-		});
-
-		return raw ? RestaurantPersistenceMapper.toDomain(raw) : null;
-	}
-
-	async find(): Promise<Restaurant[]> {
-		const rawList = await this.prisma.restaurant.findMany();
-		return rawList.map((raw) => RestaurantPersistenceMapper.toDomain(raw));
-	}
-
 	async update(id: string, data: Partial<Restaurant>): Promise<Restaurant> {
 		const updateData: Prisma.RestaurantUpdateInput = {};
-		if (data.restaurantName !== undefined)
-			updateData.restaurantName = data.restaurantName;
-		if (data.email !== undefined) updateData.email = data.email;
-		if (data.phone !== undefined) updateData.phone = data.phone;
-		if (data.ownerName !== undefined) updateData.ownerName = data.ownerName;
-		if (data.ownerEmail !== undefined) updateData.ownerEmail = data.ownerEmail;
-		if (data.status !== undefined) updateData.status = data.status;
-		if (data.onboardingStatus !== undefined)
-			updateData.onboardingStatus = data.onboardingStatus;
+
+		if (data.restaurantName) updateData.restaurantName = data.restaurantName;
+		if (data.email) updateData.email = data.email;
+		if (data.phone) updateData.phone = data.phone;
+		if (data.ownerName) updateData.ownerName = data.ownerName;
+		if (data.ownerEmail) updateData.ownerEmail = data.ownerEmail;
+		if (data.status) updateData.status = data.status as RestaurantStatus;
+		if (data.onboardingStatus)
+			updateData.onboardingStatus = data.onboardingStatus as OnboardingStatus;
 		if (data.emailVerifiedAt !== undefined)
 			updateData.emailVerifiedAt = data.emailVerifiedAt;
 		if (data.isBlocked !== undefined) updateData.isBlocked = data.isBlocked;
@@ -95,6 +88,38 @@ export class RestaurantRepository implements IRestaurantRepository {
 		});
 
 		return RestaurantPersistenceMapper.toDomain(raw);
+	}
+
+	async findById(id: string): Promise<Restaurant | null> {
+		const raw = await this.prisma.restaurant.findUnique({
+			where: { id },
+		});
+
+		return raw ? RestaurantPersistenceMapper.toDomain(raw) : null;
+	}
+
+	async findUnique(where: {
+		id?: string;
+		email?: string;
+	}): Promise<Restaurant | null> {
+		const raw = await this.prisma.restaurant.findFirst({
+			where: {
+				...(where.id && { id: where.id }),
+				...(where.email && { email: where.email }),
+			},
+		});
+
+		return raw ? RestaurantPersistenceMapper.toDomain(raw) : null;
+	}
+
+	async find(where: { email?: string }): Promise<Restaurant[]> {
+		const list = await this.prisma.restaurant.findMany({
+			where: {
+				...(where.email && { email: where.email }),
+			},
+		});
+
+		return list.map(RestaurantPersistenceMapper.toDomain);
 	}
 
 	async existsByEmail(email: string): Promise<boolean> {
@@ -114,34 +139,49 @@ export class RestaurantRepository implements IRestaurantRepository {
 	}
 
 	async completeOnboarding(
-		restaurantId: string,
+		restaurant: Restaurant,
 		dto: OnboardRestaurantDto,
 	): Promise<Restaurant> {
-		const documentTypeMap: Record<string, DocumentType> = {
-			fssai: "FSSAI",
-			businessRegistration: "BUSINESS_REGISTRATION",
-			ownerIdentity: "OWNER_IDENTITY",
-			gst: "GST",
-			businessPan: "BUSINESS_PAN",
-		};
-
 		return await this.prisma.$transaction(async (tx) => {
 			const updatedRaw = await tx.restaurant.update({
-				where: { id: restaurantId },
+				where: { id: restaurant.id },
 				data: {
-					restaurantName: dto.restaurantName,
-					phone: dto.phone,
-					ownerName: dto.ownerName,
-					onboardingStatus: "COMPLETED",
-					status: "PENDING",
+					restaurantName: restaurant.restaurantName,
+					phone: restaurant.phone,
+					ownerName: restaurant.ownerName,
+					onboardingStatus: OnboardingStatus.COMPLETED,
+					status: RestaurantStatus.PENDING,
+				},
+			});
+
+			const fssaiNumber = dto.documents?.fssai?.documentName ?? null;
+			const registerNumber =
+				dto.documents?.businessRegistration?.documentName ?? null;
+			const gstNumber = dto.documents?.gst?.documentName ?? null;
+			const firstImage = dto.restaurantImages?.[0]?.objectKey ?? null;
+
+			await tx.restaurantProfile.upsert({
+				where: { restaurantId: restaurant.id },
+				create: {
+					restaurantId: restaurant.id,
+					fssaiNumber,
+					registerNumber,
+					gstNumber,
+					coverImage: firstImage,
+				},
+				update: {
+					...(fssaiNumber ? { fssaiNumber } : {}),
+					...(registerNumber ? { registerNumber } : {}),
+					...(gstNumber ? { gstNumber } : {}),
+					...(firstImage ? { coverImage: firstImage } : {}),
 				},
 			});
 
 			if (dto.seatingCapacity !== undefined) {
 				await tx.restaurantSettings.upsert({
-					where: { restaurantId },
+					where: { restaurantId: restaurant.id },
 					create: {
-						restaurantId,
+						restaurantId: restaurant.id,
 						seatingCapacity: dto.seatingCapacity,
 					},
 					update: {
@@ -152,9 +192,9 @@ export class RestaurantRepository implements IRestaurantRepository {
 
 			if (dto.location) {
 				await tx.restaurantAddress.upsert({
-					where: { restaurantId },
+					where: { restaurantId: restaurant.id },
 					create: {
-						restaurantId,
+						restaurantId: restaurant.id,
 						addressLine1: dto.location.addressLine1,
 						addressLine2: dto.location.addressLine2 ?? null,
 						city: dto.location.city,
@@ -178,40 +218,75 @@ export class RestaurantRepository implements IRestaurantRepository {
 			}
 
 			if (dto.documents) {
-				await tx.restaurantDocument.deleteMany({
-					where: { restaurantId },
-				});
+				const docEntries: Array<{
+					key: string;
+					doc: { documentName: string; documentKey: string };
+					docType: DocumentType;
+				}> = [];
 
-				const docEntries = Object.entries(dto.documents)
-					.filter(([key, doc]) => doc && documentTypeMap[key])
-					.map(([key, doc]) => ({
-						restaurantId,
-						documentType: documentTypeMap[key] as DocumentType,
-						documentName: doc.documentName,
-						documentKey: doc.documentKey,
-					}));
+				for (const [key, doc] of Object.entries(dto.documents)) {
+					const docType = DOCUMENT_TYPE_MAP[key];
+					if (doc && docType) {
+						docEntries.push({ key, doc, docType });
+					}
+				}
 
-				if (docEntries.length > 0) {
-					await tx.restaurantDocument.createMany({
-						data: docEntries,
+				for (const entry of docEntries) {
+					const existing = await tx.restaurantDocument.findFirst({
+						where: {
+							restaurantId: restaurant.id,
+							documentType: entry.docType,
+						},
 					});
+
+					if (existing) {
+						await tx.restaurantDocument.update({
+							where: { id: existing.id },
+							data: {
+								documentName: entry.doc.documentName,
+								documentKey: entry.doc.documentKey,
+							},
+						});
+					} else {
+						await tx.restaurantDocument.create({
+							data: {
+								restaurantId: restaurant.id,
+								documentType: entry.docType,
+								documentName: entry.doc.documentName,
+								documentKey: entry.doc.documentKey,
+								verificationStatus: DocumentVerificationStatus.PENDING,
+							},
+						});
+					}
 				}
 			}
 
 			if (dto.restaurantImages && dto.restaurantImages.length > 0) {
-				await tx.restaurantImage.deleteMany({
-					where: { restaurantId },
-				});
+				for (const [index, img] of dto.restaurantImages.entries()) {
+					const order = img.displayOrder ?? index + 1;
 
-				const imgEntries = dto.restaurantImages.map((img, index) => ({
-					restaurantId,
-					objectKey: img.objectKey,
-					displayOrder: img.displayOrder ?? index + 1,
-				}));
+					const existing = await tx.restaurantImage.findFirst({
+						where: {
+							restaurantId: restaurant.id,
+							objectKey: img.objectKey,
+						},
+					});
 
-				await tx.restaurantImage.createMany({
-					data: imgEntries,
-				});
+					if (existing) {
+						await tx.restaurantImage.update({
+							where: { id: existing.id },
+							data: { displayOrder: order },
+						});
+					} else {
+						await tx.restaurantImage.create({
+							data: {
+								restaurantId: restaurant.id,
+								objectKey: img.objectKey,
+								displayOrder: order,
+							},
+						});
+					}
+				}
 			}
 
 			return RestaurantPersistenceMapper.toDomain(updatedRaw);

@@ -13,7 +13,7 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	findByEmail(email: string): Promise<Restaurant | null>;
 
 	completeOnboarding(
-		restaurantId: string,
+		restaurant: Restaurant,
 		dto: OnboardRestaurantDto,
 	): Promise<Restaurant>;
 }

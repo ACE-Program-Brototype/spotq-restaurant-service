@@ -45,11 +45,11 @@ const onboardLocationSchema = z.preprocess(
 		pincode: z.string().trim().min(1, "Pincode is required"),
 		latitude: z.coerce
 			.number()
-			.min(-90)
+			.min(-90, "Latitude must be between -90 and 90")
 			.max(90, "Latitude must be between -90 and 90"),
 		longitude: z.coerce
 			.number()
-			.min(-180)
+			.min(-180, "Longitude must be between -180 and 180")
 			.max(180, "Longitude must be between -180 and 180"),
 	}),
 );
@@ -70,9 +70,14 @@ export const onboardRestaurantSchema = z.preprocess(
 		restaurantName: z.string().trim().min(1, "Restaurant name is required"),
 		phone: z.string().trim().min(1, "Phone number is required"),
 		ownerName: z.string().trim().min(1, "Owner name is required"),
-		seatingCapacity: z.coerce.number().int().positive().optional(),
-		documents: onboardDocumentsSchema.optional(),
-		restaurantImages: z.array(onboardImageSchema).optional(),
-		location: onboardLocationSchema.optional(),
+		seatingCapacity: z.coerce
+			.number({ required_error: "Seating capacity is required" })
+			.int("Seating capacity must be an integer")
+			.positive("Seating capacity must be positive"),
+		documents: onboardDocumentsSchema,
+		restaurantImages: z
+			.array(onboardImageSchema)
+			.min(1, "At least one restaurant image is required"),
+		location: onboardLocationSchema,
 	}),
 );

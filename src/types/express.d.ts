@@ -8,11 +8,22 @@ export interface AuthenticatedStaff {
 	role: string;
 }
 
+export interface AuthenticatedRestaurant {
+	restaurantId: string;
+	userId?: string;
+	email?: string;
+	role?: string;
+}
+
 declare global {
 	namespace Express {
 		interface Request {
 			userId?: string;
-			user?: AuthenticatedStaff | jwt.JwtPayload | string;
+			user?:
+				| AuthenticatedStaff
+				| AuthenticatedRestaurant
+				| jwt.JwtPayload
+				| string;
 		}
 	}
 }

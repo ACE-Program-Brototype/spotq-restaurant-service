@@ -3,6 +3,10 @@ import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
+import {
+	ONBOARDING_NEXT_STEPS,
+	type OnboardingNextStep,
+} from "@/domain/constants/onboarding-step.constants";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { InvalidOtpError } from "../errors/invalid-otp.error";
@@ -15,7 +19,8 @@ import type { IOtpStore } from "../ports/services/otp-store.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
-	implements IVerifyRestaurantEmailOtpUseCase {
+	implements IVerifyRestaurantEmailOtpUseCase
+{
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
@@ -31,7 +36,7 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		@inject(TYPES.Services.OtpHashService)
 		private readonly otpHashService: IOtpHashService,
-	) { }
+	) {}
 
 	async execute(dto: VerifyRestaurantEmailOtpDto) {
 		const { email, otp } = dto;
@@ -84,23 +89,23 @@ export class VerifyRestaurantEmailOtpUseCase
 			restaurantId: restaurant.id,
 		});
 
-		let nextStep:
-			| "ONBOARDING"
-			| "VERIFICATION_STATUS"
-			| "SUBSCRIPTION"
-			| "DASHBOARD";
+		let nextStep: OnboardingNextStep;
 
 		if (restaurant.onboardingStatus === "PENDING") {
-			nextStep = "ONBOARDING";
-		} else if (restaurant.status === "PENDING") {
-			nextStep = "VERIFICATION_STATUS";
+			nextStep = ONBOARDING_NEXT_STEPS.ONBOARDING;
+		} else if (
+			restaurant.status === "PENDING" ||
+			restaurant.status === "REJECTED" ||
+			restaurant.status === "SUSPENDED"
+		) {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
 		} else if (
 			restaurant.status === "APPROVED" ||
 			restaurant.status === "ACTIVE"
 		) {
-			nextStep = "SUBSCRIPTION";
+			nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
 		} else {
-			nextStep = "DASHBOARD";
+			nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
 		}
 
 		return {
