@@ -5,4 +5,8 @@ export interface IRestaurantStaffRepository
 	extends IBaseRepository<RestaurantStaff, string> {
 	findByEmail(email: string): Promise<RestaurantStaff | null>;
 	findByRestaurantId(restaurantId: string): Promise<RestaurantStaff[]>;
+	findByIdAndRestaurantId(
+		id: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null>;
 }

@@ -7,6 +7,7 @@ import type { IPasswordHasher } from "@/application/ports/services/password-hash
 import type { ITokenService } from "@/application/ports/services/token-service.port";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port";
+import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port";
 import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port";
@@ -21,6 +22,7 @@ import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/v
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port";
 import { AcceptInvitationUseCase } from "@/application/use-cases/staff/accept-invitation.use-case";
 import { ForgotPasswordUseCase } from "@/application/use-cases/staff/forgot-password.use-case";
+import { GetStaffDetailUseCase } from "@/application/use-cases/staff/get-staff-detail.use-case";
 import { GetStaffProfileUseCase } from "@/application/use-cases/staff/get-staff-profile.use-case";
 import { InviteStaffUseCase } from "@/application/use-cases/staff/invite-staff.use-case";
 import { ListStaffInvitationsUseCase } from "@/application/use-cases/staff/list-staff-invitations.use-case";
@@ -48,6 +50,7 @@ import { BcryptPasswordHasher } from "@/infrastructure/services/bcrypt-password-
 import { CryptoInvitationTokenService } from "@/infrastructure/services/crypto-invitation-token.service";
 import { CryptoOtpService } from "@/infrastructure/services/crypto-otp.service";
 import { JwtTokenService } from "@/infrastructure/services/jwt-token.service";
+import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant.staff.management.controller";
 import { StaffController } from "@/presentation/http/controllers/staff.controller";
 
 export const staffAuthModule = new ContainerModule(({ bind }) => {
@@ -152,8 +155,18 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 		.to(GetStaffProfileUseCase)
 		.inSingletonScope();
 
+	bind<IGetStaffDetailUseCase>(TYPES.GetStaffDetailUseCase)
+		.to(GetStaffDetailUseCase)
+		.inSingletonScope();
+
 	// Controller
 	bind<StaffController>(TYPES.StaffController)
 		.to(StaffController)
+		.inSingletonScope();
+
+	bind<RestaurantStaffManagementController>(
+		TYPES.RestaurantStaffManagementController,
+	)
+		.to(RestaurantStaffManagementController)
 		.inSingletonScope();
 });

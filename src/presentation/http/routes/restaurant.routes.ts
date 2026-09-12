@@ -1,12 +1,20 @@
-import { restaurantAuthController } from "@/config/di/controllers.resolutions";
+import {
+	restaurantAuthController,
+	restaurantStaffManagementController,
+} from "@/config/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import express from "express";
-import { validate } from "../middleware/validation.middleware";
+import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
+import {
+	validate,
+	validateRequestParams,
+} from "../middleware/validation.middleware";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
+import { getStaffDetailParamsSchema } from "../validators/staff/get-staff-detail.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -38,3 +46,18 @@ restaurantRouter.post(
 	validate(onboardRestaurantSchema),
 	restaurantAuthController.onboard.bind(restaurantAuthController),
 );
+
+restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.STAFF_DETAIL,
+		RESTAURANT_ROUTES.STAFF_DETAIL_FULL,
+		RESTAURANT_ROUTES.STAFF_DETAIL_PREFIX,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(getStaffDetailParamsSchema),
+	restaurantStaffManagementController.getStaffDetail.bind(
+		restaurantStaffManagementController,
+	),
+);
+
+
