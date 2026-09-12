@@ -54,7 +54,10 @@ export const DOMAIN_ERROR_STATUS_MAP: Record<string, HttpStatusCode> = {
 
 	UnsupportedFileCategoryError: HTTP_STATUS.BAD_REQUEST,
 	UnsupportedFileTypeError: HTTP_STATUS.BAD_REQUEST,
-	FileSizeExceededError: HTTP_STATUS.BAD_REQUEST
+	FileSizeExceededError: HTTP_STATUS.BAD_REQUEST,
+	UnauthorizedEntityAccessError: HTTP_STATUS.FORBIDDEN,
+	InvalidEntityTypeError: HTTP_STATUS.BAD_REQUEST,
+	InvalidEntityIdError: HTTP_STATUS.BAD_REQUEST,
 };
 
 export function getStatusCodeForDomainError(

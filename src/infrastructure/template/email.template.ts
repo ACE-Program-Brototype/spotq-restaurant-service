@@ -41,7 +41,7 @@ export function renderVerificationOtpTemplate(
                         <td style="padding: 36px 40px 32px;">
                         <h2 style="margin: 0 0 12px; font-size: 20px; font-weight: 700; color: #0f172a; text-align: center;">Verify your email address</h2>
                         <p style="margin: 0 0 28px; font-size: 15px; line-height: 24px; color: #475569; text-align: center;">
-                            To complete your forgot-password verification, please use the following one-time verification code:
+                            To complete your email verification, please use the following one-time verification code:
                         </p>
 
                         <!-- OTP Code Box -->

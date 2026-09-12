@@ -10,6 +10,7 @@ import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cas
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
+import { ApiResponse } from "@/shared/response/api-response";
 import { successResponse } from "@/utils/response.model";
 
 @injectable()
@@ -129,13 +130,22 @@ export class RestaurantAuthController {
 	}
 
 	async onboard(req: Request, res: Response): Promise<Response> {
-		const restaurantId = (req as Request & { user?: { restaurantId?: string } }).user?.restaurantId;
+		const userObj =
+			req.user && typeof req.user === "object" ? req.user : undefined;
+		const restaurantId =
+			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
+			req.userId;
 
 		if (!restaurantId) {
-			return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-				success: false,
-				message: "Unauthorized",
-			});
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.GATEWAY_UNAUTHORIZED || "Unauthorized",
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
 		}
 
 		await this.onboardRestaurantUseCase.execute(req.body, restaurantId);

@@ -3,15 +3,19 @@ import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
+import {
+	ONBOARDING_NEXT_STEPS,
+	type OnboardingNextStep,
+} from "@/domain/constants/onboarding-step.constants";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
 import type { IAuthTokenService } from "../ports/services/auth-token.service.port";
+import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 import type { IOtpStore } from "../ports/services/otp-store.port";
-import type { IOtpService } from "../ports/services/otp.service.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
@@ -85,10 +89,24 @@ export class VerifyRestaurantEmailOtpUseCase
 			restaurantId: restaurant.id,
 		});
 
-		const nextStep =
-			restaurant.onboardingStatus === "PENDING" || restaurant.status === "PENDING"
-				? ("ONBOARDING" as const)
-				: ("DASHBOARD" as const);
+		let nextStep: OnboardingNextStep;
+
+		if (restaurant.onboardingStatus === "PENDING") {
+			nextStep = ONBOARDING_NEXT_STEPS.ONBOARDING;
+		} else if (
+			restaurant.status === "PENDING" ||
+			restaurant.status === "REJECTED" ||
+			restaurant.status === "SUSPENDED"
+		) {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
+		} else if (
+			restaurant.status === "APPROVED" ||
+			restaurant.status === "ACTIVE"
+		) {
+			nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
+		} else {
+			nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
+		}
 
 		return {
 			nextStep,
