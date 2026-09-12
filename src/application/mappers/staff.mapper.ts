@@ -36,9 +36,11 @@ export const StaffMapper = {
 	toDetailDTO(entity: RestaurantStaff): StaffDetailResponseDTO {
 		return {
 			id: entity.id,
+			restaurantId: entity.restaurantId,
 			fullname: entity.fullname,
 			email: entity.email,
 			phone: entity.phone,
+			avatarUrl: entity.avatarUrl,
 			role: entity.role,
 			status: entity.status,
 			createdAt: entity.createdAt.toISOString(),

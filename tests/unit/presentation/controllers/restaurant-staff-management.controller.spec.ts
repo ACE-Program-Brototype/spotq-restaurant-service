@@ -22,9 +22,11 @@ describe("RestaurantStaffManagementController", () => {
 		it("should return 200 OK with staff detail and success message", async () => {
 			const mockStaffDetail = {
 				id: "stf_02AB",
+				restaurantId: "res_01ABC",
 				fullname: "Ravi Kumar",
 				email: "ravi@example.com",
 				phone: "+919876543210",
+				avatarUrl: null,
 				role: "STAFF",
 				status: "ACTIVE",
 				createdAt: "2026-07-14T10:12:00.000Z",
@@ -115,9 +117,11 @@ describe("RestaurantStaffManagementController", () => {
 		it("should handle array params correctly", async () => {
 			const mockStaffDetail = {
 				id: "stf_02AB",
+				restaurantId: "res_01ABC",
 				fullname: "Ravi Kumar",
 				email: "ravi@example.com",
 				phone: "+919876543210",
+				avatarUrl: null,
 				role: "STAFF",
 				status: "ACTIVE",
 				createdAt: "2026-07-14T10:12:00.000Z",
