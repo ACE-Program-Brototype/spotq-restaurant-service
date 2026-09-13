@@ -190,7 +190,7 @@ export class RestaurantAuthController {
 
 		return successResponse(
 			res,
-			"Verification status retrieved successfully",
+			messages.RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			result,
 		);
