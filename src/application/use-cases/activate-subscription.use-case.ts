@@ -27,20 +27,22 @@ export class ActivateSubscriptionUseCase
 			eventId,
 		);
 
-		const restaurant = await this.restaurantRepository.findById(restaurantId);
-		const targetEmail = restaurant?.ownerEmail || restaurant?.email;
-		if (targetEmail) {
-			await this.emailQueuePort.sendSubscriptionActivatedEmail({
-				to: targetEmail,
-				ownerName:
-					restaurant?.ownerName ||
-					restaurant?.restaurantName ||
-					"Valued Partner",
-				restaurantName: restaurant?.restaurantName || "Your Restaurant",
-				planCode,
-				subscriptionEndsAt: new Date(currentPeriodEnd),
-				eventId,
-			});
+		if (activated) {
+			const restaurant = await this.restaurantRepository.findById(restaurantId);
+			const targetEmail = restaurant?.ownerEmail || restaurant?.email;
+			if (targetEmail) {
+				await this.emailQueuePort.sendSubscriptionActivatedEmail({
+					to: targetEmail,
+					ownerName:
+						restaurant?.ownerName ||
+						restaurant?.restaurantName ||
+						"Valued Partner",
+					restaurantName: restaurant?.restaurantName || "Your Restaurant",
+					planCode,
+					subscriptionEndsAt: new Date(currentPeriodEnd),
+					eventId,
+				});
+			}
 		}
 
 		return activated;

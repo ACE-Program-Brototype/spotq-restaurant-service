@@ -75,17 +75,8 @@ describe("ActivateSubscriptionUseCase", () => {
 		});
 	});
 
-	it("should attempt to enqueue activation email even if event was already recorded on retry", async () => {
+	it("should not enqueue activation email if event was already processed (idempotency)", async () => {
 		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(false);
-		const mockRestaurant = Restaurant.create({
-			id: "rest-123",
-			restaurantName: "Spicy Treats",
-			ownerName: "John Doe",
-			ownerEmail: "owner@spicytreats.com",
-			email: "owner@spicytreats.com",
-			phone: "1234567890",
-		});
-		mockRestaurantRepository.findById.mockResolvedValueOnce(mockRestaurant);
 
 		const input = {
 			eventId: "evt-retry",
@@ -98,21 +89,14 @@ describe("ActivateSubscriptionUseCase", () => {
 		const result = await useCase.execute(input);
 
 		expect(result).toBe(false);
-		expect(mockRestaurantRepository.findById).toHaveBeenCalledWith("rest-123");
+		expect(mockRestaurantRepository.findById).not.toHaveBeenCalled();
 		expect(
 			mockEmailQueuePort.sendSubscriptionActivatedEmail,
-		).toHaveBeenCalledWith({
-			to: "owner@spicytreats.com",
-			ownerName: "John Doe",
-			restaurantName: "Spicy Treats",
-			planCode: "QUEUE_PRO",
-			subscriptionEndsAt: new Date("2026-10-01T00:00:00.000Z"),
-			eventId: "evt-retry",
-		});
+		).not.toHaveBeenCalled();
 	});
 
-	it("should return false and not send email if restaurant has no email", async () => {
-		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(false);
+	it("should return true and not send email if restaurant has no email", async () => {
+		mockRestaurantRepository.activateSubscription.mockResolvedValueOnce(true);
 		mockRestaurantRepository.findById.mockResolvedValueOnce(null);
 
 		const input = {
@@ -125,7 +109,7 @@ describe("ActivateSubscriptionUseCase", () => {
 
 		const result = await useCase.execute(input);
 
-		expect(result).toBe(false);
+		expect(result).toBe(true);
 		expect(mockRestaurantRepository.findById).toHaveBeenCalledWith("rest-123");
 		expect(
 			mockEmailQueuePort.sendSubscriptionActivatedEmail,
