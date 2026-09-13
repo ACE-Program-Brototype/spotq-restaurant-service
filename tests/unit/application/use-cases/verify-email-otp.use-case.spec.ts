@@ -119,7 +119,7 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		expect(result).not.toHaveProperty("verificationToken");
 	});
 
-	it("returns SUBSCRIPTION nextStep for existing fully onboarded and approved restaurant", async () => {
+	it("returns SUBSCRIPTION nextStep for approved restaurant with inactive subscription", async () => {
 		mockOtpStore.get.mockResolvedValue("hashed-otp");
 		mockOtpHashService.compare.mockResolvedValue(true);
 		mockRestaurantRepo.findByEmail.mockResolvedValue(
@@ -135,6 +135,9 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 				emailVerifiedAt: new Date(),
 				isBlocked: false,
 				blockReason: null,
+				isSubscriptionActive: false,
+				subscriptionPlanCode: null,
+				subscriptionEndsAt: null,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			}),
@@ -146,6 +149,39 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		});
 
 		expect(result.nextStep).toBe("SUBSCRIPTION");
+		expect(result.restaurantId).toBe("res-456");
+	});
+
+	it("returns DASHBOARD nextStep for approved restaurant with active subscription", async () => {
+		mockOtpStore.get.mockResolvedValue("hashed-otp");
+		mockOtpHashService.compare.mockResolvedValue(true);
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-456",
+				restaurantName: "Good Food",
+				email: "existing@restaurant.com",
+				phone: "1234567890",
+				ownerName: "Owner",
+				ownerEmail: "existing@restaurant.com",
+				status: "ACTIVE",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				isSubscriptionActive: true,
+				subscriptionPlanCode: "PRO_YEARLY",
+				subscriptionEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
+
+		const result = await useCase.execute({
+			email: "existing@restaurant.com",
+			otp: "123456",
+		});
+
+		expect(result.nextStep).toBe("DASHBOARD");
 		expect(result.restaurantId).toBe("res-456");
 	});
 

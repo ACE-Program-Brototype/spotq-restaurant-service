@@ -103,7 +103,11 @@ export class VerifyRestaurantEmailOtpUseCase
 			restaurant.status === "APPROVED" ||
 			restaurant.status === "ACTIVE"
 		) {
-			nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
+			if (!restaurant.isSubscriptionActive) {
+				nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
+			} else {
+				nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
+			}
 		} else {
 			nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
 		}

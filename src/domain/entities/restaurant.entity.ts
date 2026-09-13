@@ -23,6 +23,9 @@ export interface RestaurantProps {
 	emailVerifiedAt: Date | null;
 	isBlocked: boolean;
 	blockReason: string | null;
+	isSubscriptionActive: boolean;
+	subscriptionPlanCode: string | null;
+	subscriptionEndsAt: Date | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -39,6 +42,9 @@ export interface CreateRestaurantProps {
 	emailVerifiedAt?: Date | null;
 	isBlocked?: boolean;
 	blockReason?: string | null;
+	isSubscriptionActive?: boolean;
+	subscriptionPlanCode?: string | null;
+	subscriptionEndsAt?: Date | null;
 }
 
 export interface ReconstituteRestaurantProps {
@@ -53,6 +59,9 @@ export interface ReconstituteRestaurantProps {
 	emailVerifiedAt: Date | null;
 	isBlocked: boolean;
 	blockReason: string | null;
+	isSubscriptionActive?: boolean;
+	subscriptionPlanCode?: string | null;
+	subscriptionEndsAt?: Date | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -124,6 +133,9 @@ export class Restaurant {
 			emailVerifiedAt: props.emailVerifiedAt ?? null,
 			isBlocked: props.isBlocked ?? false,
 			blockReason: props.blockReason ?? null,
+			isSubscriptionActive: props.isSubscriptionActive ?? false,
+			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
+			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -142,6 +154,9 @@ export class Restaurant {
 			emailVerifiedAt: props.emailVerifiedAt,
 			isBlocked: props.isBlocked,
 			blockReason: props.blockReason,
+			isSubscriptionActive: props.isSubscriptionActive ?? false,
+			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
+			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
 			createdAt: props.createdAt,
 			updatedAt: props.updatedAt,
 		});
@@ -197,6 +212,18 @@ export class Restaurant {
 
 	public get blockReason(): string | null {
 		return this._props.blockReason;
+	}
+
+	public get isSubscriptionActive(): boolean {
+		return this._props.isSubscriptionActive;
+	}
+
+	public get subscriptionPlanCode(): string | null {
+		return this._props.subscriptionPlanCode;
+	}
+
+	public get subscriptionEndsAt(): Date | null {
+		return this._props.subscriptionEndsAt;
 	}
 
 	public get createdAt(): Date {

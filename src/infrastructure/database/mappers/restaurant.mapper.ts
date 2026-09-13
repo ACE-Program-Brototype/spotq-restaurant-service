@@ -20,6 +20,9 @@ export const RestaurantPersistenceMapper = {
 			emailVerifiedAt: record.emailVerifiedAt ?? null,
 			isBlocked: record.isBlocked ?? false,
 			blockReason: record.blockReason ?? null,
+			isSubscriptionActive: record.isSubscriptionActive ?? false,
+			subscriptionPlanCode: record.subscriptionPlanCode ?? null,
+			subscriptionEndsAt: record.subscriptionEndsAt ?? null,
 			createdAt: record.createdAt,
 			updatedAt: record.updatedAt,
 		});
@@ -38,6 +41,9 @@ export const RestaurantPersistenceMapper = {
 			emailVerifiedAt: entity.emailVerifiedAt,
 			isBlocked: entity.isBlocked,
 			blockReason: entity.blockReason,
+			isSubscriptionActive: entity.isSubscriptionActive,
+			subscriptionPlanCode: entity.subscriptionPlanCode,
+			subscriptionEndsAt: entity.subscriptionEndsAt,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		} as unknown as PrismaRestaurant;
