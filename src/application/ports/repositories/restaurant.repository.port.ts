@@ -8,4 +8,13 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	createRestaurant(data: CreateRestaurantDto): Promise<Restaurant>;
 
 	findByEmail(email: string): Promise<Restaurant | null>;
+
+	save(restaurant: Restaurant): Promise<void>;
+
+	activateSubscription(
+		restaurantId: string,
+		planCode: string,
+		currentPeriodEnd: Date,
+		eventId: string,
+	): Promise<boolean>;
 }

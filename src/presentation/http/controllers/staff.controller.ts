@@ -1,3 +1,4 @@
+import { TYPES } from "@di/types.ts";
 import type { CookieOptions, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
@@ -15,7 +16,6 @@ import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
 import { RestaurantIdRequiredError } from "@/domain/errors/staff.errors.ts";
 import type { AuthenticatedRequest } from "@/presentation/http/middleware/staff.auth.middleware.ts";
@@ -360,10 +360,7 @@ export class StaffController {
 		);
 	};
 
-	public getProfile = async (
-		req: Request,
-		res: Response,
-	): Promise<void> => {
+	public getProfile = async (req: Request, res: Response): Promise<void> => {
 		const authReq = req as AuthenticatedRequest;
 		const staffId = authReq.user?.userId ?? authReq.userId;
 

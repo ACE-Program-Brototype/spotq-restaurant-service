@@ -1,12 +1,17 @@
 export const messages = {
 	SUCCESS: "Success",
+	LOGIN_SUCCESS: "Login successful",
+	LOGOUT_SUCCESS: "Logout successful",
 	STAFF_LOGIN_SUCCESS: "Staff logged in successfully",
 	STAFF_LOGOUT_SUCCESS: "Staff logged out successfully",
 	STAFF_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully",
+	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully",
+	FORGOT_PASSWORD_OTP_SENT: "Password reset OTP sent to your email",
 	OTP_SENT_SUCCESS: "OTP sent to your email successfully",
 	OTP_VERIFIED_SUCCESS: "OTP verified successfully",
 	OTP_RESENT_SUCCESS: "OTP resent to your email successfully",
 	PASSWORD_RESET_SUCCESS: "Password reset successfully",
+	RESTAURANT_STATUS_FETCHED: "Restaurant status retrieved successfully",
 
 	STAFF_INVITATION_SENT_SUCCESS: "Staff invitation sent successfully",
 	STAFF_INVITATION_VALID: "Invitation token is valid",
@@ -29,6 +34,7 @@ export const messages = {
 	INTERNAL_SERVER_ERROR: "Internal server error occurred",
 	UNHANDLED_APP_ERROR: "Unhandled application error",
 	UNAUTHORIZED: "Unauthorized access",
+	UNAUTHORIZED_RESTAURANT: "Unauthorized or missing restaurant identification",
 	GATEWAY_UNAUTHORIZED: "Unauthorized request from gateway",
 	AUTH_HEADER_REQUIRED: "Authorization header with Bearer token is required",
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
@@ -41,6 +47,12 @@ export const messages = {
 	INVALID_OTP: "Invalid or incorrect OTP",
 	OTP_EXPIRED: "OTP has expired. Please request a new one",
 	INVALID_TEMP_TOKEN: "Invalid or expired reset token",
+	EMAIL_NOT_VERIFIED: "Email address is not verified",
+	ACCOUNT_NOT_ACTIVE: "Your account is not active. Please contact support",
+	ACCOUNT_LOCKED:
+		"Too many failed login attempts. Please reset your password or try again later",
+	TOO_MANY_REQUESTS: "Too many requests. Please try again later",
+	UNKNOWN_ERROR: "An unexpected error occurred",
 	RATE_LIMIT_EXCEEDED: "Too many requests. Please try again later",
 	RATE_LIMIT_LOGIN_EXCEEDED:
 		"Too many login attempts. Please try again after 15 minutes.",
@@ -86,6 +98,7 @@ export const messages = {
 	TOKEN_HASH_REQUIRED: "Token hash is required",
 	PASSWORD_HASH_REQUIRED: "Password hash is required",
 	FULLNAME_INVALID: "Fullname is required and must be at least 2 characters",
+	FULLNAME_REQUIRED: "Fullname is required",
 	RESTAURANT_NAME_INVALID:
 		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_EMAIL_REQUIRED: "Valid restaurant email is required",
@@ -126,6 +139,7 @@ export const messages = {
 	OTP_REQUIRED: "OTP is required",
 	OTP_DIGITS_REQUIRED: "OTP must be a 6-digit number",
 	SERVICE_UNAVAILABLE: "Service temporarily unavailable",
+	ROUTE_NOT_FOUND: "The requested route does not exist",
 	REQ_ROUTE_NOT_FOUND: "Requested route not found",
 
 	INCOMMING_HTTP_REQ: "Incoming HTTP Request",
@@ -135,7 +149,6 @@ export const messages = {
 		"If this email is eligible for registration, a verification code will be sent.",
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
-	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
 } as const;
 
 export type MessageKey = keyof typeof messages;

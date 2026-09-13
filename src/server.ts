@@ -1,6 +1,8 @@
 process.env.TZ = "UTC";
 
 import app from "@/app";
+import { container } from "@/config/di/container";
+import { TYPES } from "@/config/di/types";
 import {
 	connectDatabase,
 	disconnectDatabase,
@@ -11,13 +13,13 @@ import {
 	disconnectBullMQ,
 } from "@/infrastructure/queue/bullmq.connect";
 import { createEmailWorker } from "@/infrastructure/queue/workers/email.worker";
+import { createSubscriptionWorker } from "@/infrastructure/queue/workers/subscription.worker";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
+import type { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { closeS3Client } from "@/infrastructure/storage/s3.client";
 import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
 import { PORT } from "@/shared/constants/app.constants";
 import type { IEmailWorker } from "./application/ports/workers/email.worker.port";
-import { container } from "@/config/di/container";
-import { TYPES } from "@/config/di/types";
 
 async function bootstrap() {
 	try {
@@ -30,6 +32,11 @@ async function bootstrap() {
 		emailWorkerAdmin.start();
 
 		const emailWorkerStaff = createEmailWorker();
+		const subscriptionWorker = createSubscriptionWorker();
+		const subscriptionExpiryService = container.get<SubscriptionExpiryService>(
+			TYPES.Services.SubscriptionExpiryService,
+		);
+		subscriptionExpiryService.start();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -55,6 +62,8 @@ async function bootstrap() {
 				}
 
 				try {
+					subscriptionExpiryService.stop();
+					await subscriptionWorker.close();
 					await emailWorkerStaff.close();
 					await emailWorkerAdmin.stop();
 					await closeS3Client();

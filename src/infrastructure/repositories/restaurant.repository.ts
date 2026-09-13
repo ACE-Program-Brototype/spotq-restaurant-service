@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
@@ -71,16 +72,20 @@ export class RestaurantRepository implements IRestaurantRepository {
 
 	async update(id: string, data: Partial<Restaurant>): Promise<Restaurant> {
 		const updateData: Prisma.RestaurantUpdateInput = {};
-		if (data.restaurantName !== undefined) updateData.restaurantName = data.restaurantName;
+		if (data.restaurantName !== undefined)
+			updateData.restaurantName = data.restaurantName;
 		if (data.email !== undefined) updateData.email = data.email;
 		if (data.phone !== undefined) updateData.phone = data.phone;
 		if (data.ownerName !== undefined) updateData.ownerName = data.ownerName;
 		if (data.ownerEmail !== undefined) updateData.ownerEmail = data.ownerEmail;
 		if (data.status !== undefined) updateData.status = data.status;
-		if (data.onboardingStatus !== undefined) updateData.onboardingStatus = data.onboardingStatus;
-		if (data.emailVerifiedAt !== undefined) updateData.emailVerifiedAt = data.emailVerifiedAt;
+		if (data.onboardingStatus !== undefined)
+			updateData.onboardingStatus = data.onboardingStatus;
+		if (data.emailVerifiedAt !== undefined)
+			updateData.emailVerifiedAt = data.emailVerifiedAt;
 		if (data.isBlocked !== undefined) updateData.isBlocked = data.isBlocked;
-		if (data.blockReason !== undefined) updateData.blockReason = data.blockReason;
+		if (data.blockReason !== undefined)
+			updateData.blockReason = data.blockReason;
 
 		const raw = await this.prisma.restaurant.update({
 			where: { id },
@@ -115,5 +120,73 @@ export class RestaurantRepository implements IRestaurantRepository {
 			create: rawData,
 			update: updateData,
 		});
+	}
+
+	async activateSubscription(
+		restaurantId: string,
+		planCode: string,
+		currentPeriodEnd: Date,
+		eventId: string,
+	): Promise<boolean> {
+		try {
+			return await (
+				this.prisma as unknown as {
+					$transaction: (
+						fn: (tx: {
+							restaurant: {
+								update: (args: {
+									where: { id: string };
+									data: Record<string, unknown>;
+								}) => Promise<unknown>;
+							};
+							processedEvent: {
+								findUnique: (args: {
+									where: { id: string };
+								}) => Promise<{ id: string } | null>;
+								create: (args: {
+									data: { id: string; eventType: string };
+								}) => Promise<unknown>;
+							};
+						}) => Promise<boolean>,
+					) => Promise<boolean>;
+				}
+			).$transaction(async (tx) => {
+				const alreadyProcessed = await tx.processedEvent.findUnique({
+					where: { id: eventId },
+				});
+
+				if (alreadyProcessed) {
+					return false;
+				}
+
+				await tx.restaurant.update({
+					where: { id: restaurantId },
+					data: {
+						isSubscriptionActive: true,
+						subscriptionPlanCode: planCode,
+						subscriptionEndsAt: currentPeriodEnd,
+						status: "ACTIVE",
+					},
+				});
+
+				await tx.processedEvent.create({
+					data: {
+						id: eventId,
+						eventType: "subscription.activated",
+					},
+				});
+
+				return true;
+			});
+		} catch (error: unknown) {
+			if (
+				(error instanceof PrismaClientKnownRequestError &&
+					error.code === "P2002") ||
+				(error as { code?: string })?.code === "P2002"
+			) {
+				return false;
+			}
+			throw error;
+		}
 	}
 }

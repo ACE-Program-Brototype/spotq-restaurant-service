@@ -27,7 +27,12 @@ export const FILE_POLICIES: Record<FileCategory, FilePolicy> = {
 	},
 
 	[FileCategory.MENUS]: {
-		allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
+		allowedMimeTypes: [
+			"application/pdf",
+			"image/jpeg",
+			"image/png",
+			"image/webp",
+		],
 		maxSizeBytes: 10 * 1024 * 1024,
 	},
 };

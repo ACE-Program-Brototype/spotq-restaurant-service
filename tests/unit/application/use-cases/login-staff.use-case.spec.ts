@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IPasswordHasher } from "@/application/ports/services/password-hasher.port.ts";
 import type { ITokenService } from "@/application/ports/services/token-service.port.ts";
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import {
 	InvalidCredentialsError,
+	RestaurantAccountBlockedError,
+	RestaurantInactiveError,
+	RestaurantNotFoundError,
 	StaffInactiveError,
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
@@ -12,6 +17,7 @@ import type { IRestaurantStaffRepository } from "@/domain/repositories/restauran
 
 describe("LoginStaffUseCase", () => {
 	let staffRepository: jest.Mocked<IRestaurantStaffRepository>;
+	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
 	let passwordHasher: jest.Mocked<IPasswordHasher>;
 	let tokenService: jest.Mocked<ITokenService>;
 	let useCase: LoginStaffUseCase;
@@ -27,6 +33,20 @@ describe("LoginStaffUseCase", () => {
 		status: "ACTIVE",
 	});
 
+	const mockRestaurant = Restaurant.create({
+		id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+		ownerName: "John Doe",
+		ownerEmail: "owner@spotq.com",
+		restaurantName: "SpotQ Diner",
+		email: "diner@spotq.com",
+		phone: "+1234567890",
+		primaryContactNumber: "+1234567890",
+		emailVerifiedAt: new Date(),
+		onboardingStatus: "COMPLETED",
+		isSubscriptionActive: true,
+		isBlocked: false,
+	});
+
 	beforeEach(() => {
 		staffRepository = {
 			findById: jest.fn(),
@@ -35,6 +55,15 @@ describe("LoginStaffUseCase", () => {
 			save: jest.fn(),
 			delete: jest.fn(),
 		};
+
+		restaurantRepository = {
+			findById: jest.fn(),
+			findByEmail: jest.fn(),
+			save: jest.fn(),
+			delete: jest.fn(),
+			updateSubscription: jest.fn(),
+			isRegisteredEmail: jest.fn(),
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		passwordHasher = {
 			hash: jest.fn(),
@@ -54,12 +83,14 @@ describe("LoginStaffUseCase", () => {
 			staffRepository,
 			passwordHasher,
 			tokenService,
+			restaurantRepository,
 		);
 	});
 
 	it("should authenticate active staff and return staff details and tokens", async () => {
 		staffRepository.findByEmail.mockResolvedValue(mockStaff);
 		passwordHasher.compare.mockResolvedValue(true);
+		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		tokenService.generateAccessToken.mockReturnValue("mock-access-token");
 		tokenService.generateRefreshToken.mockReturnValue("mock-refresh-token");
 
@@ -139,5 +170,68 @@ describe("LoginStaffUseCase", () => {
 				password: "Password@123",
 			}),
 		).rejects.toThrow(StaffSuspendedError);
+	});
+
+	it("should throw RestaurantNotFoundError if restaurant does not exist", async () => {
+		staffRepository.findByEmail.mockResolvedValue(mockStaff);
+		passwordHasher.compare.mockResolvedValue(true);
+		restaurantRepository.findById.mockResolvedValue(null);
+
+		await expect(
+			useCase.execute({
+				email: "manager@spotq.com",
+				password: "Password@123",
+			}),
+		).rejects.toThrow(RestaurantNotFoundError);
+	});
+
+	it("should throw RestaurantAccountBlockedError if restaurant is blocked", async () => {
+		const blockedRestaurant = Restaurant.create({
+			id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+			ownerName: "John Doe",
+			ownerEmail: "owner@spotq.com",
+			restaurantName: "SpotQ Diner",
+			email: "diner@spotq.com",
+			phone: "+1234567890",
+			primaryContactNumber: "+1234567890",
+			isBlocked: true,
+		});
+
+		staffRepository.findByEmail.mockResolvedValue(mockStaff);
+		passwordHasher.compare.mockResolvedValue(true);
+		restaurantRepository.findById.mockResolvedValue(blockedRestaurant);
+
+		await expect(
+			useCase.execute({
+				email: "manager@spotq.com",
+				password: "Password@123",
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
+	});
+
+	it("should throw RestaurantInactiveError if restaurant subscription is inactive", async () => {
+		const inactiveRestaurant = Restaurant.create({
+			id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+			ownerName: "John Doe",
+			ownerEmail: "owner@spotq.com",
+			restaurantName: "SpotQ Diner",
+			email: "diner@spotq.com",
+			phone: "+1234567890",
+			primaryContactNumber: "+1234567890",
+			emailVerifiedAt: new Date(),
+			onboardingStatus: "COMPLETED",
+			isSubscriptionActive: false,
+		});
+
+		staffRepository.findByEmail.mockResolvedValue(mockStaff);
+		passwordHasher.compare.mockResolvedValue(true);
+		restaurantRepository.findById.mockResolvedValue(inactiveRestaurant);
+
+		await expect(
+			useCase.execute({
+				email: "manager@spotq.com",
+				password: "Password@123",
+			}),
+		).rejects.toThrow(RestaurantInactiveError);
 	});
 });

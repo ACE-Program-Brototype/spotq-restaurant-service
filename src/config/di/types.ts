@@ -34,8 +34,13 @@ export const TYPES = {
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
 	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
 
+	// Subscription & Restaurant Use Cases
+	GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+	ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
+
 	// Staff Controllers & Services
 	StaffController: Symbol.for("StaffController"),
+	RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 	JWKSController: Symbol.for("JWKSController"),
 	JWKService: Symbol.for("JWKService"),
 
@@ -56,10 +61,13 @@ export const TYPES = {
 		),
 		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
+		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 	},
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
 	},
 
@@ -84,6 +92,7 @@ export const TYPES = {
 		OtpHashService: Symbol.for("OtpHashService"),
 		Storage: Symbol.for("StorageService"),
 		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
+		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 	},
 
 	Logger: {
