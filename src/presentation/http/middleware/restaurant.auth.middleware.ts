@@ -22,8 +22,9 @@ export function restaurantAuthMiddleware(
 ): void {
 	const restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
 	const userId = getHeaderValue(req.headers["x-user-id"]);
+	const paramId = req.params?.id || req.params?.restaurantId;
 
-	const resolvedId = restaurantId || userId;
+	const resolvedId = restaurantId || userId || paramId;
 
 	if (!resolvedId) {
 		res

@@ -40,3 +40,9 @@ restaurantRouter.post(
 	validate(onboardRestaurantSchema),
 	restaurantAuthController.onboard.bind(restaurantAuthController),
 );
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.VERIFICATION_STATUS,
+	restaurantAuthMiddleware,
+	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
+);
