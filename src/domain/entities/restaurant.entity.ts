@@ -79,7 +79,7 @@ export class Restaurant {
 			typeof props.restaurantName !== "string" ||
 			props.restaurantName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(messages.RESTAUARANT_NAME_REQUIRED);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
 		}
 
 		if (!props.email || typeof props.email !== "string") {
@@ -291,9 +291,7 @@ export class Restaurant {
 				typeof restaurantName !== "string" ||
 				restaurantName.trim().length < 2
 			) {
-				throw new InvalidRestaurantDataError(
-					messages.RESTAUARANT_NAME_REQUIRED,
-				);
+				throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
 			}
 			this._props.restaurantName = restaurantName.trim();
 		}
