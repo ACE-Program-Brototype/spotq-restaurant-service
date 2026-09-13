@@ -267,6 +267,19 @@ export class Restaurant {
 		this._props.updatedAt = new Date();
 	}
 
+	public activateSubscription(planCode: string, endsAt: Date): void {
+		this._props.isSubscriptionActive = true;
+		this._props.subscriptionPlanCode = planCode;
+		this._props.subscriptionEndsAt = endsAt;
+		this._props.status = RestaurantStatusVO.create("ACTIVE");
+		this._props.updatedAt = new Date();
+	}
+
+	public expireSubscription(): void {
+		this._props.isSubscriptionActive = false;
+		this._props.updatedAt = new Date();
+	}
+
 	public updateProfile(
 		restaurantName?: string,
 		phone?: string,
