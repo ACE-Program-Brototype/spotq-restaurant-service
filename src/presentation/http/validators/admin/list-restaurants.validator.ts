@@ -40,6 +40,31 @@ export const PRISMA_SORT_MAP: Record<
 	updatedAt: "updatedAt",
 };
 
+const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+export function parseDateFilter(
+	val: unknown,
+	endOfDay = false,
+): unknown {
+	if (val === undefined || val === null || val === "") return undefined;
+	if (val instanceof Date) return val;
+
+	if (typeof val === "string") {
+		const trimmed = val.trim();
+		if (!trimmed) return undefined;
+
+		if (DATE_ONLY_REGEX.test(trimmed)) {
+			return new Date(
+				endOfDay ? `${trimmed}T23:59:59.999Z` : `${trimmed}T00:00:00.000Z`,
+			);
+		}
+
+		return new Date(trimmed);
+	}
+
+	return val;
+}
+
 export const listRestaurantsQuerySchema = z
 	.object({
 		page: z.coerce.number().int().min(1).default(1),
@@ -71,10 +96,22 @@ export const listRestaurantsQuerySchema = z
 			if (typeof val === "boolean") return val;
 			return val;
 		}, z.boolean().optional()),
-		created_from: z.coerce.date().optional(),
-		createdFrom: z.coerce.date().optional(),
-		created_to: z.coerce.date().optional(),
-		createdTo: z.coerce.date().optional(),
+		created_from: z.preprocess(
+			(val) => parseDateFilter(val, false),
+			z.date().optional(),
+		),
+		createdFrom: z.preprocess(
+			(val) => parseDateFilter(val, false),
+			z.date().optional(),
+		),
+		created_to: z.preprocess(
+			(val) => parseDateFilter(val, true),
+			z.date().optional(),
+		),
+		createdTo: z.preprocess(
+			(val) => parseDateFilter(val, true),
+			z.date().optional(),
+		),
 		sort_by: z.enum(SORT_FIELDS).optional(),
 		sortBy: z.enum(SORT_FIELDS).optional(),
 		sort_order: z.enum(["asc", "desc"]).optional(),

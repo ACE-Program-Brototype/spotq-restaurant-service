@@ -138,6 +138,47 @@ describe("listRestaurantsQuerySchema", () => {
 		expect(sameDateResult.success).toBe(true);
 	});
 
+	it("should normalize date-only created_to to end of day (23:59:59.999Z) and created_from to start of day (00:00:00.000Z)", () => {
+		const dateOnlyQuery = {
+			created_from: "2026-01-01",
+			created_to: "2026-01-01",
+		};
+		const result = listRestaurantsQuerySchema.safeParse(dateOnlyQuery);
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.createdFrom?.toISOString()).toBe(
+				"2026-01-01T00:00:00.000Z",
+			);
+			expect(result.data.createdTo?.toISOString()).toBe(
+				"2026-01-01T23:59:59.999Z",
+			);
+		}
+	});
+
+	it("should preserve exact timestamp precision when full ISO strings are provided", () => {
+		const isoQuery = {
+			created_from: "2026-01-01T10:15:30.000Z",
+			created_to: "2026-01-01T18:45:00.000Z",
+		};
+		const result = listRestaurantsQuerySchema.safeParse(isoQuery);
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.createdFrom?.toISOString()).toBe(
+				"2026-01-01T10:15:30.000Z",
+			);
+			expect(result.data.createdTo?.toISOString()).toBe(
+				"2026-01-01T18:45:00.000Z",
+			);
+		}
+	});
+
+	it("should reject invalid date strings", () => {
+		const invalidDateResult = listRestaurantsQuerySchema.safeParse({
+			created_to: "invalid-date",
+		});
+		expect(invalidDateResult.success).toBe(false);
+	});
+
 	it("should reject when created_from is later than created_to (inverted date range)", () => {
 		const invertedRange = {
 			created_from: "2026-02-01T00:00:00.000Z",
