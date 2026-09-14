@@ -66,4 +66,41 @@ export class PrismaRestaurantStaffRepository
 
 		return rawList.map((raw) => this.mapper.toDomain(raw));
 	}
+
+	public async findByIdAndRestaurantId(
+		id: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null> {
+		const raw = await this.dbModel.findFirst({
+			where: { id, restaurantId },
+		});
+
+		if (!raw) {
+			return null;
+		}
+
+		return this.mapper.toDomain(raw);
+	}
+
+	public async updateStaffInfo(
+		id: string,
+		data: { fullname?: string; phone?: string },
+	): Promise<RestaurantStaff> {
+		const updateData: {
+			fullname?: string;
+			phone?: string;
+			updatedAt?: Date;
+		} = {};
+
+		if (data.fullname !== undefined) {
+			updateData.fullname = data.fullname;
+		}
+		if (data.phone !== undefined) {
+			updateData.phone = data.phone;
+		}
+		updateData.updatedAt = new Date();
+
+		return this.update(id, updateData);
+	}
 }
+
