@@ -6,6 +6,7 @@ import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgo
 import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
+import type { IListStaffMembersUseCase } from "@/application/ports/use-cases/list-staff-members.use-case.port.ts";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
@@ -18,12 +19,15 @@ import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
 import { RestaurantIdRequiredError } from "@/domain/errors/staff.errors.ts";
+import type { AuthenticatedOwnerRequest } from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
 import type { AuthenticatedRequest } from "@/presentation/http/middleware/staff.auth.middleware.ts";
 import type { ListStaffInvitationsQuery } from "@/presentation/http/validators/staff/list-invitations.validator.ts";
+import type { ListStaffQuery } from "@/presentation/http/validators/staff/list-staff.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
 	ApiResponse,
+	sendPaginatedSuccessResponse,
 	sendSuccessResponse,
 } from "@/shared/response/api-response.ts";
 
@@ -56,6 +60,8 @@ export class StaffController {
 		private readonly revokeStaffInvitationUseCase: IRevokeStaffInvitationUseCase,
 		@inject(TYPES.ListStaffInvitationsUseCase)
 		private readonly listStaffInvitationsUseCase: IListStaffInvitationsUseCase,
+		@inject(TYPES.ListStaffMembersUseCase)
+		private readonly listStaffMembersUseCase: IListStaffMembersUseCase,
 		@inject(TYPES.GetStaffProfileUseCase)
 		private readonly getStaffProfileUseCase: IGetStaffProfileUseCase,
 	) {}
@@ -360,10 +366,7 @@ export class StaffController {
 		);
 	};
 
-	public getProfile = async (
-		req: Request,
-		res: Response,
-	): Promise<void> => {
+	public getProfile = async (req: Request, res: Response): Promise<void> => {
 		const authReq = req as AuthenticatedRequest;
 		const staffId = authReq.user?.userId ?? authReq.userId;
 
@@ -386,6 +389,47 @@ export class StaffController {
 			res,
 			profile,
 			messages.STAFF_PROFILE_FETCH_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public listStaff = async (req: Request, res: Response): Promise<void> => {
+		const authReq = req as AuthenticatedOwnerRequest;
+		const ownerEmail =
+			authReq.user?.email || (req.headers["x-user-email"] as string) || "";
+		const restaurantId =
+			req.params.restaurantId ||
+			(req.headers["x-restaurant-id"] as string)?.trim() ||
+			"";
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const query = (res?.locals?.query ??
+			req.query) as unknown as ListStaffQuery;
+
+		const result = await this.listStaffMembersUseCase.execute({
+			restaurantId,
+			ownerEmail,
+			page: query.page,
+			limit: query.limit,
+			status: query.status,
+			search: query.search,
+			sortBy: query.sortBy,
+			sortOrder: query.sortOrder,
+		});
+
+		const message =
+			result.pagination.total === 0
+				? messages.NO_STAFF_MEMBERS_FOUND
+				: messages.STAFF_MEMBERS_RETRIEVED_SUCCESS;
+
+		sendPaginatedSuccessResponse(
+			res,
+			result.staff,
+			result.pagination,
+			message,
 			HTTP_STATUS.OK,
 		);
 	};

@@ -1,7 +1,16 @@
-import { restaurantAuthController } from "@/config/di/controllers.resolutions";
-import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import express from "express";
-import { validate } from "../middleware/validation.middleware";
+import { container } from "@/config/di/container";
+import { restaurantAuthController } from "@/config/di/controllers.resolutions";
+import { TYPES } from "@/config/di/types";
+import type { StaffController } from "@/presentation/http/controllers/staff.controller";
+import { restaurantOwnerAuthMiddleware } from "@/presentation/http/middleware/restaurant-owner.auth.middleware";
+import {
+	validate,
+	validateRequestQuery,
+} from "@/presentation/http/middleware/validation.middleware";
+import { listStaffSchema } from "@/presentation/http/validators/staff/list-staff.validator";
+import { HTTP_STATUS } from "@/shared/constants/http.constants";
+import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -9,6 +18,22 @@ import {
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
 
 export const restaurantRouter = express.Router();
+
+const staffController = container.get<StaffController>(TYPES.StaffController);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.STAFF_LIST,
+	restaurantOwnerAuthMiddleware,
+	validateRequestQuery(listStaffSchema, HTTP_STATUS.BAD_REQUEST),
+	staffController.listStaff,
+);
+
+restaurantRouter.get(
+	`/restaurants${RESTAURANT_ROUTES.STAFF_LIST}`,
+	restaurantOwnerAuthMiddleware,
+	validateRequestQuery(listStaffSchema, HTTP_STATUS.BAD_REQUEST),
+	staffController.listStaff,
+);
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,
