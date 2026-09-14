@@ -102,3 +102,38 @@ export function validateRequestQuery(schema: ZodType) {
 		}
 	};
 }
+
+export function validateRequestParams(schema: ZodType) {
+	return async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		try {
+			const parsed = await schema.parseAsync(req.params ?? {});
+			req.params = parsed as Record<string, string>;
+			next();
+		} catch (error) {
+			if (error instanceof z.ZodError) {
+				const formattedErrors = error.issues.map((issue) => ({
+					field: issue.path.length > 0 ? issue.path.join(".") : "params",
+					message: issue.message,
+				}));
+
+				res
+					.status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+					.json(
+						ApiResponse.error(
+							messages.VALIDATION_ERROR,
+							"VALIDATION_ERROR",
+							HTTP_STATUS.UNPROCESSABLE_ENTITY,
+							formattedErrors,
+						),
+					);
+				return;
+			}
+			next(error);
+		}
+	};
+}
+

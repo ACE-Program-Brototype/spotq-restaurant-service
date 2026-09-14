@@ -34,6 +34,9 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
+	RESTAURANT_DETAILS_FETCHED_SUCCESS:
+		"Restaurant details retrieved successfully",
 	VALIDATION_ERROR: "Validation error occurred",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
