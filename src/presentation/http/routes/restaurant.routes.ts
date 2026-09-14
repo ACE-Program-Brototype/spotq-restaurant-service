@@ -47,3 +47,9 @@ restaurantRouter.get(
 	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
 );
 
+restaurantRouter.get(
+	"/:id/verification-status",
+	restaurantAuthMiddleware,
+	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
+);
+
