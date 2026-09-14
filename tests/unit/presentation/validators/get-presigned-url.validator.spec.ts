@@ -2,17 +2,9 @@ import { describe, expect, it } from "@jest/globals";
 import { getPresignedUrlQuerySchema } from "@/presentation/http/validators/get-presigned-url.validator";
 
 describe("getPresignedUrlQuerySchema", () => {
-	it("validates when key is provided", () => {
+	it("validates when valid key is provided", () => {
 		const result = getPresignedUrlQuerySchema.safeParse({
 			key: "restaurants/123/documents/license.pdf",
-		});
-
-		expect(result.success).toBe(true);
-	});
-
-	it("validates when s3_object_key is provided", () => {
-		const result = getPresignedUrlQuerySchema.safeParse({
-			s3_object_key: "restaurants/123/images/cover.jpg",
 		});
 
 		expect(result.success).toBe(true);

@@ -40,25 +40,18 @@ export class StorageController {
 		req: Request,
 		res: Response,
 	): Promise<Response> {
-		const query = ((res.locals.query ?? req.query) as {
-			key?: string;
-			s3_object_key?: string;
-			object_key?: string;
+		const query = (res.locals.query ?? req.query) as { key: string };
+
+		const result = await this.getPresignedUrlUseCase.execute({
+			key: query.key,
 		});
-
-		const key = (query.key || query.s3_object_key || query.object_key) as string;
-
-		const result = await this.getPresignedUrlUseCase.execute({ key });
 
 		return successResponse(
 			res,
 			messages.PRESIGNED_GET_URL_GENERATED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			{
-				downloadUrl: result.downloadUrl,
 				download_url: result.downloadUrl,
-				url: result.downloadUrl,
-				expiresInSeconds: result.expiresInSeconds,
 				expires_in_seconds: result.expiresInSeconds,
 			},
 		);
