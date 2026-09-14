@@ -46,6 +46,7 @@ describe("ValidateInvitationUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
+			findManyWithFilters: jest.fn(),
 		};
 
 		invitationTokenService = {

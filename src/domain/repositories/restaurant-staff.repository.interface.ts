@@ -4,5 +4,9 @@ import type { IBaseRepository } from "./base.repository.interface.ts";
 export interface IRestaurantStaffRepository
 	extends IBaseRepository<RestaurantStaff, string> {
 	findByEmail(email: string): Promise<RestaurantStaff | null>;
+	findByEmailAndRestaurantId(
+		email: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null>;
 	findByRestaurantId(restaurantId: string): Promise<RestaurantStaff[]>;
 }

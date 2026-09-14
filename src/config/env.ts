@@ -204,6 +204,11 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(15 * 60),
+
+	BULLMQ_WORKER_CONCURRENCY: z.coerce.number().positive().default(5),
+	QUEUE_EMAIL_ATTEMPTS: z.coerce.number().positive().default(3),
+	QUEUE_EMAIL_BACKOFF_DELAY_MS: z.coerce.number().positive().default(2000),
+	QUEUE_EMAIL_REMOVE_ON_FAIL: z.coerce.number().positive().default(1000),
 });
 
 export type Env = z.infer<typeof envSchema>;
