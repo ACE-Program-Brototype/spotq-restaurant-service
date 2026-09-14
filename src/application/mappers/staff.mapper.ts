@@ -38,7 +38,6 @@ export const StaffMapper = {
 			id: entity.id,
 			restaurant_id: entity.restaurantId,
 			fullname: entity.fullname,
-			name: entity.fullname,
 			email: entity.email,
 			phone: entity.phone,
 			avatar_url: entity.avatarUrl,

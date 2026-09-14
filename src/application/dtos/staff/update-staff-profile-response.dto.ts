@@ -2,7 +2,6 @@ export interface UpdateStaffProfileResponseDTO {
 	id: string;
 	restaurant_id: string;
 	fullname: string;
-	name: string;
 	email: string;
 	phone: string;
 	avatar_url: string | null;
