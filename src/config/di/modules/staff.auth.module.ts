@@ -17,6 +17,7 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port";
+import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port";
 import { AcceptInvitationUseCase } from "@/application/use-cases/staff/accept-invitation.use-case";
@@ -31,6 +32,7 @@ import { ResendForgotPasswordOtpUseCase } from "@/application/use-cases/staff/re
 import { ResendStaffInvitationUseCase } from "@/application/use-cases/staff/resend-staff-invitation.use-case";
 import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-password.use-case";
 import { RevokeStaffInvitationUseCase } from "@/application/use-cases/staff/revoke-staff-invitation.use-case";
+import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-staff-profile.use-case";
 import { ValidateInvitationUseCase } from "@/application/use-cases/staff/validate-invitation.use-case";
 import { VerifyForgotPasswordOtpUseCase } from "@/application/use-cases/staff/verify-forgot-password-otp.use-case";
 import { TYPES } from "@/config/di/types";
@@ -87,9 +89,7 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 		invitationAcceptPath: env.INVITATION_ACCEPT_PATH,
 	});
 
-	bind<IOtpService>(TYPES.OtpService)
-		.to(CryptoOtpService)
-		.inSingletonScope();
+	bind<IOtpService>(TYPES.OtpService).to(CryptoOtpService).inSingletonScope();
 
 	bind<IEmailQueuePort>(TYPES.EmailQueuePort)
 		.to(EmailQueueService)
@@ -150,6 +150,10 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 
 	bind<IGetStaffProfileUseCase>(TYPES.GetStaffProfileUseCase)
 		.to(GetStaffProfileUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateStaffProfileUseCase>(TYPES.UpdateStaffProfileUseCase)
+		.to(UpdateStaffProfileUseCase)
 		.inSingletonScope();
 
 	// Controller

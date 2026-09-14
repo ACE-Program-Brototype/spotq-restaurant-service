@@ -1,12 +1,23 @@
-import { restaurantAuthController } from "@/config/di/controllers.resolutions";
-import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import express from "express";
-import { validate } from "../middleware/validation.middleware";
+import {
+	restaurantAuthController,
+	staffController,
+} from "@/config/di/controllers.resolutions";
+import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
+import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
+import {
+	validate,
+	validateRequestParams,
+} from "../middleware/validation.middleware";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
+import {
+	updateStaffProfileBodySchema,
+	updateStaffProfileParamsSchema,
+} from "../validators/staff/update-staff-profile.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -37,4 +48,16 @@ restaurantRouter.post(
 	RESTAURANT_ROUTES.ONBOARD,
 	validate(onboardRestaurantSchema),
 	restaurantAuthController.onboard.bind(restaurantAuthController),
+);
+
+restaurantRouter.patch(
+	[
+		RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE,
+		RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE_FULL,
+		RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE_PREFIX,
+	],
+	staffAuthMiddleware,
+	validateRequestParams(updateStaffProfileParamsSchema),
+	validate(updateStaffProfileBodySchema),
+	staffController.updateProfile,
 );
