@@ -179,3 +179,24 @@ export class InvalidInvitationStatusError extends DomainError {
 		super(message);
 	}
 }
+
+export class InvalidSortFieldError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.INVALID_SORT_FIELD;
+	constructor(message: string = messages.INVALID_SORT_FIELD) {
+		super(message);
+	}
+}
+
+export class InvalidSortOrderError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.INVALID_SORT_ORDER;
+	constructor(message: string = messages.INVALID_SORT_ORDER) {
+		super(message);
+	}
+}
+
+export class ForbiddenAccessError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.FORBIDDEN_RESOURCE;
+	constructor(message: string = messages.YOU_DO_NOT_HAVE_PERMISSION) {
+		super(message);
+	}
+}

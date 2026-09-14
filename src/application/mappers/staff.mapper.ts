@@ -31,4 +31,13 @@ export const StaffMapper = {
 			created_at: entity.createdAt.toISOString(),
 		};
 	},
+
+	toItemDTO(entity: RestaurantStaff) {
+		return {
+			id: entity.id,
+			fullname: entity.fullname,
+			email: entity.email,
+			status: entity.status,
+		};
+	},
 };

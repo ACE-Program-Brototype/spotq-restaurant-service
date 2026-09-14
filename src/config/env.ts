@@ -204,6 +204,9 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(15 * 60),
+
+	PAGINATION_DEFAULT_LIMIT: z.coerce.number().int().positive().default(20),
+	PAGINATION_MAX_LIMIT: z.coerce.number().int().positive().default(100),
 });
 
 export type Env = z.infer<typeof envSchema>;

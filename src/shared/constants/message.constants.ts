@@ -136,6 +136,14 @@ export const messages = {
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+
+	STAFF_MEMBERS_RETRIEVED_SUCCESS: "Staff members retrieved successfully.",
+	NO_STAFF_MEMBERS_FOUND: "No staff members found.",
+	YOU_DO_NOT_HAVE_PERMISSION:
+		"You do not have permission to access this resource.",
+	INVALID_SORT_FIELD: "Invalid sort field",
+	INVALID_SORT_ORDER: "Invalid sort order",
+	INVALID_QUERY_PARAMETERS: "Invalid query parameters",
 } as const;
 
 export type MessageKey = keyof typeof messages;

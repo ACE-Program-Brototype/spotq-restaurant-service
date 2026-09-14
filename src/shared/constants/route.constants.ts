@@ -10,6 +10,7 @@ export const RESTAURANT_ROUTES = {
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
 	REFRESH_ACCESS_TOKEN: "/auth/refresh",
 	ONBOARD: "/onboard",
+	STAFF_LIST: "/:restaurantId/staff",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -41,5 +42,4 @@ export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
 
 export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
-export type StorageRoute =
-	(typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
+export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
