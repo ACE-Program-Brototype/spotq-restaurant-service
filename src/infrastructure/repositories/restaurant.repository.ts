@@ -6,6 +6,7 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
+import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
 
 @injectable()
@@ -64,6 +65,9 @@ export class RestaurantRepository implements IRestaurantRepository {
 			where: {
 				id,
 				onboardingStatus: ONBOARDING_STATUS.COMPLETED,
+				status: {
+					not: RESTAURANT_STATUS.PENDING,
+				},
 			},
 			include: {
 				address: true,
