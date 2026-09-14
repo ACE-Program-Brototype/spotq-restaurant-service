@@ -204,6 +204,24 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(15 * 60),
+
+	RATE_LIMIT_APPROVE_RESTAURANT_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_APPROVE_RESTAURANT_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
+
+	RATE_LIMIT_REJECT_RESTAURANT_MAX_ATTEMPTS: z.coerce
+		.number()
+		.positive()
+		.default(30),
+	RATE_LIMIT_REJECT_RESTAURANT_WINDOW_SECONDS: z.coerce
+		.number()
+		.positive()
+		.default(15 * 60),
 });
 
 export type Env = z.infer<typeof envSchema>;

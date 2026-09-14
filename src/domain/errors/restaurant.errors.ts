@@ -51,9 +51,17 @@ export class RestaurantAccountBlockedError extends DomainError {
 	}
 }
 
+export class RestaurantAlreadyProcessedError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.RESTAURANT_ALREADY_PROCESSED;
+	constructor(message: string = sharedMessages.RESTAURANT_ALREADY_PROCESSED) {
+		super(message);
+	}
+}
+
 export class RestaurantInactiveError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.RESTAURANT_INACTIVE;
 	constructor(message: string = sharedMessages.RESTAURANT_INACTIVE) {
 		super(message);
 	}
 }
+
