@@ -12,10 +12,15 @@ import systemRouter from "@/presentation/http/routes/system.routes";
 import { APP_ENV, APP_NAME } from "@/shared/constants/app.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { STAFF_ROUTES, STORAGE_ROUTES } from "@/shared/constants/route.constants.ts";
+import adminRestaurantRouter from "@/presentation/http/routes/admin-restaurant.routes";
+import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
+import {
+	ADMIN_ROUTES,
+	STAFF_ROUTES,
+	STORAGE_ROUTES,
+} from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 import { successResponse } from "@/utils/response.model.ts";
-import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
 
 const app = express();
 
@@ -44,6 +49,8 @@ app.get("/", (_req, res) => {
 });
 
 // Mount routes
+app.use(ADMIN_ROUTES.BASE, adminRestaurantRouter);
+
 app.use(STAFF_ROUTES.BASE, staffRouter);
 
 app.use("/", systemRouter);

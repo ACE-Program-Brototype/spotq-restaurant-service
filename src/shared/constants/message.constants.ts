@@ -34,6 +34,7 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
 	VALIDATION_ERROR: "Validation error occurred",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
@@ -62,6 +63,10 @@ export const messages = {
 		"Too many invitation validation attempts. Please try again later.",
 	RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED:
 		"Too many invitation acceptance attempts. Please try again later.",
+	RATE_LIMIT_APPROVE_RESTAURANT_EXCEEDED:
+		"Too many approve restaurant requests. Please try again later.",
+	RATE_LIMIT_REJECT_RESTAURANT_EXCEEDED:
+		"Too many reject restaurant requests. Please try again later.",
 	STAFF_NOT_FOUND: "Staff member not found",
 	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
 	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",
@@ -86,10 +91,14 @@ export const messages = {
 	TOKEN_HASH_REQUIRED: "Token hash is required",
 	PASSWORD_HASH_REQUIRED: "Password hash is required",
 	FULLNAME_INVALID: "Fullname is required and must be at least 2 characters",
+	RESTAUARANT_NAME_REQUIRED:
+		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_NAME_INVALID:
 		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_EMAIL_REQUIRED: "Valid restaurant email is required",
 	RESTAURANT_PHONE_REQUIRED: "Valid restaurant phone is required",
+	OWNER_NAME_REQUIRED:
+		"Owner name is required and must be at least 2 characters",
 	OWNER_NAME_INVALID:
 		"Owner name is required and must be at least 2 characters",
 	OWNER_EMAIL_REQUIRED: "Valid owner email is required",
@@ -102,6 +111,8 @@ export const messages = {
 	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
 	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
+	STORAGE_KEY_REQUIRED: "Storage object key is required",
+	STORAGE_KEY_INVALID: "Invalid storage object key specified",
 	BLOCK_REASON_REQUIRED: "Block reason is required",
 	RESET_TOKEN_REQUIRED: "Reset token is required",
 	INVALID_TOKEN_PURPOSE: "Invalid token purpose",
@@ -136,6 +147,23 @@ export const messages = {
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+	RESTAURANT_APPROVED_SUCCESS: "Restaurant application approved successfully.",
+	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
+	RESTAURANT_ALREADY_PROCESSED:
+		"Restaurant application has already been processed.",
+	REJECTION_REASON_REQUIRED: "Rejection reason is required",
+	CANNOT_APPROVE_NON_PENDING_RESTAURANT:
+		"Cannot approve a restaurant that is not in pending status.",
+	CANNOT_APPROVE_INCOMPLETE_ONBOARDING:
+		"Cannot approve a restaurant with incomplete onboarding.",
+	CANNOT_REJECT_NON_PENDING_RESTAURANT:
+		"Cannot reject a restaurant that is not in pending status.",
+	CANNOT_REJECT_INCOMPLETE_ONBOARDING:
+		"Cannot reject a restaurant with incomplete onboarding.",
+	RESTAURANT_APPLICATIONS_FETCHED_SUCCESS:
+		"Restaurant applications retrieved successfully.",
+	RESTAURANT_APPLICATION_DETAILS_FETCHED_SUCCESS:
+		"Restaurant application details retrieved successfully.",
 } as const;
 
 export type MessageKey = keyof typeof messages;

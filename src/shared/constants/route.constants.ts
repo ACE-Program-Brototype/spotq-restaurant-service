@@ -34,6 +34,14 @@ export const STORAGE_ROUTES = {
 	PRESIGNED_URL: "/presigned-url",
 } as const;
 
+export const ADMIN_ROUTES = {
+	BASE: "/admin",
+	APPLICATIONS: "/restaurants/applications",
+	APPLICATION_DETAILS: "/restaurants/applications/:id",
+	APPROVE_RESTAURANT: "/restaurants/:id/approve",
+	REJECT_RESTAURANT: "/restaurants/:id/reject",
+} as const;
+
 export type RestaurantRoute =
 	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
 
@@ -43,3 +51,6 @@ export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
 export type StorageRoute =
 	(typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
+
+export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
+
