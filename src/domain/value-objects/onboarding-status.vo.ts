@@ -1,6 +1,11 @@
 import { InvalidOnboardingStatusError } from "@/domain/errors/restaurant.errors.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
+export const ONBOARDING_STATUS = {
+	PENDING: "PENDING",
+	COMPLETED: "COMPLETED",
+} as const;
+
 export const ONBOARDING_STATUSES = ["PENDING", "COMPLETED"] as const;
 
 export type OnboardingStatus = (typeof ONBOARDING_STATUSES)[number];

@@ -34,6 +34,9 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
+	RESTAURANT_DETAILS_FETCHED_SUCCESS:
+		"Restaurant details retrieved successfully",
 	VALIDATION_ERROR: "Validation error occurred",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
@@ -102,6 +105,8 @@ export const messages = {
 	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
 	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
+	STORAGE_KEY_REQUIRED: "Storage object key is required",
+	STORAGE_KEY_INVALID: "Invalid storage object key specified",
 	BLOCK_REASON_REQUIRED: "Block reason is required",
 	RESET_TOKEN_REQUIRED: "Reset token is required",
 	INVALID_TOKEN_PURPOSE: "Invalid token purpose",
