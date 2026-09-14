@@ -218,4 +218,12 @@ describe("listRestaurantsQuerySchema", () => {
 
 		expect(result.success).toBe(false);
 	});
+
+	it("should reject status=PENDING since pending restaurants are excluded from admin list", () => {
+		const result = listRestaurantsQuerySchema.safeParse({
+			status: "PENDING",
+		});
+
+		expect(result.success).toBe(false);
+	});
 });

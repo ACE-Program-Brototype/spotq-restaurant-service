@@ -1,6 +1,13 @@
 import { z } from "zod";
-import { RESTAURANT_STATUSES } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { SUBSCRIPTION_PLANS } from "@/domain/value-objects/subscription-plan.vo.ts";
+
+export const ADMIN_LISTABLE_RESTAURANT_STATUSES = [
+	"APPROVED",
+	"REJECTED",
+	"SUSPENDED",
+	"ACTIVE",
+	"INACTIVE",
+] as const;
 
 export const SORT_FIELDS = [
 	"created_at",
@@ -74,7 +81,7 @@ export const listRestaurantsQuerySchema = z
 			.trim()
 			.transform((val) => (val === "" ? undefined : val))
 			.optional(),
-		status: z.enum(RESTAURANT_STATUSES).optional(),
+		status: z.enum(ADMIN_LISTABLE_RESTAURANT_STATUSES).optional(),
 		plan: z.enum(SUBSCRIPTION_PLANS).optional(),
 		is_subscription_active: z.preprocess((val) => {
 			if (val === undefined || val === null || val === "") return undefined;

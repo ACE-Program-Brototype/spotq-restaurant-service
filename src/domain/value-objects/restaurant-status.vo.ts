@@ -1,6 +1,15 @@
 import { InvalidRestaurantStatusError } from "@/domain/errors/restaurant.errors.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
+export const RESTAURANT_STATUS = {
+	PENDING: "PENDING",
+	APPROVED: "APPROVED",
+	REJECTED: "REJECTED",
+	SUSPENDED: "SUSPENDED",
+	ACTIVE: "ACTIVE",
+	INACTIVE: "INACTIVE",
+} as const;
+
 export const RESTAURANT_STATUSES = [
 	"PENDING",
 	"APPROVED",

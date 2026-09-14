@@ -8,6 +8,7 @@ import type {
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
+import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
 
 @injectable()
@@ -143,7 +144,10 @@ export class RestaurantRepository implements IRestaurantRepository {
 
 		const where: Prisma.RestaurantWhereInput = {
 			onboardingStatus: ONBOARDING_STATUS.COMPLETED,
-			...(status && { status }),
+			status:
+				status && status !== RESTAURANT_STATUS.PENDING
+					? status
+					: { not: RESTAURANT_STATUS.PENDING },
 			...(plan && { subscriptionPlanCode: plan }),
 			...(isSubscriptionActive !== undefined && { isSubscriptionActive }),
 			...((createdFrom || createdTo) && {
