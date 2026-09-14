@@ -56,6 +56,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 		mockPrisma = {
 			restaurantStaff: {
 				findUnique: jest.fn(),
+				findFirst: jest.fn(),
 				findMany: jest.fn(),
 				upsert: jest.fn(),
 				update: jest.fn(),
@@ -176,4 +177,76 @@ describe("PrismaRestaurantStaffRepository", () => {
 			);
 		});
 	});
+
+	describe("findByIdAndRestaurantId", () => {
+		it("should return domain entity when staff exists in restaurant", async () => {
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(dummyPrismaStaff);
+
+			const result = await repository.findByIdAndRestaurantId(
+				"staff-123",
+				"rest-123",
+			);
+
+			expect(result).not.toBeNull();
+			expect(result?.id).toBe("staff-123");
+			expect(result?.restaurantId).toBe("rest-123");
+			expect(mockPrisma.restaurantStaff.findFirst).toHaveBeenCalledWith({
+				where: { id: "staff-123", restaurantId: "rest-123" },
+			});
+		});
+
+		it("should return null when staff is not found in restaurant", async () => {
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(null);
+
+			const result = await repository.findByIdAndRestaurantId(
+				"staff-123",
+				"other-rest",
+			);
+
+			expect(result).toBeNull();
+		});
+	});
+
+	describe("updateStaffInfo", () => {
+		it("should update staff fullname and phone and return updated entity", async () => {
+			const updatedPrisma = {
+				...dummyPrismaStaff,
+				fullname: "Updated Name",
+				phone: "+919999999999",
+				updatedAt: new Date(),
+			};
+			mockPrisma.restaurantStaff.update.mockResolvedValue(updatedPrisma);
+
+			const result = await repository.updateStaffInfo("staff-123", {
+				fullname: "Updated Name",
+				phone: "+919999999999",
+			});
+
+			expect(result.fullname).toBe("Updated Name");
+			expect(result.phone).toBe("+919999999999");
+			expect(mockPrisma.restaurantStaff.update).toHaveBeenCalledWith({
+				where: { id: "staff-123" },
+				data: expect.objectContaining({
+					fullname: "Updated Name",
+					phone: "+919999999999",
+					updatedAt: expect.any(Date),
+				}),
+			});
+		});
+
+		it("should throw StaffNotFoundError when P2025 error occurs during update", async () => {
+			const error = new PrismaClientKnownRequestError("Record not found", {
+				code: "P2025",
+				clientVersion: "5.0.0",
+			});
+			mockPrisma.restaurantStaff.update.mockRejectedValue(error);
+
+			await expect(
+				repository.updateStaffInfo("staff-nonexistent", {
+					fullname: "Updated Name",
+				}),
+			).rejects.toThrow(StaffNotFoundError);
+		});
+	});
 });
+

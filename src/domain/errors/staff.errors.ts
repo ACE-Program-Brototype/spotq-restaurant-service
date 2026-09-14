@@ -179,3 +179,11 @@ export class InvalidInvitationStatusError extends DomainError {
 		super(message);
 	}
 }
+
+export class StaffForbiddenError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.STAFF_FORBIDDEN;
+	constructor(message: string = messages.FORBIDDEN) {
+		super(message);
+	}
+}
+
