@@ -73,10 +73,12 @@ describe("Restaurant Entity", () => {
 
 		restaurant.block("Policy violation");
 		expect(restaurant.isBlocked).toBe(true);
+		expect(restaurant.status).toBe("SUSPENDED");
 		expect(restaurant.blockReason).toBe("Policy violation");
 
 		restaurant.unblock();
 		expect(restaurant.isBlocked).toBe(false);
+		expect(restaurant.status).toBe("ACTIVE");
 		expect(restaurant.blockReason).toBeNull();
 
 		restaurant.verifyEmail();

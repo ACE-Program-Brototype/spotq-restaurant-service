@@ -38,6 +38,8 @@ export const ADMIN_ROUTES = {
 	BASE: "/admin",
 	RESTAURANTS: "/restaurants",
 	GET_RESTAURANT_DETAILS: "/restaurants/:id",
+	BLOCK_RESTAURANT: "/restaurants/:id/block",
+	UNBLOCK_RESTAURANT: "/restaurants/:id/unblock",
 } as const;
 
 export type RestaurantRoute =

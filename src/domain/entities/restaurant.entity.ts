@@ -227,12 +227,14 @@ export class Restaurant {
 		}
 		this._props.isBlocked = true;
 		this._props.blockReason = reason.trim();
+		this._props.status = RestaurantStatusVO.create("SUSPENDED");
 		this._props.updatedAt = new Date();
 	}
 
 	public unblock(): void {
 		this._props.isBlocked = false;
 		this._props.blockReason = null;
+		this._props.status = RestaurantStatusVO.create("ACTIVE");
 		this._props.updatedAt = new Date();
 	}
 

@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
 import type { RestaurantDetailsResponseDto } from "@/application/dtos/admin/restaurant-details.dto.ts";
+import type { IBlockRestaurantUseCase } from "@/application/ports/use-cases/admin/block-restaurant.use-case.port.ts";
 import type { IGetRestaurantDetailsUseCase } from "@/application/ports/use-cases/admin/get-restaurant-details.use-case.port.ts";
+import type { IUnblockRestaurantUseCase } from "@/application/ports/use-cases/admin/unblock-restaurant.use-case.port.ts";
 import { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller.ts";
+import type { AuthenticatedAdminRequest } from "@/presentation/http/middleware/admin.auth.middleware.ts";
 
 describe("AdminRestaurantController", () => {
 	let getRestaurantDetailsUseCase: jest.Mocked<IGetRestaurantDetailsUseCase>;
+	let blockRestaurantUseCase: jest.Mocked<IBlockRestaurantUseCase>;
+	let unblockRestaurantUseCase: jest.Mocked<IUnblockRestaurantUseCase>;
 	let controller: AdminRestaurantController;
-	let req: Partial<Request>;
+	let req: Partial<AuthenticatedAdminRequest>;
 	let res: Partial<Response>;
 	let next: jest.MockedFunction<NextFunction>;
 
@@ -108,10 +113,25 @@ describe("AdminRestaurantController", () => {
 		getRestaurantDetailsUseCase = {
 			execute: jest.fn(),
 		};
-		controller = new AdminRestaurantController(getRestaurantDetailsUseCase);
+		blockRestaurantUseCase = {
+			execute: jest.fn(),
+		};
+		unblockRestaurantUseCase = {
+			execute: jest.fn(),
+		};
+		controller = new AdminRestaurantController(
+			getRestaurantDetailsUseCase,
+			blockRestaurantUseCase,
+			unblockRestaurantUseCase,
+		);
 
 		req = {
 			params: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" },
+			user: {
+				userId: "admin-123",
+				email: "admin@spotq.com",
+				role: "ADMIN",
+			},
 		};
 
 		res = {
@@ -122,61 +142,166 @@ describe("AdminRestaurantController", () => {
 		next = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
-	it("should return 200 with snake_case mapped restaurant details when found", async () => {
-		getRestaurantDetailsUseCase.execute.mockResolvedValue(dummyDetails);
+	describe("getRestaurantDetails", () => {
+		it("should return 200 with snake_case mapped restaurant details when found", async () => {
+			getRestaurantDetailsUseCase.execute.mockResolvedValue(dummyDetails);
 
-		await controller.getRestaurantDetails(
-			req as Request<{ id: string }>,
-			res as Response,
-			next,
-		);
+			await controller.getRestaurantDetails(
+				req as Request<{ id: string }>,
+				res as Response,
+				next,
+			);
 
-		expect(getRestaurantDetailsUseCase.execute).toHaveBeenCalledWith(
-			"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-		);
-		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.json).toHaveBeenCalledWith(
-			expect.objectContaining({
-				success: true,
-				statusCode: 200,
-				message: "Restaurant details retrieved successfully",
-				data: expect.objectContaining({
-					id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
-					restaurant_name: "Spice Route Bistro",
-					owner_name: "Alice Smith",
-					owner_email: "alice@spiceroute.com",
-					onboarding_status: "COMPLETED",
-					is_subscription_active: true,
-					address: expect.objectContaining({
-						address_line1: "123 Food Street",
-					}),
-					staff: expect.arrayContaining([
-						expect.objectContaining({
-							fullname: "Bob Chef",
-							avatar_url: "staff/bob.jpg",
-						}),
-					]),
-					linked_account: expect.objectContaining({
-						email: "alice@spiceroute.com",
-						is_email_verified: true,
+			expect(getRestaurantDetailsUseCase.execute).toHaveBeenCalledWith(
+				"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+			);
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					statusCode: 200,
+					message: "Restaurant details retrieved successfully",
+					data: expect.objectContaining({
+						id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+						restaurant_name: "Spice Route Bistro",
+						owner_name: "Alice Smith",
+						owner_email: "alice@spiceroute.com",
+						onboarding_status: "COMPLETED",
+						is_subscription_active: true,
 					}),
 				}),
-			}),
-		);
-		expect(next).not.toHaveBeenCalled();
+			);
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it("should call next with error when use case throws", async () => {
+			const error = new Error("Use case error");
+			getRestaurantDetailsUseCase.execute.mockRejectedValue(error);
+
+			await controller.getRestaurantDetails(
+				req as Request<{ id: string }>,
+				res as Response,
+				next,
+			);
+
+			expect(next).toHaveBeenCalledWith(error);
+			expect(res.status).not.toHaveBeenCalled();
+		});
 	});
 
-	it("should call next with error when use case throws", async () => {
-		const error = new Error("Use case error");
-		getRestaurantDetailsUseCase.execute.mockRejectedValue(error);
+	describe("blockRestaurant", () => {
+		it("should return 200 with snake_case response when restaurant is blocked successfully", async () => {
+			const blockResult = {
+				id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				restaurantName: "Spice Route Bistro",
+				status: "SUSPENDED",
+				isBlocked: true,
+				blockReason: "Violation of terms",
+				updatedAt: new Date("2026-03-01T12:00:00.000Z"),
+			};
+			blockRestaurantUseCase.execute.mockResolvedValue(blockResult);
 
-		await controller.getRestaurantDetails(
-			req as Request<{ id: string }>,
-			res as Response,
-			next,
-		);
+			req.body = { reason: "Violation of terms" };
 
-		expect(next).toHaveBeenCalledWith(error);
-		expect(res.status).not.toHaveBeenCalled();
+			await controller.blockRestaurant(
+				req as Request<{ id: string }, unknown, { reason: string }>,
+				res as Response,
+				next,
+			);
+
+			expect(blockRestaurantUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				reason: "Violation of terms",
+				adminId: "admin-123",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					statusCode: 200,
+					message: "Restaurant blocked successfully.",
+					data: {
+						id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+						restaurant_name: "Spice Route Bistro",
+						status: "SUSPENDED",
+						is_blocked: true,
+						block_reason: "Violation of terms",
+						updated_at: expect.any(Date),
+					},
+				}),
+			);
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it("should call next with error when blockRestaurantUseCase throws", async () => {
+			const error = new Error("Block error");
+			blockRestaurantUseCase.execute.mockRejectedValue(error);
+			req.body = { reason: "Violation of terms" };
+
+			await controller.blockRestaurant(
+				req as Request<{ id: string }, unknown, { reason: string }>,
+				res as Response,
+				next,
+			);
+
+			expect(next).toHaveBeenCalledWith(error);
+			expect(res.status).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("unblockRestaurant", () => {
+		it("should return 200 with snake_case response when restaurant is unblocked successfully", async () => {
+			const unblockResult = {
+				id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				restaurantName: "Spice Route Bistro",
+				status: "ACTIVE",
+				isBlocked: false,
+				blockReason: null,
+				updatedAt: new Date("2026-03-01T12:00:00.000Z"),
+			};
+			unblockRestaurantUseCase.execute.mockResolvedValue(unblockResult);
+
+			await controller.unblockRestaurant(
+				req as Request<{ id: string }>,
+				res as Response,
+				next,
+			);
+
+			expect(unblockRestaurantUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				adminId: "admin-123",
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					statusCode: 200,
+					message: "Restaurant unblocked successfully.",
+					data: {
+						id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+						restaurant_name: "Spice Route Bistro",
+						status: "ACTIVE",
+						is_blocked: false,
+						block_reason: null,
+						updated_at: expect.any(Date),
+					},
+				}),
+			);
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it("should call next with error when unblockRestaurantUseCase throws", async () => {
+			const error = new Error("Unblock error");
+			unblockRestaurantUseCase.execute.mockRejectedValue(error);
+
+			await controller.unblockRestaurant(
+				req as Request<{ id: string }>,
+				res as Response,
+				next,
+			);
+
+			expect(next).toHaveBeenCalledWith(error);
+			expect(res.status).not.toHaveBeenCalled();
+		});
 	});
 });
