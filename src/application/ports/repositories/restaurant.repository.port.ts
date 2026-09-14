@@ -13,4 +13,6 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	findCompletedDetailsById(
 		id: string,
 	): Promise<RestaurantDetailsResponseDto | null>;
+
+	updateLastLogin(id: string, date?: Date): Promise<void>;
 }

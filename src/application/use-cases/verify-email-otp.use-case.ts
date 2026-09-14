@@ -80,6 +80,8 @@ export class VerifyRestaurantEmailOtpUseCase
 			throw new RestaurantAccountBlockedError();
 		}
 
+		await this.restaurantRepository.updateLastLogin(restaurant.id);
+
 		const tokenPair = this.authTokenService.generateTokenPair({
 			email: restaurant.email,
 			restaurantId: restaurant.id,

@@ -21,6 +21,7 @@ export interface RestaurantProps {
 	status: RestaurantStatusVO;
 	onboardingStatus: OnboardingStatusVO;
 	emailVerifiedAt: Date | null;
+	lastLoginAt: Date | null;
 	isBlocked: boolean;
 	blockReason: string | null;
 	createdAt: Date;
@@ -37,6 +38,7 @@ export interface CreateRestaurantProps {
 	status?: string | RestaurantStatusVO;
 	onboardingStatus?: string | OnboardingStatusVO;
 	emailVerifiedAt?: Date | null;
+	lastLoginAt?: Date | null;
 	isBlocked?: boolean;
 	blockReason?: string | null;
 }
@@ -51,6 +53,7 @@ export interface ReconstituteRestaurantProps {
 	status: string;
 	onboardingStatus: string;
 	emailVerifiedAt: Date | null;
+	lastLoginAt?: Date | null;
 	isBlocked: boolean;
 	blockReason: string | null;
 	createdAt: Date;
@@ -122,6 +125,7 @@ export class Restaurant {
 			status,
 			onboardingStatus,
 			emailVerifiedAt: props.emailVerifiedAt ?? null,
+			lastLoginAt: props.lastLoginAt ?? null,
 			isBlocked: props.isBlocked ?? false,
 			blockReason: props.blockReason ?? null,
 			createdAt: now,
@@ -140,6 +144,7 @@ export class Restaurant {
 			status: RestaurantStatusVO.create(props.status),
 			onboardingStatus: OnboardingStatusVO.create(props.onboardingStatus),
 			emailVerifiedAt: props.emailVerifiedAt,
+			lastLoginAt: props.lastLoginAt ?? null,
 			isBlocked: props.isBlocked,
 			blockReason: props.blockReason,
 			createdAt: props.createdAt,
@@ -191,6 +196,10 @@ export class Restaurant {
 		return this._props.emailVerifiedAt;
 	}
 
+	public get lastLoginAt(): Date | null {
+		return this._props.lastLoginAt;
+	}
+
 	public get isBlocked(): boolean {
 		return this._props.isBlocked;
 	}
@@ -205,6 +214,11 @@ export class Restaurant {
 
 	public get updatedAt(): Date {
 		return this._props.updatedAt;
+	}
+
+	public recordLogin(date: Date = new Date()): void {
+		this._props.lastLoginAt = date;
+		this._props.updatedAt = new Date();
 	}
 
 	public block(reason: string): void {

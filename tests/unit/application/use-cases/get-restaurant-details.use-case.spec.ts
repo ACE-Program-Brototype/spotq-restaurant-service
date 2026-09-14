@@ -112,7 +112,8 @@ describe("GetRestaurantDetailsUseCase", () => {
 			update: jest.fn(),
 			existsByEmail: jest.fn(),
 			findByEmail: jest.fn(),
-		};
+			updateLastLogin: jest.fn(),
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		useCase = new GetRestaurantDetailsUseCase(restaurantRepository);
 	});

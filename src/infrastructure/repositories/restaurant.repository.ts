@@ -252,5 +252,12 @@ export class RestaurantRepository implements IRestaurantRepository {
 			update: updateData,
 		});
 	}
+
+	async updateLastLogin(id: string, date: Date = new Date()): Promise<void> {
+		await this.prisma.restaurant.update({
+			where: { id },
+			data: { lastLoginAt: date },
+		});
+	}
 }
 

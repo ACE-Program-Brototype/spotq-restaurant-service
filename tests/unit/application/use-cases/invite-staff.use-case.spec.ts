@@ -68,7 +68,8 @@ describe("InviteStaffUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
-		};
+			updateLastLogin: jest.fn(),
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		emailQueueService = {
 			sendVerificationOtp: jest.fn(),

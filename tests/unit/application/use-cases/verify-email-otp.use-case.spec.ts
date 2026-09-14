@@ -27,6 +27,7 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 			create: jest.fn(),
 			update: jest.fn(),
 			save: jest.fn(),
+			updateLastLogin: jest.fn().mockResolvedValue(undefined),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		mockOtpStore = {
