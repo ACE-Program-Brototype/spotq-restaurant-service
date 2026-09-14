@@ -34,6 +34,9 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
+	RESTAURANT_DETAILS_FETCHED_SUCCESS:
+		"Restaurant details retrieved successfully",
 	VALIDATION_ERROR: "Validation error occurred",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
@@ -62,6 +65,10 @@ export const messages = {
 		"Too many invitation validation attempts. Please try again later.",
 	RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED:
 		"Too many invitation acceptance attempts. Please try again later.",
+	RATE_LIMIT_BLOCK_RESTAURANT_EXCEEDED:
+		"Too many block restaurant requests. Please try again later.",
+	RATE_LIMIT_UNBLOCK_RESTAURANT_EXCEEDED:
+		"Too many unblock restaurant requests. Please try again later.",
 	STAFF_NOT_FOUND: "Staff member not found",
 	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
 	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",
@@ -102,6 +109,8 @@ export const messages = {
 	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
 	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
+	STORAGE_KEY_REQUIRED: "Storage object key is required",
+	STORAGE_KEY_INVALID: "Invalid storage object key specified",
 	BLOCK_REASON_REQUIRED: "Block reason is required",
 	RESET_TOKEN_REQUIRED: "Reset token is required",
 	INVALID_TOKEN_PURPOSE: "Invalid token purpose",
@@ -136,6 +145,14 @@ export const messages = {
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+	RESTAURANT_BLOCKED_SUCCESS: "Restaurant blocked successfully.",
+	RESTAURANT_UNBLOCKED_SUCCESS: "Restaurant unblocked successfully.",
+	RESTAURANT_ALREADY_BLOCKED: "Restaurant is already blocked",
+	RESTAURANT_NOT_BLOCKED: "Restaurant is not blocked",
+	CANNOT_MODIFY_PENDING_RESTAURANT:
+		"Cannot block or unblock a restaurant with pending status",
+	CANNOT_MODIFY_INCOMPLETE_ONBOARDING:
+		"Cannot block or unblock a restaurant with incomplete onboarding",
 } as const;
 
 export type MessageKey = keyof typeof messages;

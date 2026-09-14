@@ -54,7 +54,8 @@ describe("ListStaffInvitationsUseCase", () => {
 			findUnique: jest.fn(),
 			find: jest.fn(),
 			update: jest.fn(),
-		};
+			updateLastLogin: jest.fn(),
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		useCase = new ListStaffInvitationsUseCase(
 			staffInvitationRepository,

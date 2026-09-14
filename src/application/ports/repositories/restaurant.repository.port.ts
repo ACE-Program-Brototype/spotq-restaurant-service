@@ -1,3 +1,4 @@
+import type { RestaurantDetailsResponseDto } from "@/application/dtos/admin/restaurant-details.dto.ts";
 import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
 import type { Restaurant } from "@/domain/entities/restaurant.entity";
@@ -8,4 +9,10 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	createRestaurant(data: CreateRestaurantDto): Promise<Restaurant>;
 
 	findByEmail(email: string): Promise<Restaurant | null>;
+
+	findCompletedDetailsById(
+		id: string,
+	): Promise<RestaurantDetailsResponseDto | null>;
+
+	updateLastLogin(id: string, date?: Date): Promise<void>;
 }
