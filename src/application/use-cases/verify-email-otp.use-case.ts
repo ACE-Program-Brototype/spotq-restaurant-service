@@ -105,11 +105,12 @@ export class VerifyRestaurantEmailOtpUseCase
 		} else if (
 			restaurant.status === "PENDING" ||
 			restaurant.status === "REJECTED" ||
-			restaurant.status === "SUSPENDED"
+			restaurant.status === "SUSPENDED" ||
+			restaurant.status === "INACTIVE"
 		) {
 			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
 		} else {
-			nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
 		}
 
 		return {

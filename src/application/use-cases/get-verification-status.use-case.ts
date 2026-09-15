@@ -7,6 +7,7 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import type { IGetRestaurantVerificationStatusUseCase } from "@/application/ports/use-cases/get-verification-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import { messages } from "@/shared/constants/message.constants";
 
 @injectable()
 export class GetRestaurantVerificationStatusUseCase
@@ -34,7 +35,7 @@ export class GetRestaurantVerificationStatusUseCase
 		} else if (restaurant.status === "REJECTED" || restaurant.isBlocked) {
 			status = "REJECTED";
 			rejectionReason =
-				restaurant.blockReason || "Registration request was rejected.";
+				restaurant.blockReason || messages.RESTAURANT_REGISTRATION_REJECTED;
 		} else if (restaurant.onboardingStatus === "COMPLETED") {
 			status = "UNDER_REVIEW";
 		} else {

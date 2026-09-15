@@ -154,25 +154,15 @@ export class RestaurantRepository implements IRestaurantRepository {
 				},
 			});
 
-			const fssaiNumber = dto.documents?.fssai?.documentName ?? null;
-			const registerNumber =
-				dto.documents?.businessRegistration?.documentName ?? null;
-			const gstNumber = dto.documents?.gst?.documentName ?? null;
 			const firstImage = dto.restaurantImages?.[0]?.objectKey ?? null;
 
 			await tx.restaurantProfile.upsert({
 				where: { restaurantId: restaurant.id },
 				create: {
 					restaurantId: restaurant.id,
-					fssaiNumber,
-					registerNumber,
-					gstNumber,
 					coverImage: firstImage,
 				},
 				update: {
-					...(fssaiNumber ? { fssaiNumber } : {}),
-					...(registerNumber ? { registerNumber } : {}),
-					...(gstNumber ? { gstNumber } : {}),
 					...(firstImage ? { coverImage: firstImage } : {}),
 				},
 			});
