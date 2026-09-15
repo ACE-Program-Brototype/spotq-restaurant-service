@@ -33,9 +33,10 @@ describe("ResendForgotPasswordOtpUseCase", () => {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			findManyWithFilters: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantStaffRepository>;
 
 		otpRepository = {
 			saveOtp: jest.fn(),
