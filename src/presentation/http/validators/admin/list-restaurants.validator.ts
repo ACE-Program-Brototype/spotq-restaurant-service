@@ -81,8 +81,22 @@ export const listRestaurantsQuerySchema = z
 			.trim()
 			.transform((val) => (val === "" ? undefined : val))
 			.optional(),
-		status: z.enum(ADMIN_LISTABLE_RESTAURANT_STATUSES).optional(),
-		plan: z.enum(SUBSCRIPTION_PLANS).optional(),
+		status: z.preprocess((val) => {
+			if (val === undefined || val === null || val === "") return undefined;
+			if (typeof val === "string") {
+				const trimmed = val.trim();
+				return trimmed === "" ? undefined : trimmed.toUpperCase();
+			}
+			return val;
+		}, z.enum(ADMIN_LISTABLE_RESTAURANT_STATUSES).optional()),
+		plan: z.preprocess((val) => {
+			if (val === undefined || val === null || val === "") return undefined;
+			if (typeof val === "string") {
+				const trimmed = val.trim();
+				return trimmed === "" ? undefined : trimmed.toUpperCase();
+			}
+			return val;
+		}, z.enum(SUBSCRIPTION_PLANS).optional()),
 		is_subscription_active: z.preprocess((val) => {
 			if (val === undefined || val === null || val === "") return undefined;
 			if (typeof val === "string") {

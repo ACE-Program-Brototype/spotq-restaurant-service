@@ -58,10 +58,36 @@ describe("listRestaurantsQuerySchema", () => {
 			expect(selfServiceResult.data.plan).toBe("SELF_SERVICE_PRO");
 		}
 
+		const lowercasePlanResult = listRestaurantsQuerySchema.safeParse({
+			plan: "queue_pro",
+		});
+		expect(lowercasePlanResult.success).toBe(true);
+		if (lowercasePlanResult.success) {
+			expect(lowercasePlanResult.data.plan).toBe("QUEUE_PRO");
+		}
+
 		const invalidPlanResult = listRestaurantsQuerySchema.safeParse({
 			plan: "INVALID_PLAN",
 		});
 		expect(invalidPlanResult.success).toBe(false);
+	});
+
+	it("should accept lowercase and uppercase status values", () => {
+		const lowercaseStatusResult = listRestaurantsQuerySchema.safeParse({
+			status: "approved",
+		});
+		expect(lowercaseStatusResult.success).toBe(true);
+		if (lowercaseStatusResult.success) {
+			expect(lowercaseStatusResult.data.status).toBe("APPROVED");
+		}
+
+		const uppercaseStatusResult = listRestaurantsQuerySchema.safeParse({
+			status: "ACTIVE",
+		});
+		expect(uppercaseStatusResult.success).toBe(true);
+		if (uppercaseStatusResult.success) {
+			expect(uppercaseStatusResult.data.status).toBe("ACTIVE");
+		}
 	});
 
 	it("should parse camelCase parameters properly", () => {
