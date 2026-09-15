@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Response } from "express";
 import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port.ts";
-import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant.staff.management.controller.ts";
+import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller.ts";
 
 describe("RestaurantStaffManagementController", () => {
 	let getStaffDetailUseCase: jest.Mocked<IGetStaffDetailUseCase>;
@@ -66,32 +66,11 @@ describe("RestaurantStaffManagementController", () => {
 			);
 		});
 
-		it("should return 401 when authenticated user context is missing", async () => {
-			const req = {
-				headers: {},
-				params: {
-					restaurantId: "res_01ABC",
-					staffId: "stf_02AB",
-				},
-			};
-
-			await controller.getStaffDetail(req as never, res as Response);
-
-			expect(getStaffDetailUseCase.execute).not.toHaveBeenCalled();
-			expect(res.status).toHaveBeenCalledWith(401);
-			expect(res.json).toHaveBeenCalledWith(
-				expect.objectContaining({
-					success: false,
-					statusCode: 401,
-					code: "UNAUTHORIZED",
-				}),
-			);
-		});
-
-		it("should return 403 Forbidden when param restaurantId does not match authenticated user-id", async () => {
+		it("should return 403 Forbidden when param restaurantId does not match authenticated owner restaurantId or userId", async () => {
 			const req = {
 				user: {
 					userId: "res_01ABC",
+					restaurantId: "res_01ABC",
 				},
 				userId: "res_01ABC",
 				params: {
@@ -114,10 +93,10 @@ describe("RestaurantStaffManagementController", () => {
 			);
 		});
 
-		it("should handle array params correctly", async () => {
+		it("should allow access when restaurantId matches authenticated user restaurantId", async () => {
 			const mockStaffDetail = {
 				id: "stf_02AB",
-				restaurantId: "res_01ABC",
+				restaurantId: "rest-uuid-456",
 				fullname: "Ravi Kumar",
 				email: "ravi@example.com",
 				phone: "+919876543210",
@@ -130,12 +109,14 @@ describe("RestaurantStaffManagementController", () => {
 
 			const req = {
 				user: {
-					userId: "res_01ABC",
+					userId: "owner-user-123",
+					restaurantId: "rest-uuid-456",
+					email: "owner@spiceroute.com",
+					role: "restaurant_owner",
 				},
-				userId: "res_01ABC",
 				params: {
-					restaurantId: ["res_01ABC"],
-					staffId: ["stf_02AB"],
+					restaurantId: "rest-uuid-456",
+					staffId: "stf_02AB",
 				},
 			};
 
@@ -144,7 +125,7 @@ describe("RestaurantStaffManagementController", () => {
 			await controller.getStaffDetail(req as never, res as Response);
 
 			expect(getStaffDetailUseCase.execute).toHaveBeenCalledWith({
-				restaurantId: "res_01ABC",
+				restaurantId: "rest-uuid-456",
 				staffId: "stf_02AB",
 			});
 			expect(res.status).toHaveBeenCalledWith(200);

@@ -27,13 +27,11 @@ export class GetStaffDetailUseCase implements IGetStaffDetailUseCase {
 		const restaurantId = dto.restaurantId?.trim();
 		const staffId = dto.staffId?.trim();
 
-		// 1. Verify that the restaurant exists
 		const restaurant = await this.restaurantRepository.findById(restaurantId);
 		if (!restaurant) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
-		// 2. Find staff member belonging to the requested restaurant
 		const staff = await this.staffRepository.findByIdAndRestaurantId(
 			staffId,
 			restaurantId,
@@ -43,7 +41,6 @@ export class GetStaffDetailUseCase implements IGetStaffDetailUseCase {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 
-		// 3. Select only the non-sensitive fields required for the response
 		return StaffMapper.toDetailDTO(staff);
 	}
 }

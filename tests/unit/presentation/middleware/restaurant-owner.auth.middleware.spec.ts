@@ -44,7 +44,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should authenticate and call next() when x-user-role is missing but x-user-id is present", () => {
+	it("should return 403 when x-user-role is missing", () => {
 		mockReq.headers = {
 			"x-user-id": "owner-123",
 		};
@@ -55,18 +55,19 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			mockNext,
 		);
 
-		expect(mockReq.user).toEqual({
-			userId: "owner-123",
-			restaurantId: "",
-			email: "",
-			role: "RESTAURANT_OWNER",
-		});
-
-		expect(mockReq.userId).toBe("owner-123");
-		expect(mockNext).toHaveBeenCalled();
+		expect(mockRes.status).toHaveBeenCalledWith(403);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: 403,
+				code: "FORBIDDEN",
+				message: "Forbidden: Restaurant owner access required",
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should return 403 when x-user-role is not an owner role (e.g. staff or customer)", () => {
+	it("should return 403 when x-user-role is not in positive allowlist (e.g. staff, customer, or guest)", () => {
 		mockReq.headers = {
 			"x-user-id": "user-123",
 			"x-user-role": "staff",
@@ -90,10 +91,10 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should authenticate restaurant_admin and call next()", () => {
+	it("should authenticate restaurant_owner and call next()", () => {
 		mockReq.headers = {
 			"x-user-id": "owner-uuid-123",
-			"x-user-role": "restaurant_admin",
+			"x-user-role": "restaurant_owner",
 			"x-user-email": "owner@restaurant.com",
 			"x-restaurant-id": "rest-uuid-456",
 		};
@@ -108,13 +109,13 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			userId: "owner-uuid-123",
 			restaurantId: "rest-uuid-456",
 			email: "owner@restaurant.com",
-			role: "restaurant_admin",
+			role: "restaurant_owner",
 		});
 		expect(mockReq.userId).toBe("owner-uuid-123");
 		expect(mockNext).toHaveBeenCalled();
 	});
 
-	it("should authenticate RESTAURANT_OWNER and call next()", () => {
+	it("should authenticate RESTAURANT_OWNER (case-insensitive) and call next()", () => {
 		mockReq.headers = {
 			"x-user-id": "owner-uuid-123",
 			"x-user-role": "RESTAURANT_OWNER",
@@ -133,6 +134,40 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			email: "owner@restaurant.com",
 			role: "RESTAURANT_OWNER",
 		});
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
+	it("should authenticate owner role and call next()", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-uuid-123",
+			"x-user-role": "owner",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user?.role).toBe("owner");
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
+	it("should authenticate restaurant role and call next()", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-uuid-123",
+			"x-user-role": "restaurant",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user?.role).toBe("restaurant");
 		expect(mockReq.userId).toBe("owner-uuid-123");
 		expect(mockNext).toHaveBeenCalled();
 	});
