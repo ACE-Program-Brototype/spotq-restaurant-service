@@ -395,12 +395,16 @@ export class StaffController {
 
 	public listStaff = async (req: Request, res: Response): Promise<void> => {
 		const authReq = req as AuthenticatedOwnerRequest;
-		const ownerEmail =
+		const rawOwnerEmail =
 			authReq.user?.email || (req.headers["x-user-email"] as string) || "";
-		const restaurantId =
+		const ownerEmail =
+			(Array.isArray(rawOwnerEmail) ? rawOwnerEmail[0] : rawOwnerEmail)?.trim() || "";
+		const rawRestaurantId =
 			req.params.restaurantId ||
-			(req.headers["x-restaurant-id"] as string)?.trim() ||
+			(req.headers["x-restaurant-id"] as string) ||
 			"";
+		const restaurantId =
+			(Array.isArray(rawRestaurantId) ? rawRestaurantId[0] : rawRestaurantId)?.trim() || "";
 
 		if (!restaurantId) {
 			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
