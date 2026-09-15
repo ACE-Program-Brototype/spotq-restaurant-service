@@ -11,6 +11,7 @@ import type {
 	CreateRestaurantDto,
 	OnboardRestaurantDto,
 } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
+import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
@@ -292,5 +293,73 @@ export class RestaurantRepository implements IRestaurantRepository {
 			create: rawData,
 			update: updateData,
 		});
+	}
+
+	async getRestaurantProfileDetails(
+		restaurantId: string,
+	): Promise<RestaurantProfileResponseDto | null> {
+		const raw = await this.prisma.restaurant.findUnique({
+			where: { id: restaurantId },
+			include: {
+				profile: true,
+				settings: true,
+				operatingHours: {
+					orderBy: { dayOfWeek: "asc" },
+				},
+			},
+		});
+
+		if (!raw) return null;
+
+		const formatTime = (time: unknown): string | null => {
+			if (!time) return null;
+			if (typeof time === "string") {
+				if (time.includes("T")) {
+					const d = new Date(time);
+					if (!Number.isNaN(d.getTime())) {
+						return `${d.getUTCHours().toString().padStart(2, "0")}:${d.getUTCMinutes().toString().padStart(2, "0")}`;
+					}
+				}
+				return time.slice(0, 5);
+			}
+			if (time instanceof Date && !Number.isNaN(time.getTime())) {
+				const hours = time.getUTCHours().toString().padStart(2, "0");
+				const minutes = time.getUTCMinutes().toString().padStart(2, "0");
+				return `${hours}:${minutes}`;
+			}
+			return null;
+		};
+
+		return {
+			restaurant: {
+				name: raw.restaurantName,
+				phone: raw.phone,
+				ownerName: raw.ownerName,
+			},
+			profile: {
+				logo: raw.profile?.logoKey ?? raw.profile?.avatar ?? null,
+				coverImage:
+					raw.profile?.coverImageKey ?? raw.profile?.coverImage ?? null,
+				description: raw.profile?.description ?? null,
+				cuisineType:
+					raw.profile?.cuisineType ?? raw.settings?.cuisineType ?? null,
+				averageCost: raw.profile?.averageCost ?? 0,
+			},
+			settings: {
+				acceptsQueue: raw.settings?.acceptsQueue ?? true,
+				acceptsQrOrders: raw.settings?.acceptsQrOrders ?? true,
+				loyaltyEnabled:
+					raw.settings?.loyaltyEnabled ??
+					raw.settings?.isLoyaltyEnabled ??
+					false,
+				autoAcceptQueue: raw.settings?.autoAcceptQueue ?? false,
+			},
+			businessHours: raw.operatingHours.map((oh) => ({
+				dayOfWeek: oh.dayOfWeek,
+				openTime: formatTime(oh.openTime),
+				closeTime: formatTime(oh.closeTime),
+				isClosed: oh.isClosed ?? !oh.isOpen,
+			})),
+		};
 	}
 }
