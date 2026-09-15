@@ -15,6 +15,13 @@ export interface AuthenticatedRestaurant {
 	role?: string;
 }
 
+export interface AuthenticatedOwner {
+	userId: string;
+	restaurantId: string;
+	email: string;
+	role: string;
+}
+
 declare global {
 	namespace Express {
 		interface Request {
@@ -22,6 +29,7 @@ declare global {
 			user?:
 				| AuthenticatedStaff
 				| AuthenticatedRestaurant
+				| AuthenticatedOwner
 				| jwt.JwtPayload
 				| string;
 		}

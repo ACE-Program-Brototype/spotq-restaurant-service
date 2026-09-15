@@ -13,6 +13,7 @@ import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port";
+import type { IRemoveStaffUseCase } from "@/application/ports/use-cases/remove-staff.use-case.port";
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port";
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port";
@@ -27,6 +28,7 @@ import { ListStaffInvitationsUseCase } from "@/application/use-cases/staff/list-
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case";
 import { LogoutStaffUseCase } from "@/application/use-cases/staff/logout-staff.use-case";
 import { RefreshTokenUseCase } from "@/application/use-cases/staff/refresh-token.use-case";
+import { RemoveStaffUseCase } from "@/application/use-cases/staff/remove-staff.use-case";
 import { ResendForgotPasswordOtpUseCase } from "@/application/use-cases/staff/resend-forgot-password-otp.use-case";
 import { ResendStaffInvitationUseCase } from "@/application/use-cases/staff/resend-staff-invitation.use-case";
 import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-password.use-case";
@@ -49,6 +51,7 @@ import { CryptoInvitationTokenService } from "@/infrastructure/services/crypto-i
 import { CryptoOtpService } from "@/infrastructure/services/crypto-otp.service";
 import { JwtTokenService } from "@/infrastructure/services/jwt-token.service";
 import { StaffController } from "@/presentation/http/controllers/staff.controller";
+import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
 
 export const staffAuthModule = new ContainerModule(({ bind }) => {
 	// Repositories
@@ -150,8 +153,18 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 		.to(GetStaffProfileUseCase)
 		.inSingletonScope();
 
+	bind<IRemoveStaffUseCase>(TYPES.RemoveStaffUseCase)
+		.to(RemoveStaffUseCase)
+		.inSingletonScope();
+
 	// Controller
 	bind<StaffController>(TYPES.StaffController)
 		.to(StaffController)
+		.inSingletonScope();
+
+	bind<RestaurantStaffManagementController>(
+		TYPES.RestaurantStaffManagementController,
+	)
+		.to(RestaurantStaffManagementController)
 		.inSingletonScope();
 });

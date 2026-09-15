@@ -102,3 +102,32 @@ export function validateRequestQuery(schema: ZodType) {
 		}
 	};
 }
+
+/**
+ * Middleware to validate request path parameters against a Zod schema.
+ * Returns 400 Bad Request with formatted validation errors if validation fails.
+ */
+export const validateRequestParams = (schema: ZodType) => {
+	return (req: Request, res: Response, next: NextFunction): void => {
+		const result = schema.safeParse(req.params);
+
+		if (!result.success) {
+			res
+				.status(HTTP_STATUS.BAD_REQUEST)
+				.json(
+					ApiResponse.error(
+						messages.VALIDATION_ERROR,
+						"VALIDATION_ERROR",
+						HTTP_STATUS.BAD_REQUEST,
+						result.error.flatten(),
+					),
+				);
+
+			return;
+		}
+
+		req.params = result.data as Record<string, string>;
+
+		next();
+	};
+};
