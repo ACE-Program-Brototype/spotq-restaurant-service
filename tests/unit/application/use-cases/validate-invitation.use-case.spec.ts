@@ -47,7 +47,7 @@ describe("ValidateInvitationUseCase", () => {
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
 			completeOnboarding: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		invitationTokenService = {
 			generateToken: jest.fn(),

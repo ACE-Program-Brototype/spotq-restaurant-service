@@ -8,6 +8,7 @@ import {
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
+import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -53,3 +54,15 @@ restaurantRouter.get(
 	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
 );
 
+restaurantRouter.get(
+	RESTAURANT_ROUTES.PROFILE,
+	restaurantAuthMiddleware,
+	restaurantAuthController.getProfile.bind(restaurantAuthController),
+);
+
+restaurantRouter.put(
+	RESTAURANT_ROUTES.PROFILE,
+	restaurantAuthMiddleware,
+	validateRequestBody(updateRestaurantProfileSchema),
+	restaurantAuthController.updateProfile.bind(restaurantAuthController),
+);

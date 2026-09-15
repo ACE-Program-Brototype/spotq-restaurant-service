@@ -98,8 +98,12 @@ model RestaurantSettings {
   id           String @id @default(uuid()) @db.Uuid
   restaurantId String @unique @map("restaurant_id") @db.Uuid
 
-  isOpened   Boolean @default(false) @map("is_opened")
-  isPreorder Boolean @default(false) @map("is_preorder")
+  isOpened        Boolean @default(false) @map("is_opened")
+  isPreorder      Boolean @default(false) @map("is_preorder")
+  acceptsQueue    Boolean @default(true) @map("accepts_queue")
+  acceptsQrOrders Boolean @default(true) @map("accepts_qr_orders")
+  loyaltyEnabled  Boolean @default(false) @map("loyalty_enabled")
+  autoAcceptQueue Boolean @default(false) @map("auto_accept_queue")
 
   openTime  DateTime? @map("open_time") @db.Time(0)
   closeTime DateTime? @map("close_time") @db.Time(0)
@@ -121,9 +125,11 @@ model RestaurantProfile {
   id           String @id @default(uuid()) @db.Uuid
   restaurantId String @unique @map("restaurant_id") @db.Uuid
 
-  coverImage     String? @map("cover_image")
-  avatar         String? @map("avatar")
+  logoKey        String? @map("logo_key")
+  coverImageKey  String? @map("cover_image_key")
   description    String? @map("description")
+  cuisineType    String? @map("cuisine_type")
+  averageCost    Int?    @default(0) @map("average_cost")
   fssaiNumber    String? @map("fssai_number")
   registerNumber String? @map("register_number")
   gstNumber      String? @map("gst_number")
@@ -141,6 +147,7 @@ model RestaurantOperatingHours {
   restaurantId String    @map("restaurant_id") @db.Uuid
   dayOfWeek    Int       @map("day_of_week")
   isOpen       Boolean   @default(false) @map("is_open")
+  isClosed     Boolean   @default(false) @map("is_closed")
   openTime     DateTime? @map("open_time") @db.Time(0)
   closeTime    DateTime? @map("close_time") @db.Time(0)
 

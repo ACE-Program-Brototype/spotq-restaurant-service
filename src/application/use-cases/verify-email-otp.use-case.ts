@@ -91,10 +91,7 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		let nextStep: OnboardingNextStep;
 
-		if (
-			restaurant.status === "APPROVED" ||
-			restaurant.status === "ACTIVE"
-		) {
+		if (restaurant.status === "APPROVED" || restaurant.status === "ACTIVE") {
 			if (!restaurant.isSubscriptionActive) {
 				nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
 			} else {
