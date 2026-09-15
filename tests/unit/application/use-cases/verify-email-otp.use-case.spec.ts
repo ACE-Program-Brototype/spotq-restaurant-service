@@ -248,6 +248,36 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		expect(result.restaurantId).toBe("res-456");
 	});
 
+	it("returns VERIFICATION_STATUS nextStep for INACTIVE restaurant status", async () => {
+		mockOtpStore.get.mockResolvedValue("hashed-otp");
+		mockOtpHashService.compare.mockResolvedValue(true);
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-456",
+				restaurantName: "Inactive Food",
+				email: "inactive@restaurant.com",
+				phone: "1234567890",
+				ownerName: "Owner",
+				ownerEmail: "inactive@restaurant.com",
+				status: "INACTIVE",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
+
+		const result = await useCase.execute({
+			email: "inactive@restaurant.com",
+			otp: "123456",
+		});
+
+		expect(result.nextStep).toBe("VERIFICATION_STATUS");
+		expect(result.restaurantId).toBe("res-456");
+	});
+
 	it("throws RestaurantAccountBlockedError for blocked restaurant", async () => {
 		mockOtpStore.get.mockResolvedValue("hashed-otp");
 		mockOtpHashService.compare.mockResolvedValue(true);
