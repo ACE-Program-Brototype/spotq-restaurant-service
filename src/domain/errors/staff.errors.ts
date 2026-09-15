@@ -179,3 +179,10 @@ export class InvalidInvitationStatusError extends DomainError {
 		super(message);
 	}
 }
+
+export class UnauthorizedRestaurantAccessError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.UNAUTHORIZED_RESTAURANT_ACCESS;
+	constructor(message: string = messages.RESTAURANT_ACCESS_FORBIDDEN) {
+		super(message);
+	}
+}

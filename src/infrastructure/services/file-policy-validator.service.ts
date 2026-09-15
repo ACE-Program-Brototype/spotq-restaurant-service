@@ -1,16 +1,13 @@
+import { FileSizeExceededError } from "@application/errors/file-size-exceeded.error";
+import { UnsupportedFileCategoryError } from "@application/errors/unsupported-file-category.error";
+import { UnsupportedFileTypeError } from "@application/errors/unsupported-file-type.error";
 import { injectable } from "inversify";
-
 import type { IFilePolicyValidator } from "@/application/ports/services/file-policy-validator.port";
 import type { FileCategory } from "@/shared/storage/file-category.enum";
 import { FILE_POLICIES } from "@/shared/storage/file-policy";
-import { FileSizeExceededError } from "@application/errors/file-size-exceeded.error";
-import { UnsupportedFileTypeError } from "@application/errors/unsupported-file-type.error";
-import { UnsupportedFileCategoryError } from "@application/errors/unsupported-file-category.error";
 
 @injectable()
-export class FilePolicyValidatorService
-	implements IFilePolicyValidator
-{
+export class FilePolicyValidatorService implements IFilePolicyValidator {
 	validate(params: {
 		fileCategory: FileCategory;
 		contentType: string;
