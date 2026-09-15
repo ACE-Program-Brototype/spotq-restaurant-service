@@ -1,4 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import { logger } from "@/infrastructure/observability/logger.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -20,11 +22,43 @@ export function restaurantAuthMiddleware(
 	res: Response,
 	next: NextFunction,
 ): void {
-	const restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
-	const userId = getHeaderValue(req.headers["x-user-id"]);
-	const paramId = req.params?.id || req.params?.restaurantId;
+	let restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
+	let userId = getHeaderValue(req.headers["x-user-id"]);
+	let role = getHeaderValue(req.headers["x-user-role"]);
+	let email = getHeaderValue(req.headers["x-user-email"]);
+	const paramId = getHeaderValue(req.params?.id || req.params?.restaurantId);
 
-	const resolvedId = restaurantId || userId || paramId;
+	let resolvedId = restaurantId || userId || paramId;
+
+	if (!resolvedId) {
+		const authHeader = getHeaderValue(req.headers.authorization);
+		if (authHeader?.startsWith("Bearer ")) {
+			const token = authHeader.substring(7).trim();
+			if (token) {
+				try {
+					const decoded = jwt.decode(token) as {
+						restaurantId?: string;
+						sub?: string;
+						email?: string;
+						role?: string;
+					} | null;
+
+					if (decoded) {
+						restaurantId = decoded.restaurantId || decoded.sub;
+						userId = decoded.sub || "";
+						email = decoded.email || "";
+						role = decoded.role || "RESTAURANT";
+						resolvedId = restaurantId || userId;
+					}
+				} catch (err) {
+					logger.warn(
+						{ error: err },
+						"Fallback Bearer token decode failed in restaurantAuthMiddleware",
+					);
+				}
+			}
+		}
+	}
 
 	if (!resolvedId) {
 		res
@@ -39,12 +73,10 @@ export function restaurantAuthMiddleware(
 		return;
 	}
 
-	const role = getHeaderValue(req.headers["x-user-role"]);
-	const email = getHeaderValue(req.headers["x-user-email"]);
-
+	req.userId = resolvedId;
 	req.user = {
 		restaurantId: resolvedId,
-		userId: userId || "",
+		userId: userId || resolvedId,
 		email: email || "",
 		role: role || "RESTAURANT",
 	};

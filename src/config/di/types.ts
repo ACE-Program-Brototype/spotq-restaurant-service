@@ -58,6 +58,7 @@ export const TYPES = {
 		GetRestaurantVerificationStatusUseCase: Symbol.for(
 			"GetRestaurantVerificationStatusUseCase",
 		),
+		GetRestaurantProfileUseCase: Symbol.for("GetRestaurantProfileUseCase"),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
 	},
 
