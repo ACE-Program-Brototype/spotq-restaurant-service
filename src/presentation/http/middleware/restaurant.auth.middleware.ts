@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { logger } from "@/infrastructure/observability/logger.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -49,8 +50,11 @@ export function restaurantAuthMiddleware(
 						role = decoded.role || "RESTAURANT";
 						resolvedId = restaurantId || userId;
 					}
-				} catch {
-					// Fallback token decode failed
+				} catch (err) {
+					logger.warn(
+						{ error: err },
+						"Fallback Bearer token decode failed in restaurantAuthMiddleware",
+					);
 				}
 			}
 		}
