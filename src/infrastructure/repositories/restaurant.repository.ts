@@ -12,6 +12,7 @@ import type {
 	OnboardRestaurantDto,
 } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
+import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
@@ -361,5 +362,126 @@ export class RestaurantRepository implements IRestaurantRepository {
 				isClosed: oh.isClosed ?? !oh.isOpen,
 			})),
 		};
+	}
+
+	async updateProfileDetails(
+		restaurantId: string,
+		data: UpdateRestaurantProfileDto,
+	): Promise<RestaurantProfileResponseDto> {
+		await this.prisma.$transaction(async (tx) => {
+			if (data.restaurant) {
+				const updateData: Record<string, string> = {};
+				if (data.restaurant.name !== undefined)
+					updateData.restaurantName = data.restaurant.name;
+				if (data.restaurant.phone !== undefined)
+					updateData.phone = data.restaurant.phone;
+				if (data.restaurant.ownerName !== undefined)
+					updateData.ownerName = data.restaurant.ownerName;
+
+				if (Object.keys(updateData).length > 0) {
+					await tx.restaurant.update({
+						where: { id: restaurantId },
+						data: updateData,
+					});
+				}
+			}
+
+			if (data.profile) {
+				const profileData: Record<string, unknown> = {};
+				if (data.profile.logoKey !== undefined)
+					profileData.logoKey = data.profile.logoKey;
+				if (data.profile.coverImageKey !== undefined)
+					profileData.coverImageKey = data.profile.coverImageKey;
+				if (data.profile.description !== undefined)
+					profileData.description = data.profile.description;
+				if (data.profile.cuisineType !== undefined)
+					profileData.cuisineType = data.profile.cuisineType;
+				if (data.profile.averageCost !== undefined)
+					profileData.averageCost = data.profile.averageCost;
+
+				if (Object.keys(profileData).length > 0) {
+					await tx.restaurantProfile.upsert({
+						where: { restaurantId },
+						create: { restaurantId, ...profileData },
+						update: profileData,
+					});
+				}
+			}
+
+			if (data.settings) {
+				const settingsData: Record<string, unknown> = {};
+				if (data.settings.acceptsQueue !== undefined)
+					settingsData.acceptsQueue = data.settings.acceptsQueue;
+				if (data.settings.acceptsQrOrders !== undefined)
+					settingsData.acceptsQrOrders = data.settings.acceptsQrOrders;
+				if (data.settings.loyaltyEnabled !== undefined) {
+					settingsData.loyaltyEnabled = data.settings.loyaltyEnabled;
+					settingsData.isLoyaltyEnabled = data.settings.loyaltyEnabled;
+				}
+				if (data.settings.autoAcceptQueue !== undefined)
+					settingsData.autoAcceptQueue = data.settings.autoAcceptQueue;
+
+				if (Object.keys(settingsData).length > 0) {
+					await tx.restaurantSettings.upsert({
+						where: { restaurantId },
+						create: { restaurantId, ...settingsData },
+						update: settingsData,
+					});
+				}
+			}
+
+			if (data.businessHours && data.businessHours.length > 0) {
+				const parseTimeStringToDate = (
+					timeStr?: string | null,
+				): Date | null => {
+					if (!timeStr) return null;
+					if (timeStr.includes("T")) return new Date(timeStr);
+					const parts = timeStr.split(":");
+					const hours = parseInt(parts[0], 10);
+					const minutes = parseInt(parts[1], 10);
+					if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+					return new Date(1970, 0, 1, hours, minutes, 0);
+				};
+
+				for (const bh of data.businessHours) {
+					const isClosed = bh.isClosed ?? false;
+					const openTimeDate = isClosed
+						? null
+						: parseTimeStringToDate(bh.openTime);
+					const closeTimeDate = isClosed
+						? null
+						: parseTimeStringToDate(bh.closeTime);
+
+					await tx.restaurantOperatingHours.upsert({
+						where: {
+							restaurantId_dayOfWeek: {
+								restaurantId,
+								dayOfWeek: bh.dayOfWeek,
+							},
+						},
+						create: {
+							restaurantId,
+							dayOfWeek: bh.dayOfWeek,
+							isOpen: !isClosed,
+							isClosed: isClosed,
+							openTime: openTimeDate,
+							closeTime: closeTimeDate,
+						},
+						update: {
+							isOpen: !isClosed,
+							isClosed: isClosed,
+							openTime: openTimeDate,
+							closeTime: closeTimeDate,
+						},
+					});
+				}
+			}
+		});
+
+		const updatedDetails = await this.getRestaurantProfileDetails(restaurantId);
+		if (!updatedDetails) {
+			throw new Error("Failed to load updated restaurant profile details");
+		}
+		return updatedDetails;
 	}
 }

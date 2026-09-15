@@ -9,6 +9,7 @@ import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/on
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port.ts";
+import type { IUpdateRestaurantProfileUseCase } from "@/application/ports/use-cases/update-restaurant-profile.use-case.port.ts";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
@@ -38,6 +39,9 @@ export class RestaurantAuthController {
 
 		@inject(TYPES.UseCases.GetRestaurantProfileUseCase)
 		private readonly getRestaurantProfileUseCase: IGetRestaurantProfileUseCase,
+
+		@inject(TYPES.UseCases.UpdateRestaurantProfileUseCase)
+		private readonly updateRestaurantProfileUseCase: IUpdateRestaurantProfileUseCase,
 	) {}
 
 	private getCookie(req: Request, name: string): string | undefined {
@@ -222,6 +226,38 @@ export class RestaurantAuthController {
 		return successResponse(
 			res,
 			messages.RESTAURANT_PROFILE_FETCH_SUCCESS,
+			HTTP_STATUS.SUCCESS,
+			result,
+		);
+	}
+
+	async updateProfile(req: Request, res: Response): Promise<Response> {
+		const userObj =
+			req.user && typeof req.user === "object" ? req.user : undefined;
+		const restaurantId =
+			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
+			(typeof req.userId === "string" ? req.userId : undefined);
+
+		if (!restaurantId) {
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.GATEWAY_UNAUTHORIZED || "Unauthorized",
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
+		}
+
+		const result = await this.updateRestaurantProfileUseCase.execute(
+			restaurantId,
+			req.body,
+		);
+
+		return successResponse(
+			res,
+			messages.RESTAURANT_PROFILE_UPDATED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			result,
 		);

@@ -13,6 +13,7 @@ test("refreshAccessToken rejects a missing refresh cookie with InvalidRefreshTok
 		{} as never,
 		{} as never,
 		{} as never,
+		{} as never,
 	);
 
 	const req = {
@@ -49,6 +50,7 @@ test("getVerificationStatus returns mapped status for a valid restaurant", async
 		{} as never,
 		{} as never,
 		mockUseCase as never,
+		{} as never,
 		{} as never,
 	);
 

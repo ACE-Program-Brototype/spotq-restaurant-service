@@ -139,6 +139,7 @@ export const messages = {
 	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
 		"Verification status retrieved successfully",
 	RESTAURANT_PROFILE_FETCH_SUCCESS: "Restaurant profile retrieved successfully",
+	RESTAURANT_PROFILE_UPDATED_SUCCESS: "Restaurant profile updated successfully",
 	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
 } as const;
 
