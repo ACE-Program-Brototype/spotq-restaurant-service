@@ -85,5 +85,9 @@ describe("RestaurantStaff Entity", () => {
 		staff.activate();
 		expect(staff.status).toBe("ACTIVE");
 		expect(staff.isActive()).toBe(true);
+
+		staff.remove();
+		expect(staff.status).toBe("REMOVED");
+		expect(staff.statusVO.isRemoved()).toBe(true);
 	});
 });

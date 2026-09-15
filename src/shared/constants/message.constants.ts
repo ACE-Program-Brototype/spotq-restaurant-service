@@ -139,6 +139,10 @@ export const messages = {
 	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
 		"Verification status retrieved successfully",
 	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
+	STAFF_REMOVED_SUCCESS: "Staff member removed successfully",
+	OWNER_FORBIDDEN: "Forbidden: Access restricted to restaurant owners",
+	RESTAURANT_ACCESS_FORBIDDEN:
+		"Forbidden: You do not have access to this restaurant",
 } as const;
 
 export type MessageKey = keyof typeof messages;

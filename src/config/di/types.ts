@@ -33,9 +33,13 @@ export const TYPES = {
 	RevokeStaffInvitationUseCase: Symbol.for("RevokeStaffInvitationUseCase"),
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
 	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
+	RemoveStaffUseCase: Symbol.for("RemoveStaffUseCase"),
 
 	// Staff Controllers & Services
 	StaffController: Symbol.for("StaffController"),
+	RestaurantStaffManagementController: Symbol.for(
+		"RestaurantStaffManagementController",
+	),
 	JWKSController: Symbol.for("JWKSController"),
 	JWKService: Symbol.for("JWKService"),
 

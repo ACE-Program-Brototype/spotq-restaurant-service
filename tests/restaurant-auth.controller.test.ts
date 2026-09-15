@@ -55,7 +55,8 @@ test("getVerificationStatus returns mapped status for a valid restaurant", async
 	} as never;
 
 	let responseCode = 0;
-	let responseBody: { success?: boolean; data?: { status?: string } } | null = null;
+	let responseBody: { success?: boolean; data?: { status?: string } } | null =
+		null;
 
 	const res = {
 		status: (code: number) => {

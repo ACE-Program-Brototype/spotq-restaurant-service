@@ -66,4 +66,43 @@ export class PrismaRestaurantStaffRepository
 
 		return rawList.map((raw) => this.mapper.toDomain(raw));
 	}
+
+	/**
+	 * Find a staff member scoped strictly to both staff ID and restaurant ID.
+	 *
+	 * @param id - Staff member UUID
+	 * @param restaurantId - Restaurant UUID
+	 * @returns Domain entity or null if not found
+	 */
+	public async findByIdAndRestaurantId(
+		id: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null> {
+		const raw = await this.dbModel.findFirst({
+			where: { id, restaurantId },
+		});
+
+		if (!raw) {
+			return null;
+		}
+
+		return this.mapper.toDomain(raw);
+	}
+
+	/**
+	 * Soft-removes a staff member strictly scoped to the specified restaurant ID
+	 * by updating their status to REMOVED.
+	 *
+	 * @param id - Staff member UUID
+	 * @param restaurantId - Restaurant UUID
+	 */
+	public async removeStaff(id: string, restaurantId: string): Promise<void> {
+		await this.dbModel.updateMany({
+			where: { id, restaurantId },
+			data: {
+				status: "REMOVED",
+				updatedAt: new Date(),
+			},
+		});
+	}
 }

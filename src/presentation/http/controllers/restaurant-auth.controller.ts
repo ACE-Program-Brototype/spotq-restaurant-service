@@ -184,9 +184,7 @@ export class RestaurantAuthController {
 		}
 
 		const result =
-			await this.getRestaurantVerificationStatusUseCase.execute(
-				restaurantId,
-			);
+			await this.getRestaurantVerificationStatusUseCase.execute(restaurantId);
 
 		return successResponse(
 			res,
