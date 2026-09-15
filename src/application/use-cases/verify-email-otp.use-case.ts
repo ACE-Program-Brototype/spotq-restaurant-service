@@ -91,15 +91,7 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		let nextStep: OnboardingNextStep;
 
-		if (restaurant.onboardingStatus === "PENDING") {
-			nextStep = ONBOARDING_NEXT_STEPS.ONBOARDING;
-		} else if (
-			restaurant.status === "PENDING" ||
-			restaurant.status === "REJECTED" ||
-			restaurant.status === "SUSPENDED"
-		) {
-			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
-		} else if (
+		if (
 			restaurant.status === "APPROVED" ||
 			restaurant.status === "ACTIVE"
 		) {
@@ -108,6 +100,14 @@ export class VerifyRestaurantEmailOtpUseCase
 			} else {
 				nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
 			}
+		} else if (restaurant.onboardingStatus === "PENDING") {
+			nextStep = ONBOARDING_NEXT_STEPS.ONBOARDING;
+		} else if (
+			restaurant.status === "PENDING" ||
+			restaurant.status === "REJECTED" ||
+			restaurant.status === "SUSPENDED"
+		) {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
 		} else {
 			nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
 		}
