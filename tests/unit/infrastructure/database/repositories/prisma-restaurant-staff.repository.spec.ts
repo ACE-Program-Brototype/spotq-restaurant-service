@@ -14,6 +14,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 	let mockPrisma: {
 		restaurantStaff: {
 			findUnique: jest.Mock;
+			findFirst: jest.Mock;
 			findMany: jest.Mock;
 			upsert: jest.Mock;
 			update: jest.Mock;
@@ -56,6 +57,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 		mockPrisma = {
 			restaurantStaff: {
 				findUnique: jest.fn(),
+				findFirst: jest.fn(),
 				findMany: jest.fn(),
 				upsert: jest.fn(),
 				update: jest.fn(),
@@ -176,4 +178,56 @@ describe("PrismaRestaurantStaffRepository", () => {
 			);
 		});
 	});
+
+	describe("findByIdAndRestaurantId", () => {
+		it("should find and map staff by id and restaurantId", async () => {
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(dummyPrismaStaff);
+
+			const result = await repository.findByIdAndRestaurantId(
+				"staff-123",
+				"rest-123",
+			);
+
+			expect(mockPrisma.restaurantStaff.findFirst).toHaveBeenCalledWith({
+				where: { id: "staff-123", restaurantId: "rest-123" },
+			});
+			expect(result).not.toBeNull();
+			expect(result?.id).toBe("staff-123");
+			expect(result?.restaurantId).toBe("rest-123");
+		});
+
+		it("should return null if staff not found for restaurant", async () => {
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(null);
+
+			const result = await repository.findByIdAndRestaurantId(
+				"staff-123",
+				"other-rest",
+			);
+
+			expect(result).toBeNull();
+		});
+	});
+
+	describe("updateStatus", () => {
+		it("should update and map staff status", async () => {
+			const updatedPrismaStaff: PrismaStaff = {
+				...dummyPrismaStaff,
+				status: "INACTIVE",
+				updatedAt: new Date(),
+			};
+			mockPrisma.restaurantStaff.update.mockResolvedValue(updatedPrismaStaff);
+
+			const result = await repository.updateStatus("staff-123", "INACTIVE");
+
+			expect(mockPrisma.restaurantStaff.update).toHaveBeenCalledWith({
+				where: { id: "staff-123" },
+				data: expect.objectContaining({
+					status: "INACTIVE",
+					updatedAt: expect.any(Date),
+				}),
+			});
+			expect(result.status).toBe("INACTIVE");
+		});
+	});
 });
+

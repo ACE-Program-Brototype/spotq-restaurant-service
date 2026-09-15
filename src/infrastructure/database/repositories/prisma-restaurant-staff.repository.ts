@@ -66,4 +66,29 @@ export class PrismaRestaurantStaffRepository
 
 		return rawList.map((raw) => this.mapper.toDomain(raw));
 	}
+
+	public async findByIdAndRestaurantId(
+		id: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null> {
+		const raw = await this.dbModel.findFirst({
+			where: { id, restaurantId },
+		});
+
+		if (!raw) {
+			return null;
+		}
+
+		return this.mapper.toDomain(raw);
+	}
+
+	public async updateStatus(
+		id: string,
+		status: "ACTIVE" | "INACTIVE",
+	): Promise<RestaurantStaff> {
+		return this.update(id, {
+			status,
+			updatedAt: new Date(),
+		});
+	}
 }

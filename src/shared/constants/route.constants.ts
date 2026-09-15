@@ -10,6 +10,10 @@ export const RESTAURANT_ROUTES = {
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
 	REFRESH_ACCESS_TOKEN: "/auth/refresh",
 	ONBOARD: "/onboard",
+	STAFF_STATUS_UPDATE: "/:restaurantId/staff/:staffId/status",
+	STAFF_STATUS_UPDATE_FULL:
+		"/api/v1/restaurants/:restaurantId/staff/:staffId/status",
+	STAFF_STATUS_UPDATE_PREFIX: "/restaurants/:restaurantId/staff/:staffId/status",
 } as const;
 
 export const STAFF_ROUTES = {

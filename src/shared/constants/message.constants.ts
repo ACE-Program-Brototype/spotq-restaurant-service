@@ -16,6 +16,8 @@ export const messages = {
 	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
 	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
+	STAFF_STATUS_UPDATED_SUCCESS: "Staff status updated successfully",
+	STAFF_STATUS_REQUIRED: "Staff status is required",
 
 	PRESIGNED_URL_GENERATED_SUCCESS:
 		"Presigned upload URL generated successfully.",
@@ -34,6 +36,9 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	OWNER_FORBIDDEN: "Forbidden: Restaurant Owner access required",
+	RESTAURANT_ACCESS_FORBIDDEN:
+		"Forbidden: You do not have access to this restaurant",
 	VALIDATION_ERROR: "Validation error occurred",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
@@ -98,7 +103,7 @@ export const messages = {
 	EMAIL_REQUIRED: "Email is required",
 	INVALID_EMAIL_FORMAT: "Invalid email format",
 	INVALID_STAFF_ROLE: "Invalid staff role specified",
-	INVALID_STAFF_STATUS: "Invalid staff status specified",
+	INVALID_STAFF_STATUS: "Invalid staff status",
 	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
 	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",

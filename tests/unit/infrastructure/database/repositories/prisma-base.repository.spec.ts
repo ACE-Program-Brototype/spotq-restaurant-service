@@ -46,6 +46,7 @@ type MockDelegateType = {
 	findUnique: jest.Mock;
 	findMany: jest.Mock;
 	upsert: jest.Mock;
+	update: jest.Mock;
 	delete: jest.Mock;
 	count: jest.Mock;
 };
@@ -102,6 +103,7 @@ describe("PrismaBaseRepository", () => {
 			findUnique: jest.fn(),
 			findMany: jest.fn(),
 			upsert: jest.fn(),
+			update: jest.fn(),
 			delete: jest.fn(),
 			count: jest.fn(),
 		};
@@ -183,6 +185,38 @@ describe("PrismaBaseRepository", () => {
 		});
 	});
 
+	describe("update", () => {
+		it("should update entity successfully and return domain entity", async () => {
+			const updatedModel: TestPrismaModel = {
+				...dummyModel,
+				name: "Updated Name",
+			};
+			mockDelegate.update.mockResolvedValue(updatedModel);
+
+			const result = await repository.update("test-id-123", {
+				name: "Updated Name",
+			});
+
+			expect(mockDelegate.update).toHaveBeenCalledWith({
+				where: { id: "test-id-123" },
+				data: { name: "Updated Name" },
+			});
+			expect(result.name).toBe("Updated Name");
+		});
+
+		it("should handle known Prisma error on update", async () => {
+			const prismaError = new PrismaClientKnownRequestError("Not found", {
+				code: "P2025",
+				clientVersion: "5.0.0",
+			});
+			mockDelegate.update.mockRejectedValue(prismaError);
+
+			await expect(
+				repository.update("test-id-123", { name: "Updated Name" }),
+			).rejects.toThrow(TestCustomError);
+		});
+	});
+
 	describe("delete", () => {
 		it("should delete entity successfully", async () => {
 			mockDelegate.delete.mockResolvedValue(dummyModel);
@@ -207,3 +241,4 @@ describe("PrismaBaseRepository", () => {
 		});
 	});
 });
+
