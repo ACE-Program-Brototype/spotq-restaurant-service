@@ -53,3 +53,8 @@ restaurantRouter.get(
 	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
 );
 
+restaurantRouter.get(
+	RESTAURANT_ROUTES.PROFILE,
+	restaurantAuthMiddleware,
+	restaurantAuthController.getProfile.bind(restaurantAuthController),
+);

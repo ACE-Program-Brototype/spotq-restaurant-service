@@ -3,6 +3,7 @@ import { messages } from "@shared/constants/message.constants";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
+import type { IGetRestaurantProfileUseCase } from "@/application/ports/use-cases/get-restaurant-profile.use-case.port.ts";
 import type { IGetRestaurantVerificationStatusUseCase } from "@/application/ports/use-cases/get-verification-status.use-case.port.ts";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
@@ -34,6 +35,9 @@ export class RestaurantAuthController {
 
 		@inject(TYPES.UseCases.GetRestaurantVerificationStatusUseCase)
 		private readonly getRestaurantVerificationStatusUseCase: IGetRestaurantVerificationStatusUseCase,
+
+		@inject(TYPES.UseCases.GetRestaurantProfileUseCase)
+		private readonly getRestaurantProfileUseCase: IGetRestaurantProfileUseCase,
 	) {}
 
 	private getCookie(req: Request, name: string): string | undefined {
@@ -184,13 +188,40 @@ export class RestaurantAuthController {
 		}
 
 		const result =
-			await this.getRestaurantVerificationStatusUseCase.execute(
-				restaurantId,
-			);
+			await this.getRestaurantVerificationStatusUseCase.execute(restaurantId);
 
 		return successResponse(
 			res,
 			messages.RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS,
+			HTTP_STATUS.SUCCESS,
+			result,
+		);
+	}
+
+	async getProfile(req: Request, res: Response): Promise<Response> {
+		const userObj =
+			req.user && typeof req.user === "object" ? req.user : undefined;
+		const restaurantId =
+			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
+			(typeof req.userId === "string" ? req.userId : undefined);
+
+		if (!restaurantId) {
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.GATEWAY_UNAUTHORIZED || "Unauthorized",
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
+		}
+
+		const result = await this.getRestaurantProfileUseCase.execute(restaurantId);
+
+		return successResponse(
+			res,
+			messages.RESTAURANT_PROFILE_FETCH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			result,
 		);
