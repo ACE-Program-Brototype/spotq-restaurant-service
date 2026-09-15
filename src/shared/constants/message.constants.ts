@@ -138,6 +138,7 @@ export const messages = {
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
 	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
 		"Verification status retrieved successfully",
+	RESTAURANT_PROFILE_FETCH_SUCCESS: "Restaurant profile retrieved successfully",
 	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
 } as const;
 
