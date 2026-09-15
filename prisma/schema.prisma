@@ -127,8 +127,6 @@ model RestaurantProfile {
 
   logoKey        String? @map("logo_key")
   coverImageKey  String? @map("cover_image_key")
-  coverImage     String? @map("cover_image")
-  avatar         String? @map("avatar")
   description    String? @map("description")
   cuisineType    String? @map("cuisine_type")
   averageCost    Int?    @default(0) @map("average_cost")

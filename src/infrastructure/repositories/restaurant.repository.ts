@@ -162,10 +162,10 @@ export class RestaurantRepository implements IRestaurantRepository {
 				where: { restaurantId: restaurant.id },
 				create: {
 					restaurantId: restaurant.id,
-					coverImage: firstImage,
+					coverImageKey: firstImage,
 				},
 				update: {
-					...(firstImage ? { coverImage: firstImage } : {}),
+					...(firstImage ? { coverImageKey: firstImage } : {}),
 				},
 			});
 
@@ -338,9 +338,8 @@ export class RestaurantRepository implements IRestaurantRepository {
 				ownerName: raw.ownerName,
 			},
 			profile: {
-				logo: raw.profile?.logoKey ?? raw.profile?.avatar ?? null,
-				coverImage:
-					raw.profile?.coverImageKey ?? raw.profile?.coverImage ?? null,
+				logo: raw.profile?.logoKey ?? null,
+				coverImage: raw.profile?.coverImageKey ?? null,
 				description: raw.profile?.description ?? null,
 				cuisineType:
 					raw.profile?.cuisineType ?? raw.settings?.cuisineType ?? null,
