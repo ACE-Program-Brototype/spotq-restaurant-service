@@ -3,6 +3,7 @@ import { messages } from "@shared/constants/message.constants";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
+import type { IGetRestaurantVerificationStatusUseCase } from "@/application/ports/use-cases/get-verification-status.use-case.port.ts";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port.ts";
@@ -10,6 +11,7 @@ import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cas
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
+import { ApiResponse } from "@/shared/response/api-response";
 import { successResponse } from "@/utils/response.model";
 
 @injectable()
@@ -29,6 +31,9 @@ export class RestaurantAuthController {
 
 		@inject(TYPES.UseCases.OnboardRestaurantUseCase)
 		private readonly onboardRestaurantUseCase: IOnboardRestaurantUseCase,
+
+		@inject(TYPES.UseCases.GetRestaurantVerificationStatusUseCase)
+		private readonly getRestaurantVerificationStatusUseCase: IGetRestaurantVerificationStatusUseCase,
 	) {}
 
 	private getCookie(req: Request, name: string): string | undefined {
@@ -129,13 +134,22 @@ export class RestaurantAuthController {
 	}
 
 	async onboard(req: Request, res: Response): Promise<Response> {
-		const restaurantId = (req as Request & { user?: { restaurantId?: string } }).user?.restaurantId;
+		const userObj =
+			req.user && typeof req.user === "object" ? req.user : undefined;
+		const restaurantId =
+			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
+			req.userId;
 
 		if (!restaurantId) {
-			return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-				success: false,
-				message: "Unauthorized",
-			});
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.GATEWAY_UNAUTHORIZED || "Unauthorized",
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
 		}
 
 		await this.onboardRestaurantUseCase.execute(req.body, restaurantId);
@@ -144,6 +158,41 @@ export class RestaurantAuthController {
 			res,
 			messages.RESTAURANT_REGISTRATION_SUCCESS,
 			HTTP_STATUS.CREATED,
+		);
+	}
+
+	async getVerificationStatus(req: Request, res: Response): Promise<Response> {
+		const rawParamId = req.params?.id || req.params?.restaurantId;
+		const paramId = Array.isArray(rawParamId) ? rawParamId[0] : rawParamId;
+		const userObj =
+			req.user && typeof req.user === "object" ? req.user : undefined;
+		const restaurantId =
+			paramId ||
+			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
+			(typeof req.userId === "string" ? req.userId : undefined);
+
+		if (!restaurantId) {
+			return res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.GATEWAY_UNAUTHORIZED || "Unauthorized",
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
+		}
+
+		const result =
+			await this.getRestaurantVerificationStatusUseCase.execute(
+				restaurantId,
+			);
+
+		return successResponse(
+			res,
+			messages.RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS,
+			HTTP_STATUS.SUCCESS,
+			result,
 		);
 	}
 }
