@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import type { IUpdateStaffStatusUseCase } from "@/application/ports/use-cases/update-staff-status.use-case.port.ts";
 import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller.ts";
 import type { AuthenticatedOwnerRequest } from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
@@ -11,6 +11,7 @@ describe("RestaurantStaffManagementController", () => {
 	let controller: RestaurantStaffManagementController;
 	let req: Partial<AuthenticatedOwnerRequest>;
 	let res: Partial<Response>;
+	let next: jest.Mock;
 
 	const mockRestaurantId = "11111111-1111-1111-1111-111111111111";
 	const mockStaffId = "22222222-2222-2222-2222-222222222222";
@@ -45,6 +46,8 @@ describe("RestaurantStaffManagementController", () => {
 			status: jest.fn().mockReturnThis() as unknown as Response["status"],
 			json: jest.fn().mockReturnThis() as unknown as Response["json"],
 		};
+
+		next = jest.fn();
 	});
 
 	it("should return 401 if user is not authenticated", async () => {
@@ -52,7 +55,11 @@ describe("RestaurantStaffManagementController", () => {
 		req.userId = undefined;
 		req.headers = {};
 
-		await controller.updateStaffStatus(req as Request, res as Response);
+		await controller.updateStaffStatus(
+			req as Request,
+			res as Response,
+			next as unknown as NextFunction,
+		);
 
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
 		expect(res.json).toHaveBeenCalledWith(
@@ -72,7 +79,11 @@ describe("RestaurantStaffManagementController", () => {
 			role: "RESTAURANT_OWNER",
 		};
 
-		await controller.updateStaffStatus(req as Request, res as Response);
+		await controller.updateStaffStatus(
+			req as Request,
+			res as Response,
+			next as unknown as NextFunction,
+		);
 
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
 		expect(res.json).toHaveBeenCalledWith(
@@ -99,7 +110,11 @@ describe("RestaurantStaffManagementController", () => {
 
 		updateStaffStatusUseCase.execute.mockResolvedValue(mockResult);
 
-		await controller.updateStaffStatus(req as Request, res as Response);
+		await controller.updateStaffStatus(
+			req as Request,
+			res as Response,
+			next as unknown as NextFunction,
+		);
 
 		expect(updateStaffStatusUseCase.execute).toHaveBeenCalledWith({
 			restaurantId: mockRestaurantId,
@@ -113,5 +128,18 @@ describe("RestaurantStaffManagementController", () => {
 			data: mockResult,
 			statusCode: HTTP_STATUS.OK,
 		});
+	});
+
+	it("should pass unexpected errors to next", async () => {
+		const error = new Error("Database failure");
+		updateStaffStatusUseCase.execute.mockRejectedValue(error);
+
+		await controller.updateStaffStatus(
+			req as Request,
+			res as Response,
+			next as unknown as NextFunction,
+		);
+
+		expect(next).toHaveBeenCalledWith(error);
 	});
 });

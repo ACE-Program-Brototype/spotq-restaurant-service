@@ -24,7 +24,7 @@ export interface IRestaurantStaffRepository
 	 * @param status - The new status ("ACTIVE" | "INACTIVE")
 	 * @returns The updated RestaurantStaff entity
 	 */
-	updateStatus(
+	updateStatus?(
 		id: string,
 		status: "ACTIVE" | "INACTIVE",
 	): Promise<RestaurantStaff>;

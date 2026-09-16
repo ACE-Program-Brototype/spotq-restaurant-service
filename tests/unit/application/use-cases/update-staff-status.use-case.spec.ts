@@ -11,7 +11,7 @@ import {
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("UpdateStaffStatusUseCase", () => {
-	let staffRepository: jest.Mocked<IRestaurantStaffRepository>;
+	let staffRepository: jest.Mocked<Required<IRestaurantStaffRepository>>;
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
 	let useCase: UpdateStaffStatusUseCase;
 
@@ -47,6 +47,7 @@ describe("UpdateStaffStatusUseCase", () => {
 	beforeEach(() => {
 		staffRepository = {
 			findById: jest.fn(),
+			exists: jest.fn(),
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			findByIdAndRestaurantId: jest.fn(),
@@ -76,9 +77,7 @@ describe("UpdateStaffStatusUseCase", () => {
 		const staff = createMockStaff("ACTIVE");
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(staff);
-
-		const updatedStaff = createMockStaff("INACTIVE");
-		staffRepository.updateStatus.mockResolvedValue(updatedStaff);
+		staffRepository.save.mockResolvedValue(undefined);
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
@@ -93,10 +92,7 @@ describe("UpdateStaffStatusUseCase", () => {
 			mockStaffId,
 			mockRestaurantId,
 		);
-		expect(staffRepository.updateStatus).toHaveBeenCalledWith(
-			mockStaffId,
-			"INACTIVE",
-		);
+		expect(staffRepository.save).toHaveBeenCalledWith(staff);
 		expect(result).toEqual({
 			id: mockStaffId,
 			restaurant_id: mockRestaurantId,
@@ -114,9 +110,7 @@ describe("UpdateStaffStatusUseCase", () => {
 		const staff = createMockStaff("INACTIVE");
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(staff);
-
-		const updatedStaff = createMockStaff("ACTIVE");
-		staffRepository.updateStatus.mockResolvedValue(updatedStaff);
+		staffRepository.save.mockResolvedValue(undefined);
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
@@ -124,14 +118,11 @@ describe("UpdateStaffStatusUseCase", () => {
 			status: "ACTIVE",
 		});
 
-		expect(staffRepository.updateStatus).toHaveBeenCalledWith(
-			mockStaffId,
-			"ACTIVE",
-		);
+		expect(staffRepository.save).toHaveBeenCalledWith(staff);
 		expect(result.status).toBe("ACTIVE");
 	});
 
-	it("should handle same-status request idempotently without calling updateStatus", async () => {
+	it("should handle same-status request idempotently without calling save", async () => {
 		const staff = createMockStaff("ACTIVE");
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(staff);
@@ -142,7 +133,7 @@ describe("UpdateStaffStatusUseCase", () => {
 			status: "ACTIVE",
 		});
 
-		expect(staffRepository.updateStatus).not.toHaveBeenCalled();
+		expect(staffRepository.save).not.toHaveBeenCalled();
 		expect(result).toEqual({
 			id: mockStaffId,
 			restaurant_id: mockRestaurantId,

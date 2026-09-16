@@ -76,13 +76,7 @@ class TestRepository extends PrismaBaseRepository<
 }
 
 describe("PrismaBaseRepository", () => {
-	let mockDelegate: {
-		findUnique: jest.Mock;
-		findMany: jest.Mock;
-		upsert: jest.Mock;
-		delete: jest.Mock;
-		count: jest.Mock;
-	};
+	let mockDelegate: MockDelegateType;
 	let repository: TestRepository;
 
 	const dummyModel: TestPrismaModel = {

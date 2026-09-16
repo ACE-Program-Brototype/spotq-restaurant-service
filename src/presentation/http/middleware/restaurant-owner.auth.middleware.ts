@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { ALLOWED_OWNER_ROLES } from "@/shared/constants/auth.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -10,16 +11,6 @@ export interface AuthenticatedOwnerRequest extends Request {
 	user?: AuthenticatedOwner;
 	userId?: string;
 }
-
-/**
- * Permitted role names for restaurant ownership / administration.
- */
-const ALLOWED_OWNER_ROLES = new Set([
-	"restaurant_owner",
-	"restaurant_admin",
-	"restaurant",
-	"owner",
-]);
 
 /**
  * Extracts a normalized single string value from a potential array of header values.

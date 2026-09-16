@@ -1,6 +1,5 @@
 import type { StaffProfileResponseDTO } from "@/application/dtos/staff/staff-profile-response.dto.ts";
 import type { StaffResponseDTO } from "@/application/dtos/staff/staff-response.dto.ts";
-import type { UpdateStaffStatusResponseDTO } from "@/application/dtos/staff/update-staff-status.dto.ts";
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 
 export const StaffMapper = {
@@ -20,20 +19,6 @@ export const StaffMapper = {
 	},
 
 	toProfileDTO(entity: RestaurantStaff): StaffProfileResponseDTO {
-		return {
-			id: entity.id,
-			restaurant_id: entity.restaurantId,
-			fullname: entity.fullname,
-			email: entity.email,
-			phone: entity.phone,
-			avatar_url: entity.avatarUrl,
-			role: entity.role,
-			status: entity.status,
-			created_at: entity.createdAt.toISOString(),
-		};
-	},
-
-	toStatusUpdateDTO(entity: RestaurantStaff): UpdateStaffStatusResponseDTO {
 		return {
 			id: entity.id,
 			restaurant_id: entity.restaurantId,

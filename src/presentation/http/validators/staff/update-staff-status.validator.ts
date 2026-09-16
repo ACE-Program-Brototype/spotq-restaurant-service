@@ -6,8 +6,10 @@ import { messages } from "@/shared/constants/message.constants.ts";
  * Both restaurantId and staffId must be valid UUIDs.
  */
 export const updateStaffStatusParamsSchema = z.object({
-	restaurantId: z.string().uuid({ message: "Invalid restaurant ID format" }),
-	staffId: z.string().uuid({ message: "Invalid staff ID format" }),
+	restaurantId: z
+		.string()
+		.uuid({ message: messages.INVALID_RESTAURANT_ID_FORMAT }),
+	staffId: z.string().uuid({ message: messages.INVALID_STAFF_ID_FORMAT }),
 });
 
 export type UpdateStaffStatusParamsInput = z.infer<

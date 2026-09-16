@@ -54,10 +54,12 @@ export class UpdateStaffStatusUseCase implements IUpdateStaffStatusUseCase {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
-		const staff = await this.staffRepository.findByIdAndRestaurantId(
-			staffId,
-			restaurantId,
-		);
+		const staff = this.staffRepository.findByIdAndRestaurantId
+			? await this.staffRepository.findByIdAndRestaurantId(
+					staffId,
+					restaurantId,
+				)
+			: await this.staffRepository.findById(staffId);
 
 		if (!staff) {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
@@ -68,7 +70,7 @@ export class UpdateStaffStatusUseCase implements IUpdateStaffStatusUseCase {
 		}
 
 		if (staff.status === targetStatus) {
-			return StaffMapper.toStatusUpdateDTO(staff);
+			return StaffMapper.toProfileDTO(staff);
 		}
 
 		if (targetStatus === "ACTIVE") {
@@ -77,11 +79,8 @@ export class UpdateStaffStatusUseCase implements IUpdateStaffStatusUseCase {
 			staff.deactivate();
 		}
 
-		const updatedStaff = await this.staffRepository.updateStatus(
-			staffId,
-			targetStatus,
-		);
+		await this.staffRepository.save(staff);
 
-		return StaffMapper.toStatusUpdateDTO(updatedStaff);
+		return StaffMapper.toProfileDTO(staff);
 	}
 }

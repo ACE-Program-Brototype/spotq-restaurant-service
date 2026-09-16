@@ -64,6 +64,11 @@ describe("updateStaffStatusParamsSchema (Params Validator)", () => {
 			staffId: validUUID2,
 		});
 		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues[0].message).toBe(
+				messages.INVALID_RESTAURANT_ID_FORMAT,
+			);
+		}
 	});
 
 	it("should reject non-UUID staffId", () => {
@@ -72,5 +77,10 @@ describe("updateStaffStatusParamsSchema (Params Validator)", () => {
 			staffId: "invalid-id",
 		});
 		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues[0].message).toBe(
+				messages.INVALID_STAFF_ID_FORMAT,
+			);
+		}
 	});
 });

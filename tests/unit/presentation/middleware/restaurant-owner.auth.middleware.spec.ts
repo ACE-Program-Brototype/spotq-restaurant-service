@@ -7,7 +7,7 @@ import { messages } from "@/shared/constants/message.constants.ts";
 describe("restaurantOwnerAuthMiddleware", () => {
 	let req: Partial<Request>;
 	let res: Partial<Response>;
-	let next: jest.MockedFunction<NextFunction>;
+	let next: jest.Mock;
 
 	beforeEach(() => {
 		req = {
@@ -26,7 +26,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		restaurantOwnerAuthMiddleware(
 			req as Request,
 			res as Response,
-			next as NextFunction,
+			next as unknown as NextFunction,
 		);
 
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
@@ -49,7 +49,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		restaurantOwnerAuthMiddleware(
 			req as Request,
 			res as Response,
-			next as NextFunction,
+			next as unknown as NextFunction,
 		);
 
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
@@ -74,7 +74,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		restaurantOwnerAuthMiddleware(
 			req as Request,
 			res as Response,
-			next as NextFunction,
+			next as unknown as NextFunction,
 		);
 
 		expect(next).toHaveBeenCalled();
@@ -96,7 +96,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		restaurantOwnerAuthMiddleware(
 			req as Request,
 			res as Response,
-			next as NextFunction,
+			next as unknown as NextFunction,
 		);
 
 		expect(next).toHaveBeenCalled();
