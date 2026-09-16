@@ -103,4 +103,3 @@ export class PrismaRestaurantStaffRepository
 		return this.update(id, updateData);
 	}
 }
-

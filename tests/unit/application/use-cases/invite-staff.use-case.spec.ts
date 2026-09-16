@@ -55,6 +55,8 @@ describe("InviteStaffUseCase", () => {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			findByIdAndRestaurantId: jest.fn(),
+			updateStaffInfo: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		};

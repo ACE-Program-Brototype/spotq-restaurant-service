@@ -109,12 +109,12 @@ export const validateRequestParams = (schema: ZodType) => {
 
 		if (!result.success) {
 			res
-				.status(HTTP_STATUS.BAD_REQUEST)
+				.status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
 				.json(
 					ApiResponse.error(
 						messages.VALIDATION_ERROR,
 						"VALIDATION_ERROR",
-						HTTP_STATUS.BAD_REQUEST,
+						HTTP_STATUS.UNPROCESSABLE_ENTITY,
 						result.error.flatten(),
 					),
 				);
@@ -127,4 +127,3 @@ export const validateRequestParams = (schema: ZodType) => {
 		next();
 	};
 };
-

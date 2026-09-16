@@ -46,7 +46,7 @@ describe("RestaurantStaffManagementController", () => {
 				staffId: "stf-456",
 			},
 			body: {
-				name: "Ravi Kumar",
+				fullname: "Ravi Kumar",
 				phone: "+919876543210",
 			},
 		};
@@ -66,10 +66,7 @@ describe("RestaurantStaffManagementController", () => {
 
 		updateStaffInfoUseCase.execute.mockResolvedValue(mockResponseData);
 
-		await controller.updateStaffInfo(
-			mockReq as Request,
-			mockRes as Response,
-		);
+		await controller.updateStaffInfo(mockReq as Request, mockRes as Response);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		expect(jsonMock).toHaveBeenCalledWith({
@@ -81,7 +78,7 @@ describe("RestaurantStaffManagementController", () => {
 		expect(updateStaffInfoUseCase.execute).toHaveBeenCalledWith({
 			restaurantId: "res-123",
 			staffId: "stf-456",
-			name: "Ravi Kumar",
+			fullname: "Ravi Kumar",
 			phone: "+919876543210",
 		});
 	});
@@ -93,13 +90,10 @@ describe("RestaurantStaffManagementController", () => {
 				restaurantId: "res-123",
 				staffId: "stf-456",
 			},
-			body: { name: "Ravi Kumar" },
+			body: { fullname: "Ravi Kumar" },
 		};
 
-		await controller.updateStaffInfo(
-			mockReq as Request,
-			mockRes as Response,
-		);
+		await controller.updateStaffInfo(mockReq as Request, mockRes as Response);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -125,13 +119,10 @@ describe("RestaurantStaffManagementController", () => {
 				restaurantId: "res-other",
 				staffId: "stf-456",
 			},
-			body: { name: "Ravi Kumar" },
+			body: { fullname: "Ravi Kumar" },
 		};
 
-		await controller.updateStaffInfo(
-			mockReq as Request,
-			mockRes as Response,
-		);
+		await controller.updateStaffInfo(mockReq as Request, mockRes as Response);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
 		expect(jsonMock).toHaveBeenCalledWith(

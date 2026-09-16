@@ -37,12 +37,9 @@ export const updateStaffInfoSchema = z
 			.optional(),
 	})
 	.strict()
-	.refine(
-		(data) => data.fullname !== undefined || data.phone !== undefined,
-		{
-			message: messages.AT_LEAST_ONE_FIELD_REQUIRED,
-		},
-	);
+	.refine((data) => data.fullname !== undefined || data.phone !== undefined, {
+		message: messages.AT_LEAST_ONE_FIELD_REQUIRED,
+	});
 
 export type UpdateStaffInfoParams = z.infer<typeof updateStaffInfoParamsSchema>;
 export type UpdateStaffInfoInput = z.infer<typeof updateStaffInfoSchema>;

@@ -56,7 +56,9 @@ describe("GeneratePresignedUrlUseCase", () => {
 			contentType: "application/pdf",
 		});
 
-		expect(result.uploadUrl).toBe("https://s3.amazonaws.com/test-bucket/upload-url");
+		expect(result.uploadUrl).toBe(
+			"https://s3.amazonaws.com/test-bucket/upload-url",
+		);
 	});
 
 	it("rejects unauthorized access when entity_id does not match authContext.restaurantId", async () => {

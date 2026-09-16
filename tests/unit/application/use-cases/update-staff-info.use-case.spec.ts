@@ -55,14 +55,14 @@ describe("UpdateStaffInfoUseCase", () => {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
 			existsByEmail: jest.fn(),
-			save: jest.fn(),
-			delete: jest.fn(),
+			create: jest.fn(),
+			findUnique: jest.fn(),
+			find: jest.fn(),
+			update: jest.fn(),
+			createRestaurant: jest.fn(),
 		};
 
-		useCase = new UpdateStaffInfoUseCase(
-			staffRepository,
-			restaurantRepository,
-		);
+		useCase = new UpdateStaffInfoUseCase(staffRepository, restaurantRepository);
 	});
 
 	it("should update staff name successfully", async () => {
@@ -85,7 +85,7 @@ describe("UpdateStaffInfoUseCase", () => {
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
 			staffId: mockStaffId,
-			name: "Ravi Kumar",
+			fullname: "Ravi Kumar",
 		});
 
 		expect(result).toEqual({
@@ -156,7 +156,7 @@ describe("UpdateStaffInfoUseCase", () => {
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
 			staffId: mockStaffId,
-			name: "  Ravi Kumar  ",
+			fullname: "  Ravi Kumar  ",
 			phone: "+919876543210",
 		});
 
@@ -184,7 +184,7 @@ describe("UpdateStaffInfoUseCase", () => {
 			useCase.execute({
 				restaurantId: "non-existent-res",
 				staffId: mockStaffId,
-				name: "Ravi Kumar",
+				fullname: "Ravi Kumar",
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
 	});
@@ -197,7 +197,7 @@ describe("UpdateStaffInfoUseCase", () => {
 			useCase.execute({
 				restaurantId: mockRestaurantId,
 				staffId: "non-existent-staff",
-				name: "Ravi Kumar",
+				fullname: "Ravi Kumar",
 			}),
 		).rejects.toThrow(StaffNotFoundError);
 	});
@@ -215,7 +215,7 @@ describe("UpdateStaffInfoUseCase", () => {
 			useCase.execute({
 				restaurantId: mockRestaurantId,
 				staffId: mockStaffId,
-				name: "Ravi Kumar",
+				fullname: "Ravi Kumar",
 			}),
 		).rejects.toThrow(StaffNotFoundError);
 	});
@@ -228,7 +228,7 @@ describe("UpdateStaffInfoUseCase", () => {
 			useCase.execute({
 				restaurantId: mockRestaurantId,
 				staffId: mockStaffId,
-				name: " A ",
+				fullname: " A ",
 			}),
 		).rejects.toThrow(InvalidStaffDataError);
 	});

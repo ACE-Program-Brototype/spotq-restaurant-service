@@ -24,9 +24,7 @@ export class RestaurantStaffManagementController {
 		const authReq = req as AuthenticatedOwnerRequest;
 		const authenticatedRestaurantId =
 			authReq.user?.restaurantId ||
-			authReq.user?.userId ||
-			authReq.userId ||
-			(req.headers["x-user-id"] as string | undefined);
+			(req.headers["x-restaurant-id"] as string | undefined);
 
 		if (!authenticatedRestaurantId) {
 			res
@@ -68,7 +66,7 @@ export class RestaurantStaffManagementController {
 		const result = await this.updateStaffInfoUseCase.execute({
 			restaurantId: paramRestaurantId,
 			staffId,
-			name: req.body?.fullname,
+			fullname: req.body?.fullname,
 			phone: req.body?.phone,
 		});
 

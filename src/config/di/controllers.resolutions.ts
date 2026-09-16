@@ -26,4 +26,3 @@ export const restaurantStaffManagementController =
 	container.get<RestaurantStaffManagementController>(
 		TYPES.RestaurantStaffManagementController,
 	);
-

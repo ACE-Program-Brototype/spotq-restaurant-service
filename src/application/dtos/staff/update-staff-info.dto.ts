@@ -1,7 +1,7 @@
 export interface UpdateStaffInfoDTO {
 	restaurantId: string;
 	staffId: string;
-	name?: string;
+	fullname?: string;
 	phone?: string;
 }
 
@@ -17,4 +17,3 @@ export interface UpdateStaffInfoResponseDTO {
 	created_at: string;
 	updated_at: string;
 }
-

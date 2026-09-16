@@ -14,6 +14,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 	let mockPrisma: {
 		restaurantStaff: {
 			findUnique: jest.Mock;
+			findFirst: jest.Mock;
 			findMany: jest.Mock;
 			upsert: jest.Mock;
 			update: jest.Mock;
@@ -249,4 +250,3 @@ describe("PrismaRestaurantStaffRepository", () => {
 		});
 	});
 });
-

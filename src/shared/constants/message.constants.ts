@@ -17,8 +17,7 @@ export const messages = {
 	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
 	STAFF_UPDATED_SUCCESS: "Staff information updated successfully",
-	AT_LEAST_ONE_FIELD_REQUIRED:
-		"At least one of name or phone must be provided",
+	AT_LEAST_ONE_FIELD_REQUIRED: "At least one of name or phone must be provided",
 
 	PRESIGNED_URL_GENERATED_SUCCESS:
 		"Presigned upload URL generated successfully.",

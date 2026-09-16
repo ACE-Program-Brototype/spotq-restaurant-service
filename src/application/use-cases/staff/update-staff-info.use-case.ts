@@ -31,7 +31,7 @@ export class UpdateStaffInfoUseCase implements IUpdateStaffInfoUseCase {
 		const restaurantId = dto.restaurantId?.trim();
 		const staffId = dto.staffId?.trim();
 
-		if (dto.name === undefined && dto.phone === undefined) {
+		if (dto.fullname === undefined && dto.phone === undefined) {
 			throw new InvalidStaffDataError(messages.AT_LEAST_ONE_FIELD_REQUIRED);
 		}
 
@@ -66,8 +66,8 @@ export class UpdateStaffInfoUseCase implements IUpdateStaffInfoUseCase {
 		 * 4. Validate, trim, and normalize allowed update fields
 		 */
 		let finalName: string | undefined;
-		if (dto.name !== undefined) {
-			const trimmed = dto.name.trim();
+		if (dto.fullname !== undefined) {
+			const trimmed = dto.fullname.trim();
 			if (trimmed.length < 2 || trimmed.length > 100) {
 				throw new InvalidStaffDataError(messages.FULLNAME_INVALID);
 			}

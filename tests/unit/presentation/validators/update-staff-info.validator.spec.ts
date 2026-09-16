@@ -31,13 +31,13 @@ describe("updateStaffInfoParamsSchema", () => {
 });
 
 describe("updateStaffInfoSchema", () => {
-	it("should pass validation with valid name only", () => {
+	it("should pass validation with valid fullname only", () => {
 		const result = updateStaffInfoSchema.safeParse({
-			name: "Ravi Kumar",
+			fullname: "Ravi Kumar",
 		});
 		expect(result.success).toBe(true);
 		if (result.success) {
-			expect(result.data.name).toBe("Ravi Kumar");
+			expect(result.data.fullname).toBe("Ravi Kumar");
 			expect(result.data.phone).toBeUndefined();
 		}
 	});
@@ -49,18 +49,18 @@ describe("updateStaffInfoSchema", () => {
 		expect(result.success).toBe(true);
 		if (result.success) {
 			expect(result.data.phone).toBe("+919876543210");
-			expect(result.data.name).toBeUndefined();
+			expect(result.data.fullname).toBeUndefined();
 		}
 	});
 
-	it("should pass validation with both valid name and phone", () => {
+	it("should pass validation with both valid fullname and phone", () => {
 		const result = updateStaffInfoSchema.safeParse({
-			name: "Ravi Kumar",
+			fullname: "Ravi Kumar",
 			phone: "+919876543210",
 		});
 		expect(result.success).toBe(true);
 		if (result.success) {
-			expect(result.data.name).toBe("Ravi Kumar");
+			expect(result.data.fullname).toBe("Ravi Kumar");
 			expect(result.data.phone).toBe("+919876543210");
 		}
 	});
@@ -72,7 +72,7 @@ describe("updateStaffInfoSchema", () => {
 
 	it("should fail validation when unsupported fields like email are included", () => {
 		const result = updateStaffInfoSchema.safeParse({
-			name: "Ravi Kumar",
+			fullname: "Ravi Kumar",
 			email: "newemail@example.com",
 		});
 		expect(result.success).toBe(false);
@@ -86,16 +86,16 @@ describe("updateStaffInfoSchema", () => {
 		expect(result.success).toBe(false);
 	});
 
-	it("should fail validation when name has less than 2 characters", () => {
+	it("should fail validation when fullname has less than 2 characters", () => {
 		const result = updateStaffInfoSchema.safeParse({
-			name: "A",
+			fullname: "A",
 		});
 		expect(result.success).toBe(false);
 	});
 
-	it("should fail validation when name contains only whitespace", () => {
+	it("should fail validation when fullname contains only whitespace", () => {
 		const result = updateStaffInfoSchema.safeParse({
-			name: "   ",
+			fullname: "   ",
 		});
 		expect(result.success).toBe(false);
 	});
@@ -107,9 +107,9 @@ describe("updateStaffInfoSchema", () => {
 		expect(result.success).toBe(false);
 	});
 
-	it("should fail validation when name is not a string", () => {
+	it("should fail validation when fullname is not a string", () => {
 		const result = updateStaffInfoSchema.safeParse({
-			name: 12345,
+			fullname: 12345,
 		});
 		expect(result.success).toBe(false);
 	});
@@ -121,4 +121,3 @@ describe("updateStaffInfoSchema", () => {
 		expect(result.success).toBe(false);
 	});
 });
-
