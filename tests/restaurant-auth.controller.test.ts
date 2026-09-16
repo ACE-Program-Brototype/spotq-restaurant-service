@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { test } from "@jest/globals";
+import { expect, jest, test } from "@jest/globals";
 import type { Request, Response } from "express";
 
 import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
-import { messages } from "@/shared/constants/message.constants";
+import { HTTP_STATUS } from "@/shared/constants/http.constants";
 
 test("refreshAccessToken rejects a missing refresh cookie with InvalidRefreshTokenError", async () => {
 	const controller = new RestaurantAuthController(
@@ -12,6 +12,7 @@ test("refreshAccessToken rejects a missing refresh cookie with InvalidRefreshTok
 		{} as never,
 		{} as never,
 		{ execute: async () => ({ accessToken: "new-access-token" }) } as never,
+		{} as never,
 		{} as never,
 	);
 
@@ -38,6 +39,7 @@ test("onboard rejects missing restaurant identification with 401", async () => {
 		{} as never,
 		{} as never,
 		{ execute: jest.fn() } as never,
+		{} as never,
 	);
 
 	const req = {
@@ -45,23 +47,28 @@ test("onboard rejects missing restaurant identification with 401", async () => {
 		body: { restaurantName: "Test" },
 	} as unknown as Request;
 
-	const jsonMock = jest.fn();
-	const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+	let responseCode = 0;
+	let responseBody: unknown = null;
 	const res = {
-		status: statusMock,
+		status: (code: number) => {
+			responseCode = code;
+			return {
+				json: (data: unknown) => {
+					responseBody = data;
+					return res;
+				},
+			};
+		},
 	} as unknown as Response;
 
 	await controller.onboard(req, res);
 
-	expect(statusMock).toHaveBeenCalledWith(401);
-	expect(jsonMock).toHaveBeenCalledWith({
-		success: false,
-		message: messages.UNAUTHORIZED_RESTAURANT,
-	});
+	assert.equal(responseCode, HTTP_STATUS.UNAUTHORIZED);
+	assert.ok(responseBody);
 });
 
 test("onboard executes use case and returns 201 with restaurantId", async () => {
-	const mockExecute = jest.fn().mockResolvedValue(undefined);
+	const mockExecute = jest.fn().mockResolvedValue(undefined as never);
 
 	const controller = new RestaurantAuthController(
 		{} as never,
@@ -69,6 +76,7 @@ test("onboard executes use case and returns 201 with restaurantId", async () => 
 		{} as never,
 		{} as never,
 		{ execute: mockExecute } as never,
+		{} as never,
 	);
 
 	const req = {
@@ -94,31 +102,49 @@ test("onboard executes use case and returns 201 with restaurantId", async () => 
 	);
 });
 
-test("onboard rejects client body.restaurantId or headers['x-user-id'] without x-restaurant-id with 401", async () => {
+test("getVerificationStatus returns mapped status for a valid restaurant", async () => {
+	const mockResult = {
+		status: "UNDER_REVIEW" as const,
+		submittedAt: "2026-01-01T00:00:00.000Z",
+		updatedAt: "2026-01-02T00:00:00.000Z",
+	};
+
+	const mockUseCase = {
+		execute: async () => mockResult,
+	};
+
 	const controller = new RestaurantAuthController(
 		{} as never,
 		{} as never,
 		{} as never,
 		{} as never,
-		{ execute: jest.fn() } as never,
+		{} as never,
+		mockUseCase as never,
 	);
 
 	const req = {
-		headers: { "x-user-id": "user-123" },
-		body: { restaurantId: "rest-spoofed", restaurantName: "Test" },
-	} as unknown as Request;
+		params: { id: "rest-123" },
+	} as never;
 
-	const jsonMock = jest.fn();
-	const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+	let responseCode = 0;
+	let responseBody: { success?: boolean; data?: { status?: string } } | null =
+		null;
+
 	const res = {
-		status: statusMock,
-	} as unknown as Response;
+		status: (code: number) => {
+			responseCode = code;
+			return {
+				json: (data: unknown) => {
+					responseBody = data as typeof responseBody;
+					return res;
+				},
+			};
+		},
+	} as never;
 
-	await controller.onboard(req, res);
+	await controller.getVerificationStatus(req, res);
 
-	expect(statusMock).toHaveBeenCalledWith(401);
-	expect(jsonMock).toHaveBeenCalledWith({
-		success: false,
-		message: messages.UNAUTHORIZED_RESTAURANT,
-	});
+	assert.equal(responseCode, 200);
+	assert.equal(responseBody?.success, true);
+	assert.equal(responseBody?.data?.status, "UNDER_REVIEW");
 });

@@ -36,7 +36,9 @@ describe("RestaurantRepository - activateSubscription", () => {
 			},
 			$transaction: jest.fn(),
 		};
-		repository = new RestaurantRepository(mockPrisma as unknown as PrismaClient);
+		repository = new RestaurantRepository(
+			mockPrisma as unknown as PrismaClient,
+		);
 		jest.clearAllMocks();
 	});
 

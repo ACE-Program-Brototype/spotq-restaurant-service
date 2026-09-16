@@ -3,7 +3,10 @@ import type { OnboardRestaurantDto } from "@/application/dtos/restaurant/restaur
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors";
 
 @injectable()
 export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
@@ -22,14 +25,14 @@ export class OnboardRestaurantUseCase implements IOnboardRestaurantUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
-		restaurant.updateProfile(
-			dto.restaurantName,
-			dto.phone,
-			dto.ownerName,
-			restaurant.ownerEmail,
-		);
-		restaurant.completeOnboarding();
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
 
-		await this.restaurantRepository.save(restaurant);
+		restaurant.updateProfile(dto.restaurantName, dto.phone, dto.ownerName);
+		restaurant.completeOnboarding();
+		restaurant.updateStatus("PENDING");
+
+		await this.restaurantRepository.completeOnboarding(restaurant, dto);
 	}
 }

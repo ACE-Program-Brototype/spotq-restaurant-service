@@ -50,6 +50,7 @@ describe("RevokeStaffInvitationUseCase", () => {
 			update: jest.fn(),
 			save: jest.fn(),
 			activateSubscription: jest.fn(),
+			completeOnboarding: jest.fn(),
 		};
 
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);

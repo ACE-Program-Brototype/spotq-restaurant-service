@@ -60,6 +60,9 @@ export const TYPES = {
 			"RefreshRestaurantAccessTokenUseCase",
 		),
 		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
+		GetRestaurantVerificationStatusUseCase: Symbol.for(
+			"GetRestaurantVerificationStatusUseCase",
+		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
