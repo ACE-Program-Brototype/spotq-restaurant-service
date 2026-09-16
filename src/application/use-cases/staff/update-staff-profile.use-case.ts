@@ -12,6 +12,7 @@ import {
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
+import { StaffAvatarKey } from "@/domain/value-objects/avatar-key.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -39,28 +40,13 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 			throw new InvalidStaffDataError(messages.AT_LEAST_ONE_FIELD_REQUIRED);
 		}
 
+		let validatedAvatarUrl = finalAvatarUrl;
 		if (finalAvatarUrl) {
-			if (
-				finalAvatarUrl.includes("..") ||
-				finalAvatarUrl.startsWith("/") ||
-				finalAvatarUrl.startsWith("\\")
-			) {
-				throw new InvalidStaffDataError(messages.INVALID_AVATAR_KEY);
-			}
-
-			const segments = finalAvatarUrl.split(/[\\/]/);
-			const restaurantIndex = segments.indexOf("restaurants");
-			if (
-				restaurantIndex !== -1 &&
-				segments[restaurantIndex + 1] &&
-				segments[restaurantIndex + 1] !== restaurantId
-			) {
-				throw new StaffForbiddenError(messages.AVATAR_RESTAURANT_MISMATCH);
-			}
-
-			if (segments[0] === "staff" && segments[1] && segments[1] !== staffId) {
-				throw new StaffForbiddenError(messages.AVATAR_STAFF_MISMATCH);
-			}
+			const avatarKey = StaffAvatarKey.create(finalAvatarUrl, {
+				restaurantId,
+				staffId,
+			});
+			validatedAvatarUrl = avatarKey.value;
 		}
 
 		const staff = await this.staffRepository.findById(staffId);
@@ -81,7 +67,7 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 			throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
 		}
 
-		staff.updateProfile(finalName, finalPhone, finalAvatarUrl);
+		staff.updateProfile(finalName, finalPhone, validatedAvatarUrl);
 
 		await this.staffRepository.save(staff);
 

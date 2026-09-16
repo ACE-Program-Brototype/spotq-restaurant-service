@@ -1,4 +1,4 @@
-import type { CookieOptions, Request, Response } from "express";
+import type { CookieOptions, NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
@@ -18,7 +18,10 @@ import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/v
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
-import { RestaurantIdRequiredError } from "@/domain/errors/staff.errors.ts";
+import {
+	RestaurantIdRequiredError,
+	StaffForbiddenError,
+} from "@/domain/errors/staff.errors.ts";
 import type { AuthenticatedRequest } from "@/presentation/http/middleware/staff.auth.middleware.ts";
 import type { ListStaffInvitationsQuery } from "@/presentation/http/validators/staff/list-invitations.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -390,72 +393,62 @@ export class StaffController {
 		);
 	};
 
-	public updateProfile = async (req: Request, res: Response): Promise<void> => {
-		const authReq = req as AuthenticatedRequest;
-		const authUser = authReq.user;
-		const userId = authUser?.userId ?? authReq.userId;
+	public updateProfile = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		try {
+			const authReq = req as AuthenticatedRequest;
+			const authUser = authReq.user;
+			const userId = authUser?.userId ?? authReq.userId;
 
-		if (!userId) {
-			res
-				.status(HTTP_STATUS.UNAUTHORIZED)
-				.json(
-					ApiResponse.error(
-						messages.UNAUTHORIZED,
-						"UNAUTHORIZED",
-						HTTP_STATUS.UNAUTHORIZED,
-					),
-				);
-			return;
+			if (!userId) {
+				res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(
+						ApiResponse.error(
+							messages.UNAUTHORIZED,
+							"UNAUTHORIZED",
+							HTTP_STATUS.UNAUTHORIZED,
+						),
+					);
+				return;
+			}
+
+			const restaurantId = Array.isArray(req.params.restaurantId)
+				? req.params.restaurantId[0]
+				: req.params.restaurantId;
+			const staffId = Array.isArray(req.params.staffId)
+				? req.params.staffId[0]
+				: req.params.staffId;
+
+			if (userId !== staffId) {
+				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN_UPDATE);
+			}
+
+			if (authUser?.restaurantId && authUser.restaurantId !== restaurantId) {
+				throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
+			}
+
+			const { name, fullname, phone, avatar_url, avatarUrl } = req.body;
+
+			const profile = await this.updateStaffProfileUseCase.execute({
+				restaurantId,
+				staffId,
+				name: name ?? fullname,
+				phone,
+				avatar_url: avatar_url !== undefined ? avatar_url : avatarUrl,
+			});
+
+			sendSuccessResponse(
+				res,
+				profile,
+				messages.STAFF_PROFILE_UPDATED_SUCCESS,
+				HTTP_STATUS.OK,
+			);
+		} catch (error) {
+			next(error);
 		}
-
-		const restaurantId = Array.isArray(req.params.restaurantId)
-			? req.params.restaurantId[0]
-			: req.params.restaurantId;
-		const staffId = Array.isArray(req.params.staffId)
-			? req.params.staffId[0]
-			: req.params.staffId;
-
-		if (userId !== staffId) {
-			res
-				.status(HTTP_STATUS.FORBIDDEN)
-				.json(
-					ApiResponse.error(
-						messages.STAFF_FORBIDDEN_UPDATE,
-						"FORBIDDEN",
-						HTTP_STATUS.FORBIDDEN,
-					),
-				);
-			return;
-		}
-
-		if (authUser?.restaurantId && authUser.restaurantId !== restaurantId) {
-			res
-				.status(HTTP_STATUS.FORBIDDEN)
-				.json(
-					ApiResponse.error(
-						messages.STAFF_RESTAURANT_FORBIDDEN,
-						"FORBIDDEN",
-						HTTP_STATUS.FORBIDDEN,
-					),
-				);
-			return;
-		}
-
-		const { name, fullname, phone, avatar_url, avatarUrl } = req.body;
-
-		const profile = await this.updateStaffProfileUseCase.execute({
-			restaurantId,
-			staffId,
-			name: name ?? fullname,
-			phone,
-			avatar_url: avatar_url !== undefined ? avatar_url : avatarUrl,
-		});
-
-		sendSuccessResponse(
-			res,
-			profile,
-			messages.STAFF_PROFILE_UPDATED_SUCCESS,
-			HTTP_STATUS.OK,
-		);
 	};
 }

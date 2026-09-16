@@ -51,11 +51,7 @@ restaurantRouter.post(
 );
 
 restaurantRouter.patch(
-	[
-		RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE,
-		RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE_FULL,
-		RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE_PREFIX,
-	],
+	RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE,
 	staffAuthMiddleware,
 	validateRequestParams(updateStaffProfileParamsSchema),
 	validate(updateStaffProfileBodySchema),

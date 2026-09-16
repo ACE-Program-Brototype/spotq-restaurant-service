@@ -11,8 +11,6 @@ export const RESTAURANT_ROUTES = {
 	REFRESH_ACCESS_TOKEN: "/auth/refresh",
 	ONBOARD: "/onboard",
 	UPDATE_STAFF_PROFILE: "/:restaurantId/staff/:staffId",
-	UPDATE_STAFF_PROFILE_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
-	UPDATE_STAFF_PROFILE_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
 } as const;
 
 export const STAFF_ROUTES = {
