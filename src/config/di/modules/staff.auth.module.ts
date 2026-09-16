@@ -50,8 +50,8 @@ import { BcryptPasswordHasher } from "@/infrastructure/services/bcrypt-password-
 import { CryptoInvitationTokenService } from "@/infrastructure/services/crypto-invitation-token.service";
 import { CryptoOtpService } from "@/infrastructure/services/crypto-otp.service";
 import { JwtTokenService } from "@/infrastructure/services/jwt-token.service";
-import { StaffController } from "@/presentation/http/controllers/staff.controller";
 import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
+import { StaffController } from "@/presentation/http/controllers/staff.controller";
 
 export const staffAuthModule = new ContainerModule(({ bind }) => {
 	// Repositories

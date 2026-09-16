@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import type { IRemoveStaffUseCase } from "@/application/ports/use-cases/remove-staff.use-case.port.ts";
 import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -10,6 +10,7 @@ describe("RestaurantStaffManagementController", () => {
 	let controller: RestaurantStaffManagementController;
 	let mockReq: Partial<Request>;
 	let mockRes: Partial<Response>;
+	let mockNext: jest.MockedFunction<NextFunction>;
 
 	const mockRestaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 	const mockStaffId = "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01";
@@ -22,9 +23,10 @@ describe("RestaurantStaffManagementController", () => {
 		controller = new RestaurantStaffManagementController(removeStaffUseCase);
 
 		mockRes = {
-			status: jest.fn().mockReturnThis(),
-			json: jest.fn().mockReturnThis(),
+			status: jest.fn().mockReturnThis() as never,
+			json: jest.fn().mockReturnThis() as never,
 		};
+		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
 	describe("removeStaff", () => {
@@ -43,7 +45,11 @@ describe("RestaurantStaffManagementController", () => {
 				},
 			};
 
-			await controller.removeStaff(mockReq as Request, mockRes as Response);
+			await controller.removeStaff(
+				mockReq as Request,
+				mockRes as Response,
+				mockNext,
+			);
 
 			expect(removeStaffUseCase.execute).toHaveBeenCalledWith({
 				restaurantId: mockRestaurantId,
@@ -70,7 +76,11 @@ describe("RestaurantStaffManagementController", () => {
 				user: undefined,
 			};
 
-			await controller.removeStaff(mockReq as Request, mockRes as Response);
+			await controller.removeStaff(
+				mockReq as Request,
+				mockRes as Response,
+				mockNext,
+			);
 
 			expect(removeStaffUseCase.execute).not.toHaveBeenCalled();
 			expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
@@ -98,7 +108,11 @@ describe("RestaurantStaffManagementController", () => {
 				},
 			};
 
-			await controller.removeStaff(mockReq as Request, mockRes as Response);
+			await controller.removeStaff(
+				mockReq as Request,
+				mockRes as Response,
+				mockNext,
+			);
 
 			expect(removeStaffUseCase.execute).not.toHaveBeenCalled();
 			expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
@@ -109,6 +123,33 @@ describe("RestaurantStaffManagementController", () => {
 					statusCode: HTTP_STATUS.FORBIDDEN,
 				}),
 			);
+		});
+
+		it("should forward error to next() when use case throws an error", async () => {
+			const error = new Error("Database failure");
+			removeStaffUseCase.execute.mockRejectedValueOnce(error);
+
+			mockReq = {
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				headers: {},
+				user: {
+					userId: "owner-user-id",
+					restaurantId: mockRestaurantId,
+					email: "owner@spiceroute.com",
+					role: "restaurant_owner",
+				},
+			};
+
+			await controller.removeStaff(
+				mockReq as Request,
+				mockRes as Response,
+				mockNext,
+			);
+
+			expect(mockNext).toHaveBeenCalledWith(error);
 		});
 	});
 });

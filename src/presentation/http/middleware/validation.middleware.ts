@@ -105,21 +105,26 @@ export function validateRequestQuery(schema: ZodType) {
 
 /**
  * Middleware to validate request path parameters against a Zod schema.
- * Returns 400 Bad Request with formatted validation errors if validation fails.
+ * Returns 422 Unprocessable Entity with formatted validation errors if validation fails.
  */
 export const validateRequestParams = (schema: ZodType) => {
 	return (req: Request, res: Response, next: NextFunction): void => {
 		const result = schema.safeParse(req.params);
 
 		if (!result.success) {
+			const formattedErrors = result.error.issues.map((issue) => ({
+				field: issue.path.length > 0 ? issue.path.join(".") : "params",
+				message: issue.message,
+			}));
+
 			res
-				.status(HTTP_STATUS.BAD_REQUEST)
+				.status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
 				.json(
 					ApiResponse.error(
 						messages.VALIDATION_ERROR,
 						"VALIDATION_ERROR",
-						HTTP_STATUS.BAD_REQUEST,
-						result.error.flatten(),
+						HTTP_STATUS.UNPROCESSABLE_ENTITY,
+						formattedErrors,
 					),
 				);
 

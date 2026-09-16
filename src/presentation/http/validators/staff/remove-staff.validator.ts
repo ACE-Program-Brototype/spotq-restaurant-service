@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 /**
  * Validates path parameters for staff removal endpoint.
@@ -8,8 +9,10 @@ import { z } from "zod";
  * - staffId: must be a valid UUID string
  */
 export const removeStaffParamsSchema = z.object({
-	restaurantId: z.string().uuid({ message: "Invalid restaurant ID format" }),
-	staffId: z.string().uuid({ message: "Invalid staff ID format" }),
+	restaurantId: z
+		.string()
+		.uuid({ message: messages.INVALID_RESTAURANT_ID_FORMAT }),
+	staffId: z.string().uuid({ message: messages.INVALID_STAFF_ID_FORMAT }),
 });
 
 export type RemoveStaffParamsInput = z.infer<typeof removeStaffParamsSchema>;

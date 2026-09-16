@@ -14,7 +14,7 @@ export interface IRestaurantStaffRepository
 	 * @param restaurantId - Unique identifier of the restaurant
 	 * @returns The RestaurantStaff entity if found and matching restaurantId, otherwise null
 	 */
-	findByIdAndRestaurantId(
+	findByIdAndRestaurantId?(
 		id: string,
 		restaurantId: string,
 	): Promise<RestaurantStaff | null>;

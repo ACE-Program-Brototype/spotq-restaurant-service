@@ -143,6 +143,8 @@ export const messages = {
 	OWNER_FORBIDDEN: "Forbidden: Access restricted to restaurant owners",
 	RESTAURANT_ACCESS_FORBIDDEN:
 		"Forbidden: You do not have access to this restaurant",
+	INVALID_RESTAURANT_ID_FORMAT: "Invalid restaurant ID format",
+	INVALID_STAFF_ID_FORMAT: "Invalid staff ID format",
 } as const;
 
 export type MessageKey = keyof typeof messages;

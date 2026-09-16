@@ -10,7 +10,7 @@ import {
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("RemoveStaffUseCase", () => {
-	let staffRepository: jest.Mocked<IRestaurantStaffRepository>;
+	let staffRepository: jest.Mocked<Required<IRestaurantStaffRepository>>;
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
 	let useCase: RemoveStaffUseCase;
 
@@ -49,6 +49,7 @@ describe("RemoveStaffUseCase", () => {
 	beforeEach(() => {
 		staffRepository = {
 			findById: jest.fn(),
+			exists: jest.fn(),
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			findByIdAndRestaurantId: jest.fn(),

@@ -7,7 +7,7 @@ import { messages } from "@/shared/constants/message.constants.ts";
 describe("restaurantOwnerAuthMiddleware", () => {
 	let mockReq: Partial<Request>;
 	let mockRes: Partial<Response>;
-	let mockNext: jest.Mock<NextFunction>;
+	let mockNext: jest.MockedFunction<NextFunction>;
 
 	beforeEach(() => {
 		mockReq = {
@@ -15,11 +15,11 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		};
 
 		mockRes = {
-			status: jest.fn().mockReturnThis(),
-			json: jest.fn().mockReturnThis(),
+			status: jest.fn().mockReturnThis() as never,
+			json: jest.fn().mockReturnThis() as never,
 		};
 
-		mockNext = jest.fn();
+		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
 	it("should call next() and populate req.user for valid owner headers", () => {

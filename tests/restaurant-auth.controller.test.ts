@@ -63,7 +63,10 @@ test("getVerificationStatus returns mapped status for a valid restaurant", async
 			responseCode = code;
 			return {
 				json: (data: unknown) => {
-					responseBody = data as typeof responseBody;
+					responseBody = data as {
+						success?: boolean;
+						data?: { status?: string };
+					};
 					return res;
 				},
 			};
@@ -73,6 +76,7 @@ test("getVerificationStatus returns mapped status for a valid restaurant", async
 	await controller.getVerificationStatus(req, res);
 
 	assert.equal(responseCode, 200);
-	assert.equal(responseBody?.success, true);
-	assert.equal(responseBody?.data?.status, "UNDER_REVIEW");
+	type ResponsePayload = { success?: boolean; data?: { status?: string } };
+	assert.equal((responseBody as ResponsePayload | null)?.success, true);
+	assert.equal((responseBody as ResponsePayload | null)?.data?.status, "UNDER_REVIEW");
 });

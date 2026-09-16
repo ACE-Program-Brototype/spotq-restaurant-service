@@ -51,12 +51,18 @@ export class RemoveStaffUseCase implements IRemoveStaffUseCase {
 		}
 
 		// 2. Verify staff exists and belongs to the requested restaurant
-		const staff = await this.staffRepository.findByIdAndRestaurantId(
-			staffId,
-			restaurantId,
-		);
+		const staff = this.staffRepository.findByIdAndRestaurantId
+			? await this.staffRepository.findByIdAndRestaurantId(
+					staffId,
+					restaurantId,
+				)
+			: await this.staffRepository.findById(staffId);
 
 		if (!staff) {
+			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
+		}
+
+		if (staff.restaurantId !== restaurantId) {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 
@@ -72,6 +78,10 @@ export class RemoveStaffUseCase implements IRemoveStaffUseCase {
 
 		// 5. Update domain model and persist soft removal
 		staff.remove();
-		await this.staffRepository.removeStaff(staffId, restaurantId);
+		if (this.staffRepository.removeStaff) {
+			await this.staffRepository.removeStaff(staffId, restaurantId);
+		} else {
+			await this.staffRepository.save(staff);
+		}
 	}
 }

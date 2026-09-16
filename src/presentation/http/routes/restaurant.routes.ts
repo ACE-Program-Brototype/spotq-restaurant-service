@@ -4,8 +4,8 @@ import {
 	restaurantStaffManagementController,
 } from "@/config/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
-import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
+import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import {
 	validateRequestBody,
 	validateRequestParams,
@@ -61,12 +61,8 @@ restaurantRouter.get(
 	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
 );
 
-restaurantRouter.patch(
-	[
-		RESTAURANT_ROUTES.STAFF_REMOVE,
-		RESTAURANT_ROUTES.STAFF_REMOVE_FULL,
-		RESTAURANT_ROUTES.STAFF_REMOVE_PREFIX,
-	],
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.STAFF_REMOVE,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(removeStaffParamsSchema),
 	restaurantStaffManagementController.removeStaff.bind(
