@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { env, formatJwtKey } from "@/config/env.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -26,9 +27,8 @@ export function restaurantAuthMiddleware(
 	let userId = getHeaderValue(req.headers["x-user-id"]);
 	let role = getHeaderValue(req.headers["x-user-role"]);
 	let email = getHeaderValue(req.headers["x-user-email"]);
-	const paramId = getHeaderValue(req.params?.id || req.params?.restaurantId);
 
-	let resolvedId = restaurantId || userId || paramId;
+	let resolvedId = restaurantId || userId;
 
 	if (!resolvedId) {
 		const authHeader = getHeaderValue(req.headers.authorization);
@@ -36,12 +36,25 @@ export function restaurantAuthMiddleware(
 			const token = authHeader.substring(7).trim();
 			if (token) {
 				try {
-					const decoded = jwt.decode(token) as {
+					const publicKey = formatJwtKey(env.JWT_ACCESS_PUBLIC_KEY);
+					interface JwtPayloadClaims {
 						restaurantId?: string;
 						sub?: string;
 						email?: string;
 						role?: string;
-					} | null;
+					}
+					let decoded: JwtPayloadClaims | null = null;
+
+					if (publicKey) {
+						decoded = jwt.verify(token, publicKey, {
+							algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
+						}) as unknown as JwtPayloadClaims;
+					} else {
+						decoded = jwt.verify(
+							token,
+							env.JWT_REFRESH_SECRET,
+						) as unknown as JwtPayloadClaims;
+					}
 
 					if (decoded) {
 						restaurantId = decoded.restaurantId || decoded.sub;
@@ -53,7 +66,7 @@ export function restaurantAuthMiddleware(
 				} catch (err) {
 					logger.warn(
 						{ error: err },
-						"Fallback Bearer token decode failed in restaurantAuthMiddleware",
+						"Fallback Bearer token verification failed in restaurantAuthMiddleware",
 					);
 				}
 			}

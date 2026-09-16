@@ -13,7 +13,7 @@ import type { IUpdateRestaurantProfileUseCase } from "@/application/ports/use-ca
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { ApiResponse } from "@/shared/response/api-response";
+import { ApiResponse, sendSuccessResponse } from "@/shared/response/api-response";
 import { successResponse } from "@/utils/response.model";
 
 @injectable()
@@ -28,14 +28,14 @@ export class RestaurantAuthController {
 		@inject(TYPES.UseCases.VerifyRestaurantEmailOtpUseCase)
 		private readonly verifyRestaurantEmailOtpUseCase: IVerifyRestaurantEmailOtpUseCase,
 
-		@inject(TYPES.UseCases.RefreshRestaurantAccessTokenUseCase)
-		private readonly refreshRestaurantAccessTokenUseCase: IRefreshRestaurantAccessTokenUseCase,
-
 		@inject(TYPES.UseCases.OnboardRestaurantUseCase)
 		private readonly onboardRestaurantUseCase: IOnboardRestaurantUseCase,
 
 		@inject(TYPES.UseCases.GetRestaurantVerificationStatusUseCase)
 		private readonly getRestaurantVerificationStatusUseCase: IGetRestaurantVerificationStatusUseCase,
+
+		@inject(TYPES.UseCases.RefreshRestaurantAccessTokenUseCase)
+		private readonly refreshRestaurantAccessTokenUseCase: IRefreshRestaurantAccessTokenUseCase,
 
 		@inject(TYPES.UseCases.GetRestaurantProfileUseCase)
 		private readonly getRestaurantProfileUseCase: IGetRestaurantProfileUseCase,
@@ -44,100 +44,56 @@ export class RestaurantAuthController {
 		private readonly updateRestaurantProfileUseCase: IUpdateRestaurantProfileUseCase,
 	) {}
 
-	private getCookie(req: Request, name: string): string | undefined {
-		const cookieHeader = req.headers.cookie;
-		if (!cookieHeader) return undefined;
-
-		const cookies = cookieHeader
-			.split(";")
-			.reduce<Record<string, string>>((acc, rawCookie) => {
-				const [key, ...valueParts] = rawCookie.trim().split("=");
-				if (!key) return acc;
-				const value = valueParts.join("=");
-				acc[key] = decodeURIComponent(value ?? "");
-				return acc;
-			}, {});
-
-		return cookies[name];
-	}
-
-	private setRefreshCookies(res: Response, refreshToken: string) {
-		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN, refreshToken, {
-			httpOnly: env.COOKIE_HTTP_ONLY,
-			secure: env.COOKIE_SECURE,
-			sameSite: env.COOKIE_SAME_SITE,
-			maxAge: env.COOKIE_MAX_AGE_MS,
-		});
-	}
-
 	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
-		await this.sendRestaurantEmailOtpUseCase.execute(req.body);
-
-		return successResponse(
+		const result = await this.sendRestaurantEmailOtpUseCase.execute(req.body);
+		return sendSuccessResponse(
 			res,
+			result,
 			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
-			HTTP_STATUS.ACCEPTED,
+			HTTP_STATUS.OK,
 		);
 	}
 
 	async resendEmailOtp(req: Request, res: Response): Promise<Response> {
-		await this.resendRestaurantEmailOtpUseCase.execute(req.body);
-
-		return successResponse(
+		const result = await this.resendRestaurantEmailOtpUseCase.execute(req.body);
+		return sendSuccessResponse(
 			res,
-			messages.RESTAURANT_EMAIL_OTP_SENT_SUCCESS,
-			HTTP_STATUS.ACCEPTED,
+			result,
+			messages.OTP_RESENT_SUCCESS,
+			HTTP_STATUS.OK,
 		);
 	}
 
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
-		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
-
-		if (result.accessToken && result.refreshToken) {
-			this.setRefreshCookies(res, result.refreshToken);
-		}
-
-		return successResponse(
+		const result = await this.verifyRestaurantEmailOtpUseCase.execute(
+			req.body,
+		);
+		return sendSuccessResponse(
 			res,
+			result,
 			messages.EMAIL_VERIFIED_SUCCESS,
-			HTTP_STATUS.SUCCESS,
-			{
-				nextStep: result.nextStep,
-				restaurantId: result.restaurantId,
-				access_token: result.accessToken,
-			},
+			HTTP_STATUS.OK,
 		);
 	}
 
 	async refreshAccessToken(req: Request, res: Response): Promise<Response> {
-		if (
-			typeof req.body?.refreshToken !== "undefined" ||
-			typeof req.query?.refreshToken !== "undefined" ||
-			req.headers.authorization
-		) {
-			throw new InvalidRefreshTokenError();
-		}
-
-		const refreshToken =
-			this.getCookie(req, env.COOKIE_NAME_REFRESH_TOKEN) ||
-			this.getCookie(req, "refreshToken");
+		const refreshTokenFromCookie =
+			req.cookies?.[env.COOKIE_NAME_REFRESH_TOKEN];
+		const refreshToken = refreshTokenFromCookie || req.body?.refreshToken;
 
 		if (!refreshToken) {
 			throw new InvalidRefreshTokenError();
 		}
 
-		const { accessToken } =
-			await this.refreshRestaurantAccessTokenUseCase.execute({
-				refreshToken,
-			});
+		const result = await this.refreshRestaurantAccessTokenUseCase.execute({
+			refreshToken,
+		});
 
-		return successResponse(
+		return sendSuccessResponse(
 			res,
+			result,
 			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
-			HTTP_STATUS.SUCCESS,
-			{
-				access_token: accessToken,
-			},
+			HTTP_STATUS.OK,
 		);
 	}
 
@@ -146,7 +102,7 @@ export class RestaurantAuthController {
 			req.user && typeof req.user === "object" ? req.user : undefined;
 		const restaurantId =
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
-			req.userId;
+			(typeof req.userId === "string" ? req.userId : undefined);
 
 		if (!restaurantId) {
 			return res
@@ -170,12 +126,9 @@ export class RestaurantAuthController {
 	}
 
 	async getVerificationStatus(req: Request, res: Response): Promise<Response> {
-		const rawParamId = req.params?.id || req.params?.restaurantId;
-		const paramId = Array.isArray(rawParamId) ? rawParamId[0] : rawParamId;
 		const userObj =
 			req.user && typeof req.user === "object" ? req.user : undefined;
 		const restaurantId =
-			paramId ||
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
 			(typeof req.userId === "string" ? req.userId : undefined);
 
@@ -194,11 +147,11 @@ export class RestaurantAuthController {
 		const result =
 			await this.getRestaurantVerificationStatusUseCase.execute(restaurantId);
 
-		return successResponse(
+		return sendSuccessResponse(
 			res,
-			messages.RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS,
-			HTTP_STATUS.SUCCESS,
 			result,
+			messages.RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS,
+			HTTP_STATUS.OK,
 		);
 	}
 
@@ -223,11 +176,11 @@ export class RestaurantAuthController {
 
 		const result = await this.getRestaurantProfileUseCase.execute(restaurantId);
 
-		return successResponse(
+		return sendSuccessResponse(
 			res,
-			messages.RESTAURANT_PROFILE_FETCH_SUCCESS,
-			HTTP_STATUS.SUCCESS,
 			result,
+			messages.RESTAURANT_PROFILE_FETCH_SUCCESS,
+			HTTP_STATUS.OK,
 		);
 	}
 
@@ -255,11 +208,11 @@ export class RestaurantAuthController {
 			req.body,
 		);
 
-		return successResponse(
+		return sendSuccessResponse(
 			res,
-			messages.RESTAURANT_PROFILE_UPDATED_SUCCESS,
-			HTTP_STATUS.SUCCESS,
 			result,
+			messages.RESTAURANT_PROFILE_UPDATED_SUCCESS,
+			HTTP_STATUS.OK,
 		);
 	}
 }

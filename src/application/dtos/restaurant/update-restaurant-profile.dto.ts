@@ -13,6 +13,9 @@ export interface UpdateProfileDto {
 }
 
 export interface UpdateSettingsDto {
+	isOpened?: boolean;
+	isPreorder?: boolean;
+	seatingCapacity?: number;
 	acceptsQueue?: boolean;
 	acceptsQrOrders?: boolean;
 	loyaltyEnabled?: boolean;

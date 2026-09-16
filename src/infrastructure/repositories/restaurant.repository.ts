@@ -409,6 +409,12 @@ export class RestaurantRepository implements IRestaurantRepository {
 
 			if (data.settings) {
 				const settingsData: Record<string, unknown> = {};
+				if (data.settings.isOpened !== undefined)
+					settingsData.isOpened = data.settings.isOpened;
+				if (data.settings.isPreorder !== undefined)
+					settingsData.isPreorder = data.settings.isPreorder;
+				if (data.settings.seatingCapacity !== undefined)
+					settingsData.seatingCapacity = data.settings.seatingCapacity;
 				if (data.settings.acceptsQueue !== undefined)
 					settingsData.acceptsQueue = data.settings.acceptsQueue;
 				if (data.settings.acceptsQrOrders !== undefined)
