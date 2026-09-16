@@ -23,7 +23,7 @@ export function restaurantAuthMiddleware(
 ): void {
 	const headerRestaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
 	const headerUserId = getHeaderValue(req.headers["x-user-id"]);
-	const paramId = req.params?.id || req.params?.restaurantId;
+	const paramId = getHeaderValue(req.params?.id || req.params?.restaurantId);
 
 	let resolvedId = headerRestaurantId || headerUserId || paramId;
 	let email = getHeaderValue(req.headers["x-user-email"]);
@@ -38,9 +38,12 @@ export function restaurantAuthMiddleware(
 					restaurantId?: string;
 					email?: string;
 					role?: string;
+					sub?: string;
+					id?: string;
 				} | null;
-				if (decoded?.restaurantId) {
-					resolvedId = decoded.restaurantId;
+				const tokenId = decoded?.restaurantId || decoded?.sub || decoded?.id;
+				if (tokenId) {
+					resolvedId = tokenId;
 					if (!email && decoded.email) email = decoded.email;
 					if (!role && decoded.role) role = decoded.role;
 				}

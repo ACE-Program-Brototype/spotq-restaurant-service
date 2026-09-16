@@ -182,19 +182,19 @@ describe("RestaurantAuthController Unit Tests", () => {
 		} as unknown as Request;
 
 		let responseCode = 0;
-		let responseBody: { success?: boolean; message?: string } | null = null;
+		let responseBody: Record<string, unknown> | null = null;
 
-		const res = {
-			status: (code: number) => {
-				responseCode = code;
-				return {
-					json: (body: unknown) => {
-						responseBody = body as { success?: boolean; message?: string };
-						return res;
-					},
-				};
-			},
-		} as unknown as Response;
+		const mockRes: Record<string, unknown> = {};
+		mockRes.status = (code: number) => {
+			responseCode = code;
+			return {
+				json: (body: unknown) => {
+					responseBody = body as Record<string, unknown>;
+					return mockRes;
+				},
+			};
+		};
+		const res = mockRes as unknown as Response;
 
 		await controller.onboard(req, res);
 
@@ -236,30 +236,29 @@ describe("RestaurantAuthController Unit Tests", () => {
 		} as unknown as Request;
 
 		let responseCode = 0;
-		let responseBody: { success?: boolean; data?: { status?: string } } | null =
-			null;
+		let responseBody: Record<string, unknown> | null = null;
 
-		const res = {
-			status: (code: number) => {
-				responseCode = code;
-				return {
-					json: (body: unknown) => {
-						responseBody = body as {
-							success?: boolean;
-							data?: { status?: string };
-						};
-						return res;
-					},
-				};
-			},
-		} as unknown as Response;
+		const mockResStatus: Record<string, unknown> = {};
+		mockResStatus.status = (code: number) => {
+			responseCode = code;
+			return {
+				json: (body: unknown) => {
+					responseBody = body as Record<string, unknown>;
+					return mockResStatus;
+				},
+			};
+		};
+		const res = mockResStatus as unknown as Response;
 
 		await controller.getVerificationStatus(req, res);
 
 		assert.equal(capturedId, "rest-status-123");
 		assert.equal(responseCode, 200);
 		assert.equal(responseBody?.success, true);
-		assert.equal(responseBody?.data?.status, "UNDER_REVIEW");
+		assert.equal(
+			(responseBody?.data as Record<string, unknown>)?.status,
+			"UNDER_REVIEW",
+		);
 	});
 });
 
