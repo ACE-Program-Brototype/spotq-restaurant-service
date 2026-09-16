@@ -12,6 +12,7 @@ export const RESTAURANT_ROUTES = {
 	ONBOARD: "/onboard",
 	STAFF_LIST: "/restaurants/:restaurantId/staff",
 	VERIFICATION_STATUS: "/verification-status",
+	VERIFICATION_STATUS_BY_ID: "/:id/verification-status",
 } as const;
 
 export const STAFF_ROUTES = {
