@@ -111,6 +111,7 @@ export function validateRequestParams(schema: ZodType) {
 	): Promise<void> => {
 		try {
 			const parsed = await schema.parseAsync(req.params ?? {});
+			res.locals.params = parsed;
 			req.params = parsed as Record<string, string>;
 			next();
 		} catch (error) {

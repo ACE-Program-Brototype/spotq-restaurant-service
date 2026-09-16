@@ -2,8 +2,12 @@ import { PrismaClient, RestaurantStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const RESTAURANT_ID =
-	process.argv[2] || "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+const RESTAURANT_ID = process.argv[2];
+
+if (!RESTAURANT_ID) {
+	console.error("❌ Usage: pnpm restaurant:approve <restaurant-id>");
+	process.exit(1);
+}
 
 async function main() {
 	console.log(`🔍 Looking for restaurant: ${RESTAURANT_ID}...`);

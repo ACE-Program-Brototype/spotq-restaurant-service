@@ -19,7 +19,20 @@ export class StorageKeyVO {
 			throw new InvalidStorageKeyError(messages.STORAGE_KEY_REQUIRED);
 		}
 
-		if (trimmed.includes("..")) {
+		let decoded = trimmed;
+		let prev = "";
+		let iterations = 0;
+		while (decoded !== prev && iterations < 3) {
+			prev = decoded;
+			try {
+				decoded = decodeURIComponent(decoded);
+			} catch {
+				throw new InvalidStorageKeyError(messages.STORAGE_KEY_INVALID);
+			}
+			iterations++;
+		}
+
+		if (trimmed.includes("..") || decoded.includes("..")) {
 			throw new InvalidStorageKeyError(messages.STORAGE_KEY_INVALID);
 		}
 
