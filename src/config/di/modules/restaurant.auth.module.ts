@@ -5,11 +5,13 @@ import type { IEmailService } from "@/application/ports/services/email-service.p
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import type { IGetRestaurantVerificationStatusUseCase } from "@/application/ports/use-cases/get-verification-status.use-case.port";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port";
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port";
+import { GetRestaurantVerificationStatusUseCase } from "@/application/use-cases/get-verification-status.use-case";
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import { RefreshRestaurantAccessTokenUseCase } from "@/application/use-cases/refresh-restaurant-access-token.use-case";
 import { ResendRestaurantEmailOtpUseCase } from "@/application/use-cases/resend-email-otp.use-case";
@@ -57,6 +59,12 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 
 	bind<IOnboardRestaurantUseCase>(TYPES.UseCases.OnboardRestaurantUseCase)
 		.to(OnboardRestaurantUseCase)
+		.inSingletonScope();
+
+	bind<IGetRestaurantVerificationStatusUseCase>(
+		TYPES.UseCases.GetRestaurantVerificationStatusUseCase,
+	)
+		.to(GetRestaurantVerificationStatusUseCase)
 		.inSingletonScope();
 
 	// Repository

@@ -3,9 +3,10 @@ import { container } from "@/config/di/container";
 import { restaurantAuthController } from "@/config/di/controllers.resolutions";
 import { TYPES } from "@/config/di/types";
 import type { StaffController } from "@/presentation/http/controllers/staff.controller";
+import { restaurantAuthMiddleware } from "@/presentation/http/middleware/restaurant.auth.middleware";
 import { restaurantOwnerAuthMiddleware } from "@/presentation/http/middleware/restaurant-owner.auth.middleware";
 import {
-	validate,
+	validateRequestBody,
 	validateRequestQuery,
 } from "@/presentation/http/middleware/validation.middleware";
 import { listStaffSchema } from "@/presentation/http/validators/staff/list-staff.validator";
@@ -31,19 +32,19 @@ restaurantRouter.get(
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,
-	validate(sendRestaurantEmailOtpSchema),
+	validateRequestBody(sendRestaurantEmailOtpSchema),
 	restaurantAuthController.sendEmailOtp.bind(restaurantAuthController),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.RESEND_EMAIL_OTP,
-	validate(sendRestaurantEmailOtpSchema),
+	validateRequestBody(sendRestaurantEmailOtpSchema),
 	restaurantAuthController.resendEmailOtp.bind(restaurantAuthController),
 );
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.VERIFY_EMAIL,
-	validate(verifyRestaurantEmailOtpSchema),
+	validateRequestBody(verifyRestaurantEmailOtpSchema),
 	restaurantAuthController.verifyEmailOtp.bind(restaurantAuthController),
 );
 
@@ -54,6 +55,20 @@ restaurantRouter.post(
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.ONBOARD,
-	validate(onboardRestaurantSchema),
+	restaurantAuthMiddleware,
+	validateRequestBody(onboardRestaurantSchema),
 	restaurantAuthController.onboard.bind(restaurantAuthController),
 );
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.VERIFICATION_STATUS,
+	restaurantAuthMiddleware,
+	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
+);
+
+restaurantRouter.get(
+	"/:id/verification-status",
+	restaurantAuthMiddleware,
+	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
+);
+

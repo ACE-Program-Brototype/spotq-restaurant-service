@@ -11,6 +11,7 @@ export const RESTAURANT_ROUTES = {
 	REFRESH_ACCESS_TOKEN: "/auth/refresh",
 	ONBOARD: "/onboard",
 	STAFF_LIST: "/restaurants/:restaurantId/staff",
+	VERIFICATION_STATUS: "/verification-status",
 } as const;
 
 export const STAFF_ROUTES = {
