@@ -6,6 +6,7 @@ import {
 	type PrismaClient,
 	RestaurantStatus,
 } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type {
 	CreateRestaurantDto,
@@ -292,5 +293,73 @@ export class RestaurantRepository implements IRestaurantRepository {
 			create: rawData,
 			update: updateData,
 		});
+	}
+
+	async activateSubscription(
+		restaurantId: string,
+		planCode: string,
+		currentPeriodEnd: Date,
+		eventId: string,
+	): Promise<boolean> {
+		try {
+			return await (
+				this.prisma as unknown as {
+					$transaction: (
+						fn: (tx: {
+							restaurant: {
+								update: (args: {
+									where: { id: string };
+									data: Record<string, unknown>;
+								}) => Promise<unknown>;
+							};
+							processedEvent: {
+								findUnique: (args: {
+									where: { id: string };
+								}) => Promise<{ id: string } | null>;
+								create: (args: {
+									data: { id: string; eventType: string };
+								}) => Promise<unknown>;
+							};
+						}) => Promise<boolean>,
+					) => Promise<boolean>;
+				}
+			).$transaction(async (tx) => {
+				const alreadyProcessed = await tx.processedEvent.findUnique({
+					where: { id: eventId },
+				});
+
+				if (alreadyProcessed) {
+					return false;
+				}
+
+				await tx.restaurant.update({
+					where: { id: restaurantId },
+					data: {
+						isSubscriptionActive: true,
+						subscriptionPlanCode: planCode,
+						subscriptionEndsAt: currentPeriodEnd,
+						status: "ACTIVE",
+					},
+				});
+
+				await tx.processedEvent.create({
+					data: {
+						id: eventId,
+						eventType: "subscription.activated",
+					},
+				});
+
+				return true;
+			});
+		} catch (error: unknown) {
+			if (
+				(error instanceof PrismaClientKnownRequestError &&
+					error.code === "P2002") ||
+				(error as { code?: string })?.code === "P2002"
+			) {
+				return false;
+			}
+			throw error;
+		}
 	}
 }

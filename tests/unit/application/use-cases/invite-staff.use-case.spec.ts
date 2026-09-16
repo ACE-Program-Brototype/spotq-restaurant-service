@@ -68,12 +68,15 @@ describe("InviteStaffUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
+			save: jest.fn(),
+			activateSubscription: jest.fn(),
 			completeOnboarding: jest.fn(),
 		};
 
 		emailQueueService = {
 			sendVerificationOtp: jest.fn(),
 			sendStaffInvitation: jest.fn(),
+			sendSubscriptionActivatedEmail: jest.fn(),
 		};
 
 		invitationTokenService = {
