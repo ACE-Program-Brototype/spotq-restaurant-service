@@ -13,7 +13,7 @@ import { APP_ENV, APP_NAME } from "@/shared/constants/app.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import adminRestaurantRouter from "@/presentation/http/routes/admin-restaurant.routes";
-import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
+import { restaurantRouter } from "@presentation/http/routes/restaurant.routes";
 import {
 	ADMIN_ROUTES,
 	STAFF_ROUTES,

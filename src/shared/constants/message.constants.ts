@@ -93,6 +93,8 @@ export const messages = {
 	FULLNAME_INVALID: "Fullname is required and must be at least 2 characters",
 	RESTAUARANT_NAME_REQUIRED:
 		"Restaurant name is required and must be at least 2 characters",
+	RESTAURANT_NAME_REQUIRED:
+		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_NAME_INVALID:
 		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_EMAIL_REQUIRED: "Valid restaurant email is required",
@@ -111,6 +113,13 @@ export const messages = {
 	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
 	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
+	INVALID_RESTAURANT_ID_FORMAT:
+		"Invalid restaurant ID format. Must be a valid UUID",
+	REJECTION_REASON_EMPTY: "Rejection reason cannot be empty",
+	REJECTION_REASON_MAX_LENGTH:
+		"Rejection reason must not exceed 500 characters",
+	INVALID_FROM_DATE_FORMAT: "Invalid fromDate format",
+	INVALID_TO_DATE_FORMAT: "Invalid toDate format",
 	STORAGE_KEY_REQUIRED: "Storage object key is required",
 	STORAGE_KEY_INVALID: "Invalid storage object key specified",
 	BLOCK_REASON_REQUIRED: "Block reason is required",

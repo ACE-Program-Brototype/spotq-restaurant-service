@@ -46,7 +46,7 @@ export class PrismaRestaurantStaffRepository
 	}
 
 	public async findByEmail(email: string): Promise<RestaurantStaff | null> {
-		const raw = await this.dbModel.findUnique({
+		const raw = await this.dbModel.findFirst({
 			where: { email: email.toLowerCase().trim() },
 		});
 

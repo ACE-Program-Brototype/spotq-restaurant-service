@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export const listRestaurantApplicationsSchema = z
 	.object({
@@ -16,7 +17,7 @@ export const listRestaurantApplicationsSchema = z
 			.optional()
 			.transform((val) => (val === "" ? undefined : val))
 			.refine((val) => !val || !Number.isNaN(Date.parse(val)), {
-				message: "Invalid fromDate format",
+				message: messages.INVALID_FROM_DATE_FORMAT,
 			})
 			.transform((val) => (val ? new Date(val) : undefined)),
 		toDate: z
@@ -25,7 +26,7 @@ export const listRestaurantApplicationsSchema = z
 			.optional()
 			.transform((val) => (val === "" ? undefined : val))
 			.refine((val) => !val || !Number.isNaN(Date.parse(val)), {
-				message: "Invalid toDate format",
+				message: messages.INVALID_TO_DATE_FORMAT,
 			})
 			.transform((val) => {
 				if (!val) return undefined;

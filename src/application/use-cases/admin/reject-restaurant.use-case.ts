@@ -6,13 +6,8 @@ import type {
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IRejectRestaurantUseCase } from "@/application/ports/use-cases/admin/reject-restaurant.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
-import {
-	InvalidOnboardingStatusError,
-	RestaurantAlreadyProcessedError,
-	RestaurantNotFoundError,
-} from "@/domain/errors/restaurant.errors.ts";
+import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
-import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class RejectRestaurantUseCase implements IRejectRestaurantUseCase {
@@ -28,16 +23,6 @@ export class RejectRestaurantUseCase implements IRejectRestaurantUseCase {
 
 		if (!restaurant) {
 			throw new RestaurantNotFoundError();
-		}
-
-		if (!restaurant.statusVO.isPending()) {
-			throw new RestaurantAlreadyProcessedError();
-		}
-
-		if (!restaurant.onboardingStatusVO.isCompleted()) {
-			throw new InvalidOnboardingStatusError(
-				messages.CANNOT_REJECT_INCOMPLETE_ONBOARDING,
-			);
 		}
 
 		restaurant.reject(dto.reason);

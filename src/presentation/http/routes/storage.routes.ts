@@ -1,5 +1,6 @@
 import express from "express";
 import { storageController } from "@/config/di/controllers.resolutions";
+import { storageAuthMiddleware } from "@/presentation/http/middleware/storage.auth.middleware";
 import {
 	validate,
 	validateRequestQuery,
@@ -12,12 +13,14 @@ export const storageRouter = express.Router();
 
 storageRouter.post(
 	STORAGE_ROUTES.PRESIGNED_URL,
+	storageAuthMiddleware,
 	validate(generatePresignedUrlSchema),
 	storageController.generatePresignedUrl.bind(storageController),
 );
 
 storageRouter.get(
 	STORAGE_ROUTES.PRESIGNED_URL,
+	storageAuthMiddleware,
 	validateRequestQuery(getPresignedUrlQuerySchema),
 	storageController.getPresignedUrl.bind(storageController),
 );

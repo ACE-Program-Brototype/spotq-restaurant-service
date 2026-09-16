@@ -14,6 +14,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 	let mockPrisma: {
 		restaurantStaff: {
 			findUnique: jest.Mock;
+			findFirst: jest.Mock;
 			findMany: jest.Mock;
 			upsert: jest.Mock;
 			update: jest.Mock;
@@ -56,6 +57,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 		mockPrisma = {
 			restaurantStaff: {
 				findUnique: jest.fn(),
+				findFirst: jest.fn(),
 				findMany: jest.fn(),
 				upsert: jest.fn(),
 				update: jest.fn(),
@@ -90,18 +92,18 @@ describe("PrismaRestaurantStaffRepository", () => {
 
 	describe("findByEmail", () => {
 		it("should find staff by lowercased email", async () => {
-			mockPrisma.restaurantStaff.findUnique.mockResolvedValue(dummyPrismaStaff);
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(dummyPrismaStaff);
 
 			const result = await repository.findByEmail("JOHN@EXAMPLE.COM");
 
-			expect(mockPrisma.restaurantStaff.findUnique).toHaveBeenCalledWith({
+			expect(mockPrisma.restaurantStaff.findFirst).toHaveBeenCalledWith({
 				where: { email: "john@example.com" },
 			});
 			expect(result?.email).toBe("john@example.com");
 		});
 
 		it("should return null if staff with email does not exist", async () => {
-			mockPrisma.restaurantStaff.findUnique.mockResolvedValue(null);
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(null);
 
 			const result = await repository.findByEmail("unknown@example.com");
 
