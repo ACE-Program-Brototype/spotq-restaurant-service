@@ -28,12 +28,6 @@ restaurantRouter.get(
 	staffController.listStaff,
 );
 
-restaurantRouter.get(
-	`/restaurants${RESTAURANT_ROUTES.STAFF_LIST}`,
-	restaurantOwnerAuthMiddleware,
-	validateRequestQuery(listStaffSchema, HTTP_STATUS.BAD_REQUEST),
-	staffController.listStaff,
-);
 
 restaurantRouter.post(
 	RESTAURANT_ROUTES.EMAIL_OTP,

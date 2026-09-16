@@ -3,7 +3,7 @@ import type { PaginationMetadata } from "./list-invitations.dto.ts";
 
 export interface ListStaffMembersDTO {
 	restaurantId: string;
-	ownerEmail: string;
+	ownerEmail?: string;
 	page?: number;
 	limit?: number;
 	status?: StaffStatus;

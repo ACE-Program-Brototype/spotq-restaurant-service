@@ -3,10 +3,7 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import { ListStaffMembersUseCase } from "@/application/use-cases/staff/list-staff-members.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
-import {
-	ForbiddenAccessError,
-	RestaurantNotFoundError,
-} from "@/domain/errors/staff.errors.ts";
+import { RestaurantNotFoundError } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("ListStaffMembersUseCase", () => {
@@ -171,15 +168,18 @@ describe("ListStaffMembersUseCase", () => {
 		).rejects.toThrow(RestaurantNotFoundError);
 	});
 
-	it("should throw ForbiddenAccessError when restaurant belongs to another owner", async () => {
+	it("should return staff list when ownerEmail is omitted", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
+		staffRepository.findManyWithFilters.mockResolvedValue({
+			staff: mockStaffList,
+			total: 2,
+		});
 
-		await expect(
-			useCase.execute({
-				restaurantId: mockRestaurantId,
-				ownerEmail: "other.owner@spotq.com",
-			}),
-		).rejects.toThrow(ForbiddenAccessError);
+		const result = await useCase.execute({
+			restaurantId: mockRestaurantId,
+		});
+
+		expect(result.staff).toHaveLength(2);
 	});
 
 	it("should return empty array and valid pagination when count is 0", async () => {

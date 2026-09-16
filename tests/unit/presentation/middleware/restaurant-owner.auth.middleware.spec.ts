@@ -23,7 +23,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		nextFunction = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
-	it("should return 401 when x-user-id header is missing", () => {
+	it("should return 401 when both x-restaurant-id and x-user-id headers are missing", () => {
 		restaurantOwnerAuthMiddleware(
 			mockRequest as Request,
 			mockResponse as Response,
@@ -43,7 +43,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 
 	it("should return 403 when x-user-role header is missing or not an owner role", () => {
 		mockRequest.headers = {
-			"x-user-id": "user-123",
+			"x-restaurant-id": "rest-123",
 			"x-user-role": "staff",
 		};
 
@@ -64,7 +64,57 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(nextFunction).not.toHaveBeenCalled();
 	});
 
-	it("should pass authentication and set req.user when user has owner role", () => {
+	it("should return 403 when req.params.restaurantId does not match x-restaurant-id", () => {
+		mockRequest.headers = {
+			"x-restaurant-id": "rest-123",
+			"x-user-role": "RESTAURANT_OWNER",
+		};
+		mockRequest.params = {
+			restaurantId: "rest-999",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockRequest as Request,
+			mockResponse as Response,
+			nextFunction,
+		);
+
+		expect(mockResponse.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(mockResponse.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				message: messages.YOU_DO_NOT_HAVE_PERMISSION,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+			}),
+		);
+		expect(nextFunction).not.toHaveBeenCalled();
+	});
+
+	it("should pass authentication with x-restaurant-id and x-user-role without x-user-id", () => {
+		mockRequest.headers = {
+			"x-restaurant-id": "rest-123",
+			"x-user-role": "RESTAURANT_OWNER",
+		};
+		mockRequest.params = {
+			restaurantId: "rest-123",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockRequest as Request,
+			mockResponse as Response,
+			nextFunction,
+		);
+
+		expect(nextFunction).toHaveBeenCalled();
+		expect(mockRequest.user).toEqual({
+			userId: "rest-123",
+			role: "RESTAURANT_OWNER",
+			email: "",
+			restaurantId: "rest-123",
+		});
+	});
+
+	it("should pass authentication and set req.user when user has owner role and x-user-id", () => {
 		mockRequest.headers = {
 			"x-user-id": "owner-123",
 			"x-user-role": "RESTAURANT_OWNER",

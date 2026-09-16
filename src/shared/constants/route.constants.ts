@@ -10,7 +10,7 @@ export const RESTAURANT_ROUTES = {
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
 	REFRESH_ACCESS_TOKEN: "/auth/refresh",
 	ONBOARD: "/onboard",
-	STAFF_LIST: "/:restaurantId/staff",
+	STAFF_LIST: "/restaurants/:restaurantId/staff",
 } as const;
 
 export const STAFF_ROUTES = {

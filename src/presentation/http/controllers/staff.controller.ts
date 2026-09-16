@@ -395,13 +395,10 @@ export class StaffController {
 
 	public listStaff = async (req: Request, res: Response): Promise<void> => {
 		const authReq = req as AuthenticatedOwnerRequest;
-		const rawOwnerEmail =
-			authReq.user?.email || (req.headers["x-user-email"] as string) || "";
-		const ownerEmail =
-			(Array.isArray(rawOwnerEmail) ? rawOwnerEmail[0] : rawOwnerEmail)?.trim() || "";
 		const rawRestaurantId =
 			req.params.restaurantId ||
 			(req.headers["x-restaurant-id"] as string) ||
+			authReq.user?.restaurantId ||
 			"";
 		const restaurantId =
 			(Array.isArray(rawRestaurantId) ? rawRestaurantId[0] : rawRestaurantId)?.trim() || "";
@@ -409,6 +406,11 @@ export class StaffController {
 		if (!restaurantId) {
 			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
 		}
+
+		const rawOwnerEmail =
+			authReq.user?.email || (req.headers["x-user-email"] as string) || "";
+		const ownerEmail =
+			(Array.isArray(rawOwnerEmail) ? rawOwnerEmail[0] : rawOwnerEmail)?.trim() || undefined;
 
 		const query = (res?.locals?.query ??
 			req.query) as unknown as ListStaffQuery;

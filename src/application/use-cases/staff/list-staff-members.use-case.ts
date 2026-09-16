@@ -8,10 +8,7 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import type { IListStaffMembersUseCase } from "@/application/ports/use-cases/list-staff-members.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
-import {
-	ForbiddenAccessError,
-	RestaurantNotFoundError,
-} from "@/domain/errors/staff.errors.ts";
+import { RestaurantNotFoundError } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -36,13 +33,6 @@ export class ListStaffMembersUseCase implements IListStaffMembersUseCase {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
-		if (
-			dto.ownerEmail &&
-			restaurant.ownerEmail.toLowerCase() !==
-				dto.ownerEmail.toLowerCase().trim()
-		) {
-			throw new ForbiddenAccessError(messages.YOU_DO_NOT_HAVE_PERMISSION);
-		}
 
 		const page = dto.page && dto.page > 0 ? dto.page : DEFAULT_PAGE;
 		const limit =

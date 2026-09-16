@@ -9,13 +9,13 @@ export interface AuthenticatedOwnerRequest extends Request {
 	userId?: string;
 }
 
-function getHeaderValue(
-	header: string | string[] | undefined,
+function getStringValue(
+	value: string | string[] | undefined,
 ): string | undefined {
-	if (Array.isArray(header)) {
-		return header[0];
+	if (Array.isArray(value)) {
+		return value[0];
 	}
-	return header;
+	return value;
 }
 
 const ALLOWED_OWNER_ROLES = ["restaurant_owner", "owner"];
@@ -25,9 +25,11 @@ export function restaurantOwnerAuthMiddleware(
 	res: Response,
 	next: NextFunction,
 ): void {
-	const userId = getHeaderValue(req.headers["x-user-id"]);
+	const headerRestaurantId = getStringValue(req.headers["x-restaurant-id"]);
+	const headerUserId = getStringValue(req.headers["x-user-id"]);
+	const restaurantId = headerRestaurantId || headerUserId;
 
-	if (!userId) {
+	if (!restaurantId) {
 		res
 			.status(HTTP_STATUS.UNAUTHORIZED)
 			.json(
@@ -40,7 +42,7 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	const role = getHeaderValue(req.headers["x-user-role"]);
+	const role = getStringValue(req.headers["x-user-role"]);
 	const normalizedRole = role?.toLowerCase().trim();
 
 	if (!normalizedRole || !ALLOWED_OWNER_ROLES.includes(normalizedRole)) {
@@ -56,13 +58,27 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	const email = getHeaderValue(req.headers["x-user-email"]);
-	const restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
+	const paramRestaurantId = getStringValue(req.params?.restaurantId)?.trim();
+	if (paramRestaurantId && paramRestaurantId !== restaurantId.trim()) {
+		res
+			.status(HTTP_STATUS.FORBIDDEN)
+			.json(
+				ApiResponse.error(
+					messages.YOU_DO_NOT_HAVE_PERMISSION,
+					"FORBIDDEN",
+					HTTP_STATUS.FORBIDDEN,
+				),
+			);
+		return;
+	}
+
+	const userId = headerUserId || restaurantId;
+	const email = getStringValue(req.headers["x-user-email"]) || "";
 
 	req.user = {
 		userId,
-		restaurantId: restaurantId || "",
-		email: email || "",
+		restaurantId,
+		email,
 		role: role || "RESTAURANT_OWNER",
 	};
 	req.userId = userId;
