@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -20,11 +21,34 @@ export function restaurantAuthMiddleware(
 	res: Response,
 	next: NextFunction,
 ): void {
-	const restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
-	const userId = getHeaderValue(req.headers["x-user-id"]);
+	const headerRestaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
+	const headerUserId = getHeaderValue(req.headers["x-user-id"]);
 	const paramId = req.params?.id || req.params?.restaurantId;
 
-	const resolvedId = restaurantId || userId || paramId;
+	let resolvedId = headerRestaurantId || headerUserId || paramId;
+	let email = getHeaderValue(req.headers["x-user-email"]);
+	let role = getHeaderValue(req.headers["x-user-role"]);
+
+	if (!resolvedId && req.headers.authorization) {
+		const authHeader = getHeaderValue(req.headers.authorization);
+		if (authHeader?.startsWith("Bearer ")) {
+			const token = authHeader.substring(7).trim();
+			try {
+				const decoded = jwt.decode(token) as {
+					restaurantId?: string;
+					email?: string;
+					role?: string;
+				} | null;
+				if (decoded?.restaurantId) {
+					resolvedId = decoded.restaurantId;
+					if (!email && decoded.email) email = decoded.email;
+					if (!role && decoded.role) role = decoded.role;
+				}
+			} catch {
+				// Ignore decode error; check below will handle unauthorized
+			}
+		}
+	}
 
 	if (!resolvedId) {
 		res
@@ -39,15 +63,13 @@ export function restaurantAuthMiddleware(
 		return;
 	}
 
-	const role = getHeaderValue(req.headers["x-user-role"]);
-	const email = getHeaderValue(req.headers["x-user-email"]);
-
 	req.user = {
 		restaurantId: resolvedId,
-		userId: userId || "",
+		userId: headerUserId || resolvedId,
 		email: email || "",
 		role: role || "RESTAURANT",
 	};
+	req.userId = resolvedId;
 
 	next();
 }
