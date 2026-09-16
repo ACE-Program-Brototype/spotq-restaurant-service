@@ -66,7 +66,7 @@ describe("RestaurantStaffManagementController", () => {
 			);
 		});
 
-		it("should return 403 Forbidden when param restaurantId does not match authenticated owner restaurantId or userId", async () => {
+		it("should return 403 Forbidden when param restaurantId does not match authenticated owner restaurantId", async () => {
 			const req = {
 				user: {
 					userId: "res_01ABC",
@@ -75,6 +75,33 @@ describe("RestaurantStaffManagementController", () => {
 				userId: "res_01ABC",
 				params: {
 					restaurantId: "res_OTHER",
+					staffId: "stf_02AB",
+				},
+			};
+
+			await controller.getStaffDetail(req as never, res as Response);
+
+			expect(getStaffDetailUseCase.execute).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(403);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: false,
+					statusCode: 403,
+					code: "FORBIDDEN",
+					message: "Forbidden: Access to requested restaurant is denied",
+				}),
+			);
+		});
+
+		it("should return 403 Forbidden and not fall back to userId when owner restaurantId is missing or empty", async () => {
+			const req = {
+				user: {
+					userId: "matching_id",
+					restaurantId: "",
+				},
+				userId: "matching_id",
+				params: {
+					restaurantId: "matching_id",
 					staffId: "stf_02AB",
 				},
 			};

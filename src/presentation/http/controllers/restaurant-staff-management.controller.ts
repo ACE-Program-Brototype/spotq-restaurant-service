@@ -22,11 +22,10 @@ export class RestaurantStaffManagementController {
 		res: Response,
 	): Promise<void> => {
 		const authReq = req as AuthenticatedOwnerRequest;
-		const ownerRestaurantId =
-			authReq.user?.restaurantId || authReq.user?.userId;
+		const ownerRestaurantId = authReq.user?.restaurantId;
 		const { restaurantId, staffId } = req.params;
 
-		if (restaurantId !== ownerRestaurantId) {
+		if (!ownerRestaurantId || restaurantId !== ownerRestaurantId) {
 			res
 				.status(HTTP_STATUS.FORBIDDEN)
 				.json(
