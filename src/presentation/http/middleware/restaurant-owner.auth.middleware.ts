@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -34,43 +33,13 @@ export function restaurantOwnerAuthMiddleware(
 ): void {
 	const headerRestaurantId = getStringValue(req.headers["x-restaurant-id"]);
 	const headerUserId = getStringValue(req.headers["x-user-id"]);
-	const paramId = getStringValue(req.params?.restaurantId || req.params?.id);
+	const paramRestaurantId = getStringValue(
+		req.params?.restaurantId || req.params?.id,
+	)?.trim();
 
-	let resolvedId = headerRestaurantId;
-	let email = getStringValue(req.headers["x-user-email"]);
-	let role = getStringValue(req.headers["x-user-role"]);
-
-	if (!resolvedId && req.headers.authorization) {
-		const authHeader = getStringValue(req.headers.authorization);
-		if (authHeader?.startsWith("Bearer ")) {
-			const token = authHeader.substring(7).trim();
-			try {
-				const decoded = jwt.decode(token) as {
-					restaurantId?: string;
-					email?: string;
-					role?: string;
-					sub?: string;
-					id?: string;
-				} | null;
-				const tokenId = decoded?.restaurantId || decoded?.sub || decoded?.id;
-				if (tokenId) {
-					resolvedId = tokenId;
-					if (!email && decoded.email) email = decoded.email;
-					if (!role && decoded.role) role = decoded.role;
-				}
-			} catch {
-				// Ignore decode error; missing resolvedId check below handles unauthorized
-			}
-		}
-	}
-
-	if (!resolvedId) {
-		resolvedId = headerUserId;
-	}
-
-	if (!resolvedId) {
-		resolvedId = paramId;
-	}
+	const resolvedId = headerRestaurantId || headerUserId;
+	const email = getStringValue(req.headers["x-user-email"]);
+	const role = getStringValue(req.headers["x-user-role"]);
 
 	if (!resolvedId) {
 		res
@@ -99,7 +68,7 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	if (paramId && paramId.trim() !== resolvedId.trim()) {
+	if (paramRestaurantId && paramRestaurantId !== resolvedId.trim()) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(

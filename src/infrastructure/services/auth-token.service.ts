@@ -10,7 +10,12 @@ import { env } from "@/config/env";
 @injectable()
 export class AuthTokenService implements IAuthTokenService {
 	generateAccessToken(payload: AuthTokenPayload): string {
-		return jwt.sign(payload, env.JWT_ACCESS_PRIVATE_KEY, {
+		const tokenPayload = {
+			sub: payload.sub || payload.restaurantId,
+			role: payload.role || "RESTAURANT_OWNER",
+			...payload,
+		};
+		return jwt.sign(tokenPayload, env.JWT_ACCESS_PRIVATE_KEY, {
 			expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions["expiresIn"],
 			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
 			keyid: env.JWT_ACCESS_TOKEN_KEY_ID,
@@ -18,7 +23,12 @@ export class AuthTokenService implements IAuthTokenService {
 	}
 
 	generateRefreshToken(payload: AuthTokenPayload): string {
-		return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
+		const tokenPayload = {
+			sub: payload.sub || payload.restaurantId,
+			role: payload.role || "RESTAURANT_OWNER",
+			...payload,
+		};
+		return jwt.sign(tokenPayload, env.JWT_REFRESH_SECRET, {
 			expiresIn: env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions["expiresIn"],
 		});
 	}

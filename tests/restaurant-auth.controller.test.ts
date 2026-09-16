@@ -27,16 +27,24 @@ describe("AuthTokenService & JWT Generation", () => {
 		const decodedAccess = jwt.decode(tokens.accessToken) as {
 			restaurantId: string;
 			email: string;
+			sub: string;
+			role: string;
 		};
 		assert.equal(decodedAccess.restaurantId, payload.restaurantId);
 		assert.equal(decodedAccess.email, payload.email);
+		assert.equal(decodedAccess.sub, payload.restaurantId);
+		assert.equal(decodedAccess.role, "RESTAURANT_OWNER");
 
 		const decodedRefresh = jwt.decode(tokens.refreshToken) as {
 			restaurantId: string;
 			email: string;
+			sub: string;
+			role: string;
 		};
 		assert.equal(decodedRefresh.restaurantId, payload.restaurantId);
 		assert.equal(decodedRefresh.email, payload.email);
+		assert.equal(decodedRefresh.sub, payload.restaurantId);
+		assert.equal(decodedRefresh.role, "RESTAURANT_OWNER");
 	});
 });
 

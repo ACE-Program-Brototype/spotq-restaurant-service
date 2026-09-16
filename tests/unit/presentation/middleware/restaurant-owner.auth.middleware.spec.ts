@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 import {
 	type AuthenticatedOwnerRequest,
 	restaurantOwnerAuthMiddleware,
@@ -138,16 +137,9 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		});
 	});
 
-	it("should pass authentication when valid JWT bearer token with restaurantId is provided in Authorization header", () => {
-		const token = jwt.sign(
-			{ restaurantId: "rest-123", role: "restaurant" },
-			"dummy-secret",
-		);
+	it("should return 401 when Authorization header is present but gateway identity headers are missing", () => {
 		mockRequest.headers = {
-			authorization: `Bearer ${token}`,
-		};
-		mockRequest.params = {
-			restaurantId: "rest-123",
+			authorization: "Bearer some-token",
 		};
 
 		restaurantOwnerAuthMiddleware(
@@ -156,22 +148,21 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			nextFunction,
 		);
 
-		expect(nextFunction).toHaveBeenCalled();
-		expect(mockRequest.user).toEqual({
-			userId: "rest-123",
-			role: "restaurant",
-			email: "",
-			restaurantId: "rest-123",
-		});
+		expect(mockResponse.status).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
+		expect(mockResponse.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				message: messages.GATEWAY_UNAUTHORIZED,
+				statusCode: HTTP_STATUS.UNAUTHORIZED,
+			}),
+		);
+		expect(nextFunction).not.toHaveBeenCalled();
 	});
 
-	it("should return 403 when JWT bearer token restaurantId does not match req.params.restaurantId", () => {
-		const token = jwt.sign(
-			{ restaurantId: "rest-123", role: "restaurant" },
-			"dummy-secret",
-		);
+	it("should return 403 when req.params.restaurantId does not match x-user-id fallback", () => {
 		mockRequest.headers = {
-			authorization: `Bearer ${token}`,
+			"x-user-id": "rest-123",
+			"x-user-role": "restaurant",
 		};
 		mockRequest.params = {
 			restaurantId: "rest-999",

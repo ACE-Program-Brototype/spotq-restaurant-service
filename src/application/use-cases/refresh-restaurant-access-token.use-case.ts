@@ -25,7 +25,12 @@ export class RefreshRestaurantAccessTokenUseCase
 			throw new InvalidRefreshTokenError();
 		}
 
-		let payload: { restaurantId: string; email: string };
+		let payload: {
+			restaurantId: string;
+			email: string;
+			sub?: string;
+			role?: string;
+		};
 
 		try {
 			payload = this.authTokenService.verifyRefreshToken(refreshToken);
@@ -35,6 +40,8 @@ export class RefreshRestaurantAccessTokenUseCase
 
 		return {
 			accessToken: this.authTokenService.generateAccessToken({
+				sub: payload.sub || payload.restaurantId,
+				role: payload.role || "RESTAURANT_OWNER",
 				restaurantId: payload.restaurantId,
 				email: payload.email,
 			}),
