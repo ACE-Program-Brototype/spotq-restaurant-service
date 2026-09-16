@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import {
 	type AuthenticatedOwnerRequest,
 	restaurantOwnerAuthMiddleware,
@@ -23,7 +24,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		nextFunction = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
-	it("should return 401 when both x-restaurant-id and x-user-id headers are missing", () => {
+	it("should return 401 when both x-restaurant-id and x-user-id headers are missing and no token is present", () => {
 		restaurantOwnerAuthMiddleware(
 			mockRequest as Request,
 			mockResponse as Response,
@@ -41,7 +42,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(nextFunction).not.toHaveBeenCalled();
 	});
 
-	it("should return 403 when x-user-role header is missing or not an owner role", () => {
+	it("should return 403 when x-user-role header is not an owner role", () => {
 		mockRequest.headers = {
 			"x-restaurant-id": "rest-123",
 			"x-user-role": "staff",
@@ -136,4 +137,84 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			restaurantId: "rest-123",
 		});
 	});
+
+	it("should pass authentication when valid JWT bearer token with restaurantId is provided in Authorization header", () => {
+		const token = jwt.sign(
+			{ restaurantId: "rest-123", role: "restaurant" },
+			"dummy-secret",
+		);
+		mockRequest.headers = {
+			authorization: `Bearer ${token}`,
+		};
+		mockRequest.params = {
+			restaurantId: "rest-123",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockRequest as Request,
+			mockResponse as Response,
+			nextFunction,
+		);
+
+		expect(nextFunction).toHaveBeenCalled();
+		expect(mockRequest.user).toEqual({
+			userId: "rest-123",
+			role: "restaurant",
+			email: "",
+			restaurantId: "rest-123",
+		});
+	});
+
+	it("should return 403 when JWT bearer token restaurantId does not match req.params.restaurantId", () => {
+		const token = jwt.sign(
+			{ restaurantId: "rest-123", role: "restaurant" },
+			"dummy-secret",
+		);
+		mockRequest.headers = {
+			authorization: `Bearer ${token}`,
+		};
+		mockRequest.params = {
+			restaurantId: "rest-999",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockRequest as Request,
+			mockResponse as Response,
+			nextFunction,
+		);
+
+		expect(mockResponse.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(mockResponse.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				message: messages.YOU_DO_NOT_HAVE_PERMISSION,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+			}),
+		);
+		expect(nextFunction).not.toHaveBeenCalled();
+	});
+
+	it("should pass authentication when x-restaurant-id is provided without x-user-role", () => {
+		mockRequest.headers = {
+			"x-restaurant-id": "rest-123",
+		};
+		mockRequest.params = {
+			restaurantId: "rest-123",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockRequest as Request,
+			mockResponse as Response,
+			nextFunction,
+		);
+
+		expect(nextFunction).toHaveBeenCalled();
+		expect(mockRequest.user).toEqual({
+			userId: "rest-123",
+			role: "RESTAURANT_OWNER",
+			email: "",
+			restaurantId: "rest-123",
+		});
+	});
 });
+

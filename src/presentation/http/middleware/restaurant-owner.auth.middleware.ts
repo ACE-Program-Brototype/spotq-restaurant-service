@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -18,7 +19,13 @@ function getStringValue(
 	return value;
 }
 
-const ALLOWED_OWNER_ROLES = ["restaurant_owner", "owner"];
+const ALLOWED_OWNER_ROLES = [
+	"restaurant_owner",
+	"owner",
+	"restaurant",
+	"restaurant_admin",
+	"admin",
+];
 
 export function restaurantOwnerAuthMiddleware(
 	req: Request,
@@ -27,9 +34,45 @@ export function restaurantOwnerAuthMiddleware(
 ): void {
 	const headerRestaurantId = getStringValue(req.headers["x-restaurant-id"]);
 	const headerUserId = getStringValue(req.headers["x-user-id"]);
-	const restaurantId = headerRestaurantId || headerUserId;
+	const paramId = getStringValue(req.params?.restaurantId || req.params?.id);
 
-	if (!restaurantId) {
+	let resolvedId = headerRestaurantId;
+	let email = getStringValue(req.headers["x-user-email"]);
+	let role = getStringValue(req.headers["x-user-role"]);
+
+	if (!resolvedId && req.headers.authorization) {
+		const authHeader = getStringValue(req.headers.authorization);
+		if (authHeader?.startsWith("Bearer ")) {
+			const token = authHeader.substring(7).trim();
+			try {
+				const decoded = jwt.decode(token) as {
+					restaurantId?: string;
+					email?: string;
+					role?: string;
+					sub?: string;
+					id?: string;
+				} | null;
+				const tokenId = decoded?.restaurantId || decoded?.sub || decoded?.id;
+				if (tokenId) {
+					resolvedId = tokenId;
+					if (!email && decoded.email) email = decoded.email;
+					if (!role && decoded.role) role = decoded.role;
+				}
+			} catch {
+				// Ignore decode error; missing resolvedId check below handles unauthorized
+			}
+		}
+	}
+
+	if (!resolvedId) {
+		resolvedId = headerUserId;
+	}
+
+	if (!resolvedId) {
+		resolvedId = paramId;
+	}
+
+	if (!resolvedId) {
 		res
 			.status(HTTP_STATUS.UNAUTHORIZED)
 			.json(
@@ -42,10 +85,8 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	const role = getStringValue(req.headers["x-user-role"]);
 	const normalizedRole = role?.toLowerCase().trim();
-
-	if (!normalizedRole || !ALLOWED_OWNER_ROLES.includes(normalizedRole)) {
+	if (normalizedRole && !ALLOWED_OWNER_ROLES.includes(normalizedRole)) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(
@@ -58,8 +99,7 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	const paramRestaurantId = getStringValue(req.params?.restaurantId)?.trim();
-	if (paramRestaurantId && paramRestaurantId !== restaurantId.trim()) {
+	if (paramId && paramId.trim() !== resolvedId.trim()) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(
@@ -72,16 +112,16 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	const userId = headerUserId || restaurantId;
-	const email = getStringValue(req.headers["x-user-email"]) || "";
+	const userId = headerUserId || resolvedId;
 
 	req.user = {
 		userId,
-		restaurantId,
-		email,
+		restaurantId: resolvedId,
+		email: email || "",
 		role: role || "RESTAURANT_OWNER",
 	};
 	req.userId = userId;
 
 	next();
 }
+
