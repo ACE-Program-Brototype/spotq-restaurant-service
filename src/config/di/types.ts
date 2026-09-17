@@ -34,7 +34,9 @@ export const TYPES = {
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
 	ListStaffMembersUseCase: Symbol.for("ListStaffMembersUseCase"),
 	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
+	UpdateStaffInfoUseCase: Symbol.for("UpdateStaffInfoUseCase"),
 	UpdateStaffProfileUseCase: Symbol.for("UpdateStaffProfileUseCase"),
+	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
 
 	// Subscription & Restaurant Use Cases
 	GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
@@ -43,9 +45,6 @@ export const TYPES = {
 	// Staff Controllers & Services
 	StaffController: Symbol.for("StaffController"),
 	RestaurantStatusController: Symbol.for("RestaurantStatusController"),
-	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
-
-	// Staff Controllers & Services
 	RestaurantStaffManagementController: Symbol.for(
 		"RestaurantStaffManagementController",
 	),

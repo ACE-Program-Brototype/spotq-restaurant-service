@@ -140,7 +140,8 @@ export class RestaurantAuthController {
 		const restaurantId =
 			(req.headers?.["x-restaurant-id"] as string | undefined) ||
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
-			(req as Request & { user?: { restaurantId?: string } }).user?.restaurantId ||
+			(req as Request & { user?: { restaurantId?: string } }).user
+				?.restaurantId ||
 			req.userId;
 
 		if (!restaurantId) {

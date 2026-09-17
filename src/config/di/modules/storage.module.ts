@@ -17,15 +17,11 @@ export const storageModule = new ContainerModule(({ bind }) => {
 		.inSingletonScope();
 
 	// Use Cases
-	bind<IGeneratePresignedUrlUseCase>(
-		TYPES.UseCases.GeneratePresignedUrlUseCase,
-	)
+	bind<IGeneratePresignedUrlUseCase>(TYPES.UseCases.GeneratePresignedUrlUseCase)
 		.to(GeneratePresignedUrlUseCase)
 		.inSingletonScope();
 
-	bind<IGetPresignedUrlUseCase>(
-		TYPES.UseCases.GetPresignedUrlUseCase,
-	)
+	bind<IGetPresignedUrlUseCase>(TYPES.UseCases.GetPresignedUrlUseCase)
 		.to(GetPresignedUrlUseCase)
 		.inSingletonScope();
 

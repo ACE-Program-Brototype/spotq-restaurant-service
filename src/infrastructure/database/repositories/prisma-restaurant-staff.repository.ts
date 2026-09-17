@@ -42,15 +42,13 @@ export class PrismaRestaurantStaffRepository
 		const code = (error as { code?: string })?.code;
 		if (
 			code === "P2002" ||
-			(error instanceof PrismaClientKnownRequestError &&
-				error.code === "P2002")
+			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
 		) {
 			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 		}
 		if (
 			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError &&
-				error.code === "P2025")
+			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
 		) {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
@@ -158,5 +156,26 @@ export class PrismaRestaurantStaffRepository
 		}
 
 		return this.mapper.toDomain(raw);
+	}
+
+	public async updateStaffInfo(
+		id: string,
+		data: { fullname?: string; phone?: string },
+	): Promise<RestaurantStaff> {
+		const updateData: {
+			fullname?: string;
+			phone?: string;
+			updatedAt?: Date;
+		} = {};
+
+		if (data.fullname !== undefined) {
+			updateData.fullname = data.fullname;
+		}
+		if (data.phone !== undefined) {
+			updateData.phone = data.phone;
+		}
+		updateData.updatedAt = new Date();
+
+		return this.update(id, updateData);
 	}
 }

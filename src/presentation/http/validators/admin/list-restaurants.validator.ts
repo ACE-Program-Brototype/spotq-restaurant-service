@@ -49,10 +49,7 @@ export const PRISMA_SORT_MAP: Record<
 
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
-export function parseDateFilter(
-	val: unknown,
-	endOfDay = false,
-): unknown {
+export function parseDateFilter(val: unknown, endOfDay = false): unknown {
 	if (val === undefined || val === null || val === "") return undefined;
 	if (val instanceof Date) return val;
 
@@ -174,4 +171,3 @@ export const listRestaurantsQuerySchema = z
 	});
 
 export type ListRestaurantsQuery = z.infer<typeof listRestaurantsQuerySchema>;
-

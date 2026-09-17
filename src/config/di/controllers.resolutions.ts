@@ -38,4 +38,3 @@ export const adminRestaurantController =
 	container.get<AdminRestaurantController>(
 		TYPES.Controller.AdminRestaurantController,
 	);
-

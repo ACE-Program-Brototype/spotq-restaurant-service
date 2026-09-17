@@ -21,11 +21,7 @@ describe("storageAuthMiddleware", () => {
 	it("should return 401 when both x-user-id and x-user-role headers are missing", () => {
 		mockReq.headers = {};
 
-		storageAuthMiddleware(
-			mockReq as Request,
-			mockRes as Response,
-			mockNext,
-		);
+		storageAuthMiddleware(mockReq as Request, mockRes as Response, mockNext);
 
 		expect(mockRes.status).toHaveBeenCalledWith(401);
 		expect(mockRes.json).toHaveBeenCalledWith(
@@ -47,11 +43,7 @@ describe("storageAuthMiddleware", () => {
 			"x-restaurant-id": "res-123",
 		};
 
-		storageAuthMiddleware(
-			mockReq as Request,
-			mockRes as Response,
-			mockNext,
-		);
+		storageAuthMiddleware(mockReq as Request, mockRes as Response, mockNext);
 
 		expect(mockReq.userId).toBe("user-uuid-1");
 		expect(mockReq.user).toEqual({
@@ -68,11 +60,7 @@ describe("storageAuthMiddleware", () => {
 			"x-user-role": "admin",
 		};
 
-		storageAuthMiddleware(
-			mockReq as Request,
-			mockRes as Response,
-			mockNext,
-		);
+		storageAuthMiddleware(mockReq as Request, mockRes as Response, mockNext);
 
 		expect(mockNext).toHaveBeenCalledTimes(1);
 	});

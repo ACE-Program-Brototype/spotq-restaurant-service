@@ -64,11 +64,10 @@ export class ResendStaffInvitationUseCase
 			throw new RestaurantInactiveError(messages.RESTAURANT_INACTIVE);
 		}
 
-		const existingStaff =
-			await this.staffRepository.findByEmailAndRestaurantId(
-				emailVO.value,
-				dto.restaurantId,
-			);
+		const existingStaff = await this.staffRepository.findByEmailAndRestaurantId(
+			emailVO.value,
+			dto.restaurantId,
+		);
 		if (existingStaff) {
 			throw new StaffAlreadyExistsError();
 		}

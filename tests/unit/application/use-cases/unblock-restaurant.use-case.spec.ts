@@ -50,7 +50,11 @@ describe("UnblockRestaurantUseCase", () => {
 	});
 
 	it("should unblock a blocked restaurant successfully", async () => {
-		const blockedRestaurant = createMockRestaurant(true, "SUSPENDED", "COMPLETED");
+		const blockedRestaurant = createMockRestaurant(
+			true,
+			"SUSPENDED",
+			"COMPLETED",
+		);
 		restaurantRepository.findById.mockResolvedValue(blockedRestaurant);
 		restaurantRepository.update.mockResolvedValue(blockedRestaurant);
 
@@ -91,7 +95,11 @@ describe("UnblockRestaurantUseCase", () => {
 	});
 
 	it("should throw InvalidRestaurantStatusError when restaurant status is PENDING", async () => {
-		const pendingRestaurant = createMockRestaurant(true, "PENDING", "COMPLETED");
+		const pendingRestaurant = createMockRestaurant(
+			true,
+			"PENDING",
+			"COMPLETED",
+		);
 		restaurantRepository.findById.mockResolvedValue(pendingRestaurant);
 
 		await expect(
@@ -105,7 +113,11 @@ describe("UnblockRestaurantUseCase", () => {
 	});
 
 	it("should throw InvalidOnboardingStatusError when restaurant onboarding is not COMPLETED", async () => {
-		const incompleteRestaurant = createMockRestaurant(true, "SUSPENDED", "PENDING");
+		const incompleteRestaurant = createMockRestaurant(
+			true,
+			"SUSPENDED",
+			"PENDING",
+		);
 		restaurantRepository.findById.mockResolvedValue(incompleteRestaurant);
 
 		await expect(
