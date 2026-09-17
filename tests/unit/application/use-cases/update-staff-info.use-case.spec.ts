@@ -29,18 +29,20 @@ describe("UpdateStaffInfoUseCase", () => {
 		status: "ACTIVE",
 	});
 
-	const mockStaff = RestaurantStaff.create({
-		id: mockStaffId,
-		restaurantId: mockRestaurantId,
-		fullname: "Old Staff Name",
-		email: "staff@spicegarden.com",
-		phone: "+919876543210",
-		passwordHash: "hashed_password",
-		role: "STAFF",
-		status: "ACTIVE",
-	});
+	let mockStaff: RestaurantStaff;
 
 	beforeEach(() => {
+		mockStaff = RestaurantStaff.create({
+			id: mockStaffId,
+			restaurantId: mockRestaurantId,
+			fullname: "Old Staff Name",
+			email: "staff@spicegarden.com",
+			phone: "+919876543210",
+			passwordHash: "hashed_password",
+			role: "STAFF",
+			status: "ACTIVE",
+		});
+
 		staffRepository = {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
@@ -68,19 +70,7 @@ describe("UpdateStaffInfoUseCase", () => {
 	it("should update staff name successfully", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(mockStaff);
-
-		const updatedStaff = RestaurantStaff.reconstitute({
-			id: mockStaffId,
-			restaurantId: mockRestaurantId,
-			fullname: "Ravi Kumar",
-			email: mockStaff.email,
-			phone: mockStaff.phone,
-			avatarUrl: null,
-			role: "STAFF",
-			status: "ACTIVE",
-			updatedAt: new Date(),
-		});
-		staffRepository.updateStaffInfo.mockResolvedValue(updatedStaff);
+		staffRepository.save.mockResolvedValue();
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
@@ -100,28 +90,14 @@ describe("UpdateStaffInfoUseCase", () => {
 			created_at: expect.any(String),
 			updated_at: expect.any(String),
 		});
-		expect(staffRepository.updateStaffInfo).toHaveBeenCalledWith(mockStaffId, {
-			fullname: "Ravi Kumar",
-			phone: undefined,
-		});
+		expect(staffRepository.save).toHaveBeenCalledWith(mockStaff);
+		expect(mockStaff.fullname).toBe("Ravi Kumar");
 	});
 
 	it("should update staff phone with normalization successfully", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(mockStaff);
-
-		const updatedStaff = RestaurantStaff.reconstitute({
-			id: mockStaffId,
-			restaurantId: mockRestaurantId,
-			fullname: mockStaff.fullname,
-			email: mockStaff.email,
-			phone: "+919988776655",
-			avatarUrl: null,
-			role: "STAFF",
-			status: "ACTIVE",
-			updatedAt: new Date(),
-		});
-		staffRepository.updateStaffInfo.mockResolvedValue(updatedStaff);
+		staffRepository.save.mockResolvedValue();
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
@@ -130,28 +106,14 @@ describe("UpdateStaffInfoUseCase", () => {
 		});
 
 		expect(result.phone).toBe("+919988776655");
-		expect(staffRepository.updateStaffInfo).toHaveBeenCalledWith(mockStaffId, {
-			fullname: undefined,
-			phone: "+919988776655",
-		});
+		expect(staffRepository.save).toHaveBeenCalledWith(mockStaff);
+		expect(mockStaff.phone).toBe("+919988776655");
 	});
 
 	it("should update both name and phone successfully", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(mockStaff);
-
-		const updatedStaff = RestaurantStaff.reconstitute({
-			id: mockStaffId,
-			restaurantId: mockRestaurantId,
-			fullname: "Ravi Kumar",
-			email: mockStaff.email,
-			phone: "+919876543210",
-			avatarUrl: null,
-			role: "STAFF",
-			status: "ACTIVE",
-			updatedAt: new Date(),
-		});
-		staffRepository.updateStaffInfo.mockResolvedValue(updatedStaff);
+		staffRepository.save.mockResolvedValue();
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
@@ -162,10 +124,9 @@ describe("UpdateStaffInfoUseCase", () => {
 
 		expect(result.fullname).toBe("Ravi Kumar");
 		expect(result.phone).toBe("+919876543210");
-		expect(staffRepository.updateStaffInfo).toHaveBeenCalledWith(mockStaffId, {
-			fullname: "Ravi Kumar",
-			phone: "+919876543210",
-		});
+		expect(staffRepository.save).toHaveBeenCalledWith(mockStaff);
+		expect(mockStaff.fullname).toBe("Ravi Kumar");
+		expect(mockStaff.phone).toBe("+919876543210");
 	});
 
 	it("should throw InvalidStaffDataError when neither name nor phone is provided", async () => {

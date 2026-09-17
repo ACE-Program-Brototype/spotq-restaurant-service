@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { StaffPhone } from "@/domain/value-objects/phone.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 /**
@@ -6,7 +7,7 @@ import { messages } from "@/shared/constants/message.constants.ts";
  */
 export const updateStaffInfoParamsSchema = z.object({
 	restaurantId: z.string().trim().min(1, messages.RESTAURANT_ID_REQUIRED),
-	staffId: z.string().trim().min(1, messages.STAFF_NOT_FOUND),
+	staffId: z.string().trim().min(1, messages.STAFF_ID_REQUIRED),
 });
 
 /**
@@ -29,11 +30,7 @@ export const updateStaffInfoSchema = z
 				/^(?:(?:\+91|91|0)[\s-]?)?[6-9]\d{9}$/,
 				messages.INVALID_INDIAN_PHONE_FORMAT,
 			)
-			.transform((val) => {
-				const digits = val.replace(/\D/g, "");
-				const last10 = digits.slice(-10);
-				return `+91${last10}`;
-			})
+			.transform((val) => StaffPhone.normalize(val))
 			.optional(),
 	})
 	.strict()

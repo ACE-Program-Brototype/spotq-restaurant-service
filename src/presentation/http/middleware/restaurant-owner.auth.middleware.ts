@@ -11,7 +11,7 @@ export interface AuthenticatedOwnerRequest extends Request {
 	userId?: string;
 }
 
-const FORBIDDEN_ROLES = ["customer", "staff"] as const;
+const ALLOWED_ROLES = ["restaurant_owner", "owner"] as const;
 
 function getHeaderValue(
 	header: string | string[] | undefined,
@@ -46,8 +46,8 @@ export function restaurantOwnerAuthMiddleware(
 	const normalizedRole = role?.toLowerCase();
 
 	if (
-		normalizedRole &&
-		FORBIDDEN_ROLES.includes(normalizedRole as (typeof FORBIDDEN_ROLES)[number])
+		!normalizedRole ||
+		!ALLOWED_ROLES.includes(normalizedRole as (typeof ALLOWED_ROLES)[number])
 	) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)

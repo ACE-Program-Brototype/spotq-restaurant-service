@@ -84,6 +84,7 @@ export const messages = {
 	INVALID_RESTAURANT_DATA: "Invalid restaurant data provided",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
 	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
+	STAFF_ID_REQUIRED: "Staff ID is required",
 	RESTAURANT_ACCOUNT_BLOCKED:
 		"Restaurant account is blocked. Please contact support",
 	RESTAURANT_INACTIVE:

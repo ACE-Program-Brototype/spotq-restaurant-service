@@ -80,16 +80,14 @@ export class UpdateStaffInfoUseCase implements IUpdateStaffInfoUseCase {
 		}
 
 		/**
-		 * 5. Update only the allowed fields (fullname and/or phone) at the database level
+		 * 5. Apply updates through domain entity and persist via staffRepository.save
 		 */
-		const updatedStaff = await this.staffRepository.updateStaffInfo(staffId, {
-			fullname: finalName,
-			phone: finalPhone,
-		});
+		staff.updateProfile(finalName, finalPhone);
+		await this.staffRepository.save(staff);
 
 		/**
 		 * 6. Return a safe response DTO without exposing sensitive credentials or internal fields
 		 */
-		return StaffMapper.toUpdateStaffInfoDTO(updatedStaff);
+		return StaffMapper.toUpdateStaffInfoDTO(staff);
 	}
 }

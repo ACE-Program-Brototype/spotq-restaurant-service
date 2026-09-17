@@ -113,6 +113,74 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(mockReq.userId).toBe("owner-123");
 	});
 
+	it("should return 403 when x-user-role header is missing", () => {
+		mockReq.headers = {
+			"x-user-id": "user-123",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(403);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: 403,
+				code: "FORBIDDEN",
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
+	it("should return 403 when user role is unrecognized", () => {
+		mockReq.headers = {
+			"x-user-id": "user-123",
+			"x-user-role": "unknown_role",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(403);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: 403,
+				code: "FORBIDDEN",
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
+	it("should populate user and call next() on owner role", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-123",
+			"x-user-role": "owner",
+			"x-user-email": "owner@restaurant.com",
+			"x-restaurant-id": "res-123",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockNext).toHaveBeenCalled();
+		expect(mockReq.user).toEqual({
+			userId: "owner-123",
+			restaurantId: "res-123",
+			email: "owner@restaurant.com",
+			role: "owner",
+		});
+	});
+
 	it("should handle array header values correctly", () => {
 		mockReq.headers = {
 			"x-user-id": ["owner-123", "extra-id"],

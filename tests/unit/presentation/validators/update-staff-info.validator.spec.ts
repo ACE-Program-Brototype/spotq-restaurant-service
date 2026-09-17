@@ -3,6 +3,7 @@ import {
 	updateStaffInfoParamsSchema,
 	updateStaffInfoSchema,
 } from "@/presentation/http/validators/staff/update-staff-info.validator.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("updateStaffInfoParamsSchema", () => {
 	it("should pass validation with valid restaurantId and staffId", () => {
@@ -19,6 +20,11 @@ describe("updateStaffInfoParamsSchema", () => {
 			staffId: "stf_02AB",
 		});
 		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues[0].message).toBe(
+				messages.RESTAURANT_ID_REQUIRED,
+			);
+		}
 	});
 
 	it("should fail validation when staffId is missing or empty", () => {
@@ -27,6 +33,9 @@ describe("updateStaffInfoParamsSchema", () => {
 			staffId: "",
 		});
 		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues[0].message).toBe(messages.STAFF_ID_REQUIRED);
+		}
 	});
 });
 
