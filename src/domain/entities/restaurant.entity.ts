@@ -21,6 +21,7 @@ export interface RestaurantProps {
 	status: RestaurantStatusVO;
 	onboardingStatus: OnboardingStatusVO;
 	emailVerifiedAt: Date | null;
+	lastLoginAt: Date | null;
 	isSubscriptionActive: boolean;
 	subscriptionPlanCode: string | null;
 	subscriptionEndsAt: Date | null;
@@ -40,6 +41,7 @@ export interface CreateRestaurantProps {
 	status?: string | RestaurantStatusVO;
 	onboardingStatus?: string | OnboardingStatusVO;
 	emailVerifiedAt?: Date | null;
+	lastLoginAt?: Date | null;
 	isSubscriptionActive?: boolean;
 	subscriptionPlanCode?: string | null;
 	subscriptionEndsAt?: Date | null;
@@ -57,6 +59,7 @@ export interface ReconstituteRestaurantProps {
 	status: string;
 	onboardingStatus: string;
 	emailVerifiedAt: Date | null;
+	lastLoginAt?: Date | null;
 	isSubscriptionActive?: boolean;
 	subscriptionPlanCode?: string | null;
 	subscriptionEndsAt?: Date | null;
@@ -131,6 +134,7 @@ export class Restaurant {
 			status,
 			onboardingStatus,
 			emailVerifiedAt: props.emailVerifiedAt ?? null,
+			lastLoginAt: props.lastLoginAt ?? null,
 			isSubscriptionActive: props.isSubscriptionActive ?? false,
 			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
 			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
@@ -152,6 +156,7 @@ export class Restaurant {
 			status: RestaurantStatusVO.create(props.status),
 			onboardingStatus: OnboardingStatusVO.create(props.onboardingStatus),
 			emailVerifiedAt: props.emailVerifiedAt,
+			lastLoginAt: props.lastLoginAt ?? null,
 			isSubscriptionActive: props.isSubscriptionActive ?? false,
 			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
 			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
@@ -206,6 +211,10 @@ export class Restaurant {
 		return this._props.emailVerifiedAt;
 	}
 
+	public get lastLoginAt(): Date | null {
+		return this._props.lastLoginAt;
+	}
+
 	public get isSubscriptionActive(): boolean {
 		return this._props.isSubscriptionActive;
 	}
@@ -232,6 +241,11 @@ export class Restaurant {
 
 	public get updatedAt(): Date {
 		return this._props.updatedAt;
+	}
+
+	public recordLogin(date: Date = new Date()): void {
+		this._props.lastLoginAt = date;
+		this._props.updatedAt = new Date();
 	}
 
 	public block(reason: string): void {

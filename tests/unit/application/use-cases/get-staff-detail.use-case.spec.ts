@@ -69,6 +69,8 @@ describe("GetStaffDetailUseCase", () => {
 			save: jest.fn(),
 			activateSubscription: jest.fn(),
 			completeOnboarding: jest.fn(),
+			findCompletedDetailsById: jest.fn(),
+			updateLastLogin: jest.fn(),
 		};
 
 		useCase = new GetStaffDetailUseCase(staffRepository, restaurantRepository);

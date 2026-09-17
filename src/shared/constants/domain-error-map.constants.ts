@@ -58,6 +58,9 @@ export const DOMAIN_ERROR_STATUS_MAP: Record<string, HttpStatusCode> = {
 	OtpVerificationAttemptsExceededError: HTTP_STATUS.TOO_MANY_REQUESTS,
 	RestaurantAccountBlockedError: HTTP_STATUS.FORBIDDEN,
 
+	[DOMAIN_ERROR_CODES.INVALID_STORAGE_KEY]: HTTP_STATUS.BAD_REQUEST,
+	InvalidStorageKeyError: HTTP_STATUS.BAD_REQUEST,
+
 	UnsupportedFileCategoryError: HTTP_STATUS.BAD_REQUEST,
 	UnsupportedFileTypeError: HTTP_STATUS.BAD_REQUEST,
 	FileSizeExceededError: HTTP_STATUS.BAD_REQUEST,

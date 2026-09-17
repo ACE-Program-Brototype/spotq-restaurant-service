@@ -1,3 +1,4 @@
+import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
 import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
 import type { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import type { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
@@ -32,3 +33,9 @@ export const restaurantStaffManagementController =
 export const jwksController = container.get<JwksController>(
 	TYPES.JWKSController,
 );
+
+export const adminRestaurantController =
+	container.get<AdminRestaurantController>(
+		TYPES.Controller.AdminRestaurantController,
+	);
+

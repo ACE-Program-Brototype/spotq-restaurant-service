@@ -8,34 +8,22 @@ export interface FilePolicy {
 
 export const FILE_POLICIES: Record<FileCategory, FilePolicy> = {
 	[FileCategory.DOCUMENTS]: {
-		allowedMimeTypes: [
-			"application/pdf",
-			"image/jpeg",
-			"image/png",
-			"image/webp",
-			"image/avif",
-		],
+		allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png"],
 		maxSizeBytes: MAX_FILE_SIZE_BYTES.DOCUMENTS,
 	},
 
 	[FileCategory.IMAGES]: {
-		allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+		allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
 		maxSizeBytes: MAX_FILE_SIZE_BYTES.IMAGES,
 	},
 
 	[FileCategory.PROFILE]: {
-		allowedMimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+		allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
 		maxSizeBytes: MAX_FILE_SIZE_BYTES.PROFILE,
 	},
 
 	[FileCategory.RECEIPTS]: {
-		allowedMimeTypes: [
-			"application/pdf",
-			"image/jpeg",
-			"image/png",
-			"image/webp",
-			"image/avif",
-		],
+		allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png"],
 		maxSizeBytes: MAX_FILE_SIZE_BYTES.RECEIPTS,
 	},
 
@@ -45,7 +33,6 @@ export const FILE_POLICIES: Record<FileCategory, FilePolicy> = {
 			"image/jpeg",
 			"image/png",
 			"image/webp",
-			"image/avif",
 		],
 		maxSizeBytes: MAX_FILE_SIZE_BYTES.MENUS,
 	},

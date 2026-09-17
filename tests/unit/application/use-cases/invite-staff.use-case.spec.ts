@@ -71,6 +71,7 @@ describe("InviteStaffUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
+			updateLastLogin: jest.fn(),
 			findManyWithFilters: jest.fn(),
 			save: jest.fn(),
 			activateSubscription: jest.fn(),

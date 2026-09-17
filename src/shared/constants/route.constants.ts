@@ -16,7 +16,6 @@ export const RESTAURANT_ROUTES = {
 	STATUS: "/me/status",
 	VERIFICATION_STATUS: "/verification-status",
 	VERIFICATION_STATUS_BY_ID: "/:id/verification-status",
-	PROFILE: "/profile",
 	STAFF_DETAIL: "/:restaurantId/staff/:staffId",
 	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
 	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
@@ -47,6 +46,7 @@ export const STORAGE_ROUTES = {
 export const ADMIN_ROUTES = {
 	BASE: "/admin",
 	RESTAURANTS: "/restaurants",
+	GET_RESTAURANT_DETAILS: "/restaurants/:id",
 } as const;
 
 export type RestaurantRoute =
@@ -56,7 +56,8 @@ export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
 
 export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
-export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
+export type StorageRoute =
+	(typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
 
 export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
 
