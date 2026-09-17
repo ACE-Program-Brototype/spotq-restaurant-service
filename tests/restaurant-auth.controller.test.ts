@@ -210,13 +210,14 @@ describe("RestaurantAuthController Unit Tests", () => {
 
 		await controller.onboard(req, res);
 
+		const onboardBody = responseBody as Record<string, unknown> | null;
 		assert.equal(capturedRestaurantId, "rest-onboard-789");
 		assert.deepEqual(capturedDto, {
 			restaurantName: "Test Diner",
 			phone: "9876543210",
 		});
 		assert.equal(responseCode, 201);
-		assert.equal(responseBody?.success, true);
+		assert.equal(onboardBody?.success, true);
 	});
 
 	test("getVerificationStatus returns status for restaurant id from params or user context", async () => {
@@ -266,11 +267,12 @@ describe("RestaurantAuthController Unit Tests", () => {
 
 		await controller.getVerificationStatus(req, res);
 
+		const statusBody = responseBody as Record<string, unknown> | null;
 		assert.equal(capturedId, "rest-status-123");
 		assert.equal(responseCode, 200);
-		assert.equal(responseBody?.success, true);
+		assert.equal(statusBody?.success, true);
 		assert.equal(
-			(responseBody?.data as Record<string, unknown>)?.status,
+			(statusBody?.data as Record<string, unknown>)?.status,
 			"UNDER_REVIEW",
 		);
 	});

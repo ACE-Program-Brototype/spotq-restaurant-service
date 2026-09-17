@@ -52,8 +52,10 @@ describe("ResendStaffInvitationUseCase", () => {
 		staffRepository = {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
+			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			findManyWithFilters: jest.fn(),
+			findByIdAndRestaurantId: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantStaffRepository>;
@@ -67,6 +69,7 @@ describe("ResendStaffInvitationUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
+			findManyWithFilters: jest.fn(),
 			save: jest.fn(),
 			activateSubscription: jest.fn(),
 			completeOnboarding: jest.fn(),
@@ -104,7 +107,7 @@ describe("ResendStaffInvitationUseCase", () => {
 
 	it("should renew invitation and resend email", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
-		staffRepository.findByEmail.mockResolvedValue(null);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(null);
 
 		const existingInvitation = StaffInvitation.create({
 			restaurantId: mockRestaurant.id,
@@ -184,7 +187,7 @@ describe("ResendStaffInvitationUseCase", () => {
 
 	it("should ignore already accepted invitations and throw StaffInvitationNotFoundError if no renewable invitation exists", async () => {
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
-		staffRepository.findByEmail.mockResolvedValue(null);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(null);
 		staffInvitationRepository.findPendingByEmailAndRestaurant.mockResolvedValue(
 			null,
 		);

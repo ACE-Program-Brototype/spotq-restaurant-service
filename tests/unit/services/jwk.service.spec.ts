@@ -21,9 +21,11 @@ describe("JwksService & JwksController", () => {
 
 	it("should return JWKS response with HTTP 200 via JwksController", async () => {
 		const mockService = {
-			getJwks: jest.fn().mockResolvedValue({
-				keys: [{ kid: "key-1", kty: "RSA", use: "sig", alg: "RS256" }],
-			}),
+			getJwks: jest.fn().mockReturnValue(
+				Promise.resolve({
+					keys: [{ kid: "key-1", kty: "RSA", use: "sig", alg: "RS256" }],
+				}),
+			),
 		};
 
 		const controller = new JwksController(mockService as never);

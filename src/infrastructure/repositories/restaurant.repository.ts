@@ -17,6 +17,8 @@ import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/u
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
+import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
+import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
 
 const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
@@ -491,6 +493,92 @@ export class RestaurantRepository implements IRestaurantRepository {
 			throw new Error("Failed to load updated restaurant profile details");
 		}
 		return updatedDetails;
+	}
+
+	async findManyWithFilters(
+		params: RestaurantFilterParams,
+	): Promise<{ restaurants: Restaurant[]; total: number }> {
+		const {
+			page,
+			limit,
+			search,
+			status,
+			plan,
+			isSubscriptionActive,
+			createdFrom,
+			createdTo,
+			sortBy,
+			sortOrder,
+		} = params;
+
+		const where: Prisma.RestaurantWhereInput = {
+			onboardingStatus: ONBOARDING_STATUS.COMPLETED,
+			status:
+				status && status !== RESTAURANT_STATUS.PENDING
+					? status
+					: { not: RESTAURANT_STATUS.PENDING },
+			...(plan && { subscriptionPlanCode: plan }),
+			...(isSubscriptionActive !== undefined && { isSubscriptionActive }),
+			...((createdFrom || createdTo) && {
+				createdAt: {
+					...(createdFrom && { gte: createdFrom }),
+					...(createdTo && { lte: createdTo }),
+				},
+			}),
+			...(search && {
+				OR: [
+					{
+						restaurantName: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						ownerName: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						email: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						ownerEmail: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						phone: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+				],
+			}),
+		};
+
+		const skip = (page - 1) * limit;
+
+		const [rawList, total] = await Promise.all([
+			this.prisma.restaurant.findMany({
+				where,
+				orderBy: { [sortBy]: sortOrder },
+				skip,
+				take: limit,
+			}),
+			this.prisma.restaurant.count({ where }),
+		]);
+
+		return {
+			restaurants: rawList.map((raw) =>
+				RestaurantPersistenceMapper.toDomain(raw),
+			),
+			total,
+		};
 	}
 
 	async activateSubscription(

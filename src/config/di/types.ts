@@ -76,12 +76,14 @@ export const TYPES = {
 			"UpdateRestaurantProfileUseCase",
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
+		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 	},
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		AdminRestaurantController: Symbol.for("AdminRestaurantController"),
 		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
 	},
