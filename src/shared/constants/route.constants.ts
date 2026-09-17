@@ -17,7 +17,6 @@ export const RESTAURANT_ROUTES = {
 	STATUS: "/me/status",
 	VERIFICATION_STATUS: "/verification-status",
 	VERIFICATION_STATUS_BY_ID: "/:id/verification-status",
-	PROFILE: "/profile",
 	STAFF_DETAIL: "/:restaurantId/staff/:staffId",
 	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
 	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
@@ -48,6 +47,9 @@ export const STORAGE_ROUTES = {
 export const ADMIN_ROUTES = {
 	BASE: "/admin",
 	RESTAURANTS: "/restaurants",
+	GET_RESTAURANT_DETAILS: "/restaurants/:id",
+	BLOCK_RESTAURANT: "/restaurants/:id/block",
+	UNBLOCK_RESTAURANT: "/restaurants/:id/unblock",
 } as const;
 
 export type RestaurantRoute =

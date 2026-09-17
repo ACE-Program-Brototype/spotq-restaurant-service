@@ -22,6 +22,8 @@ describe("GetRestaurantStatusUseCase", () => {
 			activateSubscription: jest.fn(),
 			findManyWithFilters: jest.fn(),
 			completeOnboarding: jest.fn(),
+			findCompletedDetailsById: jest.fn(),
+			updateLastLogin: jest.fn(),
 		};
 		useCase = new GetRestaurantStatusUseCase(mockRestaurantRepository);
 		jest.clearAllMocks();

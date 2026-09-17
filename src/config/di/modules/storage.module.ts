@@ -2,7 +2,9 @@ import { ContainerModule } from "inversify";
 import type { IFilePolicyValidator } from "@/application/ports/services/file-policy-validator.port";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
 import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-cases/generate-presigned-url.use-case.port";
+import type { IGetPresignedUrlUseCase } from "@/application/ports/use-cases/get-presigned-url.use-case.port";
 import { GeneratePresignedUrlUseCase } from "@/application/use-cases/generate-presigned-url.use-case";
+import { GetPresignedUrlUseCase } from "@/application/use-cases/get-presigned-url.use-case";
 import { TYPES } from "@/config/di/types";
 import { FilePolicyValidatorService } from "@/infrastructure/services/file-policy-validator.service";
 import { S3StorageService } from "@/infrastructure/services/s3-storage.service";
@@ -14,9 +16,17 @@ export const storageModule = new ContainerModule(({ bind }) => {
 		.to(StorageController)
 		.inSingletonScope();
 
-	// Use Case
-	bind<IGeneratePresignedUrlUseCase>(TYPES.UseCases.GeneratePresignedUrlUseCase)
+	// Use Cases
+	bind<IGeneratePresignedUrlUseCase>(
+		TYPES.UseCases.GeneratePresignedUrlUseCase,
+	)
 		.to(GeneratePresignedUrlUseCase)
+		.inSingletonScope();
+
+	bind<IGetPresignedUrlUseCase>(
+		TYPES.UseCases.GetPresignedUrlUseCase,
+	)
+		.to(GetPresignedUrlUseCase)
 		.inSingletonScope();
 
 	// Services

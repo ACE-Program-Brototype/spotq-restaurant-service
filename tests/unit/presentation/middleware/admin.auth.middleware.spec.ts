@@ -129,7 +129,7 @@ describe("adminAuthMiddleware", () => {
 		expect(mockReq.user).toEqual({
 			userId: "superadmin-uuid-1",
 			email: "superadmin@spotq.com",
-			role: "SUPER_ADMIN",
+			role: "super_admin",
 		});
 		expect(mockReq.userId).toBe("superadmin-uuid-1");
 		expect(mockNext).toHaveBeenCalled();

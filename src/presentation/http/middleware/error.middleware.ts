@@ -54,14 +54,9 @@ export const errorHandler: ErrorRequestHandler = (
 		errorDetails = err.details;
 	} else if (err instanceof Error) {
 		const mappedStatus = DOMAIN_ERROR_STATUS_MAP[err.name];
-		const customStatusCode = (err as { statusCode?: unknown }).statusCode;
 		if (mappedStatus) {
 			statusCode = mappedStatus;
 			code = err.name;
-			message = err.message;
-		} else if (typeof customStatusCode === "number") {
-			statusCode = customStatusCode as HttpStatusCode;
-			code = err.name || "BAD_REQUEST";
 			message = err.message;
 		} else {
 			statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;

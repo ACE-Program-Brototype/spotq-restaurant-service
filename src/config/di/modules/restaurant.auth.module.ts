@@ -6,7 +6,6 @@ import type { IOtpService } from "@/application/ports/services/otp.service.port"
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port";
-import type { IGetRestaurantProfileUseCase } from "@/application/ports/use-cases/get-restaurant-profile.use-case.port";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
 import type { IGetRestaurantVerificationStatusUseCase } from "@/application/ports/use-cases/get-verification-status.use-case.port";
 import type { IListRestaurantsUseCase } from "@/application/ports/use-cases/list-restaurants.use-case.port";
@@ -14,7 +13,6 @@ import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/on
 import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port";
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port";
-import type { IUpdateRestaurantProfileUseCase } from "@/application/ports/use-cases/update-restaurant-profile.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port";
 import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case";
 import { ListRestaurantsUseCase } from "@/application/use-cases/admin/list-restaurants.use-case";
@@ -25,7 +23,6 @@ import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restau
 import { RefreshRestaurantAccessTokenUseCase } from "@/application/use-cases/refresh-restaurant-access-token.use-case";
 import { ResendRestaurantEmailOtpUseCase } from "@/application/use-cases/resend-email-otp.use-case";
 import { SendRestaurantEmailOtpUseCase } from "@/application/use-cases/send-email-otp.use-case";
-import { UpdateRestaurantProfileUseCase } from "@/application/use-cases/update-restaurant-profile.use-case";
 import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 import { TYPES } from "@/config/di/types";
 import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
@@ -35,7 +32,6 @@ import { OtpService } from "@/infrastructure/services/otp.service";
 import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
-import { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
 
@@ -43,10 +39,6 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	// Controllers
 	bind(TYPES.Controller.RestaurantAuthController)
 		.to(RestaurantAuthController)
-		.inSingletonScope();
-
-	bind(TYPES.Controller.AdminRestaurantController)
-		.to(AdminRestaurantController)
 		.inSingletonScope();
 
 	bind(TYPES.Controller.RestaurantStatusController)
@@ -98,16 +90,6 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 		TYPES.UseCases.GetRestaurantVerificationStatusUseCase,
 	)
 		.to(GetRestaurantVerificationStatusUseCase)
-		.inSingletonScope();
-
-	bind<IGetRestaurantProfileUseCase>(TYPES.UseCases.GetRestaurantProfileUseCase)
-		.to(GetRestaurantProfileUseCase)
-		.inSingletonScope();
-
-	bind<IUpdateRestaurantProfileUseCase>(
-		TYPES.UseCases.UpdateRestaurantProfileUseCase,
-	)
-		.to(UpdateRestaurantProfileUseCase)
 		.inSingletonScope();
 
 	// Repository

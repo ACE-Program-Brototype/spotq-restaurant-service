@@ -53,7 +53,7 @@ describe("getStaffDetailParamsSchema", () => {
 });
 
 describe("validateRequestParams with getStaffDetailParamsSchema", () => {
-	it("should return 422 with Invalid staff ID message when staffId is invalid", () => {
+	it("should return 422 with Invalid staff ID message when staffId is invalid", async () => {
 		const req = {
 			params: {
 				restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
@@ -64,25 +64,32 @@ describe("validateRequestParams with getStaffDetailParamsSchema", () => {
 		const res = {
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
+			locals: {},
 		} as unknown as Response;
 
 		const next = jest.fn();
 
 		const middleware = validateRequestParams(getStaffDetailParamsSchema);
-		middleware(req, res, next);
+		await middleware(req, res, next);
 
 		expect(res.status).toHaveBeenCalledWith(422);
 		expect(res.json).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: false,
 				statusCode: 422,
-				message: messages.INVALID_STAFF_ID,
+				message: messages.VALIDATION_ERROR,
+				error: expect.arrayContaining([
+					expect.objectContaining({
+						field: "staffId",
+						message: messages.INVALID_STAFF_ID,
+					}),
+				]),
 			}),
 		);
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it("should call next() and assign params when valid", () => {
+	it("should call next() and assign params when valid", async () => {
 		const req = {
 			params: {
 				restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
@@ -93,12 +100,13 @@ describe("validateRequestParams with getStaffDetailParamsSchema", () => {
 		const res = {
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
+			locals: {},
 		} as unknown as Response;
 
 		const next = jest.fn();
 
 		const middleware = validateRequestParams(getStaffDetailParamsSchema);
-		middleware(req, res, next);
+		await middleware(req, res, next);
 
 		expect(next).toHaveBeenCalled();
 		expect(req.params).toEqual({

@@ -11,7 +11,6 @@ import {
 	ONBOARDING_NEXT_STEPS,
 	type OnboardingNextStep,
 } from "@/domain/constants/onboarding-step.constants";
-import { logger } from "@/infrastructure/observability/logger";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { InvalidOtpError } from "../errors/invalid-otp.error";
@@ -47,10 +46,6 @@ export class VerifyRestaurantEmailOtpUseCase
 		const storedOtp = await this.redisOtpStore.get(otpKey);
 
 		if (!storedOtp) {
-			logger.warn(
-				{ email, otpKey },
-				"VerifyRestaurantEmailOtpUseCase: OTP key not found or expired in Redis",
-			);
 			throw new InvalidOtpError();
 		}
 
@@ -58,11 +53,6 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		if (!isValid) {
 			const attempts = await this.otpService.incrementAttempt(email);
-
-			logger.warn(
-				{ email, otpKey, attempts, otpLength: otp?.length },
-				"VerifyRestaurantEmailOtpUseCase: OTP hash comparison failed",
-			);
 
 			if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
 				await this.redisOtpStore.delete(otpKey);
@@ -73,6 +63,9 @@ export class VerifyRestaurantEmailOtpUseCase
 
 			throw new InvalidOtpError();
 		}
+
+		await this.redisOtpStore.delete(otpKey);
+		await this.otpService.resetAttempts(email);
 
 		let restaurant = await this.restaurantRepository.findByEmail(email);
 
@@ -90,6 +83,8 @@ export class VerifyRestaurantEmailOtpUseCase
 		if (restaurant.isBlocked) {
 			throw new RestaurantAccountBlockedError();
 		}
+
+		await this.restaurantRepository.updateLastLogin(restaurant.id);
 
 		const tokenPair = this.authTokenService.generateTokenPair({
 			sub: restaurant.id,
@@ -118,9 +113,6 @@ export class VerifyRestaurantEmailOtpUseCase
 		} else {
 			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
 		}
-
-		await this.redisOtpStore.delete(otpKey);
-		await this.otpService.resetAttempts(email);
 
 		return {
 			nextStep,

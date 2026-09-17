@@ -66,7 +66,7 @@ export function adminAuthMiddleware(
 	(req as AuthenticatedAdminRequest).user = {
 		userId,
 		email: email || "",
-		role: role || "ADMIN",
+		role: normalizedRole,
 	};
 	(req as AuthenticatedAdminRequest).userId = userId;
 

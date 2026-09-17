@@ -9,19 +9,19 @@ export const generateVerificationToken = (): string => {
 };
 
 export const getRestaurantEmailOtpKey = (email: string): string => {
-	return `restaurant:email-verification:${email.trim().toLowerCase()}`;
+	return `restaurant:email-verification:${email}`;
 };
 
 export const getRestaurantEmailOtpSendKey = (email: string): string => {
-	return `restaurant:email-verification:send-limit:${email.trim().toLowerCase()}`;
+	return `restaurant:email-verification:send-limit:${email}`;
 };
 
 export const getRestaurantEmailOtpResendKey = (email: string): string => {
-	return `restaurant:email-verification:resend-limit:${email.trim().toLowerCase()}`;
+	return `restaurant:email-verification:resend-limit:${email}`;
 };
 
 export const getRestaurantEmailOtpAttemptsKey = (email: string): string => {
-	return `restaurant:email-verification:attempts:${email.trim().toLowerCase()}`;
+	return `restaurant:email-verification:attempts:${email}`;
 };
 
 export const getRestaurantEmailVerificationTokenKey = (

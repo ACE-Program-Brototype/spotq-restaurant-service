@@ -18,16 +18,7 @@ export const generatePresignedUrlSchema = z.object({
 
 	content_type: z.string().trim().min(1),
 
-	file_category: z.preprocess((val) => {
-		if (typeof val === "string") {
-			const upper = val.toUpperCase();
-			if (upper === "LOGO" || upper === "COVER_IMAGE" || upper === "AVATAR") {
-				return FileCategory.PROFILE;
-			}
-			return upper;
-		}
-		return val;
-	}, z.nativeEnum(FileCategory)),
+	file_category: z.nativeEnum(FileCategory),
 
 	file_size: z.number().int().positive(),
 });
