@@ -43,7 +43,7 @@ export const updateSettingsDtoSchema = z
 		seatingCapacity: z
 			.number()
 			.int()
-			.positive(messages.SEATING_CAPACITY_INVALID)
+			.min(0, messages.SEATING_CAPACITY_INVALID)
 			.optional(),
 		acceptsQueue: z.boolean().optional(),
 		acceptsQrOrders: z.boolean().optional(),

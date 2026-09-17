@@ -145,7 +145,7 @@ export const messages = {
 	PHONE_MIN_LENGTH: "Phone must be at least 7 characters",
 	OWNER_NAME_MIN_LENGTH: "Owner name must be at least 2 characters",
 	AVERAGE_COST_INVALID: "Average cost cannot be negative",
-	SEATING_CAPACITY_INVALID: "Seating capacity must be a positive integer",
+	SEATING_CAPACITY_INVALID: "Seating capacity cannot be negative",
 	INVALID_TIME_FORMAT: "Time must be in HH:mm format",
 	CLOSE_TIME_MUST_BE_AFTER_OPEN_TIME: "Close time must be after open time",
 } as const;
