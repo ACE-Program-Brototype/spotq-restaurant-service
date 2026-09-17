@@ -1,17 +1,17 @@
 import express from "express";
 import {
 	restaurantAuthController,
-  restaurantStatusController,
+	restaurantStatusController,
 	staffController,
 } from "@/config/di/controllers.resolutions";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
+import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
 import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
 import {
 	validate,
+	validateRequestBody,
 	validateRequestParams,
 } from "../middleware/validation.middleware";
-import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
-import { validateRequestBody } from "../middleware/validation.middleware";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,

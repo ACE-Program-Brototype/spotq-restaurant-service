@@ -12,10 +12,7 @@ import systemRouter from "@/presentation/http/routes/system.routes";
 import { APP_ENV, APP_NAME } from "@/shared/constants/app.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import {
-	STAFF_ROUTES,
-	STORAGE_ROUTES,
-} from "@/shared/constants/route.constants.ts";
+import { STAFF_ROUTES } from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
 

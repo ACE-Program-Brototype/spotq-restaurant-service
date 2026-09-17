@@ -5,7 +5,6 @@ export const messages = {
 	STAFF_LOGIN_SUCCESS: "Staff logged in successfully",
 	STAFF_LOGOUT_SUCCESS: "Staff logged out successfully",
 	STAFF_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully",
-	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully",
 	FORGOT_PASSWORD_OTP_SENT: "Password reset OTP sent to your email",
 	OTP_SENT_SUCCESS: "OTP sent to your email successfully",
 	OTP_VERIFIED_SUCCESS: "OTP verified successfully",
