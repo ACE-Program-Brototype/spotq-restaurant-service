@@ -113,9 +113,7 @@ describe("Restaurant Entity", () => {
 				onboardingStatus: "PENDING",
 			});
 
-			expect(() => restaurant.approve()).toThrow(
-				InvalidOnboardingStatusError,
-			);
+			expect(() => restaurant.approve()).toThrow(InvalidOnboardingStatusError);
 		});
 
 		it("should throw RestaurantAlreadyProcessedError when status is not PENDING", () => {

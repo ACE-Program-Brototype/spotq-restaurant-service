@@ -164,6 +164,87 @@ describe("PrismaRestaurantStaffRepository", () => {
 		});
 	});
 
+	describe("findManyWithFilters", () => {
+		it("should exclude REMOVED status by default when listing staff", async () => {
+			mockPrisma.restaurantStaff.findMany.mockResolvedValue([dummyPrismaStaff]);
+			mockPrisma.restaurantStaff.count.mockResolvedValue(1);
+
+			const result = await repository.findManyWithFilters({
+				restaurantId: "rest-123",
+				page: 1,
+				limit: 10,
+				sortBy: "createdAt",
+				sortOrder: "desc",
+			});
+
+			expect(mockPrisma.restaurantStaff.findMany).toHaveBeenCalledWith({
+				where: {
+					restaurantId: "rest-123",
+					status: { not: "REMOVED" },
+				},
+				orderBy: { createdAt: "desc" },
+				skip: 0,
+				take: 10,
+			});
+			expect(mockPrisma.restaurantStaff.count).toHaveBeenCalledWith({
+				where: {
+					restaurantId: "rest-123",
+					status: { not: "REMOVED" },
+				},
+			});
+			expect(result.staff).toHaveLength(1);
+			expect(result.total).toBe(1);
+		});
+
+		it("should filter by specific status when provided", async () => {
+			mockPrisma.restaurantStaff.findMany.mockResolvedValue([dummyPrismaStaff]);
+			mockPrisma.restaurantStaff.count.mockResolvedValue(1);
+
+			await repository.findManyWithFilters({
+				restaurantId: "rest-123",
+				page: 1,
+				limit: 10,
+				status: "ACTIVE",
+				sortBy: "createdAt",
+				sortOrder: "asc",
+			});
+
+			expect(mockPrisma.restaurantStaff.findMany).toHaveBeenCalledWith({
+				where: {
+					restaurantId: "rest-123",
+					status: "ACTIVE",
+				},
+				orderBy: { createdAt: "asc" },
+				skip: 0,
+				take: 10,
+			});
+		});
+
+		it("should exclude all records when status is REMOVED", async () => {
+			mockPrisma.restaurantStaff.findMany.mockResolvedValue([]);
+			mockPrisma.restaurantStaff.count.mockResolvedValue(0);
+
+			await repository.findManyWithFilters({
+				restaurantId: "rest-123",
+				page: 1,
+				limit: 10,
+				status: "REMOVED",
+				sortBy: "createdAt",
+				sortOrder: "desc",
+			});
+
+			expect(mockPrisma.restaurantStaff.findMany).toHaveBeenCalledWith({
+				where: {
+					restaurantId: "rest-123",
+					status: { in: [] },
+				},
+				orderBy: { createdAt: "desc" },
+				skip: 0,
+				take: 10,
+			});
+		});
+	});
+
 	describe("save", () => {
 		it("should upsert staff entity", async () => {
 			mockPrisma.restaurantStaff.upsert.mockResolvedValue(dummyPrismaStaff);
@@ -245,11 +326,33 @@ describe("PrismaRestaurantStaffRepository", () => {
 			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(null);
 
 			const result = await repository.findByIdAndRestaurantId(
-				"unknown",
-				"rest-123",
+				"staff-123",
+				"other-rest",
 			);
 
 			expect(result).toBeNull();
+		});
+	});
+
+	describe("updateStatus", () => {
+		it("should update and map staff status", async () => {
+			const updatedPrismaStaff: PrismaStaff = {
+				...dummyPrismaStaff,
+				status: "INACTIVE",
+				updatedAt: new Date(),
+			};
+			mockPrisma.restaurantStaff.update.mockResolvedValue(updatedPrismaStaff);
+
+			const result = await repository.updateStatus("staff-123", "INACTIVE");
+
+			expect(mockPrisma.restaurantStaff.update).toHaveBeenCalledWith({
+				where: { id: "staff-123" },
+				data: expect.objectContaining({
+					status: "INACTIVE",
+					updatedAt: expect.any(Date),
+				}),
+			});
+			expect(result.status).toBe("INACTIVE");
 		});
 	});
 

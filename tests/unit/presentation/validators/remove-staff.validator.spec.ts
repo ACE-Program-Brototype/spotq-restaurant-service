@@ -80,7 +80,11 @@ describe("validateRequestParams with removeStaffParamsSchema", () => {
 		const next = jest.fn();
 
 		const middleware = validateRequestParams(removeStaffParamsSchema);
-		await middleware(req as unknown as Request, res as unknown as Response, next);
+		await middleware(
+			req as unknown as Request,
+			res as unknown as Response,
+			next,
+		);
 
 		expect(statusCalledWith).toBe(HTTP_STATUS.UNPROCESSABLE_ENTITY);
 		expect(jsonCalledWith).toEqual(
@@ -116,7 +120,11 @@ describe("validateRequestParams with removeStaffParamsSchema", () => {
 		const next = jest.fn();
 
 		const middleware = validateRequestParams(removeStaffParamsSchema);
-		await middleware(req as unknown as Request, res as unknown as Response, next);
+		await middleware(
+			req as unknown as Request,
+			res as unknown as Response,
+			next,
+		);
 
 		expect(next).toHaveBeenCalledTimes(1);
 		expect(req.params).toEqual({

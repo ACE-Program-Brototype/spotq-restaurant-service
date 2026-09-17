@@ -180,8 +180,8 @@ describe("PrismaBaseRepository", () => {
 	});
 
 	describe("update", () => {
-		it("should update entity and map to domain", async () => {
-			const updatedModel = {
+		it("should update entity successfully and return domain entity", async () => {
+			const updatedModel: TestPrismaModel = {
 				...dummyModel,
 				name: "Updated Name",
 			};

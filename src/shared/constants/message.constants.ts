@@ -20,6 +20,8 @@ export const messages = {
 	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
 	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
+	STAFF_STATUS_UPDATED_SUCCESS: "Staff status updated successfully",
+	STAFF_STATUS_REQUIRED: "Staff status is required",
 	STAFF_UPDATED_SUCCESS: "Staff information updated successfully",
 	RESTAURANTS_FETCHED_SUCCESS: "Restaurants retrieved successfully",
 	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
@@ -42,6 +44,9 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	OWNER_FORBIDDEN: "Forbidden: Restaurant Owner access required",
+	RESTAURANT_ACCESS_FORBIDDEN:
+		"Forbidden: You do not have access to this restaurant",
 	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
 	RESTAURANT_DETAILS_FETCHED_SUCCESS:
 		"Restaurant details retrieved successfully",
@@ -135,12 +140,13 @@ export const messages = {
 	EMAIL_REQUIRED: "Email is required",
 	INVALID_EMAIL_FORMAT: "Invalid email format",
 	INVALID_STAFF_ROLE: "Invalid staff role specified",
-	INVALID_STAFF_STATUS: "Invalid staff status specified",
+	INVALID_STAFF_STATUS: "Invalid staff status",
 	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
 	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
 	INVALID_RESTAURANT_ID_FORMAT:
 		"Invalid restaurant ID format. Must be a valid UUID",
+	INVALID_STAFF_ID_FORMAT: "Invalid staff ID format",
 	REJECTION_REASON_EMPTY: "Rejection reason cannot be empty",
 	REJECTION_REASON_MAX_LENGTH:
 		"Rejection reason must not exceed 500 characters",
@@ -234,12 +240,8 @@ export const messages = {
 	INVALID_TIME_FORMAT: "Time must be in HH:mm format",
 	CLOSE_TIME_MUST_BE_AFTER_OPEN_TIME: "Close time must be after open time",
 	STAFF_REMOVED_SUCCESS: "Staff member removed successfully",
-	INVALID_STAFF_ID_FORMAT: "Invalid staff ID format",
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
-	OWNER_FORBIDDEN: "Forbidden: Restaurant owner access required",
-	RESTAURANT_ACCESS_FORBIDDEN:
-		"Forbidden: Access to requested restaurant is denied",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 } as const;
 

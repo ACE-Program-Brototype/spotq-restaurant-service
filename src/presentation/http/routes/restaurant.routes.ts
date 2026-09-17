@@ -32,6 +32,10 @@ import {
 	updateStaffProfileBodySchema,
 	updateStaffProfileParamsSchema,
 } from "../validators/staff/update-staff-profile.validator";
+import {
+	updateStaffStatusParamsSchema,
+	updateStaffStatusSchema,
+} from "../validators/staff/update-staff-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -81,6 +85,16 @@ restaurantRouter.post(
 	restaurantAuthMiddleware,
 	validateRequestBody(onboardRestaurantSchema),
 	restaurantAuthController.onboard.bind(restaurantAuthController),
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.STAFF_STATUS_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateStaffStatusParamsSchema),
+	validate(updateStaffStatusSchema),
+	restaurantStaffManagementController.updateStaffStatus.bind(
+		restaurantStaffManagementController,
+	),
 );
 
 const updateStaffProfileChain: express.RequestHandler[] = [

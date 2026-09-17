@@ -286,8 +286,7 @@ describe("AdminRestaurantController", () => {
 			expect(res.json).toHaveBeenCalledWith(
 				expect.objectContaining({
 					success: true,
-					message:
-						messages.RESTAURANT_APPLICATION_DETAILS_FETCHED_SUCCESS,
+					message: messages.RESTAURANT_APPLICATION_DETAILS_FETCHED_SUCCESS,
 					data: expect.objectContaining({
 						id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
 						restaurant_name: "Gourmet Bistro",
@@ -475,7 +474,9 @@ describe("AdminRestaurantController", () => {
 				},
 			};
 
-			listRestaurantsUseCase.execute.mockResolvedValueOnce(mockResponseData as never);
+			listRestaurantsUseCase.execute.mockResolvedValueOnce(
+				mockResponseData as never,
+			);
 
 			res.locals = {
 				query: {

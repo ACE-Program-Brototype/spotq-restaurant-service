@@ -3,7 +3,6 @@ import {
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
 } from "@/domain/errors/restaurant.errors.ts";
-import { messages } from "@/shared/constants/message.constants.ts";
 import {
 	type OnboardingStatus,
 	OnboardingStatusVO,
@@ -12,6 +11,7 @@ import {
 	type RestaurantStatus,
 	RestaurantStatusVO,
 } from "@/domain/value-objects/restaurant-status.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface RestaurantProps {
 	id: string;
@@ -352,9 +352,7 @@ export class Restaurant {
 				typeof restaurantName !== "string" ||
 				restaurantName.trim().length < 2
 			) {
-				throw new InvalidRestaurantDataError(
-					messages.RESTAURANT_NAME_REQUIRED,
-				);
+				throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
 			}
 			this._props.restaurantName = restaurantName.trim();
 		}

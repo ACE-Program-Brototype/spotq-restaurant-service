@@ -83,13 +83,11 @@ export class RestaurantRepository implements IRestaurantRepository {
 		if (data.email !== undefined) updateData.email = data.email;
 		if (data.phone !== undefined) updateData.phone = data.phone;
 		if (data.ownerName !== undefined) updateData.ownerName = data.ownerName;
-		if (data.ownerEmail !== undefined)
-			updateData.ownerEmail = data.ownerEmail;
+		if (data.ownerEmail !== undefined) updateData.ownerEmail = data.ownerEmail;
 		if (data.status !== undefined)
 			updateData.status = data.status as RestaurantStatus;
 		if (data.onboardingStatus !== undefined)
-			updateData.onboardingStatus =
-				data.onboardingStatus as OnboardingStatus;
+			updateData.onboardingStatus = data.onboardingStatus as OnboardingStatus;
 		if (data.emailVerifiedAt !== undefined)
 			updateData.emailVerifiedAt = data.emailVerifiedAt;
 		if (data.rejectionReason !== undefined)
@@ -401,8 +399,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 								documentType: entry.docType,
 								documentName: entry.doc.documentName,
 								documentKey: entry.doc.documentKey,
-								verificationStatus:
-									DocumentVerificationStatus.PENDING,
+								verificationStatus: DocumentVerificationStatus.PENDING,
 							},
 						});
 					}
@@ -526,16 +523,8 @@ export class RestaurantRepository implements IRestaurantRepository {
 		sortBy: "createdAt" | "updatedAt" | "restaurantName" | "status";
 		sortOrder: "asc" | "desc";
 	}): Promise<{ restaurants: RestaurantApplicationDetail[]; total: number }> {
-		const {
-			page,
-			limit,
-			status,
-			search,
-			fromDate,
-			toDate,
-			sortBy,
-			sortOrder,
-		} = params;
+		const { page, limit, status, search, fromDate, toDate, sortBy, sortOrder } =
+			params;
 
 		const statusFilter = status
 			? status
@@ -589,9 +578,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 		]);
 
 		return {
-			restaurants: rawList.map((raw) =>
-				this.mapRawToApplicationDetail(raw),
-			),
+			restaurants: rawList.map((raw) => this.mapRawToApplicationDetail(raw)),
 			total,
 		};
 	}

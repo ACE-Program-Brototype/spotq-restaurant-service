@@ -16,7 +16,9 @@ export class RejectRestaurantUseCase implements IRejectRestaurantUseCase {
 		private readonly restaurantRepository: IRestaurantRepository,
 	) {}
 
-	async execute(dto: RejectRestaurantDto): Promise<RejectRestaurantResponseDto> {
+	async execute(
+		dto: RejectRestaurantDto,
+	): Promise<RejectRestaurantResponseDto> {
 		const restaurant = await this.restaurantRepository.findById(
 			dto.restaurantId,
 		);

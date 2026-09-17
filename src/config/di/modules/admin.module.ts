@@ -43,9 +43,7 @@ export const adminModule = new ContainerModule(({ bind }) => {
 		.to(GetRestaurantApplicationDetailsUseCase)
 		.inSingletonScope();
 
-	bind<IGetRestaurantDetailsUseCase>(
-		TYPES.UseCases.GetRestaurantDetailsUseCase,
-	)
+	bind<IGetRestaurantDetailsUseCase>(TYPES.UseCases.GetRestaurantDetailsUseCase)
 		.to(GetRestaurantDetailsUseCase)
 		.inSingletonScope();
 

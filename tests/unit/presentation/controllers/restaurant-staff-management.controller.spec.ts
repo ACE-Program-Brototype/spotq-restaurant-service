@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port.ts";
 import type { IRemoveStaffUseCase } from "@/application/ports/use-cases/remove-staff.use-case.port.ts";
 import type { IUpdateStaffInfoUseCase } from "@/application/ports/use-cases/update-staff-info.use-case.port.ts";
+import type { IUpdateStaffStatusUseCase } from "@/application/ports/use-cases/update-staff-status.use-case.port.ts";
 import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller.ts";
 import type { AuthenticatedOwnerRequest } from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -12,6 +13,7 @@ describe("RestaurantStaffManagementController", () => {
 	let getStaffDetailUseCase: jest.Mocked<IGetStaffDetailUseCase>;
 	let updateStaffInfoUseCase: jest.Mocked<IUpdateStaffInfoUseCase>;
 	let removeStaffUseCase: jest.Mocked<IRemoveStaffUseCase>;
+	let updateStaffStatusUseCase: jest.Mocked<IUpdateStaffStatusUseCase>;
 	let controller: RestaurantStaffManagementController;
 	let res: Partial<Response>;
 	let statusMock: jest.Mock;
@@ -25,11 +27,13 @@ describe("RestaurantStaffManagementController", () => {
 		getStaffDetailUseCase = { execute: jest.fn() };
 		updateStaffInfoUseCase = { execute: jest.fn() };
 		removeStaffUseCase = { execute: jest.fn() };
+		updateStaffStatusUseCase = { execute: jest.fn() };
 
 		controller = new RestaurantStaffManagementController(
 			getStaffDetailUseCase,
 			updateStaffInfoUseCase,
 			removeStaffUseCase,
+			updateStaffStatusUseCase,
 		);
 
 		jsonMock = jest.fn();
@@ -409,6 +413,147 @@ describe("RestaurantStaffManagementController", () => {
 			);
 
 			expect(mockNext).toHaveBeenCalledWith(error);
+		});
+	});
+
+	describe("updateStaffStatus", () => {
+		it("should return 401 if user is not authenticated", async () => {
+			const req = {
+				user: undefined,
+				userId: undefined,
+				headers: {},
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				body: { status: "INACTIVE" },
+			};
+			const next = jest.fn();
+
+			await controller.updateStaffStatus(
+				req as Request,
+				res as Response,
+				next as unknown as NextFunction,
+			);
+
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: false,
+					message: messages.GATEWAY_UNAUTHORIZED,
+					statusCode: HTTP_STATUS.UNAUTHORIZED,
+				}),
+			);
+		});
+
+		it("should return 403 if param restaurantId does not match authenticated owner's restaurant", async () => {
+			const req = {
+				user: {
+					userId: "owner-123",
+					restaurantId: "other-restaurant-id",
+					email: "owner@test.com",
+					role: "RESTAURANT_OWNER",
+				},
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				body: { status: "INACTIVE" },
+			};
+			const next = jest.fn();
+
+			await controller.updateStaffStatus(
+				req as Request,
+				res as Response,
+				next as unknown as NextFunction,
+			);
+
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: false,
+					message: messages.RESTAURANT_ACCESS_FORBIDDEN,
+					statusCode: HTTP_STATUS.FORBIDDEN,
+				}),
+			);
+		});
+
+		it("should return 200 and updated staff status on success", async () => {
+			const mockResult = {
+				id: mockStaffId,
+				restaurant_id: mockRestaurantId,
+				fullname: "John Staff",
+				email: "john@test.com",
+				phone: "+919876543210",
+				avatar_url: null,
+				role: "STAFF",
+				status: "INACTIVE",
+				created_at: "2026-09-01T10:00:00.000Z",
+			};
+
+			updateStaffStatusUseCase.execute.mockResolvedValue(mockResult);
+
+			const req = {
+				user: {
+					userId: "owner-123",
+					restaurantId: mockRestaurantId,
+					email: "owner@test.com",
+					role: "RESTAURANT_OWNER",
+				},
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				body: { status: "INACTIVE" },
+			};
+			const next = jest.fn();
+
+			await controller.updateStaffStatus(
+				req as Request,
+				res as Response,
+				next as unknown as NextFunction,
+			);
+
+			expect(updateStaffStatusUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: mockRestaurantId,
+				staffId: mockStaffId,
+				status: "INACTIVE",
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith({
+				success: true,
+				message: messages.STAFF_STATUS_UPDATED_SUCCESS,
+				data: mockResult,
+				statusCode: HTTP_STATUS.OK,
+			});
+		});
+
+		it("should pass unexpected errors to next", async () => {
+			const error = new Error("Database failure");
+			updateStaffStatusUseCase.execute.mockRejectedValue(error);
+
+			const req = {
+				user: {
+					userId: "owner-123",
+					restaurantId: mockRestaurantId,
+					email: "owner@test.com",
+					role: "RESTAURANT_OWNER",
+				},
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				body: { status: "INACTIVE" },
+			};
+			const next = jest.fn();
+
+			await controller.updateStaffStatus(
+				req as Request,
+				res as Response,
+				next as unknown as NextFunction,
+			);
+
+			expect(next).toHaveBeenCalledWith(error);
 		});
 	});
 });

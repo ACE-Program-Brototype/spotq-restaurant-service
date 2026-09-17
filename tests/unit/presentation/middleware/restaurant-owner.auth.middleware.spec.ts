@@ -185,6 +185,23 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(mockNext).toHaveBeenCalled();
 	});
 
+	it("should authenticate restaurant_admin role and call next()", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-uuid-123",
+			"x-user-role": "restaurant_admin",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user?.role).toBe("restaurant_admin");
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
 	it("should authenticate restaurant role and call next()", () => {
 		mockReq.headers = {
 			"x-user-id": "owner-uuid-123",

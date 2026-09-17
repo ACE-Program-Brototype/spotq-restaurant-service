@@ -23,6 +23,13 @@ export interface IRestaurantStaffRepository
 	findManyWithFilters(
 		params: StaffFilterParams,
 	): Promise<{ staff: RestaurantStaff[]; total: number }>;
+	/**
+	 * Find a staff member strictly belonging to the specified restaurant.
+	 *
+	 * @param id - Unique identifier of the staff member
+	 * @param restaurantId - Unique identifier of the restaurant
+	 * @returns The RestaurantStaff entity if found and matching restaurantId, otherwise null
+	 */
 	findByIdAndRestaurantId(
 		id: string,
 		restaurantId: string,
@@ -31,5 +38,16 @@ export interface IRestaurantStaffRepository
 	updateStaffInfo(
 		id: string,
 		data: { fullname?: string; phone?: string },
+	): Promise<RestaurantStaff>;
+	/**
+	 * Update only the status of a staff member.
+	 *
+	 * @param id - Unique identifier of the staff member
+	 * @param status - The new status ("ACTIVE" | "INACTIVE")
+	 * @returns The updated RestaurantStaff entity
+	 */
+	updateStatus?(
+		id: string,
+		status: "ACTIVE" | "INACTIVE",
 	): Promise<RestaurantStaff>;
 }

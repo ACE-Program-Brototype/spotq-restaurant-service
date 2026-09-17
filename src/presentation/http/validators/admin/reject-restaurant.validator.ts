@@ -16,4 +16,3 @@ export const rejectRestaurantBodySchema = z.object({
 export type RejectRestaurantParam = z.infer<typeof rejectRestaurantParamSchema>;
 export type RejectRestaurantParams = RejectRestaurantParam;
 export type RejectRestaurantBody = z.infer<typeof rejectRestaurantBodySchema>;
-

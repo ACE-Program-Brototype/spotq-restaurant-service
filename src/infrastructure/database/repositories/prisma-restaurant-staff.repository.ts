@@ -111,9 +111,15 @@ export class PrismaRestaurantStaffRepository
 		const { restaurantId, page, limit, status, search, sortBy, sortOrder } =
 			params;
 
+		const statusCondition: Prisma.EnumStaffStatusFilter | StaffStatus = status
+			? status === "REMOVED"
+				? { in: [] }
+				: status
+			: { not: "REMOVED" };
+
 		const where: Prisma.RestaurantStaffWhereInput = {
 			restaurantId,
-			...(status && { status }),
+			status: statusCondition,
 			...(search && {
 				OR: [
 					{ fullname: { contains: search, mode: "insensitive" } },
@@ -153,6 +159,16 @@ export class PrismaRestaurantStaffRepository
 		}
 
 		return this.mapper.toDomain(raw);
+	}
+
+	public async updateStatus(
+		id: string,
+		status: "ACTIVE" | "INACTIVE",
+	): Promise<RestaurantStaff> {
+		return this.update(id, {
+			status,
+			updatedAt: new Date(),
+		});
 	}
 
 	public async removeStaff(id: string, restaurantId: string): Promise<void> {

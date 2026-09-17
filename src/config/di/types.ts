@@ -34,6 +34,7 @@ export const TYPES = {
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
 	ListStaffMembersUseCase: Symbol.for("ListStaffMembersUseCase"),
 	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
+	UpdateStaffStatusUseCase: Symbol.for("UpdateStaffStatusUseCase"),
 	RemoveStaffUseCase: Symbol.for("RemoveStaffUseCase"),
 	UpdateStaffInfoUseCase: Symbol.for("UpdateStaffInfoUseCase"),
 	UpdateStaffProfileUseCase: Symbol.for("UpdateStaffProfileUseCase"),

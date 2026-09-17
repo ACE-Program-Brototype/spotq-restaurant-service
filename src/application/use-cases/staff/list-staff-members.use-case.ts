@@ -43,6 +43,20 @@ export class ListStaffMembersUseCase implements IListStaffMembersUseCase {
 			dto.sortOrder?.toLowerCase() === "asc" ? "asc" : "desc"
 		) as "asc" | "desc";
 
+		if (dto.status === "REMOVED") {
+			return {
+				staff: [],
+				pagination: {
+					page,
+					limit,
+					total: 0,
+					totalPages: 0,
+					hasNextPage: false,
+					hasPrevPage: false,
+				},
+			};
+		}
+
 		const { staff, total } = await this.staffRepository.findManyWithFilters({
 			restaurantId,
 			page,

@@ -1,8 +1,8 @@
-import { ListRestaurantApplicationsUseCase } from "@/application/use-cases/admin/list-restaurant-applications.use-case.ts";
 import type {
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
 } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import { ListRestaurantApplicationsUseCase } from "@/application/use-cases/admin/list-restaurant-applications.use-case.ts";
 
 describe("ListRestaurantApplicationsUseCase", () => {
 	let useCase: ListRestaurantApplicationsUseCase;
@@ -70,14 +70,16 @@ describe("ListRestaurantApplicationsUseCase", () => {
 
 		const result = await useCase.execute({});
 
-		expect(mockRestaurantRepo.findApplicationsWithFilters).toHaveBeenCalledWith({
-			page: 1,
-			limit: 10,
-			status: undefined,
-			search: undefined,
-			sortBy: "createdAt",
-			sortOrder: "desc",
-		});
+		expect(mockRestaurantRepo.findApplicationsWithFilters).toHaveBeenCalledWith(
+			{
+				page: 1,
+				limit: 10,
+				status: undefined,
+				search: undefined,
+				sortBy: "createdAt",
+				sortOrder: "desc",
+			},
+		);
 
 		expect(result.restaurants).toHaveLength(2);
 		expect(result.pagination).toEqual({
@@ -110,16 +112,18 @@ describe("ListRestaurantApplicationsUseCase", () => {
 			sortOrder: "asc",
 		});
 
-		expect(mockRestaurantRepo.findApplicationsWithFilters).toHaveBeenCalledWith({
-			page: 2,
-			limit: 10,
-			status: "PENDING",
-			search: "bistro",
-			fromDate,
-			toDate,
-			sortBy: "restaurantName",
-			sortOrder: "asc",
-		});
+		expect(mockRestaurantRepo.findApplicationsWithFilters).toHaveBeenCalledWith(
+			{
+				page: 2,
+				limit: 10,
+				status: "PENDING",
+				search: "bistro",
+				fromDate,
+				toDate,
+				sortBy: "restaurantName",
+				sortOrder: "asc",
+			},
+		);
 
 		expect(result.pagination).toEqual({
 			page: 2,

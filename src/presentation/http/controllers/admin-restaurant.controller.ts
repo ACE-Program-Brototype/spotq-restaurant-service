@@ -55,9 +55,7 @@ export class AdminRestaurantController {
 	) {}
 
 	private mapApplicationItemToSnakeCase(
-		dto:
-			| RestaurantApplicationItemDto
-			| RestaurantApplicationDetailsResponseDto,
+		dto: RestaurantApplicationItemDto | RestaurantApplicationDetailsResponseDto,
 	) {
 		return {
 			id: dto.id,
@@ -120,8 +118,7 @@ export class AdminRestaurantController {
 		const query = (res.locals.query ??
 			req.query) as ListRestaurantApplicationsQuery;
 
-		const result =
-			await this.listRestaurantApplicationsUseCase.execute(query);
+		const result = await this.listRestaurantApplicationsUseCase.execute(query);
 
 		return sendSuccessResponse(
 			res,
@@ -142,10 +139,9 @@ export class AdminRestaurantController {
 	): Promise<Response> => {
 		const { id } = req.params as GetRestaurantApplicationDetailsParam;
 
-		const result =
-			await this.getRestaurantApplicationDetailsUseCase.execute({
-				restaurantId: id,
-			});
+		const result = await this.getRestaurantApplicationDetailsUseCase.execute({
+			restaurantId: id,
+		});
 
 		return sendSuccessResponse(
 			res,
@@ -239,8 +235,7 @@ export class AdminRestaurantController {
 		next?: NextFunction,
 	): Promise<void> => {
 		try {
-			const query = (res.locals.query ??
-				req.query) as ListRestaurantsQuery;
+			const query = (res.locals.query ?? req.query) as ListRestaurantsQuery;
 
 			const result = await this.listRestaurantsUseCase.execute({
 				page: query.page,
