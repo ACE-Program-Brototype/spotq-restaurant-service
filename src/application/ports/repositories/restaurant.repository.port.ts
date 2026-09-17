@@ -1,6 +1,26 @@
-import type { CreateRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
+import type {
+	CreateRestaurantDto,
+	OnboardRestaurantDto,
+} from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
+import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
+import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto.ts";
 import type { IBaseRepository } from "@/application/ports/repositories/base.repository.port";
 import type { Restaurant } from "@/domain/entities/restaurant.entity";
+import type { RestaurantStatus } from "@/domain/value-objects/restaurant-status.vo.ts";
+import type { SubscriptionPlan } from "@/domain/value-objects/subscription-plan.vo.ts";
+
+export interface RestaurantFilterParams {
+	page: number;
+	limit: number;
+	search?: string;
+	status?: RestaurantStatus;
+	plan?: SubscriptionPlan;
+	isSubscriptionActive?: boolean;
+	createdFrom?: Date;
+	createdTo?: Date;
+	sortBy: string;
+	sortOrder: "asc" | "desc";
+}
 
 export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	existsByEmail(email: string): Promise<boolean>;
@@ -8,4 +28,31 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	createRestaurant(data: CreateRestaurantDto): Promise<Restaurant>;
 
 	findByEmail(email: string): Promise<Restaurant | null>;
+
+	findManyWithFilters(
+		params: RestaurantFilterParams,
+	): Promise<{ restaurants: Restaurant[]; total: number }>;
+
+	save(restaurant: Restaurant): Promise<void>;
+
+	activateSubscription(
+		restaurantId: string,
+		planCode: string,
+		currentPeriodEnd: Date,
+		eventId: string,
+	): Promise<boolean>;
+
+	completeOnboarding(
+		restaurant: Restaurant,
+		dto: OnboardRestaurantDto,
+	): Promise<Restaurant>;
+
+	getRestaurantProfileDetails(
+		restaurantId: string,
+	): Promise<RestaurantProfileResponseDto | null>;
+
+	updateProfileDetails(
+		restaurantId: string,
+		data: UpdateRestaurantProfileDto,
+	): Promise<RestaurantProfileResponseDto>;
 }

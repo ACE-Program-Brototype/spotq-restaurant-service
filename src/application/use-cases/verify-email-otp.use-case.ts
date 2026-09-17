@@ -1,17 +1,22 @@
 import { inject, injectable } from "inversify";
 import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
+import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
+import {
+	ONBOARDING_NEXT_STEPS,
+	type OnboardingNextStep,
+} from "@/domain/constants/onboarding-step.constants";
+import { logger } from "@/infrastructure/observability/logger";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
-import type { IAuthTokenService } from "../ports/services/auth-token.service.port";
-import type { IOtpService } from "../ports/services/otp.service.port";
-import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
-import type { IOtpStore } from "../ports/services/otp-store.port";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
@@ -42,6 +47,10 @@ export class VerifyRestaurantEmailOtpUseCase
 		const storedOtp = await this.redisOtpStore.get(otpKey);
 
 		if (!storedOtp) {
+			logger.warn(
+				{ email, otpKey },
+				"VerifyRestaurantEmailOtpUseCase: OTP key not found or expired in Redis",
+			);
 			throw new InvalidOtpError();
 		}
 
@@ -49,6 +58,11 @@ export class VerifyRestaurantEmailOtpUseCase
 
 		if (!isValid) {
 			const attempts = await this.otpService.incrementAttempt(email);
+
+			logger.warn(
+				{ email, otpKey, attempts, otpLength: otp?.length },
+				"VerifyRestaurantEmailOtpUseCase: OTP hash comparison failed",
+			);
 
 			if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
 				await this.redisOtpStore.delete(otpKey);
@@ -59,9 +73,6 @@ export class VerifyRestaurantEmailOtpUseCase
 
 			throw new InvalidOtpError();
 		}
-
-		await this.redisOtpStore.delete(otpKey);
-		await this.otpService.resetAttempts(email);
 
 		let restaurant = await this.restaurantRepository.findByEmail(email);
 
@@ -81,15 +92,35 @@ export class VerifyRestaurantEmailOtpUseCase
 		}
 
 		const tokenPair = this.authTokenService.generateTokenPair({
+			sub: restaurant.id,
+			role: "RESTAURANT_OWNER",
 			email: restaurant.email,
 			restaurantId: restaurant.id,
 		});
 
-		const nextStep =
-			restaurant.onboardingStatus === "PENDING" ||
-			restaurant.status === "PENDING"
-				? ("ONBOARDING" as const)
-				: ("DASHBOARD" as const);
+		let nextStep: OnboardingNextStep;
+
+		if (restaurant.status === "APPROVED" || restaurant.status === "ACTIVE") {
+			if (!restaurant.isSubscriptionActive) {
+				nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
+			} else {
+				nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
+			}
+		} else if (restaurant.onboardingStatus === "PENDING") {
+			nextStep = ONBOARDING_NEXT_STEPS.ONBOARDING;
+		} else if (
+			restaurant.status === "PENDING" ||
+			restaurant.status === "REJECTED" ||
+			restaurant.status === "SUSPENDED" ||
+			restaurant.status === "INACTIVE"
+		) {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
+		} else {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
+		}
+
+		await this.redisOtpStore.delete(otpKey);
+		await this.otpService.resetAttempts(email);
 
 		return {
 			nextStep,

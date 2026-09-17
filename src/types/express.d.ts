@@ -1,25 +1,34 @@
 import "express";
 import type jwt from "jsonwebtoken";
 
-export interface AuthenticatedStaff {
+export interface AuthenticatedUser {
 	userId: string;
 	restaurantId: string;
 	email: string;
 	role: string;
 }
 
-export interface AuthenticatedOwner {
-	userId: string;
+export interface AuthenticatedRestaurant {
 	restaurantId: string;
-	email: string;
-	role: string;
+	userId?: string;
+	email?: string;
+	role?: string;
 }
+
+export type AuthenticatedStaff = AuthenticatedUser;
+export type AuthenticatedOwner = AuthenticatedUser;
 
 declare global {
 	namespace Express {
 		interface Request {
 			userId?: string;
-			user?: AuthenticatedStaff | AuthenticatedOwner | jwt.JwtPayload | string;
+			user?:
+				| AuthenticatedStaff
+				| AuthenticatedRestaurant
+				| AuthenticatedOwner
+				| AuthenticatedUser
+				| jwt.JwtPayload
+				| string;
 		}
 	}
 }

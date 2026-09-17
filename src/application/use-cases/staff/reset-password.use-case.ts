@@ -1,9 +1,9 @@
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type { ResetPasswordDTO } from "@/application/dtos/staff/reset-password.dto.ts";
 import type { IPasswordHasher } from "@/application/ports/services/password-hasher.port.ts";
 import type { ITokenService } from "@/application/ports/services/token-service.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
 import {
 	InvalidStaffDataError,
 	InvalidTempTokenError,

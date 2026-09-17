@@ -12,8 +12,9 @@ import {
 	connectBullMQ,
 	disconnectBullMQ,
 } from "@/infrastructure/queue/bullmq.connect";
-import { createEmailWorker } from "@/infrastructure/queue/workers/email.worker";
+import { createSubscriptionWorker } from "@/infrastructure/queue/workers/subscription.worker";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
+import type { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { closeS3Client } from "@/infrastructure/storage/s3.client";
 import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
 import { PORT } from "@/shared/constants/app.constants";
@@ -26,10 +27,14 @@ async function bootstrap() {
 		await connectBullMQ();
 		await checkS3Connection();
 
-		const emailWorkerAdmin = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
-		emailWorkerAdmin.start();
+		const emailWorker = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
+		emailWorker.start();
 
-		const emailWorkerStaff = createEmailWorker();
+		const subscriptionWorker = createSubscriptionWorker();
+		const subscriptionExpiryService = container.get<SubscriptionExpiryService>(
+			TYPES.Services.SubscriptionExpiryService,
+		);
+		subscriptionExpiryService.start();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -55,8 +60,9 @@ async function bootstrap() {
 				}
 
 				try {
-					await emailWorkerStaff.close();
-					await emailWorkerAdmin.stop();
+					subscriptionExpiryService.stop();
+					await subscriptionWorker.close();
+					await emailWorker.stop();
 					await closeS3Client();
 
 					await disconnectBullMQ();

@@ -8,9 +8,19 @@ export const RESTAURANT_ROUTES = {
 	EMAIL_OTP: "/registration/email-otp",
 	VERIFY_EMAIL: "/registration/email-otp/verify",
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
-	REFRESH_ACCESS_TOKEN: "/auth/refresh",
+	REFRESH_ACCESS_TOKEN: "/refresh-token",
+	REGISTRATION_REFRESH_TOKEN: "/registration/refresh-token",
 	ONBOARD: "/onboard",
 	STAFF_UPDATE: "/:restaurantId/staff/:staffId",
+	STAFF_LIST: "/:restaurantId/staff",
+	UPDATE_STAFF_PROFILE: "/:restaurantId/staff/:staffId",
+	STATUS: "/me/status",
+	VERIFICATION_STATUS: "/verification-status",
+	VERIFICATION_STATUS_BY_ID: "/:id/verification-status",
+	PROFILE: "/profile",
+	STAFF_DETAIL: "/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -35,6 +45,11 @@ export const STORAGE_ROUTES = {
 	PRESIGNED_URL: "/presigned-url",
 } as const;
 
+export const ADMIN_ROUTES = {
+	BASE: "/admin",
+	RESTAURANTS: "/restaurants",
+} as const;
+
 export type RestaurantRoute =
 	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
 
@@ -43,3 +58,4 @@ export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
 export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
 export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
+export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
