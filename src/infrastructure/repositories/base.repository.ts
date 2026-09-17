@@ -5,7 +5,10 @@ type PrismaModelDelegate<T> = {
 	create: (args: { data: Partial<T> }) => Promise<T>;
 	findUnique: (args: { where: Record<string, unknown> }) => Promise<T | null>;
 	findMany: () => Promise<T[]>;
-	update: (args: { where: Record<string, unknown>; data: Partial<T> }) => Promise<T>;
+	update: (args: {
+		where: Record<string, unknown>;
+		data: Partial<T>;
+	}) => Promise<T>;
 };
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {

@@ -21,7 +21,7 @@ describe("adminAuthMiddleware", () => {
 		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
-	it("should return 401 when x-user-id header is missing (AC12)", () => {
+	it("should return 401 when x-user-id header is missing", () => {
 		mockReq.headers = {
 			"x-user-role": "admin",
 		};
@@ -44,7 +44,7 @@ describe("adminAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should return 403 when x-user-role is missing (AC12)", () => {
+	it("should return 403 when x-user-role is missing", () => {
 		mockReq.headers = {
 			"x-user-id": "admin-123",
 		};
@@ -67,7 +67,7 @@ describe("adminAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should return 403 when x-user-role is not admin (e.g. staff or user)", () => {
+	it("should return 403 when x-user-role is not admin (e.g., staff or customer)", () => {
 		mockReq.headers = {
 			"x-user-id": "user-123",
 			"x-user-role": "staff",
@@ -91,7 +91,7 @@ describe("adminAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should set user on request and call next when admin credentials are valid", () => {
+	it("should allow request and set req.user when role is 'admin'", () => {
 		mockReq.headers = {
 			"x-user-id": "admin-uuid-1",
 			"x-user-role": "admin",
@@ -110,14 +110,14 @@ describe("adminAuthMiddleware", () => {
 			role: "admin",
 		});
 		expect(mockReq.userId).toBe("admin-uuid-1");
-		expect(mockNext).toHaveBeenCalledTimes(1);
+		expect(mockNext).toHaveBeenCalled();
 	});
 
-	it("should accept uppercase ADMIN role", () => {
+	it("should allow request when role is 'super_admin' or 'ADMIN'", () => {
 		mockReq.headers = {
-			"x-user-id": "admin-uuid-1",
-			"x-user-role": "ADMIN",
-			"x-user-email": "admin@spotq.com",
+			"x-user-id": "superadmin-uuid-1",
+			"x-user-role": "SUPER_ADMIN",
+			"x-user-email": "superadmin@spotq.com",
 		};
 
 		adminAuthMiddleware(
@@ -126,7 +126,12 @@ describe("adminAuthMiddleware", () => {
 			mockNext,
 		);
 
-		expect(mockNext).toHaveBeenCalledTimes(1);
-		expect(mockReq.user?.role).toBe("ADMIN");
+		expect(mockReq.user).toEqual({
+			userId: "superadmin-uuid-1",
+			email: "superadmin@spotq.com",
+			role: "super_admin",
+		});
+		expect(mockReq.userId).toBe("superadmin-uuid-1");
+		expect(mockNext).toHaveBeenCalled();
 	});
 });

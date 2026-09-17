@@ -1,3 +1,4 @@
+import { MAX_FILE_SIZE_BYTES } from "@shared/constants/storage.constants";
 import { FileCategory } from "./file-category.enum";
 
 export interface FilePolicy {
@@ -8,26 +9,31 @@ export interface FilePolicy {
 export const FILE_POLICIES: Record<FileCategory, FilePolicy> = {
 	[FileCategory.DOCUMENTS]: {
 		allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png"],
-		maxSizeBytes: 5 * 1024 * 1024,
+		maxSizeBytes: MAX_FILE_SIZE_BYTES.DOCUMENTS,
 	},
 
 	[FileCategory.IMAGES]: {
 		allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
-		maxSizeBytes: 5 * 1024 * 1024,
+		maxSizeBytes: MAX_FILE_SIZE_BYTES.IMAGES,
 	},
 
 	[FileCategory.PROFILE]: {
 		allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
-		maxSizeBytes: 2 * 1024 * 1024,
+		maxSizeBytes: MAX_FILE_SIZE_BYTES.PROFILE,
 	},
 
 	[FileCategory.RECEIPTS]: {
 		allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png"],
-		maxSizeBytes: 5 * 1024 * 1024,
+		maxSizeBytes: MAX_FILE_SIZE_BYTES.RECEIPTS,
 	},
 
 	[FileCategory.MENUS]: {
-		allowedMimeTypes: ["application/pdf", "image/jpeg", "image/png", "image/webp"],
-		maxSizeBytes: 10 * 1024 * 1024,
+		allowedMimeTypes: [
+			"application/pdf",
+			"image/jpeg",
+			"image/png",
+			"image/webp",
+		],
+		maxSizeBytes: MAX_FILE_SIZE_BYTES.MENUS,
 	},
 };

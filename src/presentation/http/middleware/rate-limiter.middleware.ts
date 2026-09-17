@@ -167,4 +167,3 @@ export const revokeInvitationRateLimiter = createRateLimiter({
 	errorMessage: messages.RATE_LIMIT_REVOKE_INVITATION_EXCEEDED,
 	keyGenerator: emailOrIpKeyGenerator,
 });
-

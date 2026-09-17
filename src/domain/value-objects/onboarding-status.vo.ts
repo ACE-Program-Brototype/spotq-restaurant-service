@@ -6,7 +6,10 @@ export const ONBOARDING_STATUS = {
 	COMPLETED: "COMPLETED",
 } as const;
 
-export const ONBOARDING_STATUSES = ["PENDING", "COMPLETED"] as const;
+export const ONBOARDING_STATUSES = [
+	ONBOARDING_STATUS.PENDING,
+	ONBOARDING_STATUS.COMPLETED,
+] as const;
 
 export type OnboardingStatus = (typeof ONBOARDING_STATUSES)[number];
 
@@ -21,7 +24,8 @@ export class OnboardingStatusVO {
 		const upperStatus = rawStatus?.toUpperCase() as OnboardingStatus;
 		if (!ONBOARDING_STATUSES.includes(upperStatus)) {
 			throw new InvalidOnboardingStatusError(
-				messages.INVALID_ONBOARDING_STATUS || `Invalid onboarding status: ${rawStatus}`,
+				messages.INVALID_ONBOARDING_STATUS ||
+					`Invalid onboarding status: ${rawStatus}`,
 			);
 		}
 		return new OnboardingStatusVO(upperStatus);

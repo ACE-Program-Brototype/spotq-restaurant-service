@@ -1,41 +1,78 @@
-import { PrismaClient, RestaurantStatus } from "@prisma/client";
+import {
+	OnboardingStatus,
+	PrismaClient,
+	RestaurantStatus,
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const RESTAURANT_ID = process.argv[2];
-
-if (!RESTAURANT_ID) {
-	console.error("❌ Usage: pnpm restaurant:approve <restaurant-id>");
-	process.exit(1);
-}
-
 async function main() {
-	console.log(`🔍 Looking for restaurant: ${RESTAURANT_ID}...`);
+	const identifier =
+		process.argv[2] ||
+		process.env.TEST_RESTAURANT_EMAIL ||
+		"ajexjoshywork@gmail.com";
 
-	const existing = await prisma.restaurant.findUnique({
-		where: { id: RESTAURANT_ID },
-	});
+	console.log(`\nFinding/Updating restaurant for: ${identifier}...`);
 
-	if (!existing) {
-		console.error(`❌ Restaurant with ID ${RESTAURANT_ID} not found in database.`);
-		process.exit(1);
+	const isEmail = identifier.includes("@");
+	let restaurant: {
+		id: string;
+		restaurantName: string;
+		email: string;
+		status: string;
+		onboardingStatus: string;
+		isSubscriptionActive: boolean;
+	};
+
+	if (isEmail) {
+		restaurant = await prisma.restaurant.upsert({
+			where: { email: identifier },
+			update: {
+				status: RestaurantStatus.APPROVED,
+				onboardingStatus: OnboardingStatus.COMPLETED,
+				emailVerifiedAt: new Date(),
+				isSubscriptionActive: false,
+				subscriptionPlanCode: null,
+				subscriptionEndsAt: null,
+			},
+			create: {
+				restaurantName: "Ajex Grand Bistro",
+				email: identifier,
+				phone: "+919876543210",
+				ownerName: "Ajex Joshy",
+				ownerEmail: identifier,
+				status: RestaurantStatus.APPROVED,
+				onboardingStatus: OnboardingStatus.COMPLETED,
+				emailVerifiedAt: new Date(),
+				isSubscriptionActive: false,
+			},
+		});
+	} else {
+		restaurant = await prisma.restaurant.update({
+			where: { id: identifier },
+			data: {
+				status: RestaurantStatus.APPROVED,
+				onboardingStatus: OnboardingStatus.COMPLETED,
+			},
+		});
 	}
 
-	console.log(`Current status: ${existing.status}`);
-
-	const updated = await prisma.restaurant.update({
-		where: { id: RESTAURANT_ID },
-		data: {
-			status: RestaurantStatus.APPROVED,
-		},
-	});
-
-	console.log(`✅ Restaurant "${updated.restaurantName}" (${updated.id}) is now APPROVED.`);
+	console.log(
+		"\nRestaurant successfully approved and ready for subscription testing.",
+	);
+	console.log("------------------------------------------------------------");
+	console.log(`Restaurant ID:        ${restaurant.id}`);
+	console.log(`Restaurant Name:      ${restaurant.restaurantName}`);
+	console.log(`Email:                ${restaurant.email}`);
+	console.log(`Status:               ${restaurant.status}`);
+	console.log(`Onboarding Status:    ${restaurant.onboardingStatus}`);
+	console.log(`Subscription Active:  ${restaurant.isSubscriptionActive}`);
+	console.log("------------------------------------------------------------\n");
 }
 
 main()
 	.catch((err) => {
-		console.error("❌ Error updating restaurant status:", err);
+		console.error("Failed to approve restaurant:", err);
 		process.exit(1);
 	})
 	.finally(async () => {

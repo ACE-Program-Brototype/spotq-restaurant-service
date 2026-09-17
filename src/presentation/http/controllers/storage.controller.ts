@@ -17,11 +17,10 @@ export class StorageController {
 		private readonly getPresignedUrlUseCase: IGetPresignedUrlUseCase,
 	) {}
 
-	async generatePresignedUrl(
-		req: Request,
-		res: Response,
-	): Promise<Response> {
-		const userContext = (req as Request & { user?: { restaurantId?: string; email?: string } }).user;
+	async generatePresignedUrl(req: Request, res: Response): Promise<Response> {
+		const userContext = (
+			req as Request & { user?: { restaurantId?: string; email?: string } }
+		).user;
 
 		const result = await this.generatePresignedUrlUseCase.execute(
 			req.body,
