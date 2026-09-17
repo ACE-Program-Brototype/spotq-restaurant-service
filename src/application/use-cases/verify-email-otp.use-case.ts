@@ -11,13 +11,12 @@ import {
 	ONBOARDING_NEXT_STEPS,
 	type OnboardingNextStep,
 } from "@/domain/constants/onboarding-step.constants";
+import { logger } from "@/infrastructure/observability/logger";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
-
-import { logger } from "@/infrastructure/observability/logger";
 
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase

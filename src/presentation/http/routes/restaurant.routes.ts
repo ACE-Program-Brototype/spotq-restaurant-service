@@ -21,13 +21,13 @@ import {
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
-import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 import { getStaffDetailParamsSchema } from "../validators/staff/get-staff-detail.validator";
 import { listStaffSchema } from "../validators/staff/list-staff.validator";
 import {
 	updateStaffProfileBodySchema,
 	updateStaffProfileParamsSchema,
 } from "../validators/staff/update-staff-profile.validator";
+import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
 

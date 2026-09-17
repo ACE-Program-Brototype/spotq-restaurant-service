@@ -447,7 +447,12 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	};
 	const mockGetProfileUseCase = {
 		execute: async (id: string) => ({
-			restaurant: { id, name: "E2E Diner", phone: "1234567890", ownerName: "Owner" },
+			restaurant: {
+				id,
+				name: "E2E Diner",
+				phone: "1234567890",
+				ownerName: "Owner",
+			},
 			profile: null,
 			settings: null,
 			businessHours: [],
@@ -455,7 +460,12 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	};
 	const mockUpdateProfileUseCase = {
 		execute: async (id: string, _dto: unknown) => ({
-			restaurant: { id, name: "E2E Diner Updated", phone: "1234567890", ownerName: "Owner" },
+			restaurant: {
+				id,
+				name: "E2E Diner Updated",
+				phone: "1234567890",
+				ownerName: "Owner",
+			},
 			profile: null,
 			settings: null,
 			businessHours: [],

@@ -4,14 +4,13 @@ import type { SendRestaurantEmailOtpDto } from "@/application/dtos/restaurant/re
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
+import { logger } from "@/infrastructure/observability/logger";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { JOB_NAMES } from "@/shared/constants/queue.constants";
 import { generateOtp, getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
 import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
-
-import { logger } from "@/infrastructure/observability/logger";
 
 @injectable()
 export class SendRestaurantEmailOtpUseCase

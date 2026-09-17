@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
+import { UnsupportedFileTypeError } from "@/application/errors/unsupported-file-type.error";
 import { FilePolicyValidatorService } from "@/infrastructure/services/file-policy-validator.service";
 import { FileCategory } from "@/shared/storage/file-category.enum";
-import { UnsupportedFileTypeError } from "@/application/errors/unsupported-file-type.error";
 
 describe("FilePolicyValidatorService", () => {
 	const service = new FilePolicyValidatorService();
