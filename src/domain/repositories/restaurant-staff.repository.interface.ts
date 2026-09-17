@@ -27,6 +27,7 @@ export interface IRestaurantStaffRepository
 		id: string,
 		restaurantId: string,
 	): Promise<RestaurantStaff | null>;
+	removeStaff(id: string, restaurantId: string): Promise<void>;
 	updateStaffInfo(
 		id: string,
 		data: { fullname?: string; phone?: string },

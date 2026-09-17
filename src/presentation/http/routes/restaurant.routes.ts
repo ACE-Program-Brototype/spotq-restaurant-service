@@ -23,6 +23,7 @@ import {
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
 import { getStaffDetailParamsSchema } from "../validators/staff/get-staff-detail.validator";
 import { listStaffSchema } from "../validators/staff/list-staff.validator";
+import { removeStaffParamsSchema } from "../validators/staff/remove-staff.validator";
 import {
 	updateStaffInfoParamsSchema,
 	updateStaffInfoSchema,
@@ -138,6 +139,15 @@ restaurantRouter.get(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getStaffDetailParamsSchema),
 	restaurantStaffManagementController.getStaffDetail.bind(
+		restaurantStaffManagementController,
+	),
+);
+
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.STAFF_REMOVE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(removeStaffParamsSchema),
+	restaurantStaffManagementController.removeStaff.bind(
 		restaurantStaffManagementController,
 	),
 );

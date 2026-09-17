@@ -145,10 +145,7 @@ export class PrismaRestaurantStaffRepository
 		restaurantId: string,
 	): Promise<RestaurantStaff | null> {
 		const raw = await this.dbModel.findFirst({
-			where: {
-				id,
-				restaurantId,
-			},
+			where: { id, restaurantId },
 		});
 
 		if (!raw) {
@@ -156,6 +153,16 @@ export class PrismaRestaurantStaffRepository
 		}
 
 		return this.mapper.toDomain(raw);
+	}
+
+	public async removeStaff(id: string, restaurantId: string): Promise<void> {
+		await this.dbModel.updateMany({
+			where: { id, restaurantId },
+			data: {
+				status: "REMOVED",
+				updatedAt: new Date(),
+			},
+		});
 	}
 
 	public async updateStaffInfo(
