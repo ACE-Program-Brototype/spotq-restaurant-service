@@ -8,7 +8,7 @@ export interface VerifyRestaurantEmailOtpDto {
 }
 
 export interface VerifyRestaurantEmailOtpResponseDto {
-	nextStep: "ONBOARDING" | "DASHBOARD";
+	nextStep: "ONBOARDING" | "VERIFICATION_STATUS" | "SUBSCRIPTION" | "DASHBOARD";
 	restaurantId: string;
 	accessToken: string;
 	refreshToken: string;

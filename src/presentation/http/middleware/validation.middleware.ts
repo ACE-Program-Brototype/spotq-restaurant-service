@@ -1,7 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import type { ZodType } from "zod";
 import { z } from "zod";
-import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
+import {
+	HTTP_STATUS,
+	type HttpStatusCode,
+} from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
 
@@ -29,6 +32,7 @@ export const validate = (schema: ZodType) => {
 		next();
 	};
 };
+
 
 export function validateRequestBody(schema: ZodType) {
 	return async (
@@ -63,7 +67,10 @@ export function validateRequestBody(schema: ZodType) {
 	};
 }
 
-export function validateRequestQuery(schema: ZodType) {
+export function validateRequestQuery(
+	schema: ZodType,
+	errorStatusCode: HttpStatusCode = HTTP_STATUS.UNPROCESSABLE_ENTITY,
+) {
 	return async (
 		req: Request,
 		res: Response,
@@ -87,12 +94,12 @@ export function validateRequestQuery(schema: ZodType) {
 				}));
 
 				res
-					.status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+					.status(errorStatusCode)
 					.json(
 						ApiResponse.error(
 							messages.VALIDATION_ERROR,
 							"VALIDATION_ERROR",
-							HTTP_STATUS.UNPROCESSABLE_ENTITY,
+							errorStatusCode,
 							formattedErrors,
 						),
 					);
@@ -111,6 +118,7 @@ export function validateRequestParams(schema: ZodType) {
 	): Promise<void> => {
 		try {
 			const parsed = await schema.parseAsync(req.params ?? {});
+			res.locals.params = parsed;
 			req.params = parsed as Record<string, string>;
 			next();
 		} catch (error) {

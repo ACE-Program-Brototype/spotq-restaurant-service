@@ -23,6 +23,8 @@ function getHeaderValue(
 	return header;
 }
 
+const ALLOWED_ADMIN_ROLES = new Set(["admin", "super_admin", "superadmin"]);
+
 export function adminAuthMiddleware(
 	req: Request,
 	res: Response,
@@ -46,7 +48,7 @@ export function adminAuthMiddleware(
 	const role = getHeaderValue(req.headers["x-user-role"]);
 	const normalizedRole = role?.toLowerCase().trim();
 
-	if (normalizedRole !== "admin") {
+	if (!normalizedRole || !ALLOWED_ADMIN_ROLES.has(normalizedRole)) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(
@@ -64,7 +66,7 @@ export function adminAuthMiddleware(
 	(req as AuthenticatedAdminRequest).user = {
 		userId,
 		email: email || "",
-		role: role || "ADMIN",
+		role: normalizedRole,
 	};
 	(req as AuthenticatedAdminRequest).userId = userId;
 

@@ -167,7 +167,6 @@ export const revokeInvitationRateLimiter = createRateLimiter({
 	errorMessage: messages.RATE_LIMIT_REVOKE_INVITATION_EXCEEDED,
 	keyGenerator: emailOrIpKeyGenerator,
 });
-
 export const adminKeyGenerator = (req: Request): string => {
 	const userId = (req as { user?: { userId?: string } }).user?.userId;
 	return userId ? `admin:${userId}` : getClientIp(req);
@@ -188,5 +187,3 @@ export const unblockRestaurantRateLimiter = createRateLimiter({
 	errorMessage: messages.RATE_LIMIT_UNBLOCK_RESTAURANT_EXCEEDED,
 	keyGenerator: adminKeyGenerator,
 });
-
-

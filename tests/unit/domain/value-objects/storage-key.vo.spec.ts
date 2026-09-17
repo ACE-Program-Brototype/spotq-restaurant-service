@@ -26,6 +26,12 @@ describe("StorageKeyVO", () => {
 		expect(() =>
 			StorageKeyVO.create("restaurants/123/../../../etc/passwd"),
 		).toThrow(InvalidStorageKeyError);
+		expect(() =>
+			StorageKeyVO.create("restaurants/123/%2e%2e/file.pdf"),
+		).toThrow(InvalidStorageKeyError);
+		expect(() =>
+			StorageKeyVO.create("restaurants/123/%252e%252e/file.pdf"),
+		).toThrow(InvalidStorageKeyError);
 	});
 
 	it("correctly compares equality between two StorageKeyVO instances", () => {

@@ -1,0 +1,222 @@
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import type { NextFunction, Response } from "express";
+import {
+	type AuthenticatedOwnerRequest,
+	restaurantOwnerAuthMiddleware,
+} from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
+
+describe("restaurantOwnerAuthMiddleware", () => {
+	let mockReq: Partial<AuthenticatedOwnerRequest>;
+	let mockRes: Partial<Response>;
+	let mockNext: jest.MockedFunction<NextFunction>;
+
+	beforeEach(() => {
+		mockReq = {
+			headers: {},
+		};
+		mockRes = {
+			status: jest.fn().mockReturnThis() as never,
+			json: jest.fn().mockReturnThis() as never,
+		};
+		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
+	});
+
+	it("should return 401 when x-user-id and x-restaurant-id headers are missing", () => {
+		mockReq.headers = {
+			"x-user-role": "restaurant_owner",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: HTTP_STATUS.UNAUTHORIZED,
+				code: "UNAUTHORIZED",
+				message: messages.GATEWAY_UNAUTHORIZED,
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
+	it("should return 403 when x-user-role is missing", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-123",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+				code: "FORBIDDEN",
+				message: messages.OWNER_FORBIDDEN,
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
+	it("should return 403 when x-user-role is not in positive allowlist (e.g. staff, customer, or guest)", () => {
+		mockReq.headers = {
+			"x-user-id": "user-123",
+			"x-user-role": "staff",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+				code: "FORBIDDEN",
+				message: messages.OWNER_FORBIDDEN,
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
+	it("should return 403 when req.params.restaurantId does not match x-restaurant-id", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-123",
+			"x-restaurant-id": "rest-123",
+			"x-user-role": "restaurant_owner",
+		};
+		mockReq.params = {
+			restaurantId: "rest-999",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+				code: "FORBIDDEN",
+				message: messages.RESTAURANT_ACCESS_FORBIDDEN,
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
+	it("should authenticate restaurant_owner and call next()", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-uuid-123",
+			"x-user-role": "restaurant_owner",
+			"x-user-email": "owner@restaurant.com",
+			"x-restaurant-id": "rest-uuid-456",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user).toEqual({
+			userId: "owner-uuid-123",
+			restaurantId: "rest-uuid-456",
+			email: "owner@restaurant.com",
+			role: "restaurant_owner",
+		});
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
+	it("should authenticate RESTAURANT_OWNER (case-insensitive) and call next()", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-uuid-123",
+			"x-user-role": "RESTAURANT_OWNER",
+			"x-user-email": "owner@restaurant.com",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user).toEqual({
+			userId: "owner-uuid-123",
+			restaurantId: "owner-uuid-123",
+			email: "owner@restaurant.com",
+			role: "RESTAURANT_OWNER",
+		});
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
+	it("should authenticate owner role and call next()", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-uuid-123",
+			"x-user-role": "owner",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user?.role).toBe("owner");
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
+	it("should authenticate restaurant role and call next()", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-uuid-123",
+			"x-user-role": "restaurant",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user?.role).toBe("restaurant");
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
+	it("should handle array headers properly", () => {
+		mockReq.headers = {
+			"x-user-id": ["owner-uuid-123", "extra-id"],
+			"x-user-role": ["owner"],
+			"x-user-email": ["owner@restaurant.com"],
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user?.userId).toBe("owner-uuid-123");
+		expect(mockReq.userId).toBe("owner-uuid-123");
+		expect(mockNext).toHaveBeenCalled();
+	});
+});

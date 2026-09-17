@@ -29,4 +29,3 @@ export const adminModule = new ContainerModule(({ bind }) => {
 		.to(UnblockRestaurantUseCase)
 		.inSingletonScope();
 });
-

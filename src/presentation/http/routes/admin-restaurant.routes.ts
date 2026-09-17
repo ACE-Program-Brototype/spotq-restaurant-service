@@ -42,5 +42,3 @@ adminRestaurantRouter.patch(
 	validateRequestParams(unblockRestaurantParamSchema),
 	adminRestaurantController.unblockRestaurant,
 );
-
-

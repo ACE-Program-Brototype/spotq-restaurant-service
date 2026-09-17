@@ -4,11 +4,15 @@ import type { RestaurantDetailsResponseDto } from "@/application/dtos/admin/rest
 import type { IBlockRestaurantUseCase } from "@/application/ports/use-cases/admin/block-restaurant.use-case.port.ts";
 import type { IGetRestaurantDetailsUseCase } from "@/application/ports/use-cases/admin/get-restaurant-details.use-case.port.ts";
 import type { IUnblockRestaurantUseCase } from "@/application/ports/use-cases/admin/unblock-restaurant.use-case.port.ts";
+import type { IListRestaurantsUseCase } from "@/application/ports/use-cases/list-restaurants.use-case.port.ts";
 import { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller.ts";
 import type { AuthenticatedAdminRequest } from "@/presentation/http/middleware/admin.auth.middleware.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("AdminRestaurantController", () => {
 	let getRestaurantDetailsUseCase: jest.Mocked<IGetRestaurantDetailsUseCase>;
+	let listRestaurantsUseCase: jest.Mocked<IListRestaurantsUseCase>;
 	let blockRestaurantUseCase: jest.Mocked<IBlockRestaurantUseCase>;
 	let unblockRestaurantUseCase: jest.Mocked<IUnblockRestaurantUseCase>;
 	let controller: AdminRestaurantController;
@@ -110,23 +114,30 @@ describe("AdminRestaurantController", () => {
 	};
 
 	beforeEach(() => {
+		jest.clearAllMocks();
 		getRestaurantDetailsUseCase = {
 			execute: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IGetRestaurantDetailsUseCase>;
+		listRestaurantsUseCase = {
+			execute: jest.fn(),
+		} as unknown as jest.Mocked<IListRestaurantsUseCase>;
 		blockRestaurantUseCase = {
 			execute: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IBlockRestaurantUseCase>;
 		unblockRestaurantUseCase = {
 			execute: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IUnblockRestaurantUseCase>;
+
 		controller = new AdminRestaurantController(
 			getRestaurantDetailsUseCase,
+			listRestaurantsUseCase,
 			blockRestaurantUseCase,
 			unblockRestaurantUseCase,
 		);
 
 		req = {
 			params: { id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" },
+			query: {},
 			user: {
 				userId: "admin-123",
 				email: "admin@spotq.com",
@@ -135,6 +146,7 @@ describe("AdminRestaurantController", () => {
 		};
 
 		res = {
+			locals: {},
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
 		};
@@ -143,7 +155,7 @@ describe("AdminRestaurantController", () => {
 	});
 
 	describe("getRestaurantDetails", () => {
-		it("should return 200 with snake_case mapped restaurant details when found", async () => {
+		it("should return restaurant details when valid id provided", async () => {
 			getRestaurantDetailsUseCase.execute.mockResolvedValue(dummyDetails);
 
 			await controller.getRestaurantDetails(
@@ -186,6 +198,79 @@ describe("AdminRestaurantController", () => {
 
 			expect(next).toHaveBeenCalledWith(error);
 			expect(res.status).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("listRestaurants", () => {
+		it("should execute use case and send success response with HTTP 200", async () => {
+			const mockResponseData = {
+				restaurants: [
+					{
+						id: "rest-1",
+						restaurant: "Burger Point",
+						restaurant_name: "Burger Point",
+						owner: "Alice",
+						owner_name: "Alice",
+						contact: {
+							email: "alice@burgerpoint.com",
+							phone: "+919876543210",
+							owner_email: "alice@burgerpoint.com",
+						},
+						plan: "PRO",
+						subscription_plan_code: "PRO",
+						status: "ACTIVE",
+						is_subscription_active: true,
+						onboarding_status: "COMPLETED",
+						is_blocked: false,
+						block_reason: null,
+						created_at: "2026-01-01T00:00:00.000Z",
+						updated_at: "2026-01-01T00:00:00.000Z",
+						subscription_ends_at: null,
+					},
+				],
+				pagination: {
+					page: 1,
+					limit: 10,
+					total: 1,
+					total_pages: 1,
+					has_next_page: false,
+					has_prev_page: false,
+				},
+			};
+
+			listRestaurantsUseCase.execute.mockResolvedValueOnce(mockResponseData);
+
+			res.locals = {
+				query: {
+					page: 1,
+					limit: 10,
+					search: "burger",
+					sortBy: "createdAt",
+					sortOrder: "desc",
+				},
+			};
+
+			await controller.listRestaurants(req as Request, res as Response);
+
+			expect(listRestaurantsUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					page: 1,
+					limit: 10,
+					search: "burger",
+					sortBy: "createdAt",
+					sortOrder: "desc",
+				}),
+			);
+
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					statusCode: HTTP_STATUS.OK,
+					message: messages.RESTAURANTS_FETCHED_SUCCESS,
+					data: mockResponseData,
+				}),
+			);
 		});
 	});
 

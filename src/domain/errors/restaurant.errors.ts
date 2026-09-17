@@ -3,7 +3,7 @@ import { DOMAIN_ERROR_CODES } from "../constants/error-code.constants.ts";
 import { DomainError } from "./domain.error.ts";
 
 export const messages = {
-	RESTAUARANT_NAME_REQUIRED:
+	RESTAURANT_NAME_REQUIRED:
 		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_EMAIL_REQUIRED: "Valid restaurant email is required",
 	RESTAURANT_PHONE_REQUIRED: "Valid restaurant phone is required",

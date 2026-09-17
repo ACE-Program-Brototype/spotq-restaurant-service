@@ -63,7 +63,10 @@ export class InviteStaffUseCase implements IInviteStaffUseCase {
 		}
 
 		const existingStaff =
-			await this.staffRepository.findByEmail(normalizedEmail);
+			await this.staffRepository.findByEmailAndRestaurantId(
+				normalizedEmail,
+				restaurantId,
+			);
 		if (existingStaff) {
 			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 		}
