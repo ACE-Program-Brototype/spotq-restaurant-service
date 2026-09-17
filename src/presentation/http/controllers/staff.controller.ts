@@ -1,4 +1,5 @@
-import type { CookieOptions, NextFunction, Request, Response } from "express";
+import { TYPES } from "@di/types.ts";
+import type { CookieOptions, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
@@ -16,7 +17,6 @@ import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-case
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
 import {
 	RestaurantIdRequiredError,

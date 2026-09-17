@@ -21,23 +21,17 @@ export class RefreshRestaurantAccessTokenUseCase
 	): Promise<{ accessToken: string }> {
 		const { refreshToken } = dto;
 
-		if (!refreshToken?.trim()) {
-			throw new InvalidRefreshTokenError();
-		}
-
-		let payload: { restaurantId: string; email: string };
-
 		try {
-			payload = this.authTokenService.verifyRefreshToken(refreshToken);
+			const payload = this.authTokenService.verifyRefreshToken(refreshToken);
+
+			const accessToken = this.authTokenService.generateAccessToken({
+				restaurantId: payload.restaurantId,
+				email: payload.email,
+			});
+
+			return { accessToken };
 		} catch {
 			throw new InvalidRefreshTokenError();
 		}
-
-		return {
-			accessToken: this.authTokenService.generateAccessToken({
-				restaurantId: payload.restaurantId,
-				email: payload.email,
-			}),
-		};
 	}
 }

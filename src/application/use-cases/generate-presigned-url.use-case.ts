@@ -4,6 +4,9 @@ import type {
 	GeneratePresignedUrlDto,
 	GeneratePresignedUrlResponseDto,
 } from "@/application/dtos/restaurant/generate-presigned-url.dto";
+import { InvalidEntityIdError } from "@/application/errors/invalid-entity-id.error";
+import { InvalidEntityTypeError } from "@/application/errors/invalid-entity-type.error";
+import { UnauthorizedEntityAccessError } from "@/application/errors/unauthorized-entity-access.error";
 import type { IFilePolicyValidator } from "@/application/ports/services/file-policy-validator.port";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
 import type {
@@ -44,7 +47,7 @@ export class GeneratePresignedUrlUseCase
 				normalizedEntityType === "restaurant")
 		) {
 			if (authContext.restaurantId !== sanitizedEntityId) {
-				throw new Error("Unauthorized entity access");
+				throw new UnauthorizedEntityAccessError();
 			}
 		}
 
@@ -83,7 +86,7 @@ export class GeneratePresignedUrlUseCase
 	private sanitizeEntityType(entityType: string): string {
 		const normalized = entityType.trim().toLowerCase();
 		if (/[/\\.]/.test(normalized) || normalized.includes("..")) {
-			throw new Error("Invalid entity_type");
+			throw new InvalidEntityTypeError();
 		}
 		return normalized.replace(/[^a-z0-9_-]/g, "");
 	}
@@ -91,7 +94,7 @@ export class GeneratePresignedUrlUseCase
 	private sanitizeEntityId(entityId: string): string {
 		const trimmed = entityId.trim();
 		if (/[/\\.]/.test(trimmed) || trimmed.includes("..")) {
-			throw new Error("Invalid entity_id");
+			throw new InvalidEntityIdError();
 		}
 		return trimmed;
 	}

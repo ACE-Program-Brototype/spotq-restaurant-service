@@ -1,8 +1,16 @@
 import { inject, injectable } from "inversify";
 import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
+import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
+import {
+	ONBOARDING_NEXT_STEPS,
+	type OnboardingNextStep,
+} from "@/domain/constants/onboarding-step.constants";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
 import { InvalidOtpError } from "../errors/invalid-otp.error";
@@ -85,11 +93,26 @@ export class VerifyRestaurantEmailOtpUseCase
 			restaurantId: restaurant.id,
 		});
 
-		const nextStep =
-			restaurant.onboardingStatus === "PENDING" ||
-			restaurant.status === "PENDING"
-				? ("ONBOARDING" as const)
-				: ("DASHBOARD" as const);
+		let nextStep: OnboardingNextStep;
+
+		if (restaurant.status === "APPROVED" || restaurant.status === "ACTIVE") {
+			if (!restaurant.isSubscriptionActive) {
+				nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
+			} else {
+				nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
+			}
+		} else if (restaurant.onboardingStatus === "PENDING") {
+			nextStep = ONBOARDING_NEXT_STEPS.ONBOARDING;
+		} else if (
+			restaurant.status === "PENDING" ||
+			restaurant.status === "REJECTED" ||
+			restaurant.status === "SUSPENDED" ||
+			restaurant.status === "INACTIVE"
+		) {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
+		} else {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
+		}
 
 		return {
 			nextStep,
