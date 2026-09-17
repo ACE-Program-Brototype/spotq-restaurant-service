@@ -207,8 +207,8 @@ export class RestaurantRepository implements IRestaurantRepository {
 				: null,
 			profile: raw.profile
 				? {
-						coverImage: raw.profile.coverImage,
-						avatar: raw.profile.avatar,
+						coverImage: raw.profile.coverImageKey,
+						avatar: raw.profile.logoKey,
 						description: raw.profile.description,
 						fssaiNumber: raw.profile.fssaiNumber,
 						registerNumber: raw.profile.registerNumber,
