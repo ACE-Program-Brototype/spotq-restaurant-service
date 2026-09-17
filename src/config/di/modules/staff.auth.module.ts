@@ -15,10 +15,12 @@ import type { IListStaffMembersUseCase } from "@/application/ports/use-cases/lis
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port";
+import type { IRemoveStaffUseCase } from "@/application/ports/use-cases/remove-staff.use-case.port";
 import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port";
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port";
+import type { IUpdateStaffInfoUseCase } from "@/application/ports/use-cases/update-staff-info.use-case.port";
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port";
@@ -32,10 +34,12 @@ import { ListStaffMembersUseCase } from "@/application/use-cases/staff/list-staf
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case";
 import { LogoutStaffUseCase } from "@/application/use-cases/staff/logout-staff.use-case";
 import { RefreshTokenUseCase } from "@/application/use-cases/staff/refresh-token.use-case";
+import { RemoveStaffUseCase } from "@/application/use-cases/staff/remove-staff.use-case";
 import { ResendForgotPasswordOtpUseCase } from "@/application/use-cases/staff/resend-forgot-password-otp.use-case";
 import { ResendStaffInvitationUseCase } from "@/application/use-cases/staff/resend-staff-invitation.use-case";
 import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-password.use-case";
 import { RevokeStaffInvitationUseCase } from "@/application/use-cases/staff/revoke-staff-invitation.use-case";
+import { UpdateStaffInfoUseCase } from "@/application/use-cases/staff/update-staff-info.use-case";
 import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-staff-profile.use-case";
 import { ValidateInvitationUseCase } from "@/application/use-cases/staff/validate-invitation.use-case";
 import { VerifyForgotPasswordOtpUseCase } from "@/application/use-cases/staff/verify-forgot-password-otp.use-case";
@@ -159,6 +163,14 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 
 	bind<IGetStaffProfileUseCase>(TYPES.GetStaffProfileUseCase)
 		.to(GetStaffProfileUseCase)
+		.inSingletonScope();
+
+	bind<IRemoveStaffUseCase>(TYPES.RemoveStaffUseCase)
+		.to(RemoveStaffUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateStaffInfoUseCase>(TYPES.UpdateStaffInfoUseCase)
+		.to(UpdateStaffInfoUseCase)
 		.inSingletonScope();
 
 	bind<IUpdateStaffProfileUseCase>(TYPES.UpdateStaffProfileUseCase)

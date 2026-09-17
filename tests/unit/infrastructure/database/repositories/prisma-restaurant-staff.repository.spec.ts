@@ -57,8 +57,8 @@ describe("PrismaRestaurantStaffRepository", () => {
 		mockPrisma = {
 			restaurantStaff: {
 				findUnique: jest.fn(),
-				findMany: jest.fn(),
 				findFirst: jest.fn(),
+				findMany: jest.fn(),
 				upsert: jest.fn(),
 				update: jest.fn(),
 				delete: jest.fn(),
@@ -144,7 +144,10 @@ describe("PrismaRestaurantStaffRepository", () => {
 		});
 
 		it("should return null if email or restaurantId is empty", async () => {
-			const result = await repository.findByEmailAndRestaurantId("", "rest-123");
+			const result = await repository.findByEmailAndRestaurantId(
+				"",
+				"rest-123",
+			);
 			expect(result).toBeNull();
 			expect(mockPrisma.restaurantStaff.findUnique).not.toHaveBeenCalled();
 		});
@@ -247,6 +250,48 @@ describe("PrismaRestaurantStaffRepository", () => {
 			);
 
 			expect(result).toBeNull();
+		});
+	});
+
+	describe("updateStaffInfo", () => {
+		it("should update staff fullname and phone and return updated entity", async () => {
+			const updatedPrisma = {
+				...dummyPrismaStaff,
+				fullname: "Updated Name",
+				phone: "+919999999999",
+				updatedAt: new Date(),
+			};
+			mockPrisma.restaurantStaff.update.mockResolvedValue(updatedPrisma);
+
+			const result = await repository.updateStaffInfo("staff-123", {
+				fullname: "Updated Name",
+				phone: "+919999999999",
+			});
+
+			expect(result.fullname).toBe("Updated Name");
+			expect(result.phone).toBe("+919999999999");
+			expect(mockPrisma.restaurantStaff.update).toHaveBeenCalledWith({
+				where: { id: "staff-123" },
+				data: expect.objectContaining({
+					fullname: "Updated Name",
+					phone: "+919999999999",
+					updatedAt: expect.any(Date),
+				}),
+			});
+		});
+
+		it("should throw StaffNotFoundError when P2025 error occurs during update", async () => {
+			const error = new PrismaClientKnownRequestError("Record not found", {
+				code: "P2025",
+				clientVersion: "5.0.0",
+			});
+			mockPrisma.restaurantStaff.update.mockRejectedValue(error);
+
+			await expect(
+				repository.updateStaffInfo("staff-nonexistent", {
+					fullname: "Updated Name",
+				}),
+			).rejects.toThrow(StaffNotFoundError);
 		});
 	});
 });

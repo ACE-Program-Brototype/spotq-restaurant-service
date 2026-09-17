@@ -255,4 +255,9 @@ export class RestaurantStaff {
 		this._props.status = StaffStatusVO.create("SUSPENDED");
 		this._props.updatedAt = new Date();
 	}
+
+	public remove(): void {
+		this._props.status = StaffStatusVO.create("REMOVED");
+		this._props.updatedAt = new Date();
+	}
 }

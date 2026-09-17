@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import { ALLOWED_OWNER_ROLES } from "@/shared/constants/auth.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -11,14 +12,9 @@ export interface AuthenticatedOwnerRequest extends Request {
 	userId?: string;
 }
 
-const ALLOWED_OWNER_ROLES = new Set([
-	"restaurant_owner",
-	"restaurant_admin",
-	"restaurant",
-	"owner",
-	"admin",
-]);
-
+/**
+ * Extracts a normalized single string value from a potential array of header values.
+ */
 function getHeaderValue(
 	header: string | string[] | undefined,
 ): string | undefined {
@@ -28,6 +24,10 @@ function getHeaderValue(
 	return header;
 }
 
+/**
+ * Authentication and authorization middleware verifying that requests originating
+ * from the API gateway carry a valid restaurant owner identity.
+ */
 export function restaurantOwnerAuthMiddleware(
 	req: Request,
 	res: Response,
@@ -96,6 +96,7 @@ export function restaurantOwnerAuthMiddleware(
 		email: email || "",
 		role: role || "RESTAURANT_OWNER",
 	};
+
 	req.userId = userId;
 
 	next();

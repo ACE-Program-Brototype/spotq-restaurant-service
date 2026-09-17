@@ -2,12 +2,9 @@ import type { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
+import type { AuthenticatedAdmin } from "@/types/express.d.ts";
 
-export interface AuthenticatedAdmin {
-	userId: string;
-	email: string;
-	role: string;
-}
+export type { AuthenticatedAdmin };
 
 export interface AuthenticatedAdminRequest extends Request {
 	user?: AuthenticatedAdmin;
@@ -66,7 +63,7 @@ export function adminAuthMiddleware(
 	(req as AuthenticatedAdminRequest).user = {
 		userId,
 		email: email || "",
-		role: role || "ADMIN",
+		role: normalizedRole,
 	};
 	(req as AuthenticatedAdminRequest).userId = userId;
 

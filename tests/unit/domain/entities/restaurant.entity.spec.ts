@@ -1,5 +1,9 @@
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
-import { InvalidRestaurantDataError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	InvalidOnboardingStatusError,
+	InvalidRestaurantDataError,
+	RestaurantAlreadyProcessedError,
+} from "@/domain/errors/restaurant.errors.ts";
 
 describe("Restaurant Entity", () => {
 	const validProps = {
@@ -73,10 +77,12 @@ describe("Restaurant Entity", () => {
 
 		restaurant.block("Policy violation");
 		expect(restaurant.isBlocked).toBe(true);
+		expect(restaurant.status).toBe("SUSPENDED");
 		expect(restaurant.blockReason).toBe("Policy violation");
 
 		restaurant.unblock();
 		expect(restaurant.isBlocked).toBe(false);
+		expect(restaurant.status).toBe("ACTIVE");
 		expect(restaurant.blockReason).toBeNull();
 
 		restaurant.verifyEmail();
@@ -87,6 +93,111 @@ describe("Restaurant Entity", () => {
 
 		restaurant.updateStatus("ACTIVE");
 		expect(restaurant.status).toBe("ACTIVE");
+	});
+
+	describe("approve()", () => {
+		it("should successfully approve restaurant when status is PENDING and onboarding is COMPLETED", () => {
+			const restaurant = Restaurant.create({
+				...validProps,
+				onboardingStatus: "COMPLETED",
+			});
+
+			restaurant.approve();
+			expect(restaurant.status).toBe("APPROVED");
+			expect(restaurant.rejectionReason).toBeNull();
+		});
+
+		it("should throw InvalidOnboardingStatusError when onboarding is not COMPLETED", () => {
+			const restaurant = Restaurant.create({
+				...validProps,
+				onboardingStatus: "PENDING",
+			});
+
+			expect(() => restaurant.approve()).toThrow(
+				InvalidOnboardingStatusError,
+			);
+		});
+
+		it("should throw RestaurantAlreadyProcessedError when status is not PENDING", () => {
+			const restaurant = Restaurant.reconstitute({
+				id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				restaurantName: "Diner Prime",
+				email: "info@dinerprime.com",
+				phone: "+9876543210",
+				ownerName: "John Doe",
+				ownerEmail: "john@dinerprime.com",
+				status: "APPROVED",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			});
+
+			expect(() => restaurant.approve()).toThrow(
+				RestaurantAlreadyProcessedError,
+			);
+		});
+	});
+
+	describe("reject()", () => {
+		it("should successfully reject restaurant with reason when status is PENDING and onboarding is COMPLETED", () => {
+			const restaurant = Restaurant.create({
+				...validProps,
+				onboardingStatus: "COMPLETED",
+			});
+
+			restaurant.reject("Invalid FSSAI document");
+			expect(restaurant.status).toBe("REJECTED");
+			expect(restaurant.rejectionReason).toBe("Invalid FSSAI document");
+			expect(restaurant.isBlocked).toBe(false);
+			expect(restaurant.blockReason).toBeNull();
+		});
+
+		it("should throw InvalidOnboardingStatusError when onboarding is not COMPLETED", () => {
+			const restaurant = Restaurant.create({
+				...validProps,
+				onboardingStatus: "PENDING",
+			});
+
+			expect(() => restaurant.reject("Invalid document")).toThrow(
+				InvalidOnboardingStatusError,
+			);
+		});
+
+		it("should throw RestaurantAlreadyProcessedError when status is already REJECTED", () => {
+			const restaurant = Restaurant.reconstitute({
+				id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				restaurantName: "Diner Prime",
+				email: "info@dinerprime.com",
+				phone: "+9876543210",
+				ownerName: "John Doe",
+				ownerEmail: "john@dinerprime.com",
+				status: "REJECTED",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			});
+
+			expect(() => restaurant.reject("Invalid document")).toThrow(
+				RestaurantAlreadyProcessedError,
+			);
+		});
+
+		it("should throw InvalidRestaurantDataError when rejection reason is empty or whitespace", () => {
+			const restaurant = Restaurant.create({
+				...validProps,
+				onboardingStatus: "COMPLETED",
+			});
+
+			expect(() => restaurant.reject("   ")).toThrow(
+				InvalidRestaurantDataError,
+			);
+		});
 	});
 
 	it("should support subscription domain mutations (activateSubscription, expireSubscription)", () => {

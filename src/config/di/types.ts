@@ -34,7 +34,10 @@ export const TYPES = {
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
 	ListStaffMembersUseCase: Symbol.for("ListStaffMembersUseCase"),
 	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
+	RemoveStaffUseCase: Symbol.for("RemoveStaffUseCase"),
+	UpdateStaffInfoUseCase: Symbol.for("UpdateStaffInfoUseCase"),
 	UpdateStaffProfileUseCase: Symbol.for("UpdateStaffProfileUseCase"),
+	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
 
 	// Subscription & Restaurant Use Cases
 	GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
@@ -43,9 +46,6 @@ export const TYPES = {
 	// Staff Controllers & Services
 	StaffController: Symbol.for("StaffController"),
 	RestaurantStatusController: Symbol.for("RestaurantStatusController"),
-	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
-
-	// Staff Controllers & Services
 	RestaurantStaffManagementController: Symbol.for(
 		"RestaurantStaffManagementController",
 	),
@@ -54,6 +54,17 @@ export const TYPES = {
 
 	// Observability & System
 	HealthCheckService: Symbol.for("HealthCheckService"),
+
+	// Admin Use Cases & Controllers
+	ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+	RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+	ListRestaurantApplicationsUseCase: Symbol.for(
+		"ListRestaurantApplicationsUseCase",
+	),
+	GetRestaurantApplicationDetailsUseCase: Symbol.for(
+		"GetRestaurantApplicationDetailsUseCase",
+	),
+	AdminRestaurantController: Symbol.for("AdminRestaurantController"),
 
 	// Feature Namespaced Sub-types (for Restaurant & Storage & Common services)
 	UseCases: {
@@ -76,6 +87,18 @@ export const TYPES = {
 			"UpdateRestaurantProfileUseCase",
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
+		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
+		ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+		RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+		ListRestaurantApplicationsUseCase: Symbol.for(
+			"ListRestaurantApplicationsUseCase",
+		),
+		GetRestaurantApplicationDetailsUseCase: Symbol.for(
+			"GetRestaurantApplicationDetailsUseCase",
+		),
+		GetRestaurantDetailsUseCase: Symbol.for("GetRestaurantDetailsUseCase"),
+		BlockRestaurantUseCase: Symbol.for("BlockRestaurantUseCase"),
+		UnblockRestaurantUseCase: Symbol.for("UnblockRestaurantUseCase"),
 		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),

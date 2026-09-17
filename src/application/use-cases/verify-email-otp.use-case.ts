@@ -18,7 +18,6 @@ import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
 
-
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
 	implements IVerifyRestaurantEmailOtpUseCase
@@ -91,6 +90,8 @@ export class VerifyRestaurantEmailOtpUseCase
 		if (restaurant.isBlocked) {
 			throw new RestaurantAccountBlockedError();
 		}
+
+		await this.restaurantRepository.updateLastLogin(restaurant.id);
 
 		const tokenPair = this.authTokenService.generateTokenPair({
 			sub: restaurant.id,

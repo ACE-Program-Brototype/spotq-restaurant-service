@@ -23,6 +23,11 @@ import {
 import { onboardRestaurantSchema } from "../validators/restaurant-onboard.validator";
 import { getStaffDetailParamsSchema } from "../validators/staff/get-staff-detail.validator";
 import { listStaffSchema } from "../validators/staff/list-staff.validator";
+import { removeStaffParamsSchema } from "../validators/staff/remove-staff.validator";
+import {
+	updateStaffInfoParamsSchema,
+	updateStaffInfoSchema,
+} from "../validators/staff/update-staff-info.validator";
 import {
 	updateStaffProfileBodySchema,
 	updateStaffProfileParamsSchema,
@@ -78,13 +83,41 @@ restaurantRouter.post(
 	restaurantAuthController.onboard.bind(restaurantAuthController),
 );
 
-restaurantRouter.patch(
-	RESTAURANT_ROUTES.UPDATE_STAFF_PROFILE,
+const updateStaffProfileChain: express.RequestHandler[] = [
 	staffAuthMiddleware,
 	validateRequestParams(updateStaffProfileParamsSchema),
 	validate(updateStaffProfileBodySchema),
 	staffController.updateProfile,
-);
+];
+
+const updateStaffInfoChain: express.RequestHandler[] = [
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateStaffInfoParamsSchema),
+	validate(updateStaffInfoSchema),
+	restaurantStaffManagementController.updateStaffInfo.bind(
+		restaurantStaffManagementController,
+	),
+];
+
+restaurantRouter.patch(RESTAURANT_ROUTES.STAFF_UPDATE, (req, res, next) => {
+	const role = req.headers["x-user-role"];
+	const normalizedRole = (Array.isArray(role) ? role[0] : role)
+		?.toLowerCase()
+		.trim();
+
+	const chain =
+		normalizedRole === "staff" ? updateStaffProfileChain : updateStaffInfoChain;
+
+	let index = 0;
+	const executeChain = (err?: unknown) => {
+		if (err) return next(err);
+		const middleware = chain[index++];
+		if (middleware) {
+			return middleware(req, res, executeChain);
+		}
+	};
+	executeChain();
+});
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.VERIFICATION_STATUS,
@@ -120,6 +153,15 @@ restaurantRouter.get(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getStaffDetailParamsSchema),
 	restaurantStaffManagementController.getStaffDetail.bind(
+		restaurantStaffManagementController,
+	),
+);
+
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.STAFF_REMOVE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(removeStaffParamsSchema),
+	restaurantStaffManagementController.removeStaff.bind(
 		restaurantStaffManagementController,
 	),
 );

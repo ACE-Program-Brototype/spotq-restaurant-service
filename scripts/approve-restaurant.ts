@@ -7,38 +7,55 @@ import {
 const prisma = new PrismaClient();
 
 async function main() {
-	const email =
+	const identifier =
 		process.argv[2] ||
 		process.env.TEST_RESTAURANT_EMAIL ||
 		"ajexjoshywork@gmail.com";
 
-	console.log(`\nFinding/Updating restaurant for email: ${email}...`);
+	console.log(`\nFinding/Updating restaurant for: ${identifier}...`);
 
-	const restaurant = await prisma.restaurant.upsert({
-		where: { email },
-		update: {
-			status: RestaurantStatus.APPROVED,
-			onboardingStatus: OnboardingStatus.COMPLETED,
-			emailVerifiedAt: new Date(),
-			isSubscriptionActive: false,
-			subscriptionPlanCode: null,
-			subscriptionEndsAt: null,
-			restaurantName: "Ajex Grand Bistro",
-			ownerName: "Ajex Joshy",
-			ownerEmail: email,
-		},
-		create: {
-			restaurantName: "Ajex Grand Bistro",
-			email,
-			phone: "+919876543210",
-			ownerName: "Ajex Joshy",
-			ownerEmail: email,
-			status: RestaurantStatus.APPROVED,
-			onboardingStatus: OnboardingStatus.COMPLETED,
-			emailVerifiedAt: new Date(),
-			isSubscriptionActive: false,
-		},
-	});
+	const isEmail = identifier.includes("@");
+	let restaurant: {
+		id: string;
+		restaurantName: string;
+		email: string;
+		status: string;
+		onboardingStatus: string;
+		isSubscriptionActive: boolean;
+	};
+
+	if (isEmail) {
+		restaurant = await prisma.restaurant.upsert({
+			where: { email: identifier },
+			update: {
+				status: RestaurantStatus.APPROVED,
+				onboardingStatus: OnboardingStatus.COMPLETED,
+				emailVerifiedAt: new Date(),
+				isSubscriptionActive: false,
+				subscriptionPlanCode: null,
+				subscriptionEndsAt: null,
+			},
+			create: {
+				restaurantName: "Ajex Grand Bistro",
+				email: identifier,
+				phone: "+919876543210",
+				ownerName: "Ajex Joshy",
+				ownerEmail: identifier,
+				status: RestaurantStatus.APPROVED,
+				onboardingStatus: OnboardingStatus.COMPLETED,
+				emailVerifiedAt: new Date(),
+				isSubscriptionActive: false,
+			},
+		});
+	} else {
+		restaurant = await prisma.restaurant.update({
+			where: { id: identifier },
+			data: {
+				status: RestaurantStatus.APPROVED,
+				onboardingStatus: OnboardingStatus.COMPLETED,
+			},
+		});
+	}
 
 	console.log(
 		"\nRestaurant successfully approved and ready for subscription testing.",

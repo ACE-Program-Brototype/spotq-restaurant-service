@@ -6,6 +6,7 @@ export const STAFF_STATUSES = [
 	"INACTIVE",
 	"SUSPENDED",
 	"INVITED",
+	"REMOVED",
 ] as const;
 
 export type StaffStatus = (typeof STAFF_STATUSES)[number];
@@ -37,6 +38,10 @@ export class StaffStatusVO {
 		return new StaffStatusVO("SUSPENDED");
 	}
 
+	public static removed(): StaffStatusVO {
+		return new StaffStatusVO("REMOVED");
+	}
+
 	public get value(): StaffStatus {
 		return this._value;
 	}
@@ -47,6 +52,10 @@ export class StaffStatusVO {
 
 	public isSuspended(): boolean {
 		return this._value === "SUSPENDED";
+	}
+
+	public isRemoved(): boolean {
+		return this._value === "REMOVED";
 	}
 
 	public equals(other: StaffStatusVO): boolean {

@@ -20,6 +20,7 @@ export const messages = {
 	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
 	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
+	STAFF_UPDATED_SUCCESS: "Staff information updated successfully",
 	RESTAURANTS_FETCHED_SUCCESS: "Restaurants retrieved successfully",
 	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
 
@@ -42,6 +43,8 @@ export const messages = {
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
 	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
+	RESTAURANT_DETAILS_FETCHED_SUCCESS:
+		"Restaurant details retrieved successfully",
 	STAFF_FORBIDDEN_UPDATE:
 		"Forbidden: You can only update your own staff profile",
 	STAFF_RESTAURANT_FORBIDDEN:
@@ -80,6 +83,14 @@ export const messages = {
 		"Too many invitation validation attempts. Please try again later.",
 	RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED:
 		"Too many invitation acceptance attempts. Please try again later.",
+	RATE_LIMIT_APPROVE_RESTAURANT_EXCEEDED:
+		"Too many approve restaurant requests. Please try again later.",
+	RATE_LIMIT_REJECT_RESTAURANT_EXCEEDED:
+		"Too many reject restaurant requests. Please try again later.",
+	RATE_LIMIT_BLOCK_RESTAURANT_EXCEEDED:
+		"Too many block restaurant requests. Please try again later.",
+	RATE_LIMIT_UNBLOCK_RESTAURANT_EXCEEDED:
+		"Too many unblock restaurant requests. Please try again later.",
 	STAFF_NOT_FOUND: "Staff member not found",
 	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
 	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",
@@ -97,6 +108,7 @@ export const messages = {
 	INVALID_RESTAURANT_DATA: "Invalid restaurant data provided",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
 	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
+	STAFF_ID_REQUIRED: "Staff ID is required",
 	RESTAURANT_ACCOUNT_BLOCKED:
 		"Restaurant account is blocked. Please contact support",
 	RESTAURANT_INACTIVE:
@@ -105,10 +117,16 @@ export const messages = {
 	PASSWORD_HASH_REQUIRED: "Password hash is required",
 	FULLNAME_INVALID: "Fullname is required and must be at least 2 characters",
 	FULLNAME_REQUIRED: "Fullname is required",
+	RESTAUARANT_NAME_REQUIRED:
+		"Restaurant name is required and must be at least 2 characters",
+	RESTAURANT_NAME_REQUIRED:
+		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_NAME_INVALID:
 		"Restaurant name is required and must be at least 2 characters",
 	RESTAURANT_EMAIL_REQUIRED: "Valid restaurant email is required",
 	RESTAURANT_PHONE_REQUIRED: "Valid restaurant phone is required",
+	OWNER_NAME_REQUIRED:
+		"Owner name is required and must be at least 2 characters",
 	OWNER_NAME_INVALID:
 		"Owner name is required and must be at least 2 characters",
 	OWNER_EMAIL_REQUIRED: "Valid owner email is required",
@@ -121,6 +139,15 @@ export const messages = {
 	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
 	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
+	INVALID_RESTAURANT_ID_FORMAT:
+		"Invalid restaurant ID format. Must be a valid UUID",
+	REJECTION_REASON_EMPTY: "Rejection reason cannot be empty",
+	REJECTION_REASON_MAX_LENGTH:
+		"Rejection reason must not exceed 500 characters",
+	INVALID_FROM_DATE_FORMAT: "Invalid fromDate format",
+	INVALID_TO_DATE_FORMAT: "Invalid toDate format",
+	STORAGE_KEY_REQUIRED: "Storage object key is required",
+	STORAGE_KEY_INVALID: "Invalid storage object key specified",
 	BLOCK_REASON_REQUIRED: "Block reason is required",
 	RESET_TOKEN_REQUIRED: "Reset token is required",
 	INVALID_TOKEN_PURPOSE: "Invalid token purpose",
@@ -156,6 +183,31 @@ export const messages = {
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+	RESTAURANT_APPROVED_SUCCESS: "Restaurant application approved successfully.",
+	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
+	RESTAURANT_ALREADY_PROCESSED:
+		"Restaurant application has already been processed.",
+	REJECTION_REASON_REQUIRED: "Rejection reason is required",
+	CANNOT_APPROVE_NON_PENDING_RESTAURANT:
+		"Cannot approve a restaurant that is not in pending status.",
+	CANNOT_APPROVE_INCOMPLETE_ONBOARDING:
+		"Cannot approve a restaurant with incomplete onboarding.",
+	CANNOT_REJECT_NON_PENDING_RESTAURANT:
+		"Cannot reject a restaurant that is not in pending status.",
+	CANNOT_REJECT_INCOMPLETE_ONBOARDING:
+		"Cannot reject a restaurant with incomplete onboarding.",
+	RESTAURANT_APPLICATIONS_FETCHED_SUCCESS:
+		"Restaurant applications retrieved successfully.",
+	RESTAURANT_APPLICATION_DETAILS_FETCHED_SUCCESS:
+		"Restaurant application details retrieved successfully.",
+	RESTAURANT_BLOCKED_SUCCESS: "Restaurant blocked successfully.",
+	RESTAURANT_UNBLOCKED_SUCCESS: "Restaurant unblocked successfully.",
+	RESTAURANT_ALREADY_BLOCKED: "Restaurant is already blocked",
+	RESTAURANT_NOT_BLOCKED: "Restaurant is not blocked",
+	CANNOT_MODIFY_PENDING_RESTAURANT:
+		"Cannot block or unblock a restaurant with pending status",
+	CANNOT_MODIFY_INCOMPLETE_ONBOARDING:
+		"Cannot block or unblock a restaurant with incomplete onboarding",
 	STAFF_MEMBERS_RETRIEVED_SUCCESS: "Staff members retrieved successfully.",
 	NO_STAFF_MEMBERS_FOUND: "No staff members found.",
 	YOU_DO_NOT_HAVE_PERMISSION:
@@ -164,7 +216,6 @@ export const messages = {
 	INVALID_SORT_ORDER: "Invalid sort order",
 	INVALID_QUERY_PARAMETERS: "Invalid query parameters",
 	AT_LEAST_ONE_FIELD_REQUIRED: "At least one editable field must be provided",
-	STAFF_ID_REQUIRED: "Staff ID is required",
 	UNSUPPORTED_FIELDS_ERROR: "Request body contains unsupported fields",
 	INVALID_AVATAR_KEY: "Invalid avatar S3 key format",
 	AVATAR_RESTAURANT_MISMATCH:
@@ -175,7 +226,6 @@ export const messages = {
 		"Verification status retrieved successfully",
 	RESTAURANT_PROFILE_FETCH_SUCCESS: "Restaurant profile retrieved successfully",
 	RESTAURANT_PROFILE_UPDATED_SUCCESS: "Restaurant profile updated successfully",
-	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
 	NAME_MIN_LENGTH: "Name must be at least 2 characters",
 	PHONE_MIN_LENGTH: "Phone must be at least 7 characters",
 	OWNER_NAME_MIN_LENGTH: "Owner name must be at least 2 characters",
@@ -183,6 +233,8 @@ export const messages = {
 	SEATING_CAPACITY_INVALID: "Seating capacity cannot be negative",
 	INVALID_TIME_FORMAT: "Time must be in HH:mm format",
 	CLOSE_TIME_MUST_BE_AFTER_OPEN_TIME: "Close time must be after open time",
+	STAFF_REMOVED_SUCCESS: "Staff member removed successfully",
+	INVALID_STAFF_ID_FORMAT: "Invalid staff ID format",
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	OWNER_FORBIDDEN: "Forbidden: Restaurant owner access required",

@@ -58,6 +58,7 @@ describe("InviteStaffUseCase", () => {
 			findByRestaurantId: jest.fn(),
 			findManyWithFilters: jest.fn(),
 			findByIdAndRestaurantId: jest.fn(),
+			updateStaffInfo: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantStaffRepository>;
@@ -71,6 +72,7 @@ describe("InviteStaffUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
+			updateLastLogin: jest.fn(),
 			findManyWithFilters: jest.fn(),
 			save: jest.fn(),
 			activateSubscription: jest.fn(),
@@ -206,9 +208,7 @@ describe("InviteStaffUseCase", () => {
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});
-		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(
-			existingStaff,
-		);
+		staffRepository.findByEmailAndRestaurantId.mockResolvedValue(existingStaff);
 
 		await expect(
 			useCase.execute({

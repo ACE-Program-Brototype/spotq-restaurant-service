@@ -1,6 +1,7 @@
 import type { StaffDetailResponseDTO } from "@/application/dtos/staff/staff-detail-response.dto.ts";
 import type { StaffProfileResponseDTO } from "@/application/dtos/staff/staff-profile-response.dto.ts";
 import type { StaffResponseDTO } from "@/application/dtos/staff/staff-response.dto.ts";
+import type { UpdateStaffInfoResponseDTO } from "@/application/dtos/staff/update-staff-info.dto.ts";
 import type { UpdateStaffProfileResponseDTO } from "@/application/dtos/staff/update-staff-profile-response.dto.ts";
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 
@@ -53,6 +54,21 @@ export const StaffMapper = {
 			avatar_url: entity.avatarUrl,
 			role: entity.role,
 			status: entity.status,
+			created_at: entity.createdAt.toISOString(),
+			updated_at: entity.updatedAt.toISOString(),
+		};
+	},
+
+	toUpdateStaffInfoDTO(entity: RestaurantStaff): UpdateStaffInfoResponseDTO {
+		return {
+			id: entity.id,
+			restaurant_id: entity.restaurantId,
+			fullname: entity.fullname,
+			email: entity.email,
+			phone: entity.phone,
+			role: entity.role,
+			status: entity.status,
+			avatar_url: entity.avatarUrl,
 			created_at: entity.createdAt.toISOString(),
 			updated_at: entity.updatedAt.toISOString(),
 		};

@@ -16,9 +16,9 @@
 		"check": "biome check --error-on-warnings --write .",
 		"seed:staff": "tsx prisma/seed.ts",
 		"jwt:generate": "infisical run --env=dev -- tsx scripts/generate-jwt.ts",
+		"restaurant:approve": "infisical run --env=dev -- tsx scripts/approve-restaurant.ts",
 		"validate": "pnpm lint && pnpm build",
-		"prepare": "husky",
-		"restaurant:approve": "infisical run --env=dev -- tsx scripts/approve-restaurant.ts"
+		"prepare": "husky"
 	},
 	"keywords": [],
 	"author": "",
