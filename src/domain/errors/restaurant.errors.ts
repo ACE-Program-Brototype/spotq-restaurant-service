@@ -71,4 +71,3 @@ export class RestaurantInactiveError extends DomainError {
 		super(message);
 	}
 }
-

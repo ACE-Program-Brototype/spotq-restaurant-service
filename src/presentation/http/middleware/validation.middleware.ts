@@ -33,7 +33,6 @@ export const validate = (schema: ZodType) => {
 	};
 };
 
-
 export function validateRequestBody(schema: ZodType) {
 	return async (
 		req: Request,
@@ -144,4 +143,3 @@ export function validateRequestParams(schema: ZodType) {
 		}
 	};
 }
-

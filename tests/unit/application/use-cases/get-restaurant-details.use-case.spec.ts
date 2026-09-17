@@ -127,9 +127,9 @@ describe("GetRestaurantDetailsUseCase", () => {
 			"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 		);
 
-		expect(
-			restaurantRepository.findCompletedDetailsById,
-		).toHaveBeenCalledWith("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
+		expect(restaurantRepository.findCompletedDetailsById).toHaveBeenCalledWith(
+			"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+		);
 		expect(result).toEqual(dummyDetails);
 		expect(result.id).toBe("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
 		expect(result.restaurantName).toBe("Spice Route Bistro");
