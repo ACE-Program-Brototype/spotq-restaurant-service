@@ -8,8 +8,17 @@ export const RESTAURANT_ROUTES = {
 	EMAIL_OTP: "/registration/email-otp",
 	VERIFY_EMAIL: "/registration/email-otp/verify",
 	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
-	REFRESH_ACCESS_TOKEN: "/auth/refresh",
+	REFRESH_ACCESS_TOKEN: "/refresh-token",
+	REGISTRATION_REFRESH_TOKEN: "/registration/refresh-token",
 	ONBOARD: "/onboard",
+	STAFF_LIST: "/:restaurantId/staff",
+	UPDATE_STAFF_PROFILE: "/:restaurantId/staff/:staffId",
+	STATUS: "/me/status",
+	VERIFICATION_STATUS: "/verification-status",
+	VERIFICATION_STATUS_BY_ID: "/:id/verification-status",
+	STAFF_DETAIL: "/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -40,6 +49,10 @@ export const ADMIN_ROUTES = {
 	APPLICATION_DETAILS: "/restaurants/applications/:id",
 	APPROVE_RESTAURANT: "/restaurants/:id/approve",
 	REJECT_RESTAURANT: "/restaurants/:id/reject",
+	RESTAURANTS: "/restaurants",
+	GET_RESTAURANT_DETAILS: "/restaurants/:id",
+	BLOCK_RESTAURANT: "/restaurants/:id/block",
+	UNBLOCK_RESTAURANT: "/restaurants/:id/unblock",
 } as const;
 
 export type RestaurantRoute =

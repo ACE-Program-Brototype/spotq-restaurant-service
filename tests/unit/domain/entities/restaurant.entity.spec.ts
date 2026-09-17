@@ -77,10 +77,12 @@ describe("Restaurant Entity", () => {
 
 		restaurant.block("Policy violation");
 		expect(restaurant.isBlocked).toBe(true);
+		expect(restaurant.status).toBe("SUSPENDED");
 		expect(restaurant.blockReason).toBe("Policy violation");
 
 		restaurant.unblock();
 		expect(restaurant.isBlocked).toBe(false);
+		expect(restaurant.status).toBe("ACTIVE");
 		expect(restaurant.blockReason).toBeNull();
 
 		restaurant.verifyEmail();
@@ -197,5 +199,18 @@ describe("Restaurant Entity", () => {
 			);
 		});
 	});
-});
 
+	it("should support subscription domain mutations (activateSubscription, expireSubscription)", () => {
+		const restaurant = Restaurant.create(validProps);
+		const endsAt = new Date("2026-10-01T00:00:00Z");
+
+		restaurant.activateSubscription("PRO_ANNUAL", endsAt);
+		expect(restaurant.isSubscriptionActive).toBe(true);
+		expect(restaurant.subscriptionPlanCode).toBe("PRO_ANNUAL");
+		expect(restaurant.subscriptionEndsAt).toEqual(endsAt);
+		expect(restaurant.status).toBe("ACTIVE");
+
+		restaurant.expireSubscription();
+		expect(restaurant.isSubscriptionActive).toBe(false);
+	});
+});

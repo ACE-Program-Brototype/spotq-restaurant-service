@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { InvalidStorageKeyError } from "@/domain/errors/storage.errors";
-import { StorageKeyVO } from "@/domain/value-objects/storage-key.vo";
+import { InvalidStorageKeyError } from "@/domain/errors/storage.errors.ts";
+import { StorageKeyVO } from "@/domain/value-objects/storage-key.vo.ts";
 
 describe("StorageKeyVO", () => {
 	it("creates a valid StorageKeyVO instance", () => {
@@ -25,6 +25,12 @@ describe("StorageKeyVO", () => {
 		);
 		expect(() =>
 			StorageKeyVO.create("restaurants/123/../../../etc/passwd"),
+		).toThrow(InvalidStorageKeyError);
+		expect(() =>
+			StorageKeyVO.create("restaurants/123/%2e%2e/file.pdf"),
+		).toThrow(InvalidStorageKeyError);
+		expect(() =>
+			StorageKeyVO.create("restaurants/123/%252e%252e/file.pdf"),
 		).toThrow(InvalidStorageKeyError);
 	});
 

@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-
 import type {
 	GetPresignedUrlQueryDto,
 	GetPresignedUrlResponseDto,
@@ -7,7 +6,7 @@ import type {
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
 import type { IGetPresignedUrlUseCase } from "@/application/ports/use-cases/get-presigned-url.use-case.port";
 import { TYPES } from "@/config/di/types";
-import { StorageKeyVO } from "@/domain/value-objects/storage-key.vo";
+import { StorageKeyVO } from "@/domain/value-objects/storage-key.vo.ts";
 
 @injectable()
 export class GetPresignedUrlUseCase implements IGetPresignedUrlUseCase {

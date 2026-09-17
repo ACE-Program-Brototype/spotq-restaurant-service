@@ -1,13 +1,13 @@
 import express from "express";
-import { storageController } from "@/config/di/controllers.resolutions";
-import { storageAuthMiddleware } from "@/presentation/http/middleware/storage.auth.middleware";
+import { storageController } from "@/config/di/controllers.resolutions.ts";
+import { storageAuthMiddleware } from "@/presentation/http/middleware/storage.auth.middleware.ts";
 import {
 	validate,
 	validateRequestQuery,
-} from "@/presentation/http/middleware/validation.middleware";
-import { generatePresignedUrlSchema } from "@/presentation/http/validators/generate-presigned-url.validator";
-import { getPresignedUrlQuerySchema } from "@/presentation/http/validators/get-presigned-url.validator";
-import { STORAGE_ROUTES } from "@/shared/constants/route.constants";
+} from "@/presentation/http/middleware/validation.middleware.ts";
+import { generatePresignedUrlSchema } from "@/presentation/http/validators/generate-presigned-url.validator.ts";
+import { getPresignedUrlQuerySchema } from "@/presentation/http/validators/get-presigned-url.validator.ts";
+import { STORAGE_ROUTES } from "@/shared/constants/route.constants.ts";
 
 export const storageRouter = express.Router();
 

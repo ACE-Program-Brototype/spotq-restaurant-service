@@ -16,7 +16,7 @@ export const storageModule = new ContainerModule(({ bind }) => {
 		.to(StorageController)
 		.inSingletonScope();
 
-	// Use Case
+	// Use Cases
 	bind<IGeneratePresignedUrlUseCase>(
 		TYPES.UseCases.GeneratePresignedUrlUseCase,
 	)

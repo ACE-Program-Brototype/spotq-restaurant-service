@@ -18,7 +18,9 @@ describe("storageAuthMiddleware", () => {
 		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
-	it("should return 401 when x-user-id header is missing", () => {
+	it("should return 401 when both x-user-id and x-user-role headers are missing", () => {
+		mockReq.headers = {};
+
 		storageAuthMiddleware(
 			mockReq as Request,
 			mockRes as Response,
@@ -37,12 +39,12 @@ describe("storageAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should populate user context and proceed when x-user-id is present", () => {
+	it("should allow request and call next when x-user-id is present", () => {
 		mockReq.headers = {
-			"x-user-id": "user-uuid-123",
-			"x-user-role": "STAFF",
-			"x-user-email": "staff@spotq.com",
-			"x-restaurant-id": "rest-uuid-456",
+			"x-user-id": "user-uuid-1",
+			"x-user-role": "staff",
+			"x-user-email": "staff@restaurant.com",
+			"x-restaurant-id": "res-123",
 		};
 
 		storageAuthMiddleware(
@@ -51,13 +53,27 @@ describe("storageAuthMiddleware", () => {
 			mockNext,
 		);
 
+		expect(mockReq.userId).toBe("user-uuid-1");
 		expect(mockReq.user).toEqual({
-			userId: "user-uuid-123",
-			role: "STAFF",
-			email: "staff@spotq.com",
-			restaurantId: "rest-uuid-456",
+			userId: "user-uuid-1",
+			restaurantId: "res-123",
+			email: "staff@restaurant.com",
+			role: "staff",
 		});
-		expect(mockReq.userId).toBe("user-uuid-123");
-		expect(mockNext).toHaveBeenCalled();
+		expect(mockNext).toHaveBeenCalledTimes(1);
+	});
+
+	it("should allow request and call next when x-user-role is present without x-user-id", () => {
+		mockReq.headers = {
+			"x-user-role": "admin",
+		};
+
+		storageAuthMiddleware(
+			mockReq as Request,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockNext).toHaveBeenCalledTimes(1);
 	});
 });

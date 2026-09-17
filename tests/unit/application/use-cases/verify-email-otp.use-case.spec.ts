@@ -1,11 +1,11 @@
-import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 import { InvalidOtpError } from "@/application/errors/invalid-otp.error";
 import { RestaurantAccountBlockedError } from "@/application/errors/restaurant-account-blocked.error";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
-import type { IOtpStore } from "@/application/ports/services/otp-store.port";
-import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 
 describe("VerifyRestaurantEmailOtpUseCase", () => {
@@ -27,6 +27,7 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 			create: jest.fn(),
 			update: jest.fn(),
 			save: jest.fn(),
+			updateLastLogin: jest.fn().mockResolvedValue(undefined),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		mockOtpStore = {
@@ -119,7 +120,7 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		expect(result).not.toHaveProperty("verificationToken");
 	});
 
-	it("returns DASHBOARD nextStep for existing fully onboarded restaurant", async () => {
+	it("returns SUBSCRIPTION nextStep for approved restaurant with inactive subscription", async () => {
 		mockOtpStore.get.mockResolvedValue("hashed-otp");
 		mockOtpHashService.compare.mockResolvedValue(true);
 		mockRestaurantRepo.findByEmail.mockResolvedValue(
@@ -135,6 +136,42 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 				emailVerifiedAt: new Date(),
 				isBlocked: false,
 				blockReason: null,
+				isSubscriptionActive: false,
+				subscriptionPlanCode: null,
+				subscriptionEndsAt: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
+
+		const result = await useCase.execute({
+			email: "existing@restaurant.com",
+			otp: "123456",
+		});
+
+		expect(result.nextStep).toBe("SUBSCRIPTION");
+		expect(result.restaurantId).toBe("res-456");
+	});
+
+	it("returns DASHBOARD nextStep for approved restaurant with active subscription", async () => {
+		mockOtpStore.get.mockResolvedValue("hashed-otp");
+		mockOtpHashService.compare.mockResolvedValue(true);
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-456",
+				restaurantName: "Good Food",
+				email: "existing@restaurant.com",
+				phone: "1234567890",
+				ownerName: "Owner",
+				ownerEmail: "existing@restaurant.com",
+				status: "ACTIVE",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				isSubscriptionActive: true,
+				subscriptionPlanCode: "PRO_YEARLY",
+				subscriptionEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			}),
@@ -146,6 +183,99 @@ describe("VerifyRestaurantEmailOtpUseCase", () => {
 		});
 
 		expect(result.nextStep).toBe("DASHBOARD");
+		expect(result.restaurantId).toBe("res-456");
+	});
+
+	it("returns DASHBOARD nextStep for approved restaurant with active subscription even if onboardingStatus is PENDING", async () => {
+		mockOtpStore.get.mockResolvedValue("hashed-otp");
+		mockOtpHashService.compare.mockResolvedValue(true);
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-456",
+				restaurantName: "Good Food",
+				email: "existing@restaurant.com",
+				phone: "1234567890",
+				ownerName: "Owner",
+				ownerEmail: "existing@restaurant.com",
+				status: "APPROVED",
+				onboardingStatus: "PENDING",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				isSubscriptionActive: true,
+				subscriptionPlanCode: "PRO_YEARLY",
+				subscriptionEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
+
+		const result = await useCase.execute({
+			email: "existing@restaurant.com",
+			otp: "123456",
+		});
+
+		expect(result.nextStep).toBe("DASHBOARD");
+		expect(result.restaurantId).toBe("res-456");
+	});
+
+	it("returns VERIFICATION_STATUS nextStep for completed onboarding with pending status", async () => {
+		mockOtpStore.get.mockResolvedValue("hashed-otp");
+		mockOtpHashService.compare.mockResolvedValue(true);
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-456",
+				restaurantName: "Good Food",
+				email: "pending@restaurant.com",
+				phone: "1234567890",
+				ownerName: "Owner",
+				ownerEmail: "pending@restaurant.com",
+				status: "PENDING",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
+
+		const result = await useCase.execute({
+			email: "pending@restaurant.com",
+			otp: "123456",
+		});
+
+		expect(result.nextStep).toBe("VERIFICATION_STATUS");
+		expect(result.restaurantId).toBe("res-456");
+	});
+
+	it("returns VERIFICATION_STATUS nextStep for INACTIVE restaurant status", async () => {
+		mockOtpStore.get.mockResolvedValue("hashed-otp");
+		mockOtpHashService.compare.mockResolvedValue(true);
+		mockRestaurantRepo.findByEmail.mockResolvedValue(
+			Restaurant.reconstitute({
+				id: "res-456",
+				restaurantName: "Inactive Food",
+				email: "inactive@restaurant.com",
+				phone: "1234567890",
+				ownerName: "Owner",
+				ownerEmail: "inactive@restaurant.com",
+				status: "INACTIVE",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}),
+		);
+
+		const result = await useCase.execute({
+			email: "inactive@restaurant.com",
+			otp: "123456",
+		});
+
+		expect(result.nextStep).toBe("VERIFICATION_STATUS");
 		expect(result.restaurantId).toBe("res-456");
 	});
 

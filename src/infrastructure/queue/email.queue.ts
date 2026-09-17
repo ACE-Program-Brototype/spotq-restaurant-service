@@ -1,17 +1,21 @@
-import {
-	renderStaffInvitationTemplate,
-	renderVerificationOtpTemplate,
-} from "@infrastructure/template/email.template";
-import { Queue } from "bullmq";
-import { injectable } from "inversify";
+import type { Queue } from "bullmq";
+import { inject, injectable } from "inversify";
 import type {
 	IEmailQueuePort,
 	SendStaffInvitationJobData,
+	SendSubscriptionActivatedEmailJobData,
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
-import redis from "@/config/redis.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { emailQueue } from "@/infrastructure/queue/bullmq.service.ts";
+import {
+	renderStaffInvitationTemplate,
+	renderSubscriptionActivatedTemplate,
+	renderVerificationOtpTemplate,
+} from "@/infrastructure/template/email.template.ts";
+import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants.ts";
 
-export const EMAIL_QUEUE_NAME = "email-queue";
+export const EMAIL_QUEUE_NAME = QUEUE_NAMES.EMAIL;
 
 export interface SendEmailJobPayload {
 	to: string;
@@ -20,22 +24,14 @@ export interface SendEmailJobPayload {
 	recipientName?: string;
 }
 
-export const emailQueue = new Queue<SendEmailJobPayload>(EMAIL_QUEUE_NAME, {
-	connection: redis,
-	defaultJobOptions: {
-		attempts: 3,
-		backoff: {
-			type: "exponential",
-			delay: 2000,
-		},
-		removeOnComplete: true,
-		removeOnFail: 1000,
-	},
-});
+export { emailQueue };
 
 @injectable()
 export class EmailQueueService implements IEmailQueuePort {
-	private readonly queue = emailQueue;
+	constructor(
+		@inject(TYPES.Queue.Email)
+		private readonly queue: Queue = emailQueue,
+	) {}
 
 	public async sendVerificationOtp(
 		data: SendVerificationOtpJobData,
@@ -45,12 +41,38 @@ export class EmailQueueService implements IEmailQueuePort {
 			validityMinutes: data.validityMinutes ?? 5,
 		});
 
-		await this.queue.add("send-email", {
+		await this.queue.add(JOB_NAMES.EMAIL.TRANSACTIONAL, {
 			to: data.to,
 			subject: rendered.subject,
 			htmlContent: rendered.htmlContent,
 			recipientName: data.recipientName,
 		});
+	}
+
+	public async sendSubscriptionActivatedEmail(
+		data: SendSubscriptionActivatedEmailJobData,
+	): Promise<void> {
+		const rendered = renderSubscriptionActivatedTemplate({
+			ownerName: data.ownerName,
+			restaurantName: data.restaurantName,
+			planCode: data.planCode,
+			subscriptionEndsAt: data.subscriptionEndsAt,
+		});
+
+		await this.queue.add(
+			"send-email",
+			{
+				to: data.to,
+				subject: rendered.subject,
+				htmlContent: rendered.htmlContent,
+				recipientName: data.ownerName,
+			},
+			data.eventId
+				? {
+						jobId: `sub-activated-${data.eventId}`,
+					}
+				: undefined,
+		);
 	}
 
 	public async sendStaffInvitation(
@@ -62,7 +84,7 @@ export class EmailQueueService implements IEmailQueuePort {
 			validityHours: data.validityHours,
 		});
 
-		await this.queue.add("send-email", {
+		await this.queue.add(JOB_NAMES.EMAIL.TRANSACTIONAL, {
 			to: data.to,
 			subject: rendered.subject,
 			htmlContent: rendered.htmlContent,

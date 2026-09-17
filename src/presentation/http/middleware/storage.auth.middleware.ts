@@ -18,8 +18,9 @@ export function storageAuthMiddleware(
 	next: NextFunction,
 ): void {
 	const userId = getHeaderValue(req.headers["x-user-id"]);
+	const role = getHeaderValue(req.headers["x-user-role"]);
 
-	if (!userId) {
+	if (!userId && !role) {
 		res
 			.status(HTTP_STATUS.UNAUTHORIZED)
 			.json(
@@ -32,17 +33,18 @@ export function storageAuthMiddleware(
 		return;
 	}
 
-	const role = getHeaderValue(req.headers["x-user-role"]);
 	const email = getHeaderValue(req.headers["x-user-email"]);
 	const restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
 
-	req.user = {
-		userId,
-		role: role || "",
-		email: email || "",
-		restaurantId: restaurantId || "",
-	};
 	req.userId = userId;
+	if (userId) {
+		req.user = {
+			userId,
+			restaurantId: restaurantId || "",
+			email: email || "",
+			role: role || "",
+		};
+	}
 
 	next();
 }

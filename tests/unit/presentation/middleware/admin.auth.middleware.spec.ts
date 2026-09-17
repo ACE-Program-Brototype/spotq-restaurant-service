@@ -91,9 +91,9 @@ describe("adminAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
-	it("should set req.user and req.userId and call next when headers are valid (lowercase 'admin')", () => {
+	it("should allow request and set req.user when role is 'admin'", () => {
 		mockReq.headers = {
-			"x-user-id": "admin-uuid-123",
+			"x-user-id": "admin-uuid-1",
 			"x-user-role": "admin",
 			"x-user-email": "admin@spotq.com",
 		};
@@ -105,19 +105,19 @@ describe("adminAuthMiddleware", () => {
 		);
 
 		expect(mockReq.user).toEqual({
-			userId: "admin-uuid-123",
+			userId: "admin-uuid-1",
 			email: "admin@spotq.com",
 			role: "admin",
 		});
-		expect(mockReq.userId).toBe("admin-uuid-123");
+		expect(mockReq.userId).toBe("admin-uuid-1");
 		expect(mockNext).toHaveBeenCalled();
 	});
 
-	it("should set req.user and req.userId and call next when headers are valid (uppercase 'ADMIN')", () => {
+	it("should allow request when role is 'super_admin' or uppercase 'SUPER_ADMIN'", () => {
 		mockReq.headers = {
-			"x-user-id": "admin-uuid-123",
-			"x-user-role": "ADMIN",
-			"x-user-email": "admin@spotq.com",
+			"x-user-id": "superadmin-uuid-1",
+			"x-user-role": "SUPER_ADMIN",
+			"x-user-email": "superadmin@spotq.com",
 		};
 
 		adminAuthMiddleware(
@@ -127,11 +127,11 @@ describe("adminAuthMiddleware", () => {
 		);
 
 		expect(mockReq.user).toEqual({
-			userId: "admin-uuid-123",
-			email: "admin@spotq.com",
-			role: "ADMIN",
+			userId: "superadmin-uuid-1",
+			email: "superadmin@spotq.com",
+			role: "super_admin",
 		});
-		expect(mockReq.userId).toBe("admin-uuid-123");
+		expect(mockReq.userId).toBe("superadmin-uuid-1");
 		expect(mockNext).toHaveBeenCalled();
 	});
 
@@ -150,6 +150,7 @@ describe("adminAuthMiddleware", () => {
 
 		expect(mockReq.user?.userId).toBe("admin-uuid-123");
 		expect(mockReq.userId).toBe("admin-uuid-123");
+		expect(mockReq.user?.role).toBe("admin");
 		expect(mockNext).toHaveBeenCalled();
 	});
 });

@@ -2,7 +2,6 @@ import type { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
-
 import type { AuthenticatedAdmin } from "@/types/express.d.ts";
 
 export type { AuthenticatedAdmin };
@@ -20,6 +19,8 @@ function getHeaderValue(
 	}
 	return header;
 }
+
+const ALLOWED_ADMIN_ROLES = new Set(["admin", "super_admin", "superadmin"]);
 
 export function adminAuthMiddleware(
 	req: Request,
@@ -44,7 +45,7 @@ export function adminAuthMiddleware(
 	const role = getHeaderValue(req.headers["x-user-role"]);
 	const normalizedRole = role?.toLowerCase().trim();
 
-	if (normalizedRole !== "admin") {
+	if (!normalizedRole || !ALLOWED_ADMIN_ROLES.has(normalizedRole)) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(
@@ -62,7 +63,7 @@ export function adminAuthMiddleware(
 	(req as AuthenticatedAdminRequest).user = {
 		userId,
 		email: email || "",
-		role: role || "ADMIN",
+		role: normalizedRole,
 	};
 	(req as AuthenticatedAdminRequest).userId = userId;
 

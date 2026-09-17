@@ -111,6 +111,45 @@ describe("PrismaRestaurantStaffRepository", () => {
 		});
 	});
 
+	describe("findByEmailAndRestaurantId", () => {
+		it("should find staff by email and restaurantId", async () => {
+			mockPrisma.restaurantStaff.findUnique.mockResolvedValue(dummyPrismaStaff);
+
+			const result = await repository.findByEmailAndRestaurantId(
+				"JOHN@EXAMPLE.COM",
+				"rest-123",
+			);
+
+			expect(mockPrisma.restaurantStaff.findUnique).toHaveBeenCalledWith({
+				where: {
+					restaurantId_email: {
+						email: "john@example.com",
+						restaurantId: "rest-123",
+					},
+				},
+			});
+			expect(result?.email).toBe("john@example.com");
+			expect(result?.restaurantId).toBe("rest-123");
+		});
+
+		it("should return null if staff with email and restaurantId does not exist", async () => {
+			mockPrisma.restaurantStaff.findUnique.mockResolvedValue(null);
+
+			const result = await repository.findByEmailAndRestaurantId(
+				"unknown@example.com",
+				"rest-123",
+			);
+
+			expect(result).toBeNull();
+		});
+
+		it("should return null if email or restaurantId is empty", async () => {
+			const result = await repository.findByEmailAndRestaurantId("", "rest-123");
+			expect(result).toBeNull();
+			expect(mockPrisma.restaurantStaff.findUnique).not.toHaveBeenCalled();
+		});
+	});
+
 	describe("findByRestaurantId", () => {
 		it("should return list of staff in a restaurant", async () => {
 			mockPrisma.restaurantStaff.findMany.mockResolvedValue([dummyPrismaStaff]);
@@ -176,6 +215,38 @@ describe("PrismaRestaurantStaffRepository", () => {
 			await expect(repository.delete("staff-123")).rejects.toThrow(
 				StaffNotFoundError,
 			);
+		});
+	});
+
+	describe("findByIdAndRestaurantId", () => {
+		it("should find and map staff by id and restaurantId", async () => {
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(dummyPrismaStaff);
+
+			const result = await repository.findByIdAndRestaurantId(
+				"staff-123",
+				"rest-123",
+			);
+
+			expect(mockPrisma.restaurantStaff.findFirst).toHaveBeenCalledWith({
+				where: {
+					id: "staff-123",
+					restaurantId: "rest-123",
+				},
+			});
+			expect(result).not.toBeNull();
+			expect(result?.id).toBe("staff-123");
+			expect(result?.restaurantId).toBe("rest-123");
+		});
+
+		it("should return null if staff with id and restaurantId not found", async () => {
+			mockPrisma.restaurantStaff.findFirst.mockResolvedValue(null);
+
+			const result = await repository.findByIdAndRestaurantId(
+				"unknown",
+				"rest-123",
+			);
+
+			expect(result).toBeNull();
 		});
 	});
 });
