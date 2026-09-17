@@ -191,11 +191,11 @@ describe("PrismaBaseRepository", () => {
 				name: "Updated Name",
 			});
 
+			expect(result.name).toBe("Updated Name");
 			expect(mockDelegate.update).toHaveBeenCalledWith({
 				where: { id: "test-id-123" },
 				data: { name: "Updated Name" },
 			});
-			expect(result.name).toBe("Updated Name");
 		});
 
 		it("should handle known Prisma error on update", async () => {
@@ -235,4 +235,3 @@ describe("PrismaBaseRepository", () => {
 		});
 	});
 });
-

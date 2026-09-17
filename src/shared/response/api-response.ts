@@ -12,6 +12,14 @@ export interface ApiResponseSuccess<T = unknown> {
 	statusCode: number;
 }
 
+export interface ApiResponsePaginatedSuccess<T = unknown> {
+	success: true;
+	message: string;
+	data: T[];
+	pagination: unknown;
+	statusCode: number;
+}
+
 export interface ApiResponseError {
 	success: false;
 	message: string;
@@ -30,6 +38,21 @@ export const ApiResponse = {
 			success: true,
 			message,
 			data,
+			statusCode,
+		};
+	},
+
+	okPaginated<T>(
+		data: T[],
+		pagination: unknown,
+		message: string = messages.SUCCESS,
+		statusCode: HttpStatusCode = HTTP_STATUS.OK,
+	): ApiResponsePaginatedSuccess<T> {
+		return {
+			success: true,
+			message,
+			data,
+			pagination,
 			statusCode,
 		};
 	},
@@ -57,4 +80,28 @@ export function sendSuccessResponse<T>(
 	statusCode: HttpStatusCode = HTTP_STATUS.OK,
 ): Response {
 	return res.status(statusCode).json(ApiResponse.ok(data, message, statusCode));
+}
+
+export function sendPaginatedSuccessResponse<T>(
+	res: Response,
+	data: T[],
+	pagination: unknown,
+	message: string = messages.SUCCESS,
+	statusCode: HttpStatusCode = HTTP_STATUS.OK,
+): Response {
+	return res
+		.status(statusCode)
+		.json(ApiResponse.okPaginated(data, pagination, message, statusCode));
+}
+
+export function sendErrorResponse(
+	res: Response,
+	message: string,
+	code = "INTERNAL_SERVER_ERROR",
+	statusCode: HttpStatusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR,
+	error?: unknown,
+): Response {
+	return res
+		.status(statusCode)
+		.json(ApiResponse.error(message, code, statusCode, error));
 }

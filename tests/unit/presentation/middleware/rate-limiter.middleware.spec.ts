@@ -165,4 +165,51 @@ describe("Rate Limiter Middleware", () => {
 			).rejects.toThrow(RateLimitExceededError);
 		});
 	});
+
+	describe("blockRestaurantRateLimiter & unblockRestaurantRateLimiter", () => {
+		it("should use admin userId when present in req.user", async () => {
+			(mockReq as { user?: { userId?: string } }).user = {
+				userId: "admin-456",
+			};
+			(redis.incr as jest.Mock).mockResolvedValue(1);
+			(redis.ttl as jest.Mock).mockResolvedValue(900);
+
+			const { blockRestaurantRateLimiter } = await import(
+				"@/presentation/http/middleware/rate-limiter.middleware.ts"
+			);
+
+			await blockRestaurantRateLimiter(
+				mockReq as Request,
+				mockRes as Response,
+				mockNext,
+			);
+
+			expect(redis.incr).toHaveBeenCalledWith(
+				"ratelimit:block-restaurant:admin:admin-456",
+			);
+			expect(mockNext).toHaveBeenCalled();
+		});
+
+		it("should block when block restaurant rate limit is exceeded", async () => {
+			(mockReq as { user?: { userId?: string } }).user = {
+				userId: "admin-456",
+			};
+			(redis.incr as jest.Mock).mockResolvedValue(31);
+			(redis.ttl as jest.Mock).mockResolvedValue(900);
+
+			const { blockRestaurantRateLimiter } = await import(
+				"@/presentation/http/middleware/rate-limiter.middleware.ts"
+			);
+
+			await expect(
+				blockRestaurantRateLimiter(
+					mockReq as Request,
+					mockRes as Response,
+					mockNext,
+				),
+			).rejects.toThrow(
+				"Too many block restaurant requests. Please try again later.",
+			);
+		});
+	});
 });

@@ -1,7 +1,9 @@
-export class UnsupportedFileCategoryError extends Error {
+import { DomainError } from "@/domain/errors/domain.error";
+
+export class UnsupportedFileCategoryError extends DomainError {
+	public readonly code = "UnsupportedFileCategoryError";
+
 	constructor(fileCategory: string) {
 		super(`Unsupported file category: ${fileCategory}`);
-
-		this.name = "UnsupportedFileCategoryError";
 	}
 }
