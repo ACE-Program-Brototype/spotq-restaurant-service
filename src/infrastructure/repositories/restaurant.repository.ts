@@ -333,6 +333,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 
 		return {
 			restaurant: {
+				id: raw.id,
 				name: raw.restaurantName,
 				phone: raw.phone,
 				ownerName: raw.ownerName,

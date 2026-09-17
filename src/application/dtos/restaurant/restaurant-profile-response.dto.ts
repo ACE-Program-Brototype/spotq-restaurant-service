@@ -1,4 +1,5 @@
 export interface RestaurantDetailsDto {
+	id?: string;
 	name: string;
 	phone: string;
 	ownerName: string;
