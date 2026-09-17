@@ -5,16 +5,8 @@ const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 export const updateRestaurantDtoSchema = z
 	.object({
-		name: z
-			.string()
-			.trim()
-			.min(2, messages.NAME_MIN_LENGTH)
-			.optional(),
-		phone: z
-			.string()
-			.trim()
-			.min(7, messages.PHONE_MIN_LENGTH)
-			.optional(),
+		name: z.string().trim().min(2, messages.NAME_MIN_LENGTH).optional(),
+		phone: z.string().trim().min(7, messages.PHONE_MIN_LENGTH).optional(),
 		ownerName: z
 			.string()
 			.trim()
@@ -29,10 +21,7 @@ export const updateProfileDtoSchema = z
 		coverImageKey: z.string().nullable().optional(),
 		description: z.string().nullable().optional(),
 		cuisineType: z.string().nullable().optional(),
-		averageCost: z
-			.number()
-			.min(0, messages.AVERAGE_COST_INVALID)
-			.optional(),
+		averageCost: z.number().min(0, messages.AVERAGE_COST_INVALID).optional(),
 	})
 	.optional();
 

@@ -89,8 +89,20 @@ test("getVerificationStatus returns mapped status for a valid restaurant", async
 test("getProfile returns restaurant profile details including seatingCapacity", async () => {
 	const mockProfile = {
 		restaurant: { name: "Test Rest", phone: "1234567", ownerName: "Owner" },
-		profile: { logo: null, coverImage: null, description: null, cuisineType: null, averageCost: 0 },
-		settings: { acceptsQueue: true, acceptsQrOrders: true, loyaltyEnabled: false, autoAcceptQueue: false, seatingCapacity: 60 },
+		profile: {
+			logo: null,
+			coverImage: null,
+			description: null,
+			cuisineType: null,
+			averageCost: 0,
+		},
+		settings: {
+			acceptsQueue: true,
+			acceptsQrOrders: true,
+			loyaltyEnabled: false,
+			autoAcceptQueue: false,
+			seatingCapacity: 60,
+		},
 		businessHours: [],
 	};
 
@@ -129,7 +141,11 @@ test("getProfile returns restaurant profile details including seatingCapacity", 
 
 	assert.equal(responseCode, 200);
 	assert.equal(
-		(responseBody as unknown as { data?: { settings?: { seatingCapacity?: number } } })?.data?.settings?.seatingCapacity,
+		(
+			responseBody as unknown as {
+				data?: { settings?: { seatingCapacity?: number } };
+			}
+		)?.data?.settings?.seatingCapacity,
 		60,
 	);
 });
@@ -137,8 +153,20 @@ test("getProfile returns restaurant profile details including seatingCapacity", 
 test("updateProfile executes update use case and returns updated profile", async () => {
 	const mockUpdatedProfile = {
 		restaurant: { name: "Test Rest", phone: "1234567", ownerName: "Owner" },
-		profile: { logo: null, coverImage: null, description: null, cuisineType: null, averageCost: 0 },
-		settings: { acceptsQueue: true, acceptsQrOrders: true, loyaltyEnabled: false, autoAcceptQueue: false, seatingCapacity: 120 },
+		profile: {
+			logo: null,
+			coverImage: null,
+			description: null,
+			cuisineType: null,
+			averageCost: 0,
+		},
+		settings: {
+			acceptsQueue: true,
+			acceptsQrOrders: true,
+			loyaltyEnabled: false,
+			autoAcceptQueue: false,
+			seatingCapacity: 120,
+		},
 		businessHours: [],
 	};
 
@@ -181,8 +209,11 @@ test("updateProfile executes update use case and returns updated profile", async
 
 	assert.equal(responseCode, 200);
 	assert.equal(
-		(responseBody as unknown as { data?: { settings?: { seatingCapacity?: number } } })?.data?.settings?.seatingCapacity,
+		(
+			responseBody as unknown as {
+				data?: { settings?: { seatingCapacity?: number } };
+			}
+		)?.data?.settings?.seatingCapacity,
 		120,
 	);
 });
-

@@ -13,7 +13,10 @@ import type { IUpdateRestaurantProfileUseCase } from "@/application/ports/use-ca
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { ApiResponse, sendSuccessResponse } from "@/shared/response/api-response";
+import {
+	ApiResponse,
+	sendSuccessResponse,
+} from "@/shared/response/api-response";
 import { successResponse } from "@/utils/response.model";
 
 @injectable()
@@ -65,9 +68,7 @@ export class RestaurantAuthController {
 	}
 
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
-		const result = await this.verifyRestaurantEmailOtpUseCase.execute(
-			req.body,
-		);
+		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 		return sendSuccessResponse(
 			res,
 			result,
@@ -77,8 +78,7 @@ export class RestaurantAuthController {
 	}
 
 	async refreshAccessToken(req: Request, res: Response): Promise<Response> {
-		const refreshTokenFromCookie =
-			req.cookies?.[env.COOKIE_NAME_REFRESH_TOKEN];
+		const refreshTokenFromCookie = req.cookies?.[env.COOKIE_NAME_REFRESH_TOKEN];
 		const refreshToken = refreshTokenFromCookie || req.body?.refreshToken;
 
 		if (!refreshToken) {
