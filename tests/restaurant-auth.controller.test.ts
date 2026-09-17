@@ -140,11 +140,15 @@ test("getVerificationStatus returns mapped status for a valid restaurant", async
 				},
 			};
 		},
-	} as never;
+	};
 
-	await controller.getVerificationStatus(req, res);
+	await controller.getVerificationStatus(req, res as unknown as Response);
 
+	const body = responseBody as {
+		success?: boolean;
+		data?: { status?: string };
+	} | null;
 	assert.equal(responseCode, 200);
-	assert.equal(responseBody?.success, true);
-	assert.equal(responseBody?.data?.status, "UNDER_REVIEW");
+	assert.equal(body?.success, true);
+	assert.equal(body?.data?.status, "UNDER_REVIEW");
 });

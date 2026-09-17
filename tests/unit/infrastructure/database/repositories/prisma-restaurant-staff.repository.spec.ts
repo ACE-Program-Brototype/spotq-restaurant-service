@@ -16,7 +16,6 @@ describe("PrismaRestaurantStaffRepository", () => {
 			findUnique: jest.Mock;
 			findFirst: jest.Mock;
 			findMany: jest.Mock;
-			findFirst: jest.Mock;
 			upsert: jest.Mock;
 			update: jest.Mock;
 			delete: jest.Mock;

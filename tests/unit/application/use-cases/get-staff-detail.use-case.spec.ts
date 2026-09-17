@@ -48,6 +48,7 @@ describe("GetStaffDetailUseCase", () => {
 		staffRepository = {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
+			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			findByIdAndRestaurantId: jest.fn(),
 			save: jest.fn(),
@@ -63,6 +64,10 @@ describe("GetStaffDetailUseCase", () => {
 			findUnique: jest.fn(),
 			find: jest.fn(),
 			update: jest.fn(),
+			findManyWithFilters: jest.fn(),
+			save: jest.fn(),
+			activateSubscription: jest.fn(),
+			completeOnboarding: jest.fn(),
 		};
 
 		useCase = new GetStaffDetailUseCase(staffRepository, restaurantRepository);

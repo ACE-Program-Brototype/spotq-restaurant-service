@@ -40,7 +40,6 @@ describe("LoginStaffUseCase", () => {
 		restaurantName: "SpotQ Diner",
 		email: "diner@spotq.com",
 		phone: "+1234567890",
-		primaryContactNumber: "+1234567890",
 		emailVerifiedAt: new Date(),
 		onboardingStatus: "COMPLETED",
 		isSubscriptionActive: true,
@@ -53,6 +52,7 @@ describe("LoginStaffUseCase", () => {
 			findByEmail: jest.fn(),
 			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			findByIdAndRestaurantId: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		};
@@ -194,7 +194,6 @@ describe("LoginStaffUseCase", () => {
 			restaurantName: "SpotQ Diner",
 			email: "diner@spotq.com",
 			phone: "+1234567890",
-			primaryContactNumber: "+1234567890",
 			isBlocked: true,
 		});
 
@@ -218,7 +217,6 @@ describe("LoginStaffUseCase", () => {
 			restaurantName: "SpotQ Diner",
 			email: "diner@spotq.com",
 			phone: "+1234567890",
-			primaryContactNumber: "+1234567890",
 			emailVerifiedAt: new Date(),
 			onboardingStatus: "COMPLETED",
 			isSubscriptionActive: false,

@@ -34,6 +34,7 @@ describe("ResendForgotPasswordOtpUseCase", () => {
 			findByEmail: jest.fn(),
 			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			findByIdAndRestaurantId: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		};

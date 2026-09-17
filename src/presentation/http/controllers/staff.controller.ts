@@ -1,5 +1,5 @@
 import { TYPES } from "@di/types.ts";
-import type { CookieOptions, Request, Response } from "express";
+import type { CookieOptions, NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
