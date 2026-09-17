@@ -47,6 +47,16 @@ export class RestaurantAuthController {
 		private readonly updateRestaurantProfileUseCase: IUpdateRestaurantProfileUseCase,
 	) {}
 
+	private setRefreshCookie(res: Response, refreshToken: string) {
+		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN || "refreshToken", refreshToken, {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH || "/",
+		});
+	}
+
 	async sendEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.sendRestaurantEmailOtpUseCase.execute(req.body);
 		return sendSuccessResponse(
@@ -69,6 +79,11 @@ export class RestaurantAuthController {
 
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
+
+		if (result.refreshToken) {
+			this.setRefreshCookie(res, result.refreshToken);
+		}
+
 		return sendSuccessResponse(
 			res,
 			result,
@@ -101,6 +116,7 @@ export class RestaurantAuthController {
 		const userObj =
 			req.user && typeof req.user === "object" ? req.user : undefined;
 		const restaurantId =
+			(req.headers?.["x-restaurant-id"] as string | undefined) ||
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
 			(typeof req.userId === "string" ? req.userId : undefined);
 
@@ -122,6 +138,9 @@ export class RestaurantAuthController {
 			res,
 			messages.RESTAURANT_REGISTRATION_SUCCESS,
 			HTTP_STATUS.CREATED,
+			{
+				restaurantId,
+			},
 		);
 	}
 
@@ -131,6 +150,7 @@ export class RestaurantAuthController {
 		const paramId =
 			typeof req.params?.id === "string" ? req.params.id : undefined;
 		const restaurantId =
+			(req.headers?.["x-restaurant-id"] as string | undefined) ||
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
 			(typeof req.userId === "string" ? req.userId : undefined) ||
 			paramId;
@@ -162,6 +182,7 @@ export class RestaurantAuthController {
 		const userObj =
 			req.user && typeof req.user === "object" ? req.user : undefined;
 		const restaurantId =
+			(req.headers?.["x-restaurant-id"] as string | undefined) ||
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
 			(typeof req.userId === "string" ? req.userId : undefined);
 

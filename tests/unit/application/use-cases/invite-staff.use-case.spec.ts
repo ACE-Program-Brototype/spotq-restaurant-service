@@ -55,9 +55,10 @@ describe("InviteStaffUseCase", () => {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
 			findByRestaurantId: jest.fn(),
+			findManyWithFilters: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantStaffRepository>;
 
 		restaurantRepository = {
 			findById: jest.fn(),
@@ -68,12 +69,15 @@ describe("InviteStaffUseCase", () => {
 			create: jest.fn(),
 			createRestaurant: jest.fn(),
 			update: jest.fn(),
+			save: jest.fn(),
+			activateSubscription: jest.fn(),
 			completeOnboarding: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		emailQueueService = {
 			sendVerificationOtp: jest.fn(),
 			sendStaffInvitation: jest.fn(),
+			sendSubscriptionActivatedEmail: jest.fn(),
 		};
 
 		invitationTokenService = {

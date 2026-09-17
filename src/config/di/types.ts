@@ -32,10 +32,23 @@ export const TYPES = {
 	ResendStaffInvitationUseCase: Symbol.for("ResendStaffInvitationUseCase"),
 	RevokeStaffInvitationUseCase: Symbol.for("RevokeStaffInvitationUseCase"),
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
+	ListStaffMembersUseCase: Symbol.for("ListStaffMembersUseCase"),
 	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
+	UpdateStaffProfileUseCase: Symbol.for("UpdateStaffProfileUseCase"),
+
+	// Subscription & Restaurant Use Cases
+	GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+	ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 
 	// Staff Controllers & Services
 	StaffController: Symbol.for("StaffController"),
+	RestaurantStatusController: Symbol.for("RestaurantStatusController"),
+	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
+
+	// Staff Controllers & Services
+	RestaurantStaffManagementController: Symbol.for(
+		"RestaurantStaffManagementController",
+	),
 	JWKSController: Symbol.for("JWKSController"),
 	JWKService: Symbol.for("JWKService"),
 
@@ -63,10 +76,13 @@ export const TYPES = {
 			"UpdateRestaurantProfileUseCase",
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
+		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 	},
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
 	},
 
@@ -91,6 +107,7 @@ export const TYPES = {
 		OtpHashService: Symbol.for("OtpHashService"),
 		Storage: Symbol.for("StorageService"),
 		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
+		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 	},
 
 	Logger: {

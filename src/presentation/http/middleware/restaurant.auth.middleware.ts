@@ -1,7 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { env, formatJwtKey } from "@/config/env.ts";
-import { logger } from "@/infrastructure/observability/logger.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
@@ -23,66 +21,36 @@ export function restaurantAuthMiddleware(
 	res: Response,
 	next: NextFunction,
 ): void {
-	let restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
-	let userId = getHeaderValue(req.headers["x-user-id"]);
-	let role = getHeaderValue(req.headers["x-user-role"]);
+	const headerRestaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
+	const headerUserId = getHeaderValue(req.headers["x-user-id"]);
+	const paramId = getHeaderValue(req.params?.id || req.params?.restaurantId);
+
+	let resolvedId = headerRestaurantId || headerUserId || paramId;
+	let userId = headerUserId;
 	let email = getHeaderValue(req.headers["x-user-email"]);
+	let role = getHeaderValue(req.headers["x-user-role"]);
 
-	let resolvedId = restaurantId || userId;
-
-	if (!resolvedId && req.params) {
-		const paramVal = req.params.restaurantId || req.params.id;
-		if (paramVal) {
-			const paramStr = Array.isArray(paramVal) ? paramVal[0] : paramVal;
-			restaurantId = paramStr;
-			userId = paramStr;
-			resolvedId = paramStr;
-		}
-	}
-
-	if (!resolvedId) {
+	if (!resolvedId && req.headers.authorization) {
 		const authHeader = getHeaderValue(req.headers.authorization);
 		if (authHeader?.startsWith("Bearer ")) {
 			const token = authHeader.substring(7).trim();
-			if (token) {
-				try {
-					const publicKey = formatJwtKey(env.JWT_ACCESS_PUBLIC_KEY);
-					interface JwtPayloadClaims {
-						restaurantId?: string;
-						sub?: string;
-						email?: string;
-						role?: string;
-					}
-					let decoded: JwtPayloadClaims | null = null;
-
-					try {
-						if (publicKey) {
-							decoded = jwt.verify(token, publicKey, {
-								algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
-							}) as unknown as JwtPayloadClaims;
-						} else {
-							decoded = jwt.verify(
-								token,
-								env.JWT_REFRESH_SECRET || "secret-key",
-							) as unknown as JwtPayloadClaims;
-						}
-					} catch {
-						decoded = jwt.decode(token) as JwtPayloadClaims | null;
-					}
-
-					if (decoded) {
-						restaurantId = decoded.restaurantId || decoded.sub;
-						userId = decoded.sub || "";
-						email = decoded.email || "";
-						role = decoded.role || "RESTAURANT";
-						resolvedId = restaurantId || userId;
-					}
-				} catch (err) {
-					logger.warn(
-						{ error: err },
-						"Fallback Bearer token verification failed in restaurantAuthMiddleware",
-					);
+			try {
+				const decoded = jwt.decode(token) as {
+					restaurantId?: string;
+					email?: string;
+					role?: string;
+					sub?: string;
+					id?: string;
+				} | null;
+				const tokenId = decoded?.restaurantId || decoded?.sub || decoded?.id;
+				if (tokenId) {
+					resolvedId = tokenId;
+					if (!userId && decoded?.sub) userId = decoded.sub;
+					if (!email && decoded?.email) email = decoded.email;
+					if (!role && decoded?.role) role = decoded.role;
 				}
+			} catch {
+				// Ignore decode error; check below will handle unauthorized
 			}
 		}
 	}
@@ -100,13 +68,13 @@ export function restaurantAuthMiddleware(
 		return;
 	}
 
-	req.userId = resolvedId;
 	req.user = {
 		restaurantId: resolvedId,
 		userId: userId || resolvedId,
 		email: email || "",
 		role: role || "RESTAURANT",
 	};
+	req.userId = resolvedId;
 
 	next();
 }

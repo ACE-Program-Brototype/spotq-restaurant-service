@@ -22,7 +22,8 @@ ENV NODE_ENV=production \
     INFISICAL_DISABLE_UPDATE_CHECK=true
 
 RUN apk add --no-cache bash curl && \
-    curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.alpine.sh' | bash && \
+    curl -1sLf 'https://artifacts-cli.infisical.com/setup.apk.sh' | sh && \
+    apk update && \
     apk add --no-cache infisical
 
 COPY --from=builder /app/node_modules ./node_modules
