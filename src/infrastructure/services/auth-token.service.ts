@@ -5,12 +5,13 @@ import type {
 	IAuthTokenService,
 	TokenPair,
 } from "@/application/ports/services/auth-token.service.port";
-import { env } from "@/config/env";
+import { env, formatJwtKey } from "@/config/env";
 
 @injectable()
 export class AuthTokenService implements IAuthTokenService {
 	generateAccessToken(payload: AuthTokenPayload): string {
-		return jwt.sign(payload, env.JWT_ACCESS_PRIVATE_KEY, {
+		const privateKey = formatJwtKey(env.JWT_ACCESS_PRIVATE_KEY);
+		return jwt.sign(payload, privateKey, {
 			expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions["expiresIn"],
 			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
 			keyid: env.JWT_ACCESS_TOKEN_KEY_ID,
@@ -31,7 +32,8 @@ export class AuthTokenService implements IAuthTokenService {
 	}
 
 	verifyAccessToken(token: string): AuthTokenPayload {
-		return jwt.verify(token, env.JWT_ACCESS_PUBLIC_KEY, {
+		const publicKey = formatJwtKey(env.JWT_ACCESS_PUBLIC_KEY);
+		return jwt.verify(token, publicKey, {
 			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
 		}) as AuthTokenPayload;
 	}

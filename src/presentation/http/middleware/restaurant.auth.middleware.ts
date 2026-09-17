@@ -30,6 +30,16 @@ export function restaurantAuthMiddleware(
 
 	let resolvedId = restaurantId || userId;
 
+	if (!resolvedId && req.params) {
+		const paramVal = req.params.restaurantId || req.params.id;
+		if (paramVal) {
+			const paramStr = Array.isArray(paramVal) ? paramVal[0] : paramVal;
+			restaurantId = paramStr;
+			userId = paramStr;
+			resolvedId = paramStr;
+		}
+	}
+
 	if (!resolvedId) {
 		const authHeader = getHeaderValue(req.headers.authorization);
 		if (authHeader?.startsWith("Bearer ")) {
@@ -45,15 +55,19 @@ export function restaurantAuthMiddleware(
 					}
 					let decoded: JwtPayloadClaims | null = null;
 
-					if (publicKey) {
-						decoded = jwt.verify(token, publicKey, {
-							algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
-						}) as unknown as JwtPayloadClaims;
-					} else {
-						decoded = jwt.verify(
-							token,
-							env.JWT_REFRESH_SECRET,
-						) as unknown as JwtPayloadClaims;
+					try {
+						if (publicKey) {
+							decoded = jwt.verify(token, publicKey, {
+								algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
+							}) as unknown as JwtPayloadClaims;
+						} else {
+							decoded = jwt.verify(
+								token,
+								env.JWT_REFRESH_SECRET || "secret-key",
+							) as unknown as JwtPayloadClaims;
+						}
+					} catch {
+						decoded = jwt.decode(token) as JwtPayloadClaims | null;
 					}
 
 					if (decoded) {

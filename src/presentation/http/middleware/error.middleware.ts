@@ -50,14 +50,21 @@ export const errorHandler: ErrorRequestHandler = (
 		message = err.message;
 		errorDetails = err.details;
 	} else if (err instanceof Error) {
-		statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
-		code = "INTERNAL_SERVER_ERROR";
-		message =
-			env.APP_ENV === "production"
-				? messages.INTERNAL_SERVER_ERROR
-				: err.message || messages.INTERNAL_SERVER_ERROR;
-		errorDetails =
-			env.APP_ENV === "production" ? undefined : { stack: err.stack };
+		const customStatusCode = (err as { statusCode?: unknown }).statusCode;
+		if (typeof customStatusCode === "number") {
+			statusCode = customStatusCode as HttpStatusCode;
+			code = err.name || "BAD_REQUEST";
+			message = err.message;
+		} else {
+			statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+			code = "INTERNAL_SERVER_ERROR";
+			message =
+				env.APP_ENV === "production"
+					? messages.INTERNAL_SERVER_ERROR
+					: err.message || messages.INTERNAL_SERVER_ERROR;
+			errorDetails =
+				env.APP_ENV === "production" ? undefined : { stack: err.stack };
+		}
 	}
 
 	const errorObj = err instanceof Error ? err : new Error(String(err));

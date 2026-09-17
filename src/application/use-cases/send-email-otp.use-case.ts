@@ -11,6 +11,8 @@ import { OtpCooldownActiveError } from "../errors/otp-cooldown-active.error";
 import type { IOtpService } from "../ports/services/otp.service.port";
 import type { IOtpHashService } from "../ports/services/otp-hash.service.port";
 
+import { logger } from "@/infrastructure/observability/logger";
+
 @injectable()
 export class SendRestaurantEmailOtpUseCase
 	implements ISendRestaurantEmailOtpUseCase
@@ -47,6 +49,11 @@ export class SendRestaurantEmailOtpUseCase
 		await this.redisOtpStore.save(otpKey, otpHash, OTP_CONFIG.EXPIRY_SECONDS);
 
 		await this.otpService.resetAttempts(email);
+
+		logger.info(
+			{ email, otpKey },
+			"SendRestaurantEmailOtpUseCase: OTP generated and saved to Redis",
+		);
 
 		await this.emailQueue.add(JOB_NAMES.EMAIL.VERIFICATION_OTP, {
 			toEmail: email,
