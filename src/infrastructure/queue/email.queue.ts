@@ -3,14 +3,16 @@ import { inject, injectable } from "inversify";
 import type {
 	IEmailQueuePort,
 	SendStaffInvitationJobData,
+	SendSubscriptionActivatedEmailJobData,
 	SendVerificationOtpJobData,
 } from "@/application/ports/services/email-queue.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { emailQueue } from "@/infrastructure/queue/bullmq.service.ts";
 import {
 	renderStaffInvitationTemplate,
+	renderSubscriptionActivatedTemplate,
 	renderVerificationOtpTemplate,
-} from "@/infrastructure/template/email.template";
+} from "@/infrastructure/template/email.template.ts";
 import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants.ts";
 
 export const EMAIL_QUEUE_NAME = QUEUE_NAMES.EMAIL;
@@ -45,6 +47,32 @@ export class EmailQueueService implements IEmailQueuePort {
 			htmlContent: rendered.htmlContent,
 			recipientName: data.recipientName,
 		});
+	}
+
+	public async sendSubscriptionActivatedEmail(
+		data: SendSubscriptionActivatedEmailJobData,
+	): Promise<void> {
+		const rendered = renderSubscriptionActivatedTemplate({
+			ownerName: data.ownerName,
+			restaurantName: data.restaurantName,
+			planCode: data.planCode,
+			subscriptionEndsAt: data.subscriptionEndsAt,
+		});
+
+		await this.queue.add(
+			"send-email",
+			{
+				to: data.to,
+				subject: rendered.subject,
+				htmlContent: rendered.htmlContent,
+				recipientName: data.ownerName,
+			},
+			data.eventId
+				? {
+						jobId: `sub-activated-${data.eventId}`,
+					}
+				: undefined,
+		);
 	}
 
 	public async sendStaffInvitation(

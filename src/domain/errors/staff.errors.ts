@@ -89,6 +89,13 @@ export class StaffSuspendedError extends DomainError {
 	}
 }
 
+export class StaffForbiddenError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.STAFF_FORBIDDEN;
+	constructor(message: string = messages.STAFF_FORBIDDEN) {
+		super(message);
+	}
+}
+
 export class InvalidEmailError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.INVALID_EMAIL;
 	constructor(message: string = messages.INVALID_EMAIL_FORMAT) {
@@ -176,6 +183,13 @@ export class StaffInvitationNotFoundError extends DomainError {
 export class InvalidInvitationStatusError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.INVALID_INVITATION_STATUS;
 	constructor(message: string = messages.INVALID_INVITATION_STATUS) {
+		super(message);
+	}
+}
+
+export class UnauthorizedRestaurantAccessError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.UNAUTHORIZED_RESTAURANT_ACCESS;
+	constructor(message: string = messages.RESTAURANT_ACCESS_FORBIDDEN) {
 		super(message);
 	}
 }

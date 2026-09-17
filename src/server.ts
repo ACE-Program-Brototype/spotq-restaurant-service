@@ -12,7 +12,9 @@ import {
 	connectBullMQ,
 	disconnectBullMQ,
 } from "@/infrastructure/queue/bullmq.connect";
+import { createSubscriptionWorker } from "@/infrastructure/queue/workers/subscription.worker";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
+import type { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { closeS3Client } from "@/infrastructure/storage/s3.client";
 import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
 import { PORT } from "@/shared/constants/app.constants";
@@ -27,6 +29,12 @@ async function bootstrap() {
 
 		const emailWorker = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
 		emailWorker.start();
+
+		const subscriptionWorker = createSubscriptionWorker();
+		const subscriptionExpiryService = container.get<SubscriptionExpiryService>(
+			TYPES.Services.SubscriptionExpiryService,
+		);
+		subscriptionExpiryService.start();
 
 		const server = app.listen(PORT, () => {
 			logger.info({ port: PORT }, "Server listening");
@@ -52,6 +60,8 @@ async function bootstrap() {
 				}
 
 				try {
+					subscriptionExpiryService.stop();
+					await subscriptionWorker.close();
 					await emailWorker.stop();
 					await closeS3Client();
 

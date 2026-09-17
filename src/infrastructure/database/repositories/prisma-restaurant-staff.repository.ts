@@ -1,10 +1,10 @@
+import { TYPES } from "@di/types.ts";
 import type {
 	PrismaClient,
 	RestaurantStaff as PrismaRestaurantStaff,
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
-import { TYPES } from "@/config/di/types.ts";
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import {
 	StaffAlreadyExistsError,
@@ -101,5 +101,23 @@ export class PrismaRestaurantStaffRepository
 		});
 
 		return rawList.map((raw) => this.mapper.toDomain(raw));
+	}
+
+	public async findByIdAndRestaurantId(
+		id: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null> {
+		const raw = await this.dbModel.findFirst({
+			where: {
+				id,
+				restaurantId,
+			},
+		});
+
+		if (!raw) {
+			return null;
+		}
+
+		return this.mapper.toDomain(raw);
 	}
 }

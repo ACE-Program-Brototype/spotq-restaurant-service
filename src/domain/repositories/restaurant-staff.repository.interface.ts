@@ -9,4 +9,8 @@ export interface IRestaurantStaffRepository
 		restaurantId: string,
 	): Promise<RestaurantStaff | null>;
 	findByRestaurantId(restaurantId: string): Promise<RestaurantStaff[]>;
+	findByIdAndRestaurantId(
+		id: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null>;
 }

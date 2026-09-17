@@ -29,6 +29,9 @@ app.use(cookieParser());
 app.use(httpLogger);
 app.use(metricsMiddleware);
 
+// JWKS Endpoint
+app.use("/.well-known", jwksRouter);
+
 app.get("/", (_req, res) => {
 	sendSuccessResponse(
 		res,
@@ -45,13 +48,9 @@ app.get("/", (_req, res) => {
 // Mount routes
 app.use(ADMIN_ROUTES.BASE, adminRouter);
 app.use(STAFF_ROUTES.BASE, staffRouter);
-
 app.use("/", systemRouter);
-
 app.use("/", restaurantRouter);
-
 app.use(STORAGE_ROUTES.BASE, storageRouter);
-app.use("/.well-known", jwksRouter);
 
 // 404 & Error handlers
 app.use(notFoundHandler);

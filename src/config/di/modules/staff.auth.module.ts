@@ -7,6 +7,7 @@ import type { IPasswordHasher } from "@/application/ports/services/password-hash
 import type { ITokenService } from "@/application/ports/services/token-service.port";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port";
+import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port";
 import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port";
@@ -17,10 +18,12 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port";
+import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port";
 import { AcceptInvitationUseCase } from "@/application/use-cases/staff/accept-invitation.use-case";
 import { ForgotPasswordUseCase } from "@/application/use-cases/staff/forgot-password.use-case";
+import { GetStaffDetailUseCase } from "@/application/use-cases/staff/get-staff-detail.use-case";
 import { GetStaffProfileUseCase } from "@/application/use-cases/staff/get-staff-profile.use-case";
 import { InviteStaffUseCase } from "@/application/use-cases/staff/invite-staff.use-case";
 import { ListStaffInvitationsUseCase } from "@/application/use-cases/staff/list-staff-invitations.use-case";
@@ -31,6 +34,7 @@ import { ResendForgotPasswordOtpUseCase } from "@/application/use-cases/staff/re
 import { ResendStaffInvitationUseCase } from "@/application/use-cases/staff/resend-staff-invitation.use-case";
 import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-password.use-case";
 import { RevokeStaffInvitationUseCase } from "@/application/use-cases/staff/revoke-staff-invitation.use-case";
+import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-staff-profile.use-case";
 import { ValidateInvitationUseCase } from "@/application/use-cases/staff/validate-invitation.use-case";
 import { VerifyForgotPasswordOtpUseCase } from "@/application/use-cases/staff/verify-forgot-password-otp.use-case";
 import { TYPES } from "@/config/di/types";
@@ -48,6 +52,7 @@ import { BcryptPasswordHasher } from "@/infrastructure/services/bcrypt-password-
 import { CryptoInvitationTokenService } from "@/infrastructure/services/crypto-invitation-token.service";
 import { CryptoOtpService } from "@/infrastructure/services/crypto-otp.service";
 import { JwtTokenService } from "@/infrastructure/services/jwt-token.service";
+import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
 import { StaffController } from "@/presentation/http/controllers/staff.controller";
 
 export const staffAuthModule = new ContainerModule(({ bind }) => {
@@ -150,8 +155,22 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 		.to(GetStaffProfileUseCase)
 		.inSingletonScope();
 
+	bind<IUpdateStaffProfileUseCase>(TYPES.UpdateStaffProfileUseCase)
+		.to(UpdateStaffProfileUseCase)
+		.inSingletonScope();
+
+	bind<IGetStaffDetailUseCase>(TYPES.GetStaffDetailUseCase)
+		.to(GetStaffDetailUseCase)
+		.inSingletonScope();
+
 	// Controller
 	bind<StaffController>(TYPES.StaffController)
 		.to(StaffController)
+		.inSingletonScope();
+
+	bind<RestaurantStaffManagementController>(
+		TYPES.RestaurantStaffManagementController,
+	)
+		.to(RestaurantStaffManagementController)
 		.inSingletonScope();
 });
