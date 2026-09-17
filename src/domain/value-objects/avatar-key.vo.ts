@@ -48,7 +48,10 @@ export class StaffAvatarKey {
 			const restaurantIndex = segments.indexOf("restaurants");
 			if (restaurantIndex !== -1) {
 				const actualRestaurantId = segments[restaurantIndex + 1];
-				if (!actualRestaurantId || actualRestaurantId !== context.restaurantId) {
+				if (
+					!actualRestaurantId ||
+					actualRestaurantId !== context.restaurantId
+				) {
 					throw new StaffForbiddenError(messages.AVATAR_RESTAURANT_MISMATCH);
 				}
 			}

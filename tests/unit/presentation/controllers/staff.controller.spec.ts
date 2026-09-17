@@ -646,7 +646,11 @@ describe("StaffController", () => {
 
 			updateStaffProfileUseCase.execute.mockResolvedValue(mockUpdated as never);
 
-			await controller.updateProfile(req as never, res as Response, next as never);
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
 
 			expect(updateStaffProfileUseCase.execute).toHaveBeenCalledWith({
 				restaurantId: "rest-123",
@@ -674,7 +678,11 @@ describe("StaffController", () => {
 				body: { name: "Name" },
 			};
 
-			await controller.updateProfile(req as never, res as Response, next as never);
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
 
 			expect(res.status).toHaveBeenCalledWith(401);
 		});
@@ -692,7 +700,11 @@ describe("StaffController", () => {
 				body: { name: "Name" },
 			};
 
-			await controller.updateProfile(req as never, res as Response, next as never);
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
 
 			expect(next).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -714,7 +726,11 @@ describe("StaffController", () => {
 				body: { name: "Name" },
 			};
 
-			await controller.updateProfile(req as never, res as Response, next as never);
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
 
 			expect(next).toHaveBeenCalledWith(
 				expect.objectContaining({
