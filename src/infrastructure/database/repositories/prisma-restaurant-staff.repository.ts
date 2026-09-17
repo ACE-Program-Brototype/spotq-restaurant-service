@@ -111,9 +111,15 @@ export class PrismaRestaurantStaffRepository
 		const { restaurantId, page, limit, status, search, sortBy, sortOrder } =
 			params;
 
+		const statusCondition: Prisma.EnumStaffStatusFilter | StaffStatus = status
+			? status === "REMOVED"
+				? { in: [] }
+				: status
+			: { not: "REMOVED" };
+
 		const where: Prisma.RestaurantStaffWhereInput = {
 			restaurantId,
-			...(status && { status }),
+			status: statusCondition,
 			...(search && {
 				OR: [
 					{ fullname: { contains: search, mode: "insensitive" } },
@@ -145,10 +151,7 @@ export class PrismaRestaurantStaffRepository
 		restaurantId: string,
 	): Promise<RestaurantStaff | null> {
 		const raw = await this.dbModel.findFirst({
-			where: {
-				id,
-				restaurantId,
-			},
+			where: { id, restaurantId },
 		});
 
 		if (!raw) {
@@ -165,6 +168,16 @@ export class PrismaRestaurantStaffRepository
 		return this.update(id, {
 			status,
 			updatedAt: new Date(),
+		});
+	}
+
+	public async removeStaff(id: string, restaurantId: string): Promise<void> {
+		await this.dbModel.updateMany({
+			where: { id, restaurantId },
+			data: {
+				status: "REMOVED",
+				updatedAt: new Date(),
+			},
 		});
 	}
 

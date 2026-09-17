@@ -231,6 +231,7 @@ export const messages = {
 	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
 		"Verification status retrieved successfully",
 	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
+	STAFF_REMOVED_SUCCESS: "Staff member removed successfully",
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",

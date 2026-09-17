@@ -96,6 +96,7 @@ export function restaurantOwnerAuthMiddleware(
 		email: email || "",
 		role: role || "RESTAURANT_OWNER",
 	};
+
 	req.userId = userId;
 
 	next();

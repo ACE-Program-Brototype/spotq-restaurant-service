@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
 import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port.ts";
+import type { IRemoveStaffUseCase } from "@/application/ports/use-cases/remove-staff.use-case.port.ts";
 import type { IUpdateStaffInfoUseCase } from "@/application/ports/use-cases/update-staff-info.use-case.port.ts";
 import type { IUpdateStaffStatusUseCase } from "@/application/ports/use-cases/update-staff-status.use-case.port.ts";
 import { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller.ts";
@@ -11,23 +12,27 @@ import { messages } from "@/shared/constants/message.constants.ts";
 describe("RestaurantStaffManagementController", () => {
 	let getStaffDetailUseCase: jest.Mocked<IGetStaffDetailUseCase>;
 	let updateStaffInfoUseCase: jest.Mocked<IUpdateStaffInfoUseCase>;
+	let removeStaffUseCase: jest.Mocked<IRemoveStaffUseCase>;
 	let updateStaffStatusUseCase: jest.Mocked<IUpdateStaffStatusUseCase>;
 	let controller: RestaurantStaffManagementController;
 	let res: Partial<Response>;
 	let statusMock: jest.Mock;
 	let jsonMock: jest.Mock;
+	let mockNext: jest.MockedFunction<NextFunction>;
 
-	const mockRestaurantId = "11111111-1111-1111-1111-111111111111";
-	const mockStaffId = "22222222-2222-2222-2222-222222222222";
+	const mockRestaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+	const mockStaffId = "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01";
 
 	beforeEach(() => {
 		getStaffDetailUseCase = { execute: jest.fn() };
 		updateStaffInfoUseCase = { execute: jest.fn() };
+		removeStaffUseCase = { execute: jest.fn() };
 		updateStaffStatusUseCase = { execute: jest.fn() };
 
 		controller = new RestaurantStaffManagementController(
 			getStaffDetailUseCase,
 			updateStaffInfoUseCase,
+			removeStaffUseCase,
 			updateStaffStatusUseCase,
 		);
 
@@ -38,6 +43,7 @@ describe("RestaurantStaffManagementController", () => {
 			status: statusMock as unknown as Response["status"],
 			json: jsonMock as unknown as Response["json"],
 		};
+		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
 	describe("getStaffDetail", () => {
@@ -283,6 +289,130 @@ describe("RestaurantStaffManagementController", () => {
 				}),
 			);
 			expect(updateStaffInfoUseCase.execute).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("removeStaff", () => {
+		it("should remove staff member and return 200 with null data", async () => {
+			const mockReq = {
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				headers: {},
+				user: {
+					userId: "owner-user-id",
+					restaurantId: mockRestaurantId,
+					email: "owner@spiceroute.com",
+					role: "restaurant_owner",
+				},
+			};
+
+			await controller.removeStaff(
+				mockReq as unknown as Request,
+				res as Response,
+				mockNext,
+			);
+
+			expect(removeStaffUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: mockRestaurantId,
+				staffId: mockStaffId,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.STAFF_REMOVED_SUCCESS,
+					data: null,
+					statusCode: HTTP_STATUS.OK,
+				}),
+			);
+		});
+
+		it("should return 401 when no authenticated restaurant or user ID is found", async () => {
+			const mockReq = {
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				headers: {},
+				user: undefined,
+			};
+
+			await controller.removeStaff(
+				mockReq as unknown as Request,
+				res as Response,
+				mockNext,
+			);
+
+			expect(removeStaffUseCase.execute).not.toHaveBeenCalled();
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: false,
+					message: messages.GATEWAY_UNAUTHORIZED,
+					statusCode: HTTP_STATUS.UNAUTHORIZED,
+				}),
+			);
+		});
+
+		it("should return 403 when authenticated restaurantId does not match param restaurantId", async () => {
+			const mockReq = {
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				headers: {},
+				user: {
+					userId: "owner-user-id",
+					restaurantId: "different-restaurant-id",
+					email: "owner@spiceroute.com",
+					role: "restaurant_owner",
+				},
+			};
+
+			await controller.removeStaff(
+				mockReq as unknown as Request,
+				res as Response,
+				mockNext,
+			);
+
+			expect(removeStaffUseCase.execute).not.toHaveBeenCalled();
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: false,
+					message: messages.RESTAURANT_ACCESS_FORBIDDEN,
+					statusCode: HTTP_STATUS.FORBIDDEN,
+				}),
+			);
+		});
+
+		it("should forward error to next() when use case throws an error", async () => {
+			const error = new Error("Database failure");
+			removeStaffUseCase.execute.mockRejectedValueOnce(error);
+
+			const mockReq = {
+				params: {
+					restaurantId: mockRestaurantId,
+					staffId: mockStaffId,
+				},
+				headers: {},
+				user: {
+					userId: "owner-user-id",
+					restaurantId: mockRestaurantId,
+					email: "owner@spiceroute.com",
+					role: "restaurant_owner",
+				},
+			};
+
+			await controller.removeStaff(
+				mockReq as unknown as Request,
+				res as Response,
+				mockNext,
+			);
+
+			expect(mockNext).toHaveBeenCalledWith(error);
 		});
 	});
 
