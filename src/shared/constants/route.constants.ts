@@ -14,6 +14,9 @@ export const RESTAURANT_ROUTES = {
 	UPDATE_STAFF_PROFILE: "/:restaurantId/staff/:staffId",
 	STATUS: "/me/status",
 	VERIFICATION_STATUS: "/verification-status",
+	STAFF_DETAIL: "/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
 } as const;
 
 export const STAFF_ROUTES = {

@@ -42,6 +42,12 @@ export const TYPES = {
 	// Staff Controllers & Services
 	StaffController: Symbol.for("StaffController"),
 	RestaurantStatusController: Symbol.for("RestaurantStatusController"),
+	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
+
+	// Staff Controllers & Services
+	RestaurantStaffManagementController: Symbol.for(
+		"RestaurantStaffManagementController",
+	),
 	JWKSController: Symbol.for("JWKSController"),
 	JWKService: Symbol.for("JWKService"),
 

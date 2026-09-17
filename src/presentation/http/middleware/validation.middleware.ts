@@ -35,13 +35,15 @@ export const validateRequestParams = (schema: ZodType) => {
 		const result = schema.safeParse(req.params);
 
 		if (!result.success) {
+			const firstError =
+				result.error.issues[0]?.message || messages.VALIDATION_ERROR;
 			res
-				.status(HTTP_STATUS.BAD_REQUEST)
+				.status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
 				.json(
 					ApiResponse.error(
-						messages.VALIDATION_ERROR,
+						firstError,
 						"VALIDATION_ERROR",
-						HTTP_STATUS.BAD_REQUEST,
+						HTTP_STATUS.UNPROCESSABLE_ENTITY,
 						result.error.flatten(),
 					),
 				);
