@@ -53,12 +53,13 @@ export class RestaurantAuthController {
 		return cookies[name];
 	}
 
-	private setRefreshCookies(res: Response, refreshToken: string) {
-		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN, refreshToken, {
+	private setRefreshCookie(res: Response, refreshToken: string) {
+		res.cookie(env.COOKIE_NAME_REFRESH_TOKEN || "refreshToken", refreshToken, {
 			httpOnly: env.COOKIE_HTTP_ONLY,
 			secure: env.COOKIE_SECURE,
 			sameSite: env.COOKIE_SAME_SITE,
 			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH || "/",
 		});
 	}
 
@@ -85,8 +86,8 @@ export class RestaurantAuthController {
 	async verifyEmailOtp(req: Request, res: Response): Promise<Response> {
 		const result = await this.verifyRestaurantEmailOtpUseCase.execute(req.body);
 
-		if (result.accessToken && result.refreshToken) {
-			this.setRefreshCookies(res, result.refreshToken);
+		if (result.refreshToken) {
+			this.setRefreshCookie(res, result.refreshToken);
 		}
 
 		return successResponse(
@@ -96,7 +97,7 @@ export class RestaurantAuthController {
 			{
 				nextStep: result.nextStep,
 				restaurantId: result.restaurantId,
-				access_token: result.accessToken,
+				accessToken: result.accessToken,
 			},
 		);
 	}
@@ -128,7 +129,7 @@ export class RestaurantAuthController {
 			messages.ACCESS_TOKEN_REFRESH_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 			{
-				access_token: accessToken,
+				accessToken,
 			},
 		);
 	}
@@ -137,7 +138,10 @@ export class RestaurantAuthController {
 		const userObj =
 			req.user && typeof req.user === "object" ? req.user : undefined;
 		const restaurantId =
+			(req.headers?.["x-restaurant-id"] as string | undefined) ||
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
+			(req as Request & { user?: { restaurantId?: string } }).user
+				?.restaurantId ||
 			req.userId;
 
 		if (!restaurantId) {
@@ -158,6 +162,9 @@ export class RestaurantAuthController {
 			res,
 			messages.RESTAURANT_REGISTRATION_SUCCESS,
 			HTTP_STATUS.CREATED,
+			{
+				restaurantId,
+			},
 		);
 	}
 

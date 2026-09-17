@@ -48,7 +48,7 @@ describe("validateRequestParams with removeStaffParamsSchema", () => {
 	const validRestaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 	const validStaffId = "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01";
 
-	it("should return 422 with formatted errors when validation fails", () => {
+	it("should return 422 with formatted errors when validation fails", async () => {
 		const {
 			validateRequestParams,
 		} = require("@/presentation/http/middleware/validation.middleware.ts");
@@ -74,12 +74,13 @@ describe("validateRequestParams with removeStaffParamsSchema", () => {
 				jsonCalledWith = body;
 				return res;
 			},
+			locals: {},
 		};
 
 		const next = jest.fn();
 
 		const middleware = validateRequestParams(removeStaffParamsSchema);
-		middleware(req as unknown as Request, res as unknown as Response, next);
+		await middleware(req as unknown as Request, res as unknown as Response, next);
 
 		expect(statusCalledWith).toBe(HTTP_STATUS.UNPROCESSABLE_ENTITY);
 		expect(jsonCalledWith).toEqual(
@@ -97,7 +98,7 @@ describe("validateRequestParams with removeStaffParamsSchema", () => {
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it("should call next() and assign parsed params when validation succeeds", () => {
+	it("should call next() and assign parsed params when validation succeeds", async () => {
 		const {
 			validateRequestParams,
 		} = require("@/presentation/http/middleware/validation.middleware.ts");
@@ -109,11 +110,13 @@ describe("validateRequestParams with removeStaffParamsSchema", () => {
 			},
 		};
 
-		const res = {};
+		const res = {
+			locals: {},
+		};
 		const next = jest.fn();
 
 		const middleware = validateRequestParams(removeStaffParamsSchema);
-		middleware(req as unknown as Request, res as unknown as Response, next);
+		await middleware(req as unknown as Request, res as unknown as Response, next);
 
 		expect(next).toHaveBeenCalledTimes(1);
 		expect(req.params).toEqual({

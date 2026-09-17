@@ -1,0 +1,82 @@
+import { injectable } from "inversify";
+import { env } from "@/config/env.ts";
+import { prisma } from "@/config/prisma.ts";
+import { logger } from "@/infrastructure/observability/logger.ts";
+
+/**
+ * Service responsible for periodically checking and marking past-due
+ * restaurant subscriptions as inactive.
+ */
+@injectable()
+export class SubscriptionExpiryService {
+	private intervalId: NodeJS.Timeout | null = null;
+	private isRunning = false;
+
+	start(intervalMs = env.SUBSCRIPTION_EXPIRY_CHECK_INTERVAL_MS): void {
+		if (this.intervalId) return;
+
+		this.expirePastDueSubscriptions().catch((err) => {
+			logger.error({ err }, "Error running initial subscription expiry check");
+		});
+
+		this.intervalId = setInterval(() => {
+			this.expirePastDueSubscriptions().catch((err) => {
+				logger.error(
+					{ err },
+					"Error running scheduled subscription expiry check",
+				);
+			});
+		}, intervalMs);
+
+		logger.info({ intervalMs }, "SubscriptionExpiryService started");
+	}
+
+	stop(): void {
+		if (this.intervalId) {
+			clearInterval(this.intervalId);
+			this.intervalId = null;
+			logger.info("SubscriptionExpiryService stopped");
+		}
+	}
+
+	async expirePastDueSubscriptions(now = new Date()): Promise<number> {
+		if (this.isRunning) return 0;
+		this.isRunning = true;
+
+		try {
+			const result = await prisma.restaurant.updateMany({
+				where: {
+					isSubscriptionActive: true,
+					subscriptionEndsAt: {
+						lt: now,
+					},
+				},
+				data: {
+					isSubscriptionActive: false,
+				},
+			});
+
+			if (result.count > 0) {
+				logger.info(
+					{ count: result.count, timestamp: now.toISOString() },
+					"Expired past-due restaurant subscriptions (is_subscription_active set to false)",
+				);
+			}
+
+			return result.count;
+		} catch (error: unknown) {
+			const prismaError = error as { code?: string; message?: string };
+			if (prismaError?.code === "P2022") {
+				logger.warn(
+					{ err: prismaError.message },
+					"Subscription columns not found in database. Run 'pnpm exec prisma db push' or 'pnpm exec prisma migrate deploy'.",
+				);
+				return 0;
+			}
+			logger.error({ err: error }, "Failed to expire past-due subscriptions");
+			throw error;
+		} finally {
+			this.isRunning = false;
+		}
+	}
+}

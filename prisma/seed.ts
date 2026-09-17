@@ -162,7 +162,7 @@ async function main() {
 	console.log("\n👥 Seeding Restaurant Staff Members...");
 	for (const staff of sampleStaffMembers) {
 		const upserted = await prisma.restaurantStaff.upsert({
-			where: { email: staff.email },
+			where: { id: staff.id },
 			update: {
 				restaurantId: staff.restaurantId,
 				fullname: staff.fullname,

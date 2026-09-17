@@ -13,6 +13,8 @@ export interface IAuthTokenService {
 export interface AuthTokenPayload {
 	restaurantId: string;
 	email: string;
+	role?: string;
+	sub?: string;
 }
 
 export interface TokenPair {

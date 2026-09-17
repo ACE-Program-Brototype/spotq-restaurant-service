@@ -1,7 +1,9 @@
 import {
+	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
-	messages,
+	RestaurantAlreadyProcessedError,
 } from "@/domain/errors/restaurant.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 import {
 	type OnboardingStatus,
 	OnboardingStatusVO,
@@ -21,11 +23,13 @@ export interface RestaurantProps {
 	status: RestaurantStatusVO;
 	onboardingStatus: OnboardingStatusVO;
 	emailVerifiedAt: Date | null;
-	isBlocked: boolean;
-	blockReason: string | null;
+	rejectionReason: string | null;
+	lastLoginAt: Date | null;
 	isSubscriptionActive: boolean;
 	subscriptionPlanCode: string | null;
 	subscriptionEndsAt: Date | null;
+	isBlocked: boolean;
+	blockReason: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -40,11 +44,13 @@ export interface CreateRestaurantProps {
 	status?: string | RestaurantStatusVO;
 	onboardingStatus?: string | OnboardingStatusVO;
 	emailVerifiedAt?: Date | null;
-	isBlocked?: boolean;
-	blockReason?: string | null;
+	rejectionReason?: string | null;
+	lastLoginAt?: Date | null;
 	isSubscriptionActive?: boolean;
 	subscriptionPlanCode?: string | null;
 	subscriptionEndsAt?: Date | null;
+	isBlocked?: boolean;
+	blockReason?: string | null;
 }
 
 export interface ReconstituteRestaurantProps {
@@ -57,11 +63,13 @@ export interface ReconstituteRestaurantProps {
 	status: string;
 	onboardingStatus: string;
 	emailVerifiedAt: Date | null;
-	isBlocked: boolean;
-	blockReason: string | null;
+	rejectionReason?: string | null;
+	lastLoginAt?: Date | null;
 	isSubscriptionActive?: boolean;
 	subscriptionPlanCode?: string | null;
 	subscriptionEndsAt?: Date | null;
+	isBlocked: boolean;
+	blockReason: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -79,7 +87,7 @@ export class Restaurant {
 			typeof props.restaurantName !== "string" ||
 			props.restaurantName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(messages.RESTAUARANT_NAME_REQUIRED);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
 		}
 
 		if (!props.email || typeof props.email !== "string") {
@@ -131,11 +139,13 @@ export class Restaurant {
 			status,
 			onboardingStatus,
 			emailVerifiedAt: props.emailVerifiedAt ?? null,
-			isBlocked: props.isBlocked ?? false,
-			blockReason: props.blockReason ?? null,
+			rejectionReason: props.rejectionReason ?? null,
+			lastLoginAt: props.lastLoginAt ?? null,
 			isSubscriptionActive: props.isSubscriptionActive ?? false,
 			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
 			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
+			isBlocked: props.isBlocked ?? false,
+			blockReason: props.blockReason ?? null,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -152,11 +162,13 @@ export class Restaurant {
 			status: RestaurantStatusVO.create(props.status),
 			onboardingStatus: OnboardingStatusVO.create(props.onboardingStatus),
 			emailVerifiedAt: props.emailVerifiedAt,
-			isBlocked: props.isBlocked,
-			blockReason: props.blockReason,
+			rejectionReason: props.rejectionReason ?? null,
+			lastLoginAt: props.lastLoginAt ?? null,
 			isSubscriptionActive: props.isSubscriptionActive ?? false,
 			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
 			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
+			isBlocked: props.isBlocked,
+			blockReason: props.blockReason,
 			createdAt: props.createdAt,
 			updatedAt: props.updatedAt,
 		});
@@ -206,12 +218,8 @@ export class Restaurant {
 		return this._props.emailVerifiedAt;
 	}
 
-	public get isBlocked(): boolean {
-		return this._props.isBlocked;
-	}
-
-	public get blockReason(): string | null {
-		return this._props.blockReason;
+	public get lastLoginAt(): Date | null {
+		return this._props.lastLoginAt;
 	}
 
 	public get isSubscriptionActive(): boolean {
@@ -225,6 +233,17 @@ export class Restaurant {
 	public get subscriptionEndsAt(): Date | null {
 		return this._props.subscriptionEndsAt;
 	}
+	public get isBlocked(): boolean {
+		return this._props.isBlocked;
+	}
+
+	public get blockReason(): string | null {
+		return this._props.blockReason;
+	}
+
+	public get rejectionReason(): string | null {
+		return this._props.rejectionReason;
+	}
 
 	public get createdAt(): Date {
 		return this._props.createdAt;
@@ -234,18 +253,25 @@ export class Restaurant {
 		return this._props.updatedAt;
 	}
 
+	public recordLogin(date: Date = new Date()): void {
+		this._props.lastLoginAt = date;
+		this._props.updatedAt = new Date();
+	}
+
 	public block(reason: string): void {
 		if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
 			throw new InvalidRestaurantDataError(messages.BLOCK_REASON_REQUIRED);
 		}
 		this._props.isBlocked = true;
 		this._props.blockReason = reason.trim();
+		this._props.status = RestaurantStatusVO.create("SUSPENDED");
 		this._props.updatedAt = new Date();
 	}
 
 	public unblock(): void {
 		this._props.isBlocked = false;
 		this._props.blockReason = null;
+		this._props.status = RestaurantStatusVO.create("ACTIVE");
 		this._props.updatedAt = new Date();
 	}
 
@@ -259,11 +285,59 @@ export class Restaurant {
 		this._props.updatedAt = new Date();
 	}
 
+	public approve(): void {
+		if (!this.statusVO.isPending()) {
+			throw new RestaurantAlreadyProcessedError(
+				messages.RESTAURANT_ALREADY_PROCESSED,
+			);
+		}
+		if (!this.onboardingStatusVO.isCompleted()) {
+			throw new InvalidOnboardingStatusError(
+				messages.CANNOT_APPROVE_INCOMPLETE_ONBOARDING,
+			);
+		}
+		this._props.status = RestaurantStatusVO.create("APPROVED");
+		this._props.rejectionReason = null;
+		this._props.updatedAt = new Date();
+	}
+
+	public reject(reason: string): void {
+		if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
+			throw new InvalidRestaurantDataError(messages.REJECTION_REASON_REQUIRED);
+		}
+		if (!this.statusVO.isPending()) {
+			throw new RestaurantAlreadyProcessedError(
+				messages.RESTAURANT_ALREADY_PROCESSED,
+			);
+		}
+		if (!this.onboardingStatusVO.isCompleted()) {
+			throw new InvalidOnboardingStatusError(
+				messages.CANNOT_REJECT_INCOMPLETE_ONBOARDING,
+			);
+		}
+		this._props.status = RestaurantStatusVO.create("REJECTED");
+		this._props.rejectionReason = reason.trim();
+		this._props.updatedAt = new Date();
+	}
+
 	public updateStatus(newStatus: string | RestaurantStatusVO): void {
 		this._props.status =
 			newStatus instanceof RestaurantStatusVO
 				? newStatus
 				: RestaurantStatusVO.create(newStatus);
+		this._props.updatedAt = new Date();
+	}
+
+	public activateSubscription(planCode: string, endsAt: Date): void {
+		this._props.isSubscriptionActive = true;
+		this._props.subscriptionPlanCode = planCode;
+		this._props.subscriptionEndsAt = endsAt;
+		this._props.status = RestaurantStatusVO.create("ACTIVE");
+		this._props.updatedAt = new Date();
+	}
+
+	public expireSubscription(): void {
+		this._props.isSubscriptionActive = false;
 		this._props.updatedAt = new Date();
 	}
 
@@ -279,7 +353,7 @@ export class Restaurant {
 				restaurantName.trim().length < 2
 			) {
 				throw new InvalidRestaurantDataError(
-					messages.RESTAUARANT_NAME_REQUIRED,
+					messages.RESTAURANT_NAME_REQUIRED,
 				);
 			}
 			this._props.restaurantName = restaurantName.trim();

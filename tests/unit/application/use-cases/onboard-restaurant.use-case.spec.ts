@@ -18,6 +18,7 @@ describe("OnboardRestaurantUseCase", () => {
 			update: jest.fn(),
 			save: jest.fn(),
 			completeOnboarding: jest.fn(),
+			activateSubscription: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		useCase = new OnboardRestaurantUseCase(mockRestaurantRepo);

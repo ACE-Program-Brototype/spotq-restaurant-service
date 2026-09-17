@@ -32,11 +32,19 @@ export const TYPES = {
 	ResendStaffInvitationUseCase: Symbol.for("ResendStaffInvitationUseCase"),
 	RevokeStaffInvitationUseCase: Symbol.for("RevokeStaffInvitationUseCase"),
 	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
-	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
+	ListStaffMembersUseCase: Symbol.for("ListStaffMembersUseCase"),
 	RemoveStaffUseCase: Symbol.for("RemoveStaffUseCase"),
+	UpdateStaffInfoUseCase: Symbol.for("UpdateStaffInfoUseCase"),
+	UpdateStaffProfileUseCase: Symbol.for("UpdateStaffProfileUseCase"),
+	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
+
+	// Subscription & Restaurant Use Cases
+	GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+	ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 
 	// Staff Controllers & Services
 	StaffController: Symbol.for("StaffController"),
+	RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 	RestaurantStaffManagementController: Symbol.for(
 		"RestaurantStaffManagementController",
 	),
@@ -45,6 +53,17 @@ export const TYPES = {
 
 	// Observability & System
 	HealthCheckService: Symbol.for("HealthCheckService"),
+
+	// Admin Use Cases & Controllers
+	ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+	RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+	ListRestaurantApplicationsUseCase: Symbol.for(
+		"ListRestaurantApplicationsUseCase",
+	),
+	GetRestaurantApplicationDetailsUseCase: Symbol.for(
+		"GetRestaurantApplicationDetailsUseCase",
+	),
+	AdminRestaurantController: Symbol.for("AdminRestaurantController"),
 
 	// Feature Namespaced Sub-types (for Restaurant & Storage & Common services)
 	UseCases: {
@@ -63,10 +82,27 @@ export const TYPES = {
 			"GetRestaurantVerificationStatusUseCase",
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
+		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
+		ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+		RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+		ListRestaurantApplicationsUseCase: Symbol.for(
+			"ListRestaurantApplicationsUseCase",
+		),
+		GetRestaurantApplicationDetailsUseCase: Symbol.for(
+			"GetRestaurantApplicationDetailsUseCase",
+		),
+		GetRestaurantDetailsUseCase: Symbol.for("GetRestaurantDetailsUseCase"),
+		BlockRestaurantUseCase: Symbol.for("BlockRestaurantUseCase"),
+		UnblockRestaurantUseCase: Symbol.for("UnblockRestaurantUseCase"),
+		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
+		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 	},
 
 	Controller: {
 		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		AdminRestaurantController: Symbol.for("AdminRestaurantController"),
+		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
 	},
 
@@ -91,6 +127,7 @@ export const TYPES = {
 		OtpHashService: Symbol.for("OtpHashService"),
 		Storage: Symbol.for("StorageService"),
 		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
+		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 	},
 
 	Logger: {

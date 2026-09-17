@@ -6,15 +6,23 @@ import {
 	type PrismaClient,
 	RestaurantStatus,
 } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
+import type { RestaurantDetailsResponseDto } from "@/application/dtos/admin/restaurant-details.dto.ts";
 import type {
 	CreateRestaurantDto,
 	OnboardRestaurantDto,
 } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
-import { TYPES } from "@/config/di/types";
-import { Restaurant } from "@/domain/entities/restaurant.entity";
-import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
+import type {
+	IRestaurantRepository,
+	RestaurantApplicationDetail,
+	RestaurantFilterParams,
+} from "@/application/ports/repositories/restaurant.repository.port.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
+import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
+import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
+import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper.ts";
 
 const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
 	fssai: DocumentType.FSSAI,
@@ -68,19 +76,33 @@ export class RestaurantRepository implements IRestaurantRepository {
 	async update(id: string, data: Partial<Restaurant>): Promise<Restaurant> {
 		const updateData: Prisma.RestaurantUpdateInput = {};
 
-		if (data.restaurantName) updateData.restaurantName = data.restaurantName;
-		if (data.email) updateData.email = data.email;
-		if (data.phone) updateData.phone = data.phone;
-		if (data.ownerName) updateData.ownerName = data.ownerName;
-		if (data.ownerEmail) updateData.ownerEmail = data.ownerEmail;
-		if (data.status) updateData.status = data.status as RestaurantStatus;
-		if (data.onboardingStatus)
-			updateData.onboardingStatus = data.onboardingStatus as OnboardingStatus;
+		if (data.restaurantName !== undefined)
+			updateData.restaurantName = data.restaurantName;
+		if (data.email !== undefined) updateData.email = data.email;
+		if (data.phone !== undefined) updateData.phone = data.phone;
+		if (data.ownerName !== undefined) updateData.ownerName = data.ownerName;
+		if (data.ownerEmail !== undefined)
+			updateData.ownerEmail = data.ownerEmail;
+		if (data.status !== undefined)
+			updateData.status = data.status as RestaurantStatus;
+		if (data.onboardingStatus !== undefined)
+			updateData.onboardingStatus =
+				data.onboardingStatus as OnboardingStatus;
 		if (data.emailVerifiedAt !== undefined)
 			updateData.emailVerifiedAt = data.emailVerifiedAt;
+		if (data.rejectionReason !== undefined)
+			updateData.rejectionReason = data.rejectionReason;
 		if (data.isBlocked !== undefined) updateData.isBlocked = data.isBlocked;
 		if (data.blockReason !== undefined)
 			updateData.blockReason = data.blockReason;
+		if (data.lastLoginAt !== undefined)
+			updateData.lastLoginAt = data.lastLoginAt;
+		if (data.isSubscriptionActive !== undefined)
+			updateData.isSubscriptionActive = data.isSubscriptionActive;
+		if (data.subscriptionPlanCode !== undefined)
+			updateData.subscriptionPlanCode = data.subscriptionPlanCode;
+		if (data.subscriptionEndsAt !== undefined)
+			updateData.subscriptionEndsAt = data.subscriptionEndsAt;
 
 		const raw = await this.prisma.restaurant.update({
 			where: { id },
@@ -96,6 +118,139 @@ export class RestaurantRepository implements IRestaurantRepository {
 		});
 
 		return raw ? RestaurantPersistenceMapper.toDomain(raw) : null;
+	}
+
+	async findCompletedDetailsById(
+		id: string,
+	): Promise<RestaurantDetailsResponseDto | null> {
+		const raw = await this.prisma.restaurant.findFirst({
+			where: {
+				id,
+				onboardingStatus: ONBOARDING_STATUS.COMPLETED,
+				status: {
+					not: RESTAURANT_STATUS.PENDING,
+				},
+			},
+			include: {
+				address: true,
+				profile: true,
+				settings: true,
+				operatingHours: true,
+				documents: true,
+				images: {
+					orderBy: {
+						displayOrder: "asc",
+					},
+				},
+				staff: {
+					select: {
+						id: true,
+						fullname: true,
+						email: true,
+						phone: true,
+						role: true,
+						status: true,
+						avatarUrl: true,
+						createdAt: true,
+					},
+				},
+			},
+		});
+
+		if (!raw) {
+			return null;
+		}
+
+		return {
+			id: raw.id,
+			restaurantName: raw.restaurantName,
+			category: raw.settings?.cuisineType ?? null,
+			email: raw.email,
+			phone: raw.phone,
+			ownerName: raw.ownerName,
+			ownerEmail: raw.ownerEmail,
+			status: raw.status,
+			onboardingStatus: raw.onboardingStatus,
+			isBlocked: raw.isBlocked,
+			blockReason: raw.blockReason,
+			isSubscriptionActive: raw.isSubscriptionActive,
+			subscriptionPlanCode: raw.subscriptionPlanCode,
+			subscriptionEndsAt: raw.subscriptionEndsAt,
+			lastLoginAt: raw.lastLoginAt,
+			createdAt: raw.createdAt,
+			updatedAt: raw.updatedAt,
+			address: raw.address
+				? {
+						id: raw.address.id,
+						addressLine1: raw.address.addressLine1,
+						addressLine2: raw.address.addressLine2,
+						city: raw.address.city,
+						state: raw.address.state,
+						country: raw.address.country,
+						pincode: raw.address.pincode,
+						latitude: Number(raw.address.latitude),
+						longitude: Number(raw.address.longitude),
+					}
+				: null,
+			settings: raw.settings
+				? {
+						isOpened: raw.settings.isOpened,
+						isPreorder: raw.settings.isPreorder,
+						isLoyaltyEnabled: raw.settings.isLoyaltyEnabled,
+						cuisineType: raw.settings.cuisineType,
+						seatingCapacity: raw.settings.seatingCapacity,
+						openTime: raw.settings.openTime,
+						closeTime: raw.settings.closeTime,
+					}
+				: null,
+			profile: raw.profile
+				? {
+						coverImage: raw.profile.coverImage,
+						avatar: raw.profile.avatar,
+						description: raw.profile.description,
+						fssaiNumber: raw.profile.fssaiNumber,
+						registerNumber: raw.profile.registerNumber,
+						gstNumber: raw.profile.gstNumber,
+					}
+				: null,
+			operatingHours: (raw.operatingHours || []).map((oh) => ({
+				id: oh.id,
+				dayOfWeek: oh.dayOfWeek,
+				isOpen: oh.isOpen,
+				openTime: oh.openTime,
+				closeTime: oh.closeTime,
+			})),
+			staff: (raw.staff || []).map((s) => ({
+				id: s.id,
+				fullname: s.fullname,
+				email: s.email,
+				phone: s.phone,
+				role: s.role,
+				status: s.status,
+				avatarUrl: s.avatarUrl,
+				createdAt: s.createdAt,
+			})),
+			documents: (raw.documents || []).map((doc) => ({
+				id: doc.id,
+				documentType: doc.documentType,
+				documentName: doc.documentName,
+				documentKey: doc.documentKey,
+				verificationStatus: doc.verificationStatus,
+				uploadedAt: doc.uploadedAt,
+			})),
+			images: (raw.images || []).map((img) => ({
+				id: img.id,
+				objectKey: img.objectKey,
+				displayOrder: img.displayOrder,
+				createdAt: img.createdAt,
+			})),
+			linkedAccount: {
+				email: raw.ownerEmail,
+				phone: raw.phone,
+				isEmailVerified: Boolean(raw.emailVerifiedAt),
+				lastLoginAt: raw.lastLoginAt,
+			},
+		};
 	}
 
 	async findUnique(where: {
@@ -119,7 +274,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 			},
 		});
 
-		return list.map(RestaurantPersistenceMapper.toDomain);
+		return list.map((raw) => RestaurantPersistenceMapper.toDomain(raw));
 	}
 
 	async existsByEmail(email: string): Promise<boolean> {
@@ -244,7 +399,8 @@ export class RestaurantRepository implements IRestaurantRepository {
 								documentType: entry.docType,
 								documentName: entry.doc.documentName,
 								documentKey: entry.doc.documentKey,
-								verificationStatus: DocumentVerificationStatus.PENDING,
+								verificationStatus:
+									DocumentVerificationStatus.PENDING,
 							},
 						});
 					}
@@ -292,5 +448,324 @@ export class RestaurantRepository implements IRestaurantRepository {
 			create: rawData,
 			update: updateData,
 		});
+	}
+
+	private mapRawToApplicationDetail(
+		raw: Prisma.RestaurantGetPayload<{
+			include: {
+				address: true;
+				documents: true;
+				images: true;
+			};
+		}>,
+	): RestaurantApplicationDetail {
+		return {
+			id: raw.id,
+			restaurantName: raw.restaurantName,
+			email: raw.email,
+			phone: raw.phone,
+			ownerName: raw.ownerName,
+			ownerEmail: raw.ownerEmail,
+			status: raw.status,
+			onboardingStatus: raw.onboardingStatus,
+			emailVerifiedAt: raw.emailVerifiedAt,
+			rejectionReason: raw.rejectionReason,
+			createdAt: raw.createdAt,
+			updatedAt: raw.updatedAt,
+			address: raw.address
+				? {
+						id: raw.address.id,
+						restaurantId: raw.address.restaurantId,
+						addressLine1: raw.address.addressLine1,
+						addressLine2: raw.address.addressLine2,
+						city: raw.address.city,
+						state: raw.address.state,
+						country: raw.address.country,
+						pincode: raw.address.pincode,
+						latitude: Number(raw.address.latitude),
+						longitude: Number(raw.address.longitude),
+						createdAt: raw.address.createdAt,
+						updatedAt: raw.address.updatedAt,
+					}
+				: null,
+			documents: (raw.documents || []).map((doc) => ({
+				id: doc.id,
+				restaurantId: doc.restaurantId,
+				documentType: doc.documentType,
+				documentName: doc.documentName,
+				documentKey: doc.documentKey,
+				verificationStatus: doc.verificationStatus,
+				uploadedAt: doc.uploadedAt,
+			})),
+			images: (raw.images || []).map((img) => ({
+				id: img.id,
+				restaurantId: img.restaurantId,
+				objectKey: img.objectKey,
+				displayOrder: img.displayOrder,
+				createdAt: img.createdAt,
+			})),
+		};
+	}
+
+	async updateLastLogin(id: string, date: Date = new Date()): Promise<void> {
+		await this.prisma.restaurant.update({
+			where: { id },
+			data: { lastLoginAt: date },
+		});
+	}
+
+	async findApplicationsWithFilters(params: {
+		page: number;
+		limit: number;
+		status?: "PENDING" | "REJECTED";
+		search?: string;
+		fromDate?: Date;
+		toDate?: Date;
+		sortBy: "createdAt" | "updatedAt" | "restaurantName" | "status";
+		sortOrder: "asc" | "desc";
+	}): Promise<{ restaurants: RestaurantApplicationDetail[]; total: number }> {
+		const {
+			page,
+			limit,
+			status,
+			search,
+			fromDate,
+			toDate,
+			sortBy,
+			sortOrder,
+		} = params;
+
+		const statusFilter = status
+			? status
+			: { in: ["PENDING" as const, "REJECTED" as const] };
+
+		const where: Prisma.RestaurantWhereInput = {
+			onboardingStatus: "COMPLETED",
+			status: statusFilter,
+			...(search && {
+				OR: [
+					{
+						restaurantName: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{ ownerName: { contains: search, mode: "insensitive" } },
+					{ email: { contains: search, mode: "insensitive" } },
+					{ phone: { contains: search, mode: "insensitive" } },
+				],
+			}),
+			...(fromDate || toDate
+				? {
+						createdAt: {
+							...(fromDate && { gte: fromDate }),
+							...(toDate && { lte: toDate }),
+						},
+					}
+				: {}),
+		};
+
+		const skip = (page - 1) * limit;
+
+		const [rawList, total] = await Promise.all([
+			this.prisma.restaurant.findMany({
+				where,
+				include: {
+					address: true,
+					documents: true,
+					images: {
+						orderBy: {
+							displayOrder: "asc",
+						},
+					},
+				},
+				orderBy: { [sortBy]: sortOrder },
+				skip,
+				take: limit,
+			}),
+			this.prisma.restaurant.count({ where }),
+		]);
+
+		return {
+			restaurants: rawList.map((raw) =>
+				this.mapRawToApplicationDetail(raw),
+			),
+			total,
+		};
+	}
+
+	async findByIdWithDetails(
+		id: string,
+	): Promise<RestaurantApplicationDetail | null> {
+		const raw = await this.prisma.restaurant.findUnique({
+			where: { id },
+			include: {
+				address: true,
+				documents: true,
+				images: {
+					orderBy: {
+						displayOrder: "asc",
+					},
+				},
+			},
+		});
+
+		if (!raw) return null;
+
+		return this.mapRawToApplicationDetail(raw);
+	}
+
+	async findManyWithFilters(
+		params: RestaurantFilterParams,
+	): Promise<{ restaurants: Restaurant[]; total: number }> {
+		const {
+			page,
+			limit,
+			search,
+			status,
+			plan,
+			isSubscriptionActive,
+			createdFrom,
+			createdTo,
+			sortBy,
+			sortOrder,
+		} = params;
+
+		const where: Prisma.RestaurantWhereInput = {
+			onboardingStatus: ONBOARDING_STATUS.COMPLETED,
+			status:
+				status && status !== RESTAURANT_STATUS.PENDING
+					? status
+					: { not: RESTAURANT_STATUS.PENDING },
+			...(plan && { subscriptionPlanCode: plan }),
+			...(isSubscriptionActive !== undefined && { isSubscriptionActive }),
+			...((createdFrom || createdTo) && {
+				createdAt: {
+					...(createdFrom && { gte: createdFrom }),
+					...(createdTo && { lte: createdTo }),
+				},
+			}),
+			...(search && {
+				OR: [
+					{
+						restaurantName: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						ownerName: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						email: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						ownerEmail: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						phone: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+				],
+			}),
+		};
+
+		const skip = (page - 1) * limit;
+
+		const [rawList, total] = await Promise.all([
+			this.prisma.restaurant.findMany({
+				where,
+				orderBy: { [sortBy]: sortOrder },
+				skip,
+				take: limit,
+			}),
+			this.prisma.restaurant.count({ where }),
+		]);
+
+		return {
+			restaurants: rawList.map((raw) =>
+				RestaurantPersistenceMapper.toDomain(raw),
+			),
+			total,
+		};
+	}
+
+	async activateSubscription(
+		restaurantId: string,
+		planCode: string,
+		currentPeriodEnd: Date,
+		eventId: string,
+	): Promise<boolean> {
+		try {
+			return await (
+				this.prisma as unknown as {
+					$transaction: (
+						fn: (tx: {
+							restaurant: {
+								update: (args: {
+									where: { id: string };
+									data: Record<string, unknown>;
+								}) => Promise<unknown>;
+							};
+							processedEvent: {
+								findUnique: (args: {
+									where: { id: string };
+								}) => Promise<{ id: string } | null>;
+								create: (args: {
+									data: { id: string; eventType: string };
+								}) => Promise<unknown>;
+							};
+						}) => Promise<boolean>,
+					) => Promise<boolean>;
+				}
+			).$transaction(async (tx) => {
+				const alreadyProcessed = await tx.processedEvent.findUnique({
+					where: { id: eventId },
+				});
+
+				if (alreadyProcessed) {
+					return false;
+				}
+
+				await tx.restaurant.update({
+					where: { id: restaurantId },
+					data: {
+						isSubscriptionActive: true,
+						subscriptionPlanCode: planCode,
+						subscriptionEndsAt: currentPeriodEnd,
+						status: "ACTIVE",
+					},
+				});
+
+				await tx.processedEvent.create({
+					data: {
+						id: eventId,
+						eventType: "subscription.activated",
+					},
+				});
+
+				return true;
+			});
+		} catch (error: unknown) {
+			if (
+				(error instanceof PrismaClientKnownRequestError &&
+					error.code === "P2002") ||
+				(error as { code?: string })?.code === "P2002"
+			) {
+				return false;
+			}
+			throw error;
+		}
 	}
 }

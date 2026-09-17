@@ -7,9 +7,11 @@ import type { IPasswordHasher } from "@/application/ports/services/password-hash
 import type { ITokenService } from "@/application/ports/services/token-service.port";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port";
+import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port";
 import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port";
+import type { IListStaffMembersUseCase } from "@/application/ports/use-cases/list-staff-members.use-case.port";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port";
@@ -18,13 +20,17 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port";
+import type { IUpdateStaffInfoUseCase } from "@/application/ports/use-cases/update-staff-info.use-case.port";
+import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port";
 import { AcceptInvitationUseCase } from "@/application/use-cases/staff/accept-invitation.use-case";
 import { ForgotPasswordUseCase } from "@/application/use-cases/staff/forgot-password.use-case";
+import { GetStaffDetailUseCase } from "@/application/use-cases/staff/get-staff-detail.use-case";
 import { GetStaffProfileUseCase } from "@/application/use-cases/staff/get-staff-profile.use-case";
 import { InviteStaffUseCase } from "@/application/use-cases/staff/invite-staff.use-case";
 import { ListStaffInvitationsUseCase } from "@/application/use-cases/staff/list-staff-invitations.use-case";
+import { ListStaffMembersUseCase } from "@/application/use-cases/staff/list-staff-members.use-case";
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case";
 import { LogoutStaffUseCase } from "@/application/use-cases/staff/logout-staff.use-case";
 import { RefreshTokenUseCase } from "@/application/use-cases/staff/refresh-token.use-case";
@@ -33,6 +39,8 @@ import { ResendForgotPasswordOtpUseCase } from "@/application/use-cases/staff/re
 import { ResendStaffInvitationUseCase } from "@/application/use-cases/staff/resend-staff-invitation.use-case";
 import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-password.use-case";
 import { RevokeStaffInvitationUseCase } from "@/application/use-cases/staff/revoke-staff-invitation.use-case";
+import { UpdateStaffInfoUseCase } from "@/application/use-cases/staff/update-staff-info.use-case";
+import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-staff-profile.use-case";
 import { ValidateInvitationUseCase } from "@/application/use-cases/staff/validate-invitation.use-case";
 import { VerifyForgotPasswordOtpUseCase } from "@/application/use-cases/staff/verify-forgot-password-otp.use-case";
 import { TYPES } from "@/config/di/types";
@@ -149,12 +157,28 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 		.to(ListStaffInvitationsUseCase)
 		.inSingletonScope();
 
+	bind<IListStaffMembersUseCase>(TYPES.ListStaffMembersUseCase)
+		.to(ListStaffMembersUseCase)
+		.inSingletonScope();
+
 	bind<IGetStaffProfileUseCase>(TYPES.GetStaffProfileUseCase)
 		.to(GetStaffProfileUseCase)
 		.inSingletonScope();
 
 	bind<IRemoveStaffUseCase>(TYPES.RemoveStaffUseCase)
 		.to(RemoveStaffUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateStaffInfoUseCase>(TYPES.UpdateStaffInfoUseCase)
+		.to(UpdateStaffInfoUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateStaffProfileUseCase>(TYPES.UpdateStaffProfileUseCase)
+		.to(UpdateStaffProfileUseCase)
+		.inSingletonScope();
+
+	bind<IGetStaffDetailUseCase>(TYPES.GetStaffDetailUseCase)
+		.to(GetStaffDetailUseCase)
 		.inSingletonScope();
 
 	// Controller
