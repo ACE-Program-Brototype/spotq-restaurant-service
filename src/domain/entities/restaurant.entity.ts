@@ -21,11 +21,11 @@ export interface RestaurantProps {
 	status: RestaurantStatusVO;
 	onboardingStatus: OnboardingStatusVO;
 	emailVerifiedAt: Date | null;
-	isBlocked: boolean;
-	blockReason: string | null;
 	isSubscriptionActive: boolean;
 	subscriptionPlanCode: string | null;
 	subscriptionEndsAt: Date | null;
+	isBlocked: boolean;
+	blockReason: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -40,11 +40,11 @@ export interface CreateRestaurantProps {
 	status?: string | RestaurantStatusVO;
 	onboardingStatus?: string | OnboardingStatusVO;
 	emailVerifiedAt?: Date | null;
-	isBlocked?: boolean;
-	blockReason?: string | null;
 	isSubscriptionActive?: boolean;
 	subscriptionPlanCode?: string | null;
 	subscriptionEndsAt?: Date | null;
+	isBlocked?: boolean;
+	blockReason?: string | null;
 }
 
 export interface ReconstituteRestaurantProps {
@@ -57,11 +57,11 @@ export interface ReconstituteRestaurantProps {
 	status: string;
 	onboardingStatus: string;
 	emailVerifiedAt: Date | null;
-	isBlocked: boolean;
-	blockReason: string | null;
 	isSubscriptionActive?: boolean;
 	subscriptionPlanCode?: string | null;
 	subscriptionEndsAt?: Date | null;
+	isBlocked: boolean;
+	blockReason: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -79,7 +79,7 @@ export class Restaurant {
 			typeof props.restaurantName !== "string" ||
 			props.restaurantName.trim().length < 2
 		) {
-			throw new InvalidRestaurantDataError(messages.RESTAUARANT_NAME_REQUIRED);
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
 		}
 
 		if (!props.email || typeof props.email !== "string") {
@@ -131,11 +131,11 @@ export class Restaurant {
 			status,
 			onboardingStatus,
 			emailVerifiedAt: props.emailVerifiedAt ?? null,
-			isBlocked: props.isBlocked ?? false,
-			blockReason: props.blockReason ?? null,
 			isSubscriptionActive: props.isSubscriptionActive ?? false,
 			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
 			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
+			isBlocked: props.isBlocked ?? false,
+			blockReason: props.blockReason ?? null,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -152,11 +152,11 @@ export class Restaurant {
 			status: RestaurantStatusVO.create(props.status),
 			onboardingStatus: OnboardingStatusVO.create(props.onboardingStatus),
 			emailVerifiedAt: props.emailVerifiedAt,
-			isBlocked: props.isBlocked,
-			blockReason: props.blockReason,
 			isSubscriptionActive: props.isSubscriptionActive ?? false,
 			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
 			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
+			isBlocked: props.isBlocked,
+			blockReason: props.blockReason,
 			createdAt: props.createdAt,
 			updatedAt: props.updatedAt,
 		});
@@ -206,14 +206,6 @@ export class Restaurant {
 		return this._props.emailVerifiedAt;
 	}
 
-	public get isBlocked(): boolean {
-		return this._props.isBlocked;
-	}
-
-	public get blockReason(): string | null {
-		return this._props.blockReason;
-	}
-
 	public get isSubscriptionActive(): boolean {
 		return this._props.isSubscriptionActive;
 	}
@@ -224,6 +216,14 @@ export class Restaurant {
 
 	public get subscriptionEndsAt(): Date | null {
 		return this._props.subscriptionEndsAt;
+	}
+
+	public get isBlocked(): boolean {
+		return this._props.isBlocked;
+	}
+
+	public get blockReason(): string | null {
+		return this._props.blockReason;
 	}
 
 	public get createdAt(): Date {
@@ -267,6 +267,19 @@ export class Restaurant {
 		this._props.updatedAt = new Date();
 	}
 
+	public activateSubscription(planCode: string, endsAt: Date): void {
+		this._props.isSubscriptionActive = true;
+		this._props.subscriptionPlanCode = planCode;
+		this._props.subscriptionEndsAt = endsAt;
+		this._props.status = RestaurantStatusVO.create("ACTIVE");
+		this._props.updatedAt = new Date();
+	}
+
+	public expireSubscription(): void {
+		this._props.isSubscriptionActive = false;
+		this._props.updatedAt = new Date();
+	}
+
 	public updateProfile(
 		restaurantName?: string,
 		phone?: string,
@@ -278,9 +291,7 @@ export class Restaurant {
 				typeof restaurantName !== "string" ||
 				restaurantName.trim().length < 2
 			) {
-				throw new InvalidRestaurantDataError(
-					messages.RESTAUARANT_NAME_REQUIRED,
-				);
+				throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
 			}
 			this._props.restaurantName = restaurantName.trim();
 		}

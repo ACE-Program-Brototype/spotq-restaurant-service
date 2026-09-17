@@ -17,7 +17,8 @@
 		"seed:staff": "tsx prisma/seed.ts",
 		"jwt:generate": "infisical run --env=dev -- tsx scripts/generate-jwt.ts",
 		"validate": "pnpm lint && pnpm build",
-		"prepare": "husky"
+		"prepare": "husky",
+		"restaurant:approve": "infisical run --env=dev -- tsx scripts/approve-restaurant.ts"
 	},
 	"keywords": [],
 	"author": "",

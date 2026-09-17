@@ -1,4 +1,5 @@
-import type { CookieOptions, Request, Response } from "express";
+import { TYPES } from "@di/types.ts";
+import type { CookieOptions, NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
@@ -14,11 +15,14 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
-import { RestaurantIdRequiredError } from "@/domain/errors/staff.errors.ts";
+import {
+	RestaurantIdRequiredError,
+	StaffForbiddenError,
+} from "@/domain/errors/staff.errors.ts";
 import type { AuthenticatedOwnerRequest } from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
 import type { AuthenticatedRequest } from "@/presentation/http/middleware/staff.auth.middleware.ts";
 import type { ListStaffInvitationsQuery } from "@/presentation/http/validators/staff/list-invitations.validator.ts";
@@ -64,6 +68,8 @@ export class StaffController {
 		private readonly listStaffMembersUseCase: IListStaffMembersUseCase,
 		@inject(TYPES.GetStaffProfileUseCase)
 		private readonly getStaffProfileUseCase: IGetStaffProfileUseCase,
+		@inject(TYPES.UpdateStaffProfileUseCase)
+		private readonly updateStaffProfileUseCase: IUpdateStaffProfileUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
@@ -401,7 +407,10 @@ export class StaffController {
 			authReq.user?.restaurantId ||
 			"";
 		const restaurantId =
-			(Array.isArray(rawRestaurantId) ? rawRestaurantId[0] : rawRestaurantId)?.trim() || "";
+			(Array.isArray(rawRestaurantId)
+				? rawRestaurantId[0]
+				: rawRestaurantId
+			)?.trim() || "";
 
 		if (!restaurantId) {
 			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
@@ -410,7 +419,10 @@ export class StaffController {
 		const rawOwnerEmail =
 			authReq.user?.email || (req.headers["x-user-email"] as string) || "";
 		const ownerEmail =
-			(Array.isArray(rawOwnerEmail) ? rawOwnerEmail[0] : rawOwnerEmail)?.trim() || undefined;
+			(Array.isArray(rawOwnerEmail)
+				? rawOwnerEmail[0]
+				: rawOwnerEmail
+			)?.trim() || undefined;
 
 		const query = (res?.locals?.query ??
 			req.query) as unknown as ListStaffQuery;
@@ -438,5 +450,64 @@ export class StaffController {
 			message,
 			HTTP_STATUS.OK,
 		);
+	};
+
+	public updateProfile = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		try {
+			const authReq = req as AuthenticatedRequest;
+			const authUser = authReq.user;
+			const userId = authUser?.userId ?? authReq.userId;
+
+			if (!userId) {
+				res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(
+						ApiResponse.error(
+							messages.UNAUTHORIZED,
+							"UNAUTHORIZED",
+							HTTP_STATUS.UNAUTHORIZED,
+						),
+					);
+				return;
+			}
+
+			const restaurantId = Array.isArray(req.params.restaurantId)
+				? req.params.restaurantId[0]
+				: req.params.restaurantId;
+			const staffId = Array.isArray(req.params.staffId)
+				? req.params.staffId[0]
+				: req.params.staffId;
+
+			if (userId !== staffId) {
+				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN_UPDATE);
+			}
+
+			if (authUser?.restaurantId && authUser.restaurantId !== restaurantId) {
+				throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
+			}
+
+			const { name, fullname, phone, avatar_url, avatarUrl } = req.body;
+
+			const profile = await this.updateStaffProfileUseCase.execute({
+				restaurantId,
+				staffId,
+				name: name ?? fullname,
+				phone,
+				avatar_url: avatar_url !== undefined ? avatar_url : avatarUrl,
+			});
+
+			sendSuccessResponse(
+				res,
+				profile,
+				messages.STAFF_PROFILE_UPDATED_SUCCESS,
+				HTTP_STATUS.OK,
+			);
+		} catch (error) {
+			next(error);
+		}
 	};
 }

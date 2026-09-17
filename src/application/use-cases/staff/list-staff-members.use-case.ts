@@ -33,7 +33,6 @@ export class ListStaffMembersUseCase implements IListStaffMembersUseCase {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
-
 		const page = dto.page && dto.page > 0 ? dto.page : DEFAULT_PAGE;
 		const limit =
 			dto.limit && dto.limit > 0

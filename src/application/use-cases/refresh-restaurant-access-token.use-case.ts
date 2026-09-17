@@ -25,26 +25,19 @@ export class RefreshRestaurantAccessTokenUseCase
 			throw new InvalidRefreshTokenError();
 		}
 
-		let payload: {
-			restaurantId: string;
-			email: string;
-			sub?: string;
-			role?: string;
-		};
-
 		try {
-			payload = this.authTokenService.verifyRefreshToken(refreshToken);
+			const payload = this.authTokenService.verifyRefreshToken(refreshToken);
+
+			const accessToken = this.authTokenService.generateAccessToken({
+				restaurantId: payload.restaurantId,
+				email: payload.email,
+				sub: payload.sub || payload.restaurantId,
+				role: payload.role || "RESTAURANT_OWNER",
+			});
+
+			return { accessToken };
 		} catch {
 			throw new InvalidRefreshTokenError();
 		}
-
-		return {
-			accessToken: this.authTokenService.generateAccessToken({
-				sub: payload.sub || payload.restaurantId,
-				role: payload.role || "RESTAURANT_OWNER",
-				restaurantId: payload.restaurantId,
-				email: payload.email,
-			}),
-		};
 	}
 }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import type { Server } from "node:http";
-import { describe, test } from "@jest/globals";
+import { afterAll, beforeAll, describe, test } from "@jest/globals";
 import cookieParser from "cookie-parser";
 import express, { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
@@ -33,7 +33,7 @@ describe("AuthTokenService & JWT Generation", () => {
 		assert.equal(decodedAccess.restaurantId, payload.restaurantId);
 		assert.equal(decodedAccess.email, payload.email);
 		assert.equal(decodedAccess.sub, payload.restaurantId);
-		assert.equal(decodedAccess.role, "RESTAURANT_OWNER");
+		assert.equal(decodedAccess.role, "restaurant_owner");
 
 		const decodedRefresh = jwt.decode(tokens.refreshToken) as {
 			restaurantId: string;
@@ -44,7 +44,7 @@ describe("AuthTokenService & JWT Generation", () => {
 		assert.equal(decodedRefresh.restaurantId, payload.restaurantId);
 		assert.equal(decodedRefresh.email, payload.email);
 		assert.equal(decodedRefresh.sub, payload.restaurantId);
-		assert.equal(decodedRefresh.role, "RESTAURANT_OWNER");
+		assert.equal(decodedRefresh.role, "restaurant_owner");
 	});
 });
 
@@ -400,12 +400,12 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 
 		const json = (await res.json()) as {
 			success: boolean;
-			data: { nextStep: string; restaurantId: string; access_token: string };
+			data: { nextStep: string; restaurantId: string; accessToken: string };
 		};
 		assert.equal(json.success, true);
 		assert.equal(json.data.nextStep, "ONBOARDING");
 		assert.equal(json.data.restaurantId, "rest-e2e-100");
-		assert.ok(json.data.access_token);
+		assert.ok(json.data.accessToken);
 	});
 
 	test("POST /onboard succeeds with x-restaurant-id header", async () => {

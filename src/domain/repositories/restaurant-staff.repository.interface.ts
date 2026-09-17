@@ -19,4 +19,8 @@ export interface IRestaurantStaffRepository
 	findManyWithFilters(
 		params: StaffFilterParams,
 	): Promise<{ staff: RestaurantStaff[]; total: number }>;
+	findByIdAndRestaurantId(
+		id: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null>;
 }

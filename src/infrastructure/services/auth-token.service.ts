@@ -1,34 +1,42 @@
 import { injectable } from "inversify";
-import jwt from "jsonwebtoken";
+import jwt, { type SignOptions } from "jsonwebtoken";
 import type {
 	AuthTokenPayload,
 	IAuthTokenService,
 	TokenPair,
 } from "@/application/ports/services/auth-token.service.port";
 import { env } from "@/config/env";
+import { AUTH_ROLES, TOKEN_TYPES } from "@/shared/constants/auth.constants";
 
 @injectable()
 export class AuthTokenService implements IAuthTokenService {
 	generateAccessToken(payload: AuthTokenPayload): string {
-		const tokenPayload = {
+		const claims = {
 			sub: payload.sub || payload.restaurantId,
-			role: payload.role || "RESTAURANT_OWNER",
-			...payload,
+			email: payload.email,
+			role: payload.role || AUTH_ROLES.RESTAURANT_OWNER,
+			restaurantId: payload.restaurantId,
 		};
-		return jwt.sign(tokenPayload, env.JWT_ACCESS_PRIVATE_KEY, {
-			expiresIn: env.JWT_ACCESS_EXPIRES_IN as jwt.SignOptions["expiresIn"],
+
+		const signOptions: SignOptions = {
 			algorithm: env.JWT_ALGORITHM as jwt.Algorithm,
-			keyid: env.JWT_ACCESS_TOKEN_KEY_ID,
-		});
+			keyid: env.JWT_KEY_ID,
+			expiresIn: env.JWT_ACCESS_EXPIRES_IN as unknown as number,
+		};
+
+		return jwt.sign(claims, env.JWT_PRIVATE_KEY, signOptions);
 	}
 
 	generateRefreshToken(payload: AuthTokenPayload): string {
-		const tokenPayload = {
+		const claims = {
 			sub: payload.sub || payload.restaurantId,
-			role: payload.role || "RESTAURANT_OWNER",
-			...payload,
+			email: payload.email,
+			role: payload.role || AUTH_ROLES.RESTAURANT_OWNER,
+			restaurantId: payload.restaurantId,
+			type: TOKEN_TYPES.REFRESH,
 		};
-		return jwt.sign(tokenPayload, env.JWT_REFRESH_SECRET, {
+
+		return jwt.sign(claims, env.JWT_REFRESH_SECRET, {
 			expiresIn: env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions["expiresIn"],
 		});
 	}
@@ -41,12 +49,36 @@ export class AuthTokenService implements IAuthTokenService {
 	}
 
 	verifyAccessToken(token: string): AuthTokenPayload {
-		return jwt.verify(token, env.JWT_ACCESS_PUBLIC_KEY, {
+		const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY, {
 			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
-		}) as AuthTokenPayload;
+		}) as {
+			sub?: string;
+			email?: string;
+			restaurantId?: string;
+			role?: string;
+		};
+
+		return {
+			restaurantId: decoded.restaurantId ?? decoded.sub ?? "",
+			email: decoded.email ?? "",
+			role: decoded.role,
+			sub: decoded.sub,
+		};
 	}
 
 	verifyRefreshToken(token: string): AuthTokenPayload {
-		return jwt.verify(token, env.JWT_REFRESH_SECRET) as AuthTokenPayload;
+		const decoded = jwt.verify(token, env.JWT_REFRESH_SECRET) as {
+			restaurantId?: string;
+			sub?: string;
+			email?: string;
+			role?: string;
+		};
+
+		return {
+			restaurantId: decoded.restaurantId ?? decoded.sub ?? "",
+			email: decoded.email ?? "",
+			role: decoded.role,
+			sub: decoded.sub,
+		};
 	}
 }

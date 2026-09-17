@@ -93,3 +93,15 @@ export function sendPaginatedSuccessResponse<T>(
 		.status(statusCode)
 		.json(ApiResponse.okPaginated(data, pagination, message, statusCode));
 }
+
+export function sendErrorResponse(
+	res: Response,
+	message: string,
+	code = "INTERNAL_SERVER_ERROR",
+	statusCode: HttpStatusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR,
+	error?: unknown,
+): Response {
+	return res
+		.status(statusCode)
+		.json(ApiResponse.error(message, code, statusCode, error));
+}

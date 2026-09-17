@@ -2,46 +2,42 @@ import type { NextFunction, Request, Response } from "express";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
-import type { AuthenticatedStaff } from "@/types/express.d.ts";
+import type { AuthenticatedOwner } from "@/types/express.d.ts";
+
+export type { AuthenticatedOwner };
 
 export interface AuthenticatedOwnerRequest extends Request {
-	user?: AuthenticatedStaff;
+	user?: AuthenticatedOwner;
 	userId?: string;
 }
 
-function getStringValue(
-	value: string | string[] | undefined,
-): string | undefined {
-	if (Array.isArray(value)) {
-		return value[0];
-	}
-	return value;
-}
-
-const ALLOWED_OWNER_ROLES = [
+const ALLOWED_OWNER_ROLES = new Set([
 	"restaurant_owner",
-	"owner",
-	"restaurant",
 	"restaurant_admin",
+	"restaurant",
+	"owner",
 	"admin",
-];
+]);
+
+function getHeaderValue(
+	header: string | string[] | undefined,
+): string | undefined {
+	if (Array.isArray(header)) {
+		return header[0];
+	}
+	return header;
+}
 
 export function restaurantOwnerAuthMiddleware(
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ): void {
-	const headerRestaurantId = getStringValue(req.headers["x-restaurant-id"]);
-	const headerUserId = getStringValue(req.headers["x-user-id"]);
-	const paramRestaurantId = getStringValue(
-		req.params?.restaurantId || req.params?.id,
-	)?.trim();
+	const headerUserId = getHeaderValue(req.headers["x-user-id"]);
+	const headerRestaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
+	const userId = headerUserId || headerRestaurantId;
 
-	const resolvedId = headerRestaurantId || headerUserId;
-	const email = getStringValue(req.headers["x-user-email"]);
-	const role = getStringValue(req.headers["x-user-role"]);
-
-	if (!resolvedId) {
+	if (!userId) {
 		res
 			.status(HTTP_STATUS.UNAUTHORIZED)
 			.json(
@@ -54,13 +50,15 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
+	const role = getHeaderValue(req.headers["x-user-role"]);
 	const normalizedRole = role?.toLowerCase().trim();
-	if (normalizedRole && !ALLOWED_OWNER_ROLES.includes(normalizedRole)) {
+
+	if (!normalizedRole || !ALLOWED_OWNER_ROLES.has(normalizedRole)) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(
 				ApiResponse.error(
-					messages.YOU_DO_NOT_HAVE_PERMISSION,
+					messages.OWNER_FORBIDDEN,
 					"FORBIDDEN",
 					HTTP_STATUS.FORBIDDEN,
 				),
@@ -68,12 +66,20 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	if (paramRestaurantId && paramRestaurantId !== resolvedId.trim()) {
+	const paramRestaurantId = getHeaderValue(
+		req.params?.restaurantId || req.params?.id,
+	)?.trim();
+
+	if (
+		paramRestaurantId &&
+		headerRestaurantId &&
+		paramRestaurantId !== headerRestaurantId.trim()
+	) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(
 				ApiResponse.error(
-					messages.YOU_DO_NOT_HAVE_PERMISSION,
+					messages.RESTAURANT_ACCESS_FORBIDDEN,
 					"FORBIDDEN",
 					HTTP_STATUS.FORBIDDEN,
 				),
@@ -81,11 +87,12 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
-	const userId = headerUserId || resolvedId;
+	const email = getHeaderValue(req.headers["x-user-email"]);
+	const restaurantId = headerRestaurantId || userId;
 
 	req.user = {
 		userId,
-		restaurantId: resolvedId,
+		restaurantId: restaurantId || "",
 		email: email || "",
 		role: role || "RESTAURANT_OWNER",
 	};
@@ -93,4 +100,3 @@ export function restaurantOwnerAuthMiddleware(
 
 	next();
 }
-

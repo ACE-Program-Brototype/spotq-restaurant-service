@@ -1,9 +1,9 @@
+import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
 import type {
 	ILogoutStaffUseCase,
 	LogoutStaffDTO,
 } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
-import { TYPES } from "@/config/di/types.ts";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface.ts";
 
 @injectable()
