@@ -8,6 +8,12 @@ export interface AuthenticatedUser {
 	role: string;
 }
 
+export interface AuthenticatedAdmin {
+	userId: string;
+	email: string;
+	role: string;
+}
+
 export interface AuthenticatedRestaurant {
 	restaurantId: string;
 	userId?: string;
@@ -24,6 +30,7 @@ declare global {
 			userId?: string;
 			user?:
 				| AuthenticatedStaff
+				| AuthenticatedAdmin
 				| AuthenticatedRestaurant
 				| AuthenticatedOwner
 				| AuthenticatedUser

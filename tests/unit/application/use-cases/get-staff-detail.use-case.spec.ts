@@ -71,6 +71,8 @@ describe("GetStaffDetailUseCase", () => {
 			completeOnboarding: jest.fn(),
 			findCompletedDetailsById: jest.fn(),
 			updateLastLogin: jest.fn(),
+			findApplicationsWithFilters: jest.fn(),
+			findByIdWithDetails: jest.fn(),
 		};
 
 		useCase = new GetStaffDetailUseCase(staffRepository, restaurantRepository);

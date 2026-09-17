@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
 import type { RestaurantDetailsResponseDto } from "@/application/dtos/admin/restaurant-details.dto.ts";
+import type { IApproveRestaurantUseCase } from "@/application/ports/use-cases/admin/approve-restaurant.use-case.port.ts";
 import type { IBlockRestaurantUseCase } from "@/application/ports/use-cases/admin/block-restaurant.use-case.port.ts";
+import type { IGetRestaurantApplicationDetailsUseCase } from "@/application/ports/use-cases/admin/get-restaurant-application-details.use-case.port.ts";
 import type { IGetRestaurantDetailsUseCase } from "@/application/ports/use-cases/admin/get-restaurant-details.use-case.port.ts";
+import type { IListRestaurantApplicationsUseCase } from "@/application/ports/use-cases/admin/list-restaurant-applications.use-case.port.ts";
+import type { IRejectRestaurantUseCase } from "@/application/ports/use-cases/admin/reject-restaurant.use-case.port.ts";
 import type { IUnblockRestaurantUseCase } from "@/application/ports/use-cases/admin/unblock-restaurant.use-case.port.ts";
 import type { IListRestaurantsUseCase } from "@/application/ports/use-cases/list-restaurants.use-case.port.ts";
 import { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller.ts";
@@ -11,10 +15,15 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("AdminRestaurantController", () => {
+	let approveRestaurantUseCase: jest.Mocked<IApproveRestaurantUseCase>;
+	let rejectRestaurantUseCase: jest.Mocked<IRejectRestaurantUseCase>;
+	let listRestaurantApplicationsUseCase: jest.Mocked<IListRestaurantApplicationsUseCase>;
+	let getRestaurantApplicationDetailsUseCase: jest.Mocked<IGetRestaurantApplicationDetailsUseCase>;
 	let getRestaurantDetailsUseCase: jest.Mocked<IGetRestaurantDetailsUseCase>;
 	let listRestaurantsUseCase: jest.Mocked<IListRestaurantsUseCase>;
 	let blockRestaurantUseCase: jest.Mocked<IBlockRestaurantUseCase>;
 	let unblockRestaurantUseCase: jest.Mocked<IUnblockRestaurantUseCase>;
+
 	let controller: AdminRestaurantController;
 	let req: Partial<AuthenticatedAdminRequest>;
 	let res: Partial<Response>;
@@ -115,6 +124,18 @@ describe("AdminRestaurantController", () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		approveRestaurantUseCase = {
+			execute: jest.fn(),
+		} as unknown as jest.Mocked<IApproveRestaurantUseCase>;
+		rejectRestaurantUseCase = {
+			execute: jest.fn(),
+		} as unknown as jest.Mocked<IRejectRestaurantUseCase>;
+		listRestaurantApplicationsUseCase = {
+			execute: jest.fn(),
+		} as unknown as jest.Mocked<IListRestaurantApplicationsUseCase>;
+		getRestaurantApplicationDetailsUseCase = {
+			execute: jest.fn(),
+		} as unknown as jest.Mocked<IGetRestaurantApplicationDetailsUseCase>;
 		getRestaurantDetailsUseCase = {
 			execute: jest.fn(),
 		} as unknown as jest.Mocked<IGetRestaurantDetailsUseCase>;
@@ -129,6 +150,10 @@ describe("AdminRestaurantController", () => {
 		} as unknown as jest.Mocked<IUnblockRestaurantUseCase>;
 
 		controller = new AdminRestaurantController(
+			approveRestaurantUseCase,
+			rejectRestaurantUseCase,
+			listRestaurantApplicationsUseCase,
+			getRestaurantApplicationDetailsUseCase,
 			getRestaurantDetailsUseCase,
 			listRestaurantsUseCase,
 			blockRestaurantUseCase,
@@ -152,6 +177,218 @@ describe("AdminRestaurantController", () => {
 		};
 
 		next = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
+	});
+
+	describe("listRestaurantApplications", () => {
+		it("should invoke ListRestaurantApplicationsUseCase and return 200 OK with list and pagination", async () => {
+			req.query = { page: "1", limit: "10", status: "PENDING" };
+
+			const mockResult = {
+				restaurants: [
+					{
+						id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+						restaurantName: "Gourmet Bistro",
+						email: "bistro@example.com",
+						phone: "+1234567890",
+						ownerName: "Alice Smith",
+						ownerEmail: "alice@example.com",
+						status: "PENDING",
+						onboardingStatus: "COMPLETED",
+						emailVerifiedAt: new Date(),
+						rejectionReason: null,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+						address: null,
+						documents: [],
+						images: [],
+					},
+				],
+				pagination: {
+					page: 1,
+					limit: 10,
+					total: 1,
+					totalPages: 1,
+					hasNextPage: false,
+					hasPrevPage: false,
+				},
+			};
+
+			listRestaurantApplicationsUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.listRestaurantApplications(
+				req as Request,
+				res as Response,
+			);
+
+			expect(listRestaurantApplicationsUseCase.execute).toHaveBeenCalledWith(
+				req.query,
+			);
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.RESTAURANT_APPLICATIONS_FETCHED_SUCCESS,
+					data: {
+						restaurants: [
+							expect.objectContaining({
+								id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+								restaurant_name: "Gourmet Bistro",
+								owner_name: "Alice Smith",
+								owner_email: "alice@example.com",
+								status: "PENDING",
+								onboarding_status: "COMPLETED",
+							}),
+						],
+						pagination: mockResult.pagination,
+					},
+				}),
+			);
+		});
+	});
+
+	describe("getRestaurantApplicationDetails", () => {
+		it("should invoke GetRestaurantApplicationDetailsUseCase and return 200 OK with detailed data", async () => {
+			req.params = { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" };
+
+			const mockResult = {
+				id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+				restaurantName: "Gourmet Bistro",
+				email: "bistro@example.com",
+				phone: "+1234567890",
+				ownerName: "Alice Smith",
+				ownerEmail: "alice@example.com",
+				status: "PENDING",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				rejectionReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				address: null,
+				documents: [],
+				images: [],
+			};
+
+			getRestaurantApplicationDetailsUseCase.execute.mockResolvedValue(
+				mockResult,
+			);
+
+			await controller.getRestaurantApplicationDetails(
+				req as Request,
+				res as Response,
+			);
+
+			expect(
+				getRestaurantApplicationDetailsUseCase.execute,
+			).toHaveBeenCalledWith({
+				restaurantId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+			});
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message:
+						messages.RESTAURANT_APPLICATION_DETAILS_FETCHED_SUCCESS,
+					data: expect.objectContaining({
+						id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+						restaurant_name: "Gourmet Bistro",
+						owner_name: "Alice Smith",
+						owner_email: "alice@example.com",
+					}),
+				}),
+			);
+		});
+	});
+
+	describe("approveRestaurant", () => {
+		it("should invoke ApproveRestaurantUseCase and return 200 OK with success response", async () => {
+			req.params = { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" };
+			req.user = {
+				userId: "admin-uuid-1",
+				email: "admin@spotq.com",
+				role: "ADMIN",
+			};
+
+			const mockResult = {
+				id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+				restaurantName: "Gourmet Bistro",
+				status: "APPROVED",
+				reviewedBy: "admin-uuid-1",
+				reviewedAt: new Date(),
+			};
+
+			approveRestaurantUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.approveRestaurant(req as Request, res as Response);
+
+			expect(approveRestaurantUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+				adminId: "admin-uuid-1",
+			});
+
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.RESTAURANT_APPROVED_SUCCESS,
+					data: {
+						id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+						restaurant_name: "Gourmet Bistro",
+						status: "APPROVED",
+						reviewed_by: "admin-uuid-1",
+						reviewed_at: mockResult.reviewedAt,
+					},
+					statusCode: HTTP_STATUS.OK,
+				}),
+			);
+		});
+	});
+
+	describe("rejectRestaurant", () => {
+		it("should invoke RejectRestaurantUseCase and return 200 OK with success response", async () => {
+			req.params = { id: "f47ac10b-58cc-4372-a567-0e02b2c3d479" };
+			req.body = { reason: "Incomplete GST details" };
+			req.user = {
+				userId: "admin-uuid-2",
+				email: "admin@spotq.com",
+				role: "ADMIN",
+			};
+
+			const mockResult = {
+				id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+				restaurantName: "Gourmet Bistro",
+				status: "REJECTED",
+				rejectionReason: "Incomplete GST details",
+				reviewedBy: "admin-uuid-2",
+				reviewedAt: new Date(),
+			};
+
+			rejectRestaurantUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.rejectRestaurant(req as Request, res as Response);
+
+			expect(rejectRestaurantUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+				reason: "Incomplete GST details",
+				adminId: "admin-uuid-2",
+			});
+
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.RESTAURANT_REJECTED_SUCCESS,
+					data: {
+						id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+						restaurant_name: "Gourmet Bistro",
+						status: "REJECTED",
+						rejection_reason: "Incomplete GST details",
+						reviewed_by: "admin-uuid-2",
+						reviewed_at: mockResult.reviewedAt,
+					},
+					statusCode: HTTP_STATUS.OK,
+				}),
+			);
+		});
 	});
 
 	describe("getRestaurantDetails", () => {
@@ -238,7 +475,7 @@ describe("AdminRestaurantController", () => {
 				},
 			};
 
-			listRestaurantsUseCase.execute.mockResolvedValueOnce(mockResponseData);
+			listRestaurantsUseCase.execute.mockResolvedValueOnce(mockResponseData as never);
 
 			res.locals = {
 				query: {

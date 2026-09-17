@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
-import { storageAuthMiddleware } from "@/presentation/http/middleware/storage.auth.middleware";
+import { storageAuthMiddleware } from "@/presentation/http/middleware/storage.auth.middleware.ts";
 
 describe("storageAuthMiddleware", () => {
 	let mockReq: Partial<Request>;

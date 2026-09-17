@@ -24,6 +24,8 @@ describe("ActivateSubscriptionUseCase", () => {
 			completeOnboarding: jest.fn(),
 			findCompletedDetailsById: jest.fn(),
 			updateLastLogin: jest.fn(),
+			findApplicationsWithFilters: jest.fn(),
+			findByIdWithDetails: jest.fn(),
 		};
 		mockEmailQueuePort = {
 			sendVerificationOtp: jest.fn(),

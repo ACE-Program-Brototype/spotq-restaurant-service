@@ -1,12 +1,11 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-
-import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-cases/generate-presigned-url.use-case.port";
-import type { IGetPresignedUrlUseCase } from "@/application/ports/use-cases/get-presigned-url.use-case.port";
-import { TYPES } from "@/config/di/types";
-import { HTTP_STATUS } from "@/shared/constants/http.constants";
-import { messages } from "@/shared/constants/message.constants";
-import { successResponse } from "@/utils/response.model";
+import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-cases/generate-presigned-url.use-case.port.ts";
+import type { IGetPresignedUrlUseCase } from "@/application/ports/use-cases/get-presigned-url.use-case.port.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
+import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 
 @injectable()
 export class StorageController {
@@ -27,11 +26,11 @@ export class StorageController {
 			userContext,
 		);
 
-		return successResponse(
+		return sendSuccessResponse(
 			res,
+			result,
 			messages.PRESIGNED_URL_GENERATED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
-			result,
 		);
 	}
 
@@ -42,14 +41,14 @@ export class StorageController {
 			key: query.key,
 		});
 
-		return successResponse(
+		return sendSuccessResponse(
 			res,
-			messages.PRESIGNED_GET_URL_GENERATED_SUCCESS,
-			HTTP_STATUS.SUCCESS,
 			{
 				download_url: result.downloadUrl,
 				expires_in_seconds: result.expiresInSeconds,
 			},
+			messages.PRESIGNED_GET_URL_GENERATED_SUCCESS,
+			HTTP_STATUS.SUCCESS,
 		);
 	}
 }

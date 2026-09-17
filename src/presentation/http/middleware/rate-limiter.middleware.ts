@@ -172,6 +172,22 @@ export const adminKeyGenerator = (req: Request): string => {
 	return userId ? `admin:${userId}` : getClientIp(req);
 };
 
+export const approveRestaurantRateLimiter = createRateLimiter({
+	prefix: "approve-restaurant",
+	maxAttempts: env.RATE_LIMIT_APPROVE_RESTAURANT_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_APPROVE_RESTAURANT_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_APPROVE_RESTAURANT_EXCEEDED,
+	keyGenerator: adminKeyGenerator,
+});
+
+export const rejectRestaurantRateLimiter = createRateLimiter({
+	prefix: "reject-restaurant",
+	maxAttempts: env.RATE_LIMIT_REJECT_RESTAURANT_MAX_ATTEMPTS,
+	windowSeconds: env.RATE_LIMIT_REJECT_RESTAURANT_WINDOW_SECONDS,
+	errorMessage: messages.RATE_LIMIT_REJECT_RESTAURANT_EXCEEDED,
+	keyGenerator: adminKeyGenerator,
+});
+
 export const blockRestaurantRateLimiter = createRateLimiter({
 	prefix: "block-restaurant",
 	maxAttempts: env.RATE_LIMIT_BLOCK_RESTAURANT_MAX_ATTEMPTS,

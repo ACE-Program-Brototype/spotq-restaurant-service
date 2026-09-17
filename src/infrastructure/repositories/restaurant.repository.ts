@@ -15,13 +15,14 @@ import type {
 } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type {
 	IRestaurantRepository,
+	RestaurantApplicationDetail,
 	RestaurantFilterParams,
-} from "@/application/ports/repositories/restaurant.repository.port";
-import { TYPES } from "@/config/di/types";
-import { Restaurant } from "@/domain/entities/restaurant.entity";
+} from "@/application/ports/repositories/restaurant.repository.port.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
-import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper";
+import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper.ts";
 
 const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
 	fssai: DocumentType.FSSAI,
@@ -75,19 +76,33 @@ export class RestaurantRepository implements IRestaurantRepository {
 	async update(id: string, data: Partial<Restaurant>): Promise<Restaurant> {
 		const updateData: Prisma.RestaurantUpdateInput = {};
 
-		if (data.restaurantName) updateData.restaurantName = data.restaurantName;
-		if (data.email) updateData.email = data.email;
-		if (data.phone) updateData.phone = data.phone;
-		if (data.ownerName) updateData.ownerName = data.ownerName;
-		if (data.ownerEmail) updateData.ownerEmail = data.ownerEmail;
-		if (data.status) updateData.status = data.status as RestaurantStatus;
-		if (data.onboardingStatus)
-			updateData.onboardingStatus = data.onboardingStatus as OnboardingStatus;
+		if (data.restaurantName !== undefined)
+			updateData.restaurantName = data.restaurantName;
+		if (data.email !== undefined) updateData.email = data.email;
+		if (data.phone !== undefined) updateData.phone = data.phone;
+		if (data.ownerName !== undefined) updateData.ownerName = data.ownerName;
+		if (data.ownerEmail !== undefined)
+			updateData.ownerEmail = data.ownerEmail;
+		if (data.status !== undefined)
+			updateData.status = data.status as RestaurantStatus;
+		if (data.onboardingStatus !== undefined)
+			updateData.onboardingStatus =
+				data.onboardingStatus as OnboardingStatus;
 		if (data.emailVerifiedAt !== undefined)
 			updateData.emailVerifiedAt = data.emailVerifiedAt;
+		if (data.rejectionReason !== undefined)
+			updateData.rejectionReason = data.rejectionReason;
 		if (data.isBlocked !== undefined) updateData.isBlocked = data.isBlocked;
 		if (data.blockReason !== undefined)
 			updateData.blockReason = data.blockReason;
+		if (data.lastLoginAt !== undefined)
+			updateData.lastLoginAt = data.lastLoginAt;
+		if (data.isSubscriptionActive !== undefined)
+			updateData.isSubscriptionActive = data.isSubscriptionActive;
+		if (data.subscriptionPlanCode !== undefined)
+			updateData.subscriptionPlanCode = data.subscriptionPlanCode;
+		if (data.subscriptionEndsAt !== undefined)
+			updateData.subscriptionEndsAt = data.subscriptionEndsAt;
 
 		const raw = await this.prisma.restaurant.update({
 			where: { id },
@@ -259,7 +274,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 			},
 		});
 
-		return list.map(RestaurantPersistenceMapper.toDomain);
+		return list.map((raw) => RestaurantPersistenceMapper.toDomain(raw));
 	}
 
 	async existsByEmail(email: string): Promise<boolean> {
@@ -384,7 +399,8 @@ export class RestaurantRepository implements IRestaurantRepository {
 								documentType: entry.docType,
 								documentName: entry.doc.documentName,
 								documentKey: entry.doc.documentKey,
-								verificationStatus: DocumentVerificationStatus.PENDING,
+								verificationStatus:
+									DocumentVerificationStatus.PENDING,
 							},
 						});
 					}
@@ -434,12 +450,171 @@ export class RestaurantRepository implements IRestaurantRepository {
 		});
 	}
 
+	private mapRawToApplicationDetail(
+		raw: Prisma.RestaurantGetPayload<{
+			include: {
+				address: true;
+				documents: true;
+				images: true;
+			};
+		}>,
+	): RestaurantApplicationDetail {
+		return {
+			id: raw.id,
+			restaurantName: raw.restaurantName,
+			email: raw.email,
+			phone: raw.phone,
+			ownerName: raw.ownerName,
+			ownerEmail: raw.ownerEmail,
+			status: raw.status,
+			onboardingStatus: raw.onboardingStatus,
+			emailVerifiedAt: raw.emailVerifiedAt,
+			rejectionReason: raw.rejectionReason,
+			createdAt: raw.createdAt,
+			updatedAt: raw.updatedAt,
+			address: raw.address
+				? {
+						id: raw.address.id,
+						restaurantId: raw.address.restaurantId,
+						addressLine1: raw.address.addressLine1,
+						addressLine2: raw.address.addressLine2,
+						city: raw.address.city,
+						state: raw.address.state,
+						country: raw.address.country,
+						pincode: raw.address.pincode,
+						latitude: Number(raw.address.latitude),
+						longitude: Number(raw.address.longitude),
+						createdAt: raw.address.createdAt,
+						updatedAt: raw.address.updatedAt,
+					}
+				: null,
+			documents: (raw.documents || []).map((doc) => ({
+				id: doc.id,
+				restaurantId: doc.restaurantId,
+				documentType: doc.documentType,
+				documentName: doc.documentName,
+				documentKey: doc.documentKey,
+				verificationStatus: doc.verificationStatus,
+				uploadedAt: doc.uploadedAt,
+			})),
+			images: (raw.images || []).map((img) => ({
+				id: img.id,
+				restaurantId: img.restaurantId,
+				objectKey: img.objectKey,
+				displayOrder: img.displayOrder,
+				createdAt: img.createdAt,
+			})),
+		};
+	}
+
 	async updateLastLogin(id: string, date: Date = new Date()): Promise<void> {
 		await this.prisma.restaurant.update({
 			where: { id },
 			data: { lastLoginAt: date },
 		});
 	}
+
+	async findApplicationsWithFilters(params: {
+		page: number;
+		limit: number;
+		status?: "PENDING" | "REJECTED";
+		search?: string;
+		fromDate?: Date;
+		toDate?: Date;
+		sortBy: "createdAt" | "updatedAt" | "restaurantName" | "status";
+		sortOrder: "asc" | "desc";
+	}): Promise<{ restaurants: RestaurantApplicationDetail[]; total: number }> {
+		const {
+			page,
+			limit,
+			status,
+			search,
+			fromDate,
+			toDate,
+			sortBy,
+			sortOrder,
+		} = params;
+
+		const statusFilter = status
+			? status
+			: { in: ["PENDING" as const, "REJECTED" as const] };
+
+		const where: Prisma.RestaurantWhereInput = {
+			onboardingStatus: "COMPLETED",
+			status: statusFilter,
+			...(search && {
+				OR: [
+					{
+						restaurantName: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{ ownerName: { contains: search, mode: "insensitive" } },
+					{ email: { contains: search, mode: "insensitive" } },
+					{ phone: { contains: search, mode: "insensitive" } },
+				],
+			}),
+			...(fromDate || toDate
+				? {
+						createdAt: {
+							...(fromDate && { gte: fromDate }),
+							...(toDate && { lte: toDate }),
+						},
+					}
+				: {}),
+		};
+
+		const skip = (page - 1) * limit;
+
+		const [rawList, total] = await Promise.all([
+			this.prisma.restaurant.findMany({
+				where,
+				include: {
+					address: true,
+					documents: true,
+					images: {
+						orderBy: {
+							displayOrder: "asc",
+						},
+					},
+				},
+				orderBy: { [sortBy]: sortOrder },
+				skip,
+				take: limit,
+			}),
+			this.prisma.restaurant.count({ where }),
+		]);
+
+		return {
+			restaurants: rawList.map((raw) =>
+				this.mapRawToApplicationDetail(raw),
+			),
+			total,
+		};
+	}
+
+	async findByIdWithDetails(
+		id: string,
+	): Promise<RestaurantApplicationDetail | null> {
+		const raw = await this.prisma.restaurant.findUnique({
+			where: { id },
+			include: {
+				address: true,
+				documents: true,
+				images: {
+					orderBy: {
+						displayOrder: "asc",
+					},
+				},
+			},
+		});
+
+		if (!raw) return null;
+
+		return this.mapRawToApplicationDetail(raw);
+	}
+
 	async findManyWithFilters(
 		params: RestaurantFilterParams,
 	): Promise<{ restaurants: Restaurant[]; total: number }> {

@@ -113,7 +113,7 @@ describe("adminAuthMiddleware", () => {
 		expect(mockNext).toHaveBeenCalled();
 	});
 
-	it("should allow request when role is 'super_admin' or 'ADMIN'", () => {
+	it("should allow request when role is 'super_admin' or uppercase 'SUPER_ADMIN'", () => {
 		mockReq.headers = {
 			"x-user-id": "superadmin-uuid-1",
 			"x-user-role": "SUPER_ADMIN",
@@ -132,6 +132,25 @@ describe("adminAuthMiddleware", () => {
 			role: "super_admin",
 		});
 		expect(mockReq.userId).toBe("superadmin-uuid-1");
+		expect(mockNext).toHaveBeenCalled();
+	});
+
+	it("should handle array headers properly", () => {
+		mockReq.headers = {
+			"x-user-id": ["admin-uuid-123", "extra-id"],
+			"x-user-role": ["ADMIN"],
+			"x-user-email": ["admin@spotq.com"],
+		};
+
+		adminAuthMiddleware(
+			mockReq as AuthenticatedAdminRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockReq.user?.userId).toBe("admin-uuid-123");
+		expect(mockReq.userId).toBe("admin-uuid-123");
+		expect(mockReq.user?.role).toBe("admin");
 		expect(mockNext).toHaveBeenCalled();
 	});
 });

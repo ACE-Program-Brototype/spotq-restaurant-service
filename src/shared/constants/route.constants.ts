@@ -46,6 +46,10 @@ export const STORAGE_ROUTES = {
 
 export const ADMIN_ROUTES = {
 	BASE: "/admin",
+	APPLICATIONS: "/restaurants/applications",
+	APPLICATION_DETAILS: "/restaurants/applications/:id",
+	APPROVE_RESTAURANT: "/restaurants/:id/approve",
+	REJECT_RESTAURANT: "/restaurants/:id/reject",
 	RESTAURANTS: "/restaurants",
 	GET_RESTAURANT_DETAILS: "/restaurants/:id",
 	BLOCK_RESTAURANT: "/restaurants/:id/block",

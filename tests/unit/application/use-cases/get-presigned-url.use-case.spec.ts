@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IStorageService } from "@/application/ports/services/storage.service.port";
-import { GetPresignedUrlUseCase } from "@/application/use-cases/get-presigned-url.use-case";
-import { InvalidStorageKeyError } from "@/domain/errors/storage.errors";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
+import { GetPresignedUrlUseCase } from "@/application/use-cases/get-presigned-url.use-case.ts";
+import { InvalidStorageKeyError } from "@/domain/errors/storage.errors.ts";
 
 describe("GetPresignedUrlUseCase", () => {
 	let useCase: GetPresignedUrlUseCase;

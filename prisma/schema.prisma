@@ -36,6 +36,8 @@ model Restaurant {
 
   emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(3)
 
+  rejectionReason String? @map("rejection_reason")
+
   // Subscription Caching (Updated via BullMQ subscription events)
   isSubscriptionActive Boolean   @default(false) @map("is_subscription_active")
   subscriptionPlanCode String?   @map("subscription_plan_code")
@@ -43,7 +45,6 @@ model Restaurant {
 
   isBlocked   Boolean @default(false) @map("is_blocked")
   blockReason String? @map("block_reason")
-
 
   lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz(3)
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { InvalidStorageKeyError } from "@/domain/errors/storage.errors";
-import { StorageKeyVO } from "@/domain/value-objects/storage-key.vo";
+import { InvalidStorageKeyError } from "@/domain/errors/storage.errors.ts";
+import { StorageKeyVO } from "@/domain/value-objects/storage-key.vo.ts";
 
 describe("StorageKeyVO", () => {
 	it("creates a valid StorageKeyVO instance", () => {

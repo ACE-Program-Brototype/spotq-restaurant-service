@@ -54,6 +54,17 @@ export const TYPES = {
 	// Observability & System
 	HealthCheckService: Symbol.for("HealthCheckService"),
 
+	// Admin Use Cases & Controllers
+	ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+	RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+	ListRestaurantApplicationsUseCase: Symbol.for(
+		"ListRestaurantApplicationsUseCase",
+	),
+	GetRestaurantApplicationDetailsUseCase: Symbol.for(
+		"GetRestaurantApplicationDetailsUseCase",
+	),
+	AdminRestaurantController: Symbol.for("AdminRestaurantController"),
+
 	// Feature Namespaced Sub-types (for Restaurant & Storage & Common services)
 	UseCases: {
 		SendRestaurantEmailOtpUseCase: Symbol.for("SendRestaurantEmailOtpUseCase"),
@@ -72,6 +83,14 @@ export const TYPES = {
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
 		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
+		ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+		RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+		ListRestaurantApplicationsUseCase: Symbol.for(
+			"ListRestaurantApplicationsUseCase",
+		),
+		GetRestaurantApplicationDetailsUseCase: Symbol.for(
+			"GetRestaurantApplicationDetailsUseCase",
+		),
 		GetRestaurantDetailsUseCase: Symbol.for("GetRestaurantDetailsUseCase"),
 		BlockRestaurantUseCase: Symbol.for("BlockRestaurantUseCase"),
 		UnblockRestaurantUseCase: Symbol.for("UnblockRestaurantUseCase"),
