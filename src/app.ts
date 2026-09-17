@@ -15,8 +15,8 @@ import { messages } from "@/shared/constants/message.constants.ts";
 import { ADMIN_ROUTES, STAFF_ROUTES, STORAGE_ROUTES } from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 import { successResponse } from "@/utils/response.model.ts";
-import { adminRestaurantRouter } from "./presentation/http/routes/admin-restaurant.routes";
-import { restaurantRouter } from "./presentation/http/routes/restaurant.routes";
+import { adminRestaurantRouter } from "@/presentation/http/routes/admin-restaurant.routes";
+import { restaurantRouter } from "@/presentation/http/routes/restaurant.routes";
 
 const app = express();
 
