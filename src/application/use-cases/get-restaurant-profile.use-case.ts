@@ -1,6 +1,7 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import type { IGetRestaurantProfileUseCase } from "@/application/ports/use-cases/get-restaurant-profile.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
@@ -12,6 +13,10 @@ export class GetRestaurantProfileUseCase
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
+
+		@inject(TYPES.Services.Storage)
+		@optional()
+		private readonly storageService?: IStorageService,
 	) {}
 
 	async execute(restaurantId: string): Promise<RestaurantProfileResponseDto> {
@@ -24,6 +29,35 @@ export class GetRestaurantProfileUseCase
 
 		if (!result) {
 			throw new RestaurantNotFoundError();
+		}
+
+		if (this.storageService) {
+			if (result.profile?.logo && !result.profile.logo.startsWith("http")) {
+				try {
+					const { downloadUrl } =
+						await this.storageService.generatePresignedGetUrl({
+							key: result.profile.logo,
+						});
+					result.profile.logo = downloadUrl;
+				} catch {
+					// Fall back to original key if presigning fails
+				}
+			}
+
+			if (
+				result.profile?.coverImage &&
+				!result.profile.coverImage.startsWith("http")
+			) {
+				try {
+					const { downloadUrl } =
+						await this.storageService.generatePresignedGetUrl({
+							key: result.profile.coverImage,
+						});
+					result.profile.coverImage = downloadUrl;
+				} catch {
+					// Fall back to original key if presigning fails
+				}
+			}
 		}
 
 		return result;
