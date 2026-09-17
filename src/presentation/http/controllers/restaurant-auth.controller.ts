@@ -128,10 +128,12 @@ export class RestaurantAuthController {
 	async getVerificationStatus(req: Request, res: Response): Promise<Response> {
 		const userObj =
 			req.user && typeof req.user === "object" ? req.user : undefined;
+		const paramId =
+			typeof req.params?.id === "string" ? req.params.id : undefined;
 		const restaurantId =
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
 			(typeof req.userId === "string" ? req.userId : undefined) ||
-			req.params?.id;
+			paramId;
 
 		if (!restaurantId) {
 			return res
