@@ -36,6 +36,7 @@ import {
 	updateStaffStatusParamsSchema,
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
+import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -142,6 +143,19 @@ restaurantRouter.get(
 	RESTAURANT_ROUTES.VERIFICATION_STATUS_BY_ID,
 	restaurantAuthMiddleware,
 	restaurantAuthController.getVerificationStatus.bind(restaurantAuthController),
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.PROFILE,
+	restaurantAuthMiddleware,
+	restaurantAuthController.getProfile.bind(restaurantAuthController),
+);
+
+restaurantRouter.put(
+	RESTAURANT_ROUTES.PROFILE,
+	restaurantAuthMiddleware,
+	validateRequestBody(updateRestaurantProfileSchema),
+	restaurantAuthController.updateProfile.bind(restaurantAuthController),
 );
 
 restaurantRouter.get(

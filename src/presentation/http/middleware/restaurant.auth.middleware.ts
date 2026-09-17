@@ -26,6 +26,7 @@ export function restaurantAuthMiddleware(
 	const paramId = getHeaderValue(req.params?.id || req.params?.restaurantId);
 
 	let resolvedId = headerRestaurantId || headerUserId || paramId;
+	let userId = headerUserId;
 	let email = getHeaderValue(req.headers["x-user-email"]);
 	let role = getHeaderValue(req.headers["x-user-role"]);
 
@@ -44,8 +45,9 @@ export function restaurantAuthMiddleware(
 				const tokenId = decoded?.restaurantId || decoded?.sub || decoded?.id;
 				if (tokenId) {
 					resolvedId = tokenId;
-					if (!email && decoded.email) email = decoded.email;
-					if (!role && decoded.role) role = decoded.role;
+					if (!userId && decoded?.sub) userId = decoded.sub;
+					if (!email && decoded?.email) email = decoded.email;
+					if (!role && decoded?.role) role = decoded.role;
 				}
 			} catch {
 				// Ignore decode error; check below will handle unauthorized
@@ -68,7 +70,7 @@ export function restaurantAuthMiddleware(
 
 	req.user = {
 		restaurantId: resolvedId,
-		userId: headerUserId || resolvedId,
+		userId: userId || resolvedId,
 		email: email || "",
 		role: role || "RESTAURANT",
 	};

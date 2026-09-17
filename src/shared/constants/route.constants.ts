@@ -19,6 +19,7 @@ export const RESTAURANT_ROUTES = {
 	VERIFICATION_STATUS: "/verification-status",
 	STAFF_REMOVE: "/:restaurantId/staff/:staffId",
 	VERIFICATION_STATUS_BY_ID: "/:id/verification-status",
+	PROFILE: "/profile",
 	STAFF_DETAIL: "/:restaurantId/staff/:staffId",
 	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
 	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
