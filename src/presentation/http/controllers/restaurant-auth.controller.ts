@@ -138,7 +138,7 @@ export class RestaurantAuthController {
 		const userObj =
 			req.user && typeof req.user === "object" ? req.user : undefined;
 		const restaurantId =
-			(req.headers["x-restaurant-id"] as string | undefined) ||
+			(req.headers?.["x-restaurant-id"] as string | undefined) ||
 			(userObj as { restaurantId?: string } | undefined)?.restaurantId ||
 			req.userId;
 

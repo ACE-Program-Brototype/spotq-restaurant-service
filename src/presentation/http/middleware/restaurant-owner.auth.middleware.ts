@@ -16,6 +16,7 @@ const ALLOWED_OWNER_ROLES = new Set([
 	"restaurant_admin",
 	"restaurant",
 	"owner",
+	"admin",
 ]);
 
 function getHeaderValue(
@@ -32,7 +33,9 @@ export function restaurantOwnerAuthMiddleware(
 	res: Response,
 	next: NextFunction,
 ): void {
-	const userId = getHeaderValue(req.headers["x-user-id"]);
+	const headerUserId = getHeaderValue(req.headers["x-user-id"]);
+	const headerRestaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
+	const userId = headerUserId || headerRestaurantId;
 
 	if (!userId) {
 		res
@@ -48,7 +51,7 @@ export function restaurantOwnerAuthMiddleware(
 	}
 
 	const role = getHeaderValue(req.headers["x-user-role"]);
-	const normalizedRole = role?.toLowerCase();
+	const normalizedRole = role?.toLowerCase().trim();
 
 	if (!normalizedRole || !ALLOWED_OWNER_ROLES.has(normalizedRole)) {
 		res
@@ -63,8 +66,29 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
+	const paramRestaurantId = getHeaderValue(
+		req.params?.restaurantId || req.params?.id,
+	)?.trim();
+
+	if (
+		paramRestaurantId &&
+		headerRestaurantId &&
+		paramRestaurantId !== headerRestaurantId.trim()
+	) {
+		res
+			.status(HTTP_STATUS.FORBIDDEN)
+			.json(
+				ApiResponse.error(
+					messages.RESTAURANT_ACCESS_FORBIDDEN,
+					"FORBIDDEN",
+					HTTP_STATUS.FORBIDDEN,
+				),
+			);
+		return;
+	}
+
 	const email = getHeaderValue(req.headers["x-user-email"]);
-	const restaurantId = getHeaderValue(req.headers["x-restaurant-id"]);
+	const restaurantId = headerRestaurantId || userId;
 
 	req.user = {
 		userId,
@@ -72,7 +96,6 @@ export function restaurantOwnerAuthMiddleware(
 		email: email || "",
 		role: role || "RESTAURANT_OWNER",
 	};
-
 	req.userId = userId;
 
 	next();

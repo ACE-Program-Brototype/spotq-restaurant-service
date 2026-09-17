@@ -12,9 +12,9 @@ import { AUTH_ROLES, TOKEN_TYPES } from "@/shared/constants/auth.constants";
 export class AuthTokenService implements IAuthTokenService {
 	generateAccessToken(payload: AuthTokenPayload): string {
 		const claims = {
-			sub: payload.restaurantId,
+			sub: payload.sub || payload.restaurantId,
 			email: payload.email,
-			role: AUTH_ROLES.RESTAURANT_OWNER,
+			role: payload.role || AUTH_ROLES.RESTAURANT_OWNER,
 			restaurantId: payload.restaurantId,
 		};
 
@@ -29,9 +29,9 @@ export class AuthTokenService implements IAuthTokenService {
 
 	generateRefreshToken(payload: AuthTokenPayload): string {
 		const claims = {
-			sub: payload.restaurantId,
+			sub: payload.sub || payload.restaurantId,
 			email: payload.email,
-			role: AUTH_ROLES.RESTAURANT_OWNER,
+			role: payload.role || AUTH_ROLES.RESTAURANT_OWNER,
 			restaurantId: payload.restaurantId,
 			type: TOKEN_TYPES.REFRESH,
 		};
@@ -51,11 +51,18 @@ export class AuthTokenService implements IAuthTokenService {
 	verifyAccessToken(token: string): AuthTokenPayload {
 		const decoded = jwt.verify(token, env.JWT_PUBLIC_KEY, {
 			algorithms: [env.JWT_ALGORITHM as jwt.Algorithm],
-		}) as { sub?: string; email?: string; restaurantId?: string };
+		}) as {
+			sub?: string;
+			email?: string;
+			restaurantId?: string;
+			role?: string;
+		};
 
 		return {
 			restaurantId: decoded.restaurantId ?? decoded.sub ?? "",
 			email: decoded.email ?? "",
+			role: decoded.role,
+			sub: decoded.sub,
 		};
 	}
 
@@ -64,11 +71,14 @@ export class AuthTokenService implements IAuthTokenService {
 			restaurantId?: string;
 			sub?: string;
 			email?: string;
+			role?: string;
 		};
 
 		return {
 			restaurantId: decoded.restaurantId ?? decoded.sub ?? "",
 			email: decoded.email ?? "",
+			role: decoded.role,
+			sub: decoded.sub,
 		};
 	}
 }

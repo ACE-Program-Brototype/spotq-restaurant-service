@@ -85,6 +85,8 @@ export class VerifyRestaurantEmailOtpUseCase
 		}
 
 		const tokenPair = this.authTokenService.generateTokenPair({
+			sub: restaurant.id,
+			role: "RESTAURANT_OWNER",
 			email: restaurant.email,
 			restaurantId: restaurant.id,
 		});
