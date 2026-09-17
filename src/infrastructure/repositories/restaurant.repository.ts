@@ -440,7 +440,6 @@ export class RestaurantRepository implements IRestaurantRepository {
 			data: { lastLoginAt: date },
 		});
 	}
-
 	async findManyWithFilters(
 		params: RestaurantFilterParams,
 	): Promise<{ restaurants: Restaurant[]; total: number }> {

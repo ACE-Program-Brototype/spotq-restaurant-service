@@ -82,6 +82,10 @@ export const messages = {
 		"Too many invitation validation attempts. Please try again later.",
 	RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED:
 		"Too many invitation acceptance attempts. Please try again later.",
+	RATE_LIMIT_BLOCK_RESTAURANT_EXCEEDED:
+		"Too many block restaurant requests. Please try again later.",
+	RATE_LIMIT_UNBLOCK_RESTAURANT_EXCEEDED:
+		"Too many unblock restaurant requests. Please try again later.",
 	STAFF_NOT_FOUND: "Staff member not found",
 	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
 	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",
@@ -160,6 +164,14 @@ export const messages = {
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+	RESTAURANT_BLOCKED_SUCCESS: "Restaurant blocked successfully.",
+	RESTAURANT_UNBLOCKED_SUCCESS: "Restaurant unblocked successfully.",
+	RESTAURANT_ALREADY_BLOCKED: "Restaurant is already blocked",
+	RESTAURANT_NOT_BLOCKED: "Restaurant is not blocked",
+	CANNOT_MODIFY_PENDING_RESTAURANT:
+		"Cannot block or unblock a restaurant with pending status",
+	CANNOT_MODIFY_INCOMPLETE_ONBOARDING:
+		"Cannot block or unblock a restaurant with incomplete onboarding",
 	STAFF_MEMBERS_RETRIEVED_SUCCESS: "Staff members retrieved successfully.",
 	NO_STAFF_MEMBERS_FOUND: "No staff members found.",
 	YOU_DO_NOT_HAVE_PERMISSION:

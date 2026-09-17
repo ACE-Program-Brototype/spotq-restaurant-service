@@ -74,6 +74,8 @@ export const TYPES = {
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
 		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
 		GetRestaurantDetailsUseCase: Symbol.for("GetRestaurantDetailsUseCase"),
+		BlockRestaurantUseCase: Symbol.for("BlockRestaurantUseCase"),
+		UnblockRestaurantUseCase: Symbol.for("UnblockRestaurantUseCase"),
 		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
