@@ -20,6 +20,7 @@ export const messages = {
 	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
 	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
+	RESTAURANTS_FETCHED_SUCCESS: "Restaurants retrieved successfully",
 	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
 
 	PRESIGNED_URL_GENERATED_SUCCESS:
@@ -40,6 +41,7 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
 	STAFF_FORBIDDEN_UPDATE:
 		"Forbidden: You can only update your own staff profile",
 	STAFF_RESTAURANT_FORBIDDEN:

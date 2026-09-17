@@ -5,6 +5,7 @@ import type { IEmailService } from "@/application/ports/services/email-service.p
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import type { IListRestaurantsUseCase } from "@/application/ports/use-cases/list-restaurants.use-case.port";
 import type { IActivateSubscriptionUseCase } from "@/application/ports/use-cases/activate-subscription.use-case.port";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port";
 import type { IGetRestaurantVerificationStatusUseCase } from "@/application/ports/use-cases/get-verification-status.use-case.port";
@@ -13,6 +14,7 @@ import type { IRefreshRestaurantAccessTokenUseCase } from "@/application/ports/u
 import type { IResendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/resend-email-otp.use-case.port";
 import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/send-email-otp.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port";
+import { ListRestaurantsUseCase } from "@/application/use-cases/admin/list-restaurants.use-case";
 import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case";
 import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case";
 import { GetRestaurantVerificationStatusUseCase } from "@/application/use-cases/get-verification-status.use-case";
@@ -29,6 +31,7 @@ import { OtpService } from "@/infrastructure/services/otp.service";
 import { OtpHashService } from "@/infrastructure/services/otp-hash.service";
 import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service";
 import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
+import { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
 
@@ -36,6 +39,10 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	// Controllers
 	bind(TYPES.Controller.RestaurantAuthController)
 		.to(RestaurantAuthController)
+		.inSingletonScope();
+
+	bind(TYPES.Controller.AdminRestaurantController)
+		.to(AdminRestaurantController)
 		.inSingletonScope();
 
 	bind(TYPES.Controller.RestaurantStatusController)
@@ -69,6 +76,10 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 
 	bind<IOnboardRestaurantUseCase>(TYPES.UseCases.OnboardRestaurantUseCase)
 		.to(OnboardRestaurantUseCase)
+		.inSingletonScope();
+
+	bind<IListRestaurantsUseCase>(TYPES.UseCases.ListRestaurantsUseCase)
+		.to(ListRestaurantsUseCase)
 		.inSingletonScope();
 
 	bind<IGetRestaurantStatusUseCase>(TYPES.UseCases.GetRestaurantStatusUseCase)

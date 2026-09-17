@@ -40,7 +40,6 @@ describe("LoginStaffUseCase", () => {
 		restaurantName: "SpotQ Diner",
 		email: "diner@spotq.com",
 		phone: "+1234567890",
-		primaryContactNumber: "+1234567890",
 		emailVerifiedAt: new Date(),
 		onboardingStatus: "COMPLETED",
 		isSubscriptionActive: true,
@@ -51,8 +50,10 @@ describe("LoginStaffUseCase", () => {
 		staffRepository = {
 			findById: jest.fn(),
 			findByEmail: jest.fn(),
+			findByEmailAndRestaurantId: jest.fn(),
 			findByRestaurantId: jest.fn(),
 			findManyWithFilters: jest.fn(),
+			findByIdAndRestaurantId: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantStaffRepository>;
@@ -194,7 +195,6 @@ describe("LoginStaffUseCase", () => {
 			restaurantName: "SpotQ Diner",
 			email: "diner@spotq.com",
 			phone: "+1234567890",
-			primaryContactNumber: "+1234567890",
 			isBlocked: true,
 		});
 
@@ -218,7 +218,6 @@ describe("LoginStaffUseCase", () => {
 			restaurantName: "SpotQ Diner",
 			email: "diner@spotq.com",
 			phone: "+1234567890",
-			primaryContactNumber: "+1234567890",
 			emailVerifiedAt: new Date(),
 			onboardingStatus: "COMPLETED",
 			isSubscriptionActive: false,
