@@ -52,7 +52,7 @@ describe("RevokeStaffInvitationUseCase", () => {
 			save: jest.fn(),
 			activateSubscription: jest.fn(),
 			completeOnboarding: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
 

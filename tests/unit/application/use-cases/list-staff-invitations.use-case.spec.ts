@@ -58,7 +58,7 @@ describe("ListStaffInvitationsUseCase", () => {
 			save: jest.fn(),
 			activateSubscription: jest.fn(),
 			completeOnboarding: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		useCase = new ListStaffInvitationsUseCase(
 			staffInvitationRepository,

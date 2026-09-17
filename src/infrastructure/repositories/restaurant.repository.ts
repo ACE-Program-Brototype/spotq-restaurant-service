@@ -12,10 +12,9 @@ import type {
 	CreateRestaurantDto,
 	OnboardRestaurantDto,
 } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
-import type {
-	IRestaurantRepository,
-	RestaurantFilterParams,
-} from "@/application/ports/repositories/restaurant.repository.port";
+import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
+import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto.ts";
+import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import { TYPES } from "@/config/di/types";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
@@ -166,10 +165,10 @@ export class RestaurantRepository implements IRestaurantRepository {
 				where: { restaurantId: restaurant.id },
 				create: {
 					restaurantId: restaurant.id,
-					coverImage: firstImage,
+					coverImageKey: firstImage,
 				},
 				update: {
-					...(firstImage ? { coverImage: firstImage } : {}),
+					...(firstImage ? { coverImageKey: firstImage } : {}),
 				},
 			});
 
@@ -298,6 +297,202 @@ export class RestaurantRepository implements IRestaurantRepository {
 			create: rawData,
 			update: updateData,
 		});
+	}
+
+	async getRestaurantProfileDetails(
+		restaurantId: string,
+	): Promise<RestaurantProfileResponseDto | null> {
+		const raw = await this.prisma.restaurant.findUnique({
+			where: { id: restaurantId },
+			include: {
+				profile: true,
+				settings: true,
+				operatingHours: {
+					orderBy: { dayOfWeek: "asc" },
+				},
+			},
+		});
+
+		if (!raw) return null;
+
+		const formatTime = (time: unknown): string | null => {
+			if (!time) return null;
+			if (typeof time === "string") {
+				if (time.includes("T")) {
+					const d = new Date(time);
+					if (!Number.isNaN(d.getTime())) {
+						return `${d.getUTCHours().toString().padStart(2, "0")}:${d.getUTCMinutes().toString().padStart(2, "0")}`;
+					}
+				}
+				return time.slice(0, 5);
+			}
+			if (time instanceof Date && !Number.isNaN(time.getTime())) {
+				const hours = time.getUTCHours().toString().padStart(2, "0");
+				const minutes = time.getUTCMinutes().toString().padStart(2, "0");
+				return `${hours}:${minutes}`;
+			}
+			return null;
+		};
+
+		return {
+			restaurant: {
+				id: raw.id,
+				name: raw.restaurantName,
+				phone: raw.phone,
+				ownerName: raw.ownerName,
+			},
+			profile: {
+				logo: raw.profile?.logoKey ?? null,
+				coverImage: raw.profile?.coverImageKey ?? null,
+				description: raw.profile?.description ?? null,
+				cuisineType:
+					raw.profile?.cuisineType ?? raw.settings?.cuisineType ?? null,
+				averageCost: raw.profile?.averageCost ?? 0,
+			},
+			settings: {
+				acceptsQueue: raw.settings?.acceptsQueue ?? true,
+				acceptsQrOrders: raw.settings?.acceptsQrOrders ?? true,
+				loyaltyEnabled:
+					raw.settings?.loyaltyEnabled ??
+					raw.settings?.isLoyaltyEnabled ??
+					false,
+				autoAcceptQueue: raw.settings?.autoAcceptQueue ?? false,
+				seatingCapacity: raw.settings?.seatingCapacity ?? 0,
+			},
+			businessHours: raw.operatingHours.map((oh) => ({
+				dayOfWeek: oh.dayOfWeek,
+				openTime: formatTime(oh.openTime),
+				closeTime: formatTime(oh.closeTime),
+				isClosed: oh.isClosed ?? !oh.isOpen,
+			})),
+		};
+	}
+
+	async updateProfileDetails(
+		restaurantId: string,
+		data: UpdateRestaurantProfileDto,
+	): Promise<RestaurantProfileResponseDto> {
+		await this.prisma.$transaction(async (tx) => {
+			if (data.restaurant) {
+				const updateData: Record<string, string> = {};
+				if (data.restaurant.name !== undefined)
+					updateData.restaurantName = data.restaurant.name;
+				if (data.restaurant.phone !== undefined)
+					updateData.phone = data.restaurant.phone;
+				if (data.restaurant.ownerName !== undefined)
+					updateData.ownerName = data.restaurant.ownerName;
+
+				if (Object.keys(updateData).length > 0) {
+					await tx.restaurant.update({
+						where: { id: restaurantId },
+						data: updateData,
+					});
+				}
+			}
+
+			if (data.profile) {
+				const profileData: Record<string, unknown> = {};
+				if (data.profile.logoKey !== undefined)
+					profileData.logoKey = data.profile.logoKey;
+				if (data.profile.coverImageKey !== undefined)
+					profileData.coverImageKey = data.profile.coverImageKey;
+				if (data.profile.description !== undefined)
+					profileData.description = data.profile.description;
+				if (data.profile.cuisineType !== undefined)
+					profileData.cuisineType = data.profile.cuisineType;
+				if (data.profile.averageCost !== undefined)
+					profileData.averageCost = data.profile.averageCost;
+
+				if (Object.keys(profileData).length > 0) {
+					await tx.restaurantProfile.upsert({
+						where: { restaurantId },
+						create: { restaurantId, ...profileData },
+						update: profileData,
+					});
+				}
+			}
+
+			if (data.settings) {
+				const settingsData: Record<string, unknown> = {};
+				if (data.settings.isOpened !== undefined)
+					settingsData.isOpened = data.settings.isOpened;
+				if (data.settings.isPreorder !== undefined)
+					settingsData.isPreorder = data.settings.isPreorder;
+				if (data.settings.seatingCapacity !== undefined)
+					settingsData.seatingCapacity = data.settings.seatingCapacity;
+				if (data.settings.acceptsQueue !== undefined)
+					settingsData.acceptsQueue = data.settings.acceptsQueue;
+				if (data.settings.acceptsQrOrders !== undefined)
+					settingsData.acceptsQrOrders = data.settings.acceptsQrOrders;
+				if (data.settings.loyaltyEnabled !== undefined) {
+					settingsData.loyaltyEnabled = data.settings.loyaltyEnabled;
+					settingsData.isLoyaltyEnabled = data.settings.loyaltyEnabled;
+				}
+				if (data.settings.autoAcceptQueue !== undefined)
+					settingsData.autoAcceptQueue = data.settings.autoAcceptQueue;
+
+				if (Object.keys(settingsData).length > 0) {
+					await tx.restaurantSettings.upsert({
+						where: { restaurantId },
+						create: { restaurantId, ...settingsData },
+						update: settingsData,
+					});
+				}
+			}
+
+			if (data.businessHours && data.businessHours.length > 0) {
+				const parseTimeStringToDate = (
+					timeStr?: string | null,
+				): Date | null => {
+					if (!timeStr) return null;
+					if (timeStr.includes("T")) return new Date(timeStr);
+					const parts = timeStr.split(":");
+					const hours = parseInt(parts[0], 10);
+					const minutes = parseInt(parts[1], 10);
+					if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+					return new Date(1970, 0, 1, hours, minutes, 0);
+				};
+
+				for (const bh of data.businessHours) {
+					const isClosed = bh.isClosed ?? false;
+					const openTimeDate = isClosed
+						? null
+						: parseTimeStringToDate(bh.openTime);
+					const closeTimeDate = isClosed
+						? null
+						: parseTimeStringToDate(bh.closeTime);
+
+					await tx.restaurantOperatingHours.upsert({
+						where: {
+							restaurantId_dayOfWeek: {
+								restaurantId,
+								dayOfWeek: bh.dayOfWeek,
+							},
+						},
+						create: {
+							restaurantId,
+							dayOfWeek: bh.dayOfWeek,
+							isOpen: !isClosed,
+							isClosed: isClosed,
+							openTime: openTimeDate,
+							closeTime: closeTimeDate,
+						},
+						update: {
+							isOpen: !isClosed,
+							isClosed: isClosed,
+							openTime: openTimeDate,
+							closeTime: closeTimeDate,
+						},
+					});
+				}
+			}
+		});
+
+		const updatedDetails = await this.getRestaurantProfileDetails(restaurantId);
+		if (!updatedDetails) {
+			throw new Error("Failed to load updated restaurant profile details");
+		}
+		return updatedDetails;
 	}
 
 	async findManyWithFilters(
