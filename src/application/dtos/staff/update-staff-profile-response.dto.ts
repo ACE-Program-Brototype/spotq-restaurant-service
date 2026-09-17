@@ -1,4 +1,4 @@
-export interface StaffProfileResponseDTO {
+export interface UpdateStaffProfileResponseDTO {
 	id: string;
 	restaurant_id: string;
 	fullname: string;
@@ -8,5 +8,5 @@ export interface StaffProfileResponseDTO {
 	role: string;
 	status: string;
 	created_at: string;
-	updated_at?: string;
+	updated_at: string;
 }

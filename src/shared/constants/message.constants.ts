@@ -5,7 +5,6 @@ export const messages = {
 	STAFF_LOGIN_SUCCESS: "Staff logged in successfully",
 	STAFF_LOGOUT_SUCCESS: "Staff logged out successfully",
 	STAFF_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully",
-	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully",
 	FORGOT_PASSWORD_OTP_SENT: "Password reset OTP sent to your email",
 	OTP_SENT_SUCCESS: "OTP sent to your email successfully",
 	OTP_VERIFIED_SUCCESS: "OTP verified successfully",
@@ -21,6 +20,7 @@ export const messages = {
 	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
 	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
+	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
 
 	PRESIGNED_URL_GENERATED_SUCCESS:
 		"Presigned upload URL generated successfully.",
@@ -40,6 +40,10 @@ export const messages = {
 	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
 	FORBIDDEN: "Forbidden request",
 	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	STAFF_FORBIDDEN_UPDATE:
+		"Forbidden: You can only update your own staff profile",
+	STAFF_RESTAURANT_FORBIDDEN:
+		"Forbidden: Staff does not belong to the specified restaurant",
 	VALIDATION_ERROR: "Validation error occurred",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
@@ -149,6 +153,15 @@ export const messages = {
 		"If this email is eligible for registration, a verification code will be sent.",
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
+	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+	AT_LEAST_ONE_FIELD_REQUIRED: "At least one editable field must be provided",
+	STAFF_ID_REQUIRED: "Staff ID is required",
+	UNSUPPORTED_FIELDS_ERROR: "Request body contains unsupported fields",
+	INVALID_AVATAR_KEY: "Invalid avatar S3 key format",
+	AVATAR_RESTAURANT_MISMATCH:
+		"Cannot use an avatar belonging to another restaurant",
+	AVATAR_STAFF_MISMATCH:
+		"Cannot use an avatar belonging to another staff member",
 	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
 		"Verification status retrieved successfully",
 	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",

@@ -13,6 +13,7 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
 import { StaffController } from "@/presentation/http/controllers/staff.controller.ts";
@@ -32,6 +33,7 @@ describe("StaffController", () => {
 	let revokeStaffInvitationUseCase: jest.Mocked<IRevokeStaffInvitationUseCase>;
 	let listStaffInvitationsUseCase: jest.Mocked<IListStaffInvitationsUseCase>;
 	let getStaffProfileUseCase: jest.Mocked<IGetStaffProfileUseCase>;
+	let updateStaffProfileUseCase: jest.Mocked<IUpdateStaffProfileUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
 
@@ -50,6 +52,7 @@ describe("StaffController", () => {
 		revokeStaffInvitationUseCase = { execute: jest.fn() };
 		listStaffInvitationsUseCase = { execute: jest.fn() };
 		getStaffProfileUseCase = { execute: jest.fn() };
+		updateStaffProfileUseCase = { execute: jest.fn() };
 
 		controller = new StaffController(
 			loginStaffUseCase,
@@ -66,6 +69,7 @@ describe("StaffController", () => {
 			revokeStaffInvitationUseCase,
 			listStaffInvitationsUseCase,
 			getStaffProfileUseCase,
+			updateStaffProfileUseCase,
 		);
 
 		res = {
@@ -596,6 +600,141 @@ describe("StaffController", () => {
 					success: false,
 					statusCode: 401,
 					code: "UNAUTHORIZED",
+				}),
+			);
+		});
+	});
+
+	describe("updateProfile", () => {
+		const next = jest.fn();
+
+		beforeEach(() => {
+			next.mockClear();
+		});
+
+		it("should update staff profile and return 200 OK", async () => {
+			const req = {
+				user: {
+					userId: "staff-123",
+					restaurantId: "rest-123",
+					email: "john@spotq.com",
+					role: "STAFF",
+				},
+				userId: "staff-123",
+				params: {
+					restaurantId: "rest-123",
+					staffId: "staff-123",
+				},
+				body: {
+					name: "Updated Name",
+					phone: "+919876543210",
+				},
+			};
+
+			const mockUpdated = {
+				id: "staff-123",
+				restaurantId: "rest-123",
+				fullname: "Updated Name",
+				email: "john@spotq.com",
+				phone: "+919876543210",
+				avatarUrl: null,
+				role: "STAFF",
+				status: "ACTIVE",
+				createdAt: "2026-09-01T10:00:00.000Z",
+				updatedAt: "2026-09-01T10:00:00.000Z",
+			};
+
+			updateStaffProfileUseCase.execute.mockResolvedValue(mockUpdated as never);
+
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
+
+			expect(updateStaffProfileUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "rest-123",
+				staffId: "staff-123",
+				name: "Updated Name",
+				phone: "+919876543210",
+				avatar_url: undefined,
+			});
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					data: mockUpdated,
+					statusCode: 200,
+				}),
+			);
+		});
+
+		it("should return 401 when userId is missing", async () => {
+			const req = {
+				params: {
+					restaurantId: "rest-123",
+					staffId: "staff-123",
+				},
+				body: { name: "Name" },
+			};
+
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
+
+			expect(res.status).toHaveBeenCalledWith(401);
+		});
+
+		it("should pass StaffForbiddenError to next when userId !== staffId", async () => {
+			const req = {
+				user: {
+					userId: "staff-DIFFERENT",
+					restaurantId: "rest-123",
+				},
+				params: {
+					restaurantId: "rest-123",
+					staffId: "staff-123",
+				},
+				body: { name: "Name" },
+			};
+
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
+
+			expect(next).toHaveBeenCalledWith(
+				expect.objectContaining({
+					message: expect.stringContaining("Forbidden"),
+				}),
+			);
+		});
+
+		it("should pass StaffForbiddenError to next when restaurantId does not match", async () => {
+			const req = {
+				user: {
+					userId: "staff-123",
+					restaurantId: "rest-DIFFERENT",
+				},
+				params: {
+					restaurantId: "rest-123",
+					staffId: "staff-123",
+				},
+				body: { name: "Name" },
+			};
+
+			await controller.updateProfile(
+				req as never,
+				res as Response,
+				next as never,
+			);
+
+			expect(next).toHaveBeenCalledWith(
+				expect.objectContaining({
+					message: expect.stringContaining("Forbidden"),
 				}),
 			);
 		});
