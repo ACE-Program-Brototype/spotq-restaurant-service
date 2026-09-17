@@ -353,6 +353,7 @@ export class RestaurantRepository implements IRestaurantRepository {
 					raw.settings?.isLoyaltyEnabled ??
 					false,
 				autoAcceptQueue: raw.settings?.autoAcceptQueue ?? false,
+				seatingCapacity: raw.settings?.seatingCapacity ?? 0,
 			},
 			businessHours: raw.operatingHours.map((oh) => ({
 				dayOfWeek: oh.dayOfWeek,

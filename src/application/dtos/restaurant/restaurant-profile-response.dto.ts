@@ -17,6 +17,7 @@ export interface SettingsDetailsDto {
 	acceptsQrOrders: boolean;
 	loyaltyEnabled: boolean;
 	autoAcceptQueue: boolean;
+	seatingCapacity: number;
 }
 
 export interface BusinessHoursItemDto {

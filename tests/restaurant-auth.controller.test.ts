@@ -85,3 +85,104 @@ test("getVerificationStatus returns mapped status for a valid restaurant", async
 		"UNDER_REVIEW",
 	);
 });
+
+test("getProfile returns restaurant profile details including seatingCapacity", async () => {
+	const mockProfile = {
+		restaurant: { name: "Test Rest", phone: "1234567", ownerName: "Owner" },
+		profile: { logo: null, coverImage: null, description: null, cuisineType: null, averageCost: 0 },
+		settings: { acceptsQueue: true, acceptsQrOrders: true, loyaltyEnabled: false, autoAcceptQueue: false, seatingCapacity: 60 },
+		businessHours: [],
+	};
+
+	const mockGetProfileUseCase = {
+		execute: async () => mockProfile,
+	};
+
+	const controller = new RestaurantAuthController(
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		mockGetProfileUseCase as never,
+		{} as never,
+	);
+
+	const req = { user: { restaurantId: "res-123" } } as never;
+	let responseCode = 0;
+	let responseBody: Record<string, unknown> | null = null;
+
+	const res = {
+		status: (code: number) => {
+			responseCode = code;
+			return {
+				json: (data: unknown) => {
+					responseBody = data as Record<string, unknown>;
+					return res;
+				},
+			};
+		},
+	} as never;
+
+	await controller.getProfile(req, res);
+
+	assert.equal(responseCode, 200);
+	assert.equal(
+		(responseBody as unknown as { data?: { settings?: { seatingCapacity?: number } } })?.data?.settings?.seatingCapacity,
+		60,
+	);
+});
+
+test("updateProfile executes update use case and returns updated profile", async () => {
+	const mockUpdatedProfile = {
+		restaurant: { name: "Test Rest", phone: "1234567", ownerName: "Owner" },
+		profile: { logo: null, coverImage: null, description: null, cuisineType: null, averageCost: 0 },
+		settings: { acceptsQueue: true, acceptsQrOrders: true, loyaltyEnabled: false, autoAcceptQueue: false, seatingCapacity: 120 },
+		businessHours: [],
+	};
+
+	const mockUpdateProfileUseCase = {
+		execute: async () => mockUpdatedProfile,
+	};
+
+	const controller = new RestaurantAuthController(
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		{} as never,
+		mockUpdateProfileUseCase as never,
+	);
+
+	const req = {
+		user: { restaurantId: "res-123" },
+		body: { settings: { seatingCapacity: 120 } },
+	} as never;
+
+	let responseCode = 0;
+	let responseBody: Record<string, unknown> | null = null;
+
+	const res = {
+		status: (code: number) => {
+			responseCode = code;
+			return {
+				json: (data: unknown) => {
+					responseBody = data as Record<string, unknown>;
+					return res;
+				},
+			};
+		},
+	} as never;
+
+	await controller.updateProfile(req, res);
+
+	assert.equal(responseCode, 200);
+	assert.equal(
+		(responseBody as unknown as { data?: { settings?: { seatingCapacity?: number } } })?.data?.settings?.seatingCapacity,
+		120,
+	);
+});
+

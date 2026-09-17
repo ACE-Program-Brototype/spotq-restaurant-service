@@ -89,6 +89,7 @@ describe("UpdateRestaurantProfileUseCase", () => {
 				acceptsQrOrders: false,
 				loyaltyEnabled: true,
 				autoAcceptQueue: true,
+				seatingCapacity: 50,
 			},
 			businessHours: [
 				{
