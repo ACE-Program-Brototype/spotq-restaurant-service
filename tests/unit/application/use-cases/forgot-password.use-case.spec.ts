@@ -40,6 +40,7 @@ describe("ForgotPasswordUseCase", () => {
 			findByRestaurantId: jest.fn(),
 			findManyWithFilters: jest.fn(),
 			findByIdAndRestaurantId: jest.fn(),
+			updateStaffInfo: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantStaffRepository>;

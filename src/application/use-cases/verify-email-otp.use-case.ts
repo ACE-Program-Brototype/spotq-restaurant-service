@@ -17,7 +17,6 @@ import { InvalidOtpError } from "../errors/invalid-otp.error";
 import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
 
-
 @injectable()
 export class VerifyRestaurantEmailOtpUseCase
 	implements IVerifyRestaurantEmailOtpUseCase

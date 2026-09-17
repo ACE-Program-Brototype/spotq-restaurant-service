@@ -35,10 +35,7 @@ export class StorageController {
 		);
 	}
 
-	async getPresignedUrl(
-		req: Request,
-		res: Response,
-	): Promise<Response> {
+	async getPresignedUrl(req: Request, res: Response): Promise<Response> {
 		const query = (res.locals.query ?? req.query) as { key: string };
 
 		const result = await this.getPresignedUrlUseCase.execute({

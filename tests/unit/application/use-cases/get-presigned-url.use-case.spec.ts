@@ -10,11 +10,13 @@ describe("GetPresignedUrlUseCase", () => {
 	beforeEach(() => {
 		mockStorageService = {
 			generatePresignedUploadUrl: jest.fn(),
-			generatePresignedGetUrl: jest.fn<IStorageService["generatePresignedGetUrl"]>().mockResolvedValue({
-				downloadUrl:
-					"https://s3.amazonaws.com/test-bucket/download-url?signature=123",
-				expiresInSeconds: 900,
-			}),
+			generatePresignedGetUrl: jest
+				.fn<IStorageService["generatePresignedGetUrl"]>()
+				.mockResolvedValue({
+					downloadUrl:
+						"https://s3.amazonaws.com/test-bucket/download-url?signature=123",
+					expiresInSeconds: 900,
+				}),
 		} as unknown as jest.Mocked<IStorageService>;
 
 		useCase = new GetPresignedUrlUseCase(mockStorageService);

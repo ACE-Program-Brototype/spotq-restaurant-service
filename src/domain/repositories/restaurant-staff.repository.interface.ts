@@ -27,4 +27,8 @@ export interface IRestaurantStaffRepository
 		id: string,
 		restaurantId: string,
 	): Promise<RestaurantStaff | null>;
+	updateStaffInfo(
+		id: string,
+		data: { fullname?: string; phone?: string },
+	): Promise<RestaurantStaff>;
 }

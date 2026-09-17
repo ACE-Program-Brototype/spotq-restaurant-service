@@ -51,6 +51,22 @@ export abstract class PrismaBaseRepository<
 		}
 	}
 
+	public async update(
+		id: string,
+		data: Record<string, unknown>,
+	): Promise<TDomain> {
+		try {
+			const record = (await this.delegate.update({
+				where: { id },
+				data,
+			})) as TModel;
+			return this.mapper.toDomain(record);
+		} catch (error) {
+			this.handlePrismaError(error, id);
+			throw error;
+		}
+	}
+
 	public async delete(id: string): Promise<void> {
 		try {
 			await this.delegate.delete({ where: { id } });

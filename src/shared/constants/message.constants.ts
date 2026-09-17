@@ -20,6 +20,7 @@ export const messages = {
 	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
 	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
 	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
+	STAFF_UPDATED_SUCCESS: "Staff information updated successfully",
 	RESTAURANTS_FETCHED_SUCCESS: "Restaurants retrieved successfully",
 	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
 
@@ -103,6 +104,7 @@ export const messages = {
 	INVALID_RESTAURANT_DATA: "Invalid restaurant data provided",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
 	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
+	STAFF_ID_REQUIRED: "Staff ID is required",
 	RESTAURANT_ACCOUNT_BLOCKED:
 		"Restaurant account is blocked. Please contact support",
 	RESTAURANT_INACTIVE:
@@ -180,7 +182,6 @@ export const messages = {
 	INVALID_SORT_ORDER: "Invalid sort order",
 	INVALID_QUERY_PARAMETERS: "Invalid query parameters",
 	AT_LEAST_ONE_FIELD_REQUIRED: "At least one editable field must be provided",
-	STAFF_ID_REQUIRED: "Staff ID is required",
 	UNSUPPORTED_FIELDS_ERROR: "Request body contains unsupported fields",
 	INVALID_AVATAR_KEY: "Invalid avatar S3 key format",
 	AVATAR_RESTAURANT_MISMATCH:

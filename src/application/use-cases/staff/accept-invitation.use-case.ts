@@ -56,11 +56,10 @@ export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
 			throw new InvitationExpiredError();
 		}
 
-		const existingStaff =
-			await this.staffRepository.findByEmailAndRestaurantId(
-				invitation.email,
-				invitation.restaurantId,
-			);
+		const existingStaff = await this.staffRepository.findByEmailAndRestaurantId(
+			invitation.email,
+			invitation.restaurantId,
+		);
 		if (existingStaff) {
 			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 		}

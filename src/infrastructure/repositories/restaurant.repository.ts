@@ -594,4 +594,3 @@ export class RestaurantRepository implements IRestaurantRepository {
 		}
 	}
 }
-

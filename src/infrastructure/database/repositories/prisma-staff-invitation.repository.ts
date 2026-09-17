@@ -43,7 +43,10 @@ export class PrismaStaffInvitationRepository
 	): void {
 		const code = (error as { code?: string })?.code;
 		if (code === "P2002" || error instanceof PrismaClientKnownRequestError) {
-			if ((error as PrismaClientKnownRequestError).code === "P2002" || code === "P2002") {
+			if (
+				(error as PrismaClientKnownRequestError).code === "P2002" ||
+				code === "P2002"
+			) {
 				throw new StaffInvitationAlreadyPendingError(
 					messages.STAFF_INVITATION_ALREADY_PENDING,
 				);

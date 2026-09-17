@@ -38,7 +38,9 @@ adminRouter.get(
 	ADMIN_ROUTES.GET_RESTAURANT_DETAILS,
 	adminAuthMiddleware,
 	validateRequestParams(getRestaurantDetailsParamSchema),
-	adminRestaurantController.getRestaurantDetails.bind(adminRestaurantController),
+	adminRestaurantController.getRestaurantDetails.bind(
+		adminRestaurantController,
+	),
 );
 
 adminRouter.patch(
