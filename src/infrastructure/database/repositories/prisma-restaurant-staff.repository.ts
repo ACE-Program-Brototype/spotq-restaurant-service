@@ -1,5 +1,6 @@
 import { TYPES } from "@di/types.ts";
 import type {
+	Prisma,
 	PrismaClient,
 	RestaurantStaff as PrismaRestaurantStaff,
 } from "@prisma/client";
@@ -10,7 +11,10 @@ import {
 	StaffAlreadyExistsError,
 	StaffNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
-import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
+import type {
+	IRestaurantStaffRepository,
+	StaffFilterParams,
+} from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { StaffPersistenceMapper } from "../mappers/staff.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
@@ -101,6 +105,41 @@ export class PrismaRestaurantStaffRepository
 		});
 
 		return rawList.map((raw) => this.mapper.toDomain(raw));
+	}
+
+	public async findManyWithFilters(
+		params: StaffFilterParams,
+	): Promise<{ staff: RestaurantStaff[]; total: number }> {
+		const { restaurantId, page, limit, status, search, sortBy, sortOrder } =
+			params;
+
+		const where: Prisma.RestaurantStaffWhereInput = {
+			restaurantId,
+			...(status && { status }),
+			...(search && {
+				OR: [
+					{ fullname: { contains: search, mode: "insensitive" } },
+					{ email: { contains: search, mode: "insensitive" } },
+				],
+			}),
+		};
+
+		const skip = (page - 1) * limit;
+
+		const [rawList, total] = await Promise.all([
+			this.dbModel.findMany({
+				where,
+				orderBy: { [sortBy]: sortOrder },
+				skip,
+				take: limit,
+			}),
+			this.dbModel.count({ where }),
+		]);
+
+		return {
+			staff: rawList.map((raw) => this.mapper.toDomain(raw)),
+			total,
+		};
 	}
 
 	public async findByIdAndRestaurantId(

@@ -299,6 +299,8 @@ const envSchema = z.object({
 		.positive()
 		.default(15 * 60),
 
+	PAGINATION_DEFAULT_LIMIT: z.coerce.number().int().positive().default(20),
+	PAGINATION_MAX_LIMIT: z.coerce.number().int().positive().default(100),
 	BULLMQ_WORKER_CONCURRENCY: z.coerce.number().positive().default(5),
 	QUEUE_EMAIL_ATTEMPTS: z.coerce.number().positive().default(3),
 	QUEUE_EMAIL_BACKOFF_DELAY_MS: z.coerce.number().positive().default(2000),

@@ -4,6 +4,8 @@ import {
 	type AuthenticatedOwnerRequest,
 	restaurantOwnerAuthMiddleware,
 } from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("restaurantOwnerAuthMiddleware", () => {
 	let mockReq: Partial<AuthenticatedOwnerRequest>;
@@ -21,7 +23,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		mockNext = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
-	it("should return 401 when x-user-id header is missing", () => {
+	it("should return 401 when x-user-id and x-restaurant-id headers are missing", () => {
 		mockReq.headers = {
 			"x-user-role": "restaurant_owner",
 		};
@@ -32,13 +34,13 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			mockNext,
 		);
 
-		expect(mockRes.status).toHaveBeenCalledWith(401);
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
 		expect(mockRes.json).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: false,
-				statusCode: 401,
+				statusCode: HTTP_STATUS.UNAUTHORIZED,
 				code: "UNAUTHORIZED",
-				message: "Unauthorized request from gateway",
+				message: messages.GATEWAY_UNAUTHORIZED,
 			}),
 		);
 		expect(mockNext).not.toHaveBeenCalled();
@@ -55,13 +57,13 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			mockNext,
 		);
 
-		expect(mockRes.status).toHaveBeenCalledWith(403);
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
 		expect(mockRes.json).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: false,
-				statusCode: 403,
+				statusCode: HTTP_STATUS.FORBIDDEN,
 				code: "FORBIDDEN",
-				message: "Forbidden: Restaurant owner access required",
+				message: messages.OWNER_FORBIDDEN,
 			}),
 		);
 		expect(mockNext).not.toHaveBeenCalled();
@@ -79,13 +81,41 @@ describe("restaurantOwnerAuthMiddleware", () => {
 			mockNext,
 		);
 
-		expect(mockRes.status).toHaveBeenCalledWith(403);
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
 		expect(mockRes.json).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: false,
-				statusCode: 403,
+				statusCode: HTTP_STATUS.FORBIDDEN,
 				code: "FORBIDDEN",
-				message: "Forbidden: Restaurant owner access required",
+				message: messages.OWNER_FORBIDDEN,
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
+	it("should return 403 when req.params.restaurantId does not match x-restaurant-id", () => {
+		mockReq.headers = {
+			"x-user-id": "owner-123",
+			"x-restaurant-id": "rest-123",
+			"x-user-role": "restaurant_owner",
+		};
+		mockReq.params = {
+			restaurantId: "rest-999",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+				code: "FORBIDDEN",
+				message: messages.RESTAURANT_ACCESS_FORBIDDEN,
 			}),
 		);
 		expect(mockNext).not.toHaveBeenCalled();
@@ -130,7 +160,7 @@ describe("restaurantOwnerAuthMiddleware", () => {
 
 		expect(mockReq.user).toEqual({
 			userId: "owner-uuid-123",
-			restaurantId: "",
+			restaurantId: "owner-uuid-123",
 			email: "owner@restaurant.com",
 			role: "RESTAURANT_OWNER",
 		});

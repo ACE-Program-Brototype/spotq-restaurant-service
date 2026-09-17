@@ -156,6 +156,13 @@ export const messages = {
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+	STAFF_MEMBERS_RETRIEVED_SUCCESS: "Staff members retrieved successfully.",
+	NO_STAFF_MEMBERS_FOUND: "No staff members found.",
+	YOU_DO_NOT_HAVE_PERMISSION:
+		"You do not have permission to access this resource.",
+	INVALID_SORT_FIELD: "Invalid sort field",
+	INVALID_SORT_ORDER: "Invalid sort order",
+	INVALID_QUERY_PARAMETERS: "Invalid query parameters",
 	AT_LEAST_ONE_FIELD_REQUIRED: "At least one editable field must be provided",
 	STAFF_ID_REQUIRED: "Staff ID is required",
 	UNSUPPORTED_FIELDS_ERROR: "Request body contains unsupported fields",

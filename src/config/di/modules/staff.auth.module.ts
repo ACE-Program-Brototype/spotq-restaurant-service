@@ -11,6 +11,7 @@ import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-s
 import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port";
+import type { IListStaffMembersUseCase } from "@/application/ports/use-cases/list-staff-members.use-case.port";
 import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port";
 import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port";
 import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port";
@@ -27,6 +28,7 @@ import { GetStaffDetailUseCase } from "@/application/use-cases/staff/get-staff-d
 import { GetStaffProfileUseCase } from "@/application/use-cases/staff/get-staff-profile.use-case";
 import { InviteStaffUseCase } from "@/application/use-cases/staff/invite-staff.use-case";
 import { ListStaffInvitationsUseCase } from "@/application/use-cases/staff/list-staff-invitations.use-case";
+import { ListStaffMembersUseCase } from "@/application/use-cases/staff/list-staff-members.use-case";
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case";
 import { LogoutStaffUseCase } from "@/application/use-cases/staff/logout-staff.use-case";
 import { RefreshTokenUseCase } from "@/application/use-cases/staff/refresh-token.use-case";
@@ -149,6 +151,10 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 
 	bind<IListStaffInvitationsUseCase>(TYPES.ListStaffInvitationsUseCase)
 		.to(ListStaffInvitationsUseCase)
+		.inSingletonScope();
+
+	bind<IListStaffMembersUseCase>(TYPES.ListStaffMembersUseCase)
+		.to(ListStaffMembersUseCase)
 		.inSingletonScope();
 
 	bind<IGetStaffProfileUseCase>(TYPES.GetStaffProfileUseCase)

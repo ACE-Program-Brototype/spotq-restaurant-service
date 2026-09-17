@@ -34,6 +34,15 @@ export const StaffMapper = {
 		};
 	},
 
+	toItemDTO(entity: RestaurantStaff) {
+		return {
+			id: entity.id,
+			fullname: entity.fullname,
+			email: entity.email,
+			status: entity.status,
+		};
+	},
+
 	toUpdateProfileDTO(entity: RestaurantStaff): UpdateStaffProfileResponseDTO {
 		return {
 			id: entity.id,
