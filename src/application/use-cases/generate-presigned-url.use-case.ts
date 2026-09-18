@@ -15,6 +15,7 @@ import type {
 } from "@/application/ports/use-cases/generate-presigned-url.use-case.port";
 
 import { TYPES } from "@/config/di/types";
+import { FileCategory } from "@/shared/storage/file-category.enum";
 
 @injectable()
 export class GeneratePresignedUrlUseCase
@@ -77,6 +78,10 @@ export class GeneratePresignedUrlUseCase
 		fileCategory: string,
 		fileName: string,
 	): string {
+		if (fileCategory.toUpperCase() === FileCategory.PROFILE) {
+			return `${entityType}/${entityId}/profile/avatar.png`;
+		}
+
 		const sanitizedFileName = this.sanitizeFileName(fileName);
 		const fileId = crypto.randomUUID();
 
