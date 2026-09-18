@@ -208,7 +208,9 @@ export class RestaurantRepository implements IRestaurantRepository {
 			profile: raw.profile
 				? {
 						coverImage: raw.profile.coverImageKey,
-						avatar: raw.profile.logoKey,
+						avatar: raw.profile.avatarUpdatedAt
+							? `restaurants/${raw.id}/profile/avatar.png`
+							: null,
 						description: raw.profile.description,
 						fssaiNumber: raw.profile.fssaiNumber,
 						registerNumber: raw.profile.registerNumber,
@@ -660,7 +662,8 @@ export class RestaurantRepository implements IRestaurantRepository {
 				ownerName: raw.ownerName,
 			},
 			profile: {
-				logo: raw.profile?.logoKey ?? null,
+				logo: null,
+				avatarUpdatedAt: raw.profile?.avatarUpdatedAt ?? null,
 				coverImage: raw.profile?.coverImageKey ?? null,
 				description: raw.profile?.description ?? null,
 				cuisineType:
@@ -710,8 +713,17 @@ export class RestaurantRepository implements IRestaurantRepository {
 
 			if (data.profile) {
 				const profileData: Record<string, unknown> = {};
-				if (data.profile.logoKey !== undefined)
-					profileData.logoKey = data.profile.logoKey;
+				if (data.profile.avatarUpdatedAt !== undefined) {
+					profileData.avatarUpdatedAt = data.profile.avatarUpdatedAt;
+				} else if (data.profile.hasAvatar !== undefined) {
+					profileData.avatarUpdatedAt = data.profile.hasAvatar
+						? new Date()
+						: null;
+				} else if (data.profile.logoKey !== undefined) {
+					profileData.avatarUpdatedAt = data.profile.logoKey
+						? new Date()
+						: null;
+				}
 				if (data.profile.coverImageKey !== undefined)
 					profileData.coverImageKey = data.profile.coverImageKey;
 				if (data.profile.description !== undefined)
