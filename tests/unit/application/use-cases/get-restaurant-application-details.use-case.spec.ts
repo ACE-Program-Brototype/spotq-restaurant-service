@@ -1,5 +1,5 @@
-import { GetRestaurantApplicationDetailsUseCase } from "@/application/use-cases/admin/get-restaurant-application-details.use-case.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import { GetRestaurantApplicationDetailsUseCase } from "@/application/use-cases/admin/get-restaurant-application-details.use-case.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 
 describe("GetRestaurantApplicationDetailsUseCase", () => {

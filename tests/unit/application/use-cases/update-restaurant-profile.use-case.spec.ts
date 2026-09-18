@@ -17,7 +17,8 @@ describe("UpdateRestaurantProfileUseCase", () => {
 
 		mockStorageService = {
 			generatePresignedGetUrl: jest.fn().mockResolvedValue({
-				downloadUrl: "https://s3.amazonaws.com/test-bucket/avatar-presigned-url",
+				downloadUrl:
+					"https://s3.amazonaws.com/test-bucket/avatar-presigned-url",
 				expiresInSeconds: 900,
 			}),
 			generatePresignedUploadUrl: jest.fn(),

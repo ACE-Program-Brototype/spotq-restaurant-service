@@ -45,7 +45,10 @@ export class UpdateRestaurantProfileUseCase
 				} catch {
 					result.profile.logo = null;
 				}
-			} else if (result.profile?.logo && !result.profile.logo.startsWith("http")) {
+			} else if (
+				result.profile?.logo &&
+				!result.profile.logo.startsWith("http")
+			) {
 				try {
 					const { downloadUrl } =
 						await this.storageService.generatePresignedGetUrl({

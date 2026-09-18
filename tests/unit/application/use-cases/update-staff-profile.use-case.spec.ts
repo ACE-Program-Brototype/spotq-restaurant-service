@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-staff-profile.use-case.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import {
@@ -12,6 +13,11 @@ import type { IRestaurantStaffRepository } from "@/domain/repositories/restauran
 
 describe("UpdateStaffProfileUseCase", () => {
 	let staffRepository: jest.Mocked<Required<IRestaurantStaffRepository>>;
+	let storageService: {
+		generatePresignedGetUrl: jest.Mock<
+			() => Promise<{ downloadUrl: string; expiresIn: number }>
+		>;
+	};
 	let useCase: UpdateStaffProfileUseCase;
 
 	const mockRestaurantId = "11111111-1111-1111-1111-111111111111";
@@ -27,7 +33,7 @@ describe("UpdateStaffProfileUseCase", () => {
 			fullname: "Original Name",
 			email: "john@spicegarden.com",
 			phone: "+919876543210",
-			avatarUrl: null,
+			avatarUpdatedAt: null,
 			passwordHash: "hash",
 			role: "STAFF",
 			status,
@@ -49,29 +55,61 @@ describe("UpdateStaffProfileUseCase", () => {
 			delete: jest.fn(),
 		};
 
-		useCase = new UpdateStaffProfileUseCase(staffRepository);
+		storageService = {
+			generatePresignedGetUrl:
+				jest.fn<() => Promise<{ downloadUrl: string; expiresIn: number }>>(),
+		};
+
+		useCase = new UpdateStaffProfileUseCase(
+			staffRepository,
+			storageService as unknown as IStorageService,
+		);
 	});
 
-	it("should successfully update staff profile with valid data", async () => {
+	it("should successfully update staff profile and presign avatar url when avatar is updated", async () => {
 		const staff = createMockStaff("ACTIVE");
 		staffRepository.findById.mockResolvedValue(staff);
 		staffRepository.save.mockResolvedValue(undefined);
+		storageService.generatePresignedGetUrl.mockResolvedValue({
+			downloadUrl: `https://s3.amazonaws.com/spotq/restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar.png?token=xyz`,
+			expiresIn: 3600,
+		});
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
 			staffId: mockStaffId,
 			fullname: "Updated Name",
 			phone: "+919876543211",
-			avatarUrl: `restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar/new.png`,
+			hasAvatar: true,
 		});
 
 		expect(staffRepository.findById).toHaveBeenCalledWith(mockStaffId);
 		expect(staffRepository.save).toHaveBeenCalledWith(staff);
 		expect(result.fullname).toBe("Updated Name");
 		expect(result.phone).toBe("+919876543211");
+		expect(storageService.generatePresignedGetUrl).toHaveBeenCalledWith({
+			key: `restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar.png`,
+		});
 		expect(result.avatar_url).toBe(
-			`restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar/new.png`,
+			`https://s3.amazonaws.com/spotq/restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar.png?token=xyz`,
 		);
+	});
+
+	it("should support removing avatar when hasAvatar is false", async () => {
+		const staff = createMockStaff("ACTIVE");
+		staff.updateProfile(undefined, undefined, new Date());
+		staffRepository.findById.mockResolvedValue(staff);
+		staffRepository.save.mockResolvedValue(undefined);
+
+		const result = await useCase.execute({
+			restaurantId: mockRestaurantId,
+			staffId: mockStaffId,
+			hasAvatar: false,
+		});
+
+		expect(staff.avatarUpdatedAt).toBeNull();
+		expect(storageService.generatePresignedGetUrl).not.toHaveBeenCalled();
+		expect(result.avatar_url).toBeNull();
 	});
 
 	it("should throw InvalidStaffDataError when no editable fields are provided", async () => {
@@ -134,29 +172,5 @@ describe("UpdateStaffProfileUseCase", () => {
 				fullname: "New Name",
 			}),
 		).rejects.toThrow(StaffForbiddenError);
-	});
-
-	it("should throw StaffForbiddenError when avatar key belongs to another restaurant", async () => {
-		await expect(
-			useCase.execute({
-				restaurantId: mockRestaurantId,
-				staffId: mockStaffId,
-				avatarUrl: `restaurants/other-res/staff/${mockStaffId}/avatar.png`,
-			}),
-		).rejects.toThrow(StaffForbiddenError);
-
-		expect(staffRepository.findById).not.toHaveBeenCalled();
-	});
-
-	it("should throw StaffForbiddenError when avatar key belongs to another staff member", async () => {
-		await expect(
-			useCase.execute({
-				restaurantId: mockRestaurantId,
-				staffId: mockStaffId,
-				avatarUrl: `restaurants/${mockRestaurantId}/staff/other-staff/avatar.png`,
-			}),
-		).rejects.toThrow(StaffForbiddenError);
-
-		expect(staffRepository.findById).not.toHaveBeenCalled();
 	});
 });

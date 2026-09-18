@@ -1,5 +1,5 @@
-import { ApproveRestaurantUseCase } from "@/application/use-cases/admin/approve-restaurant.use-case.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import { ApproveRestaurantUseCase } from "@/application/use-cases/admin/approve-restaurant.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import {
 	InvalidOnboardingStatusError,
@@ -137,4 +137,3 @@ describe("ApproveRestaurantUseCase", () => {
 		expect(result.reviewedAt).toBeInstanceOf(Date);
 	});
 });
-
