@@ -54,6 +54,7 @@ export class RestaurantAuthController {
 			sameSite: env.COOKIE_SAME_SITE,
 			maxAge: env.COOKIE_MAX_AGE_MS,
 			path: env.COOKIE_PATH || "/",
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
 		});
 	}
 
@@ -84,9 +85,11 @@ export class RestaurantAuthController {
 			this.setRefreshCookie(res, result.refreshToken);
 		}
 
+		const { refreshToken: _refreshToken, ...responsePayload } = result;
+
 		return sendSuccessResponse(
 			res,
-			result,
+			responsePayload,
 			messages.EMAIL_VERIFIED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
