@@ -81,12 +81,12 @@ model RestaurantStaff {
   fullname     String      @map("fullname")
   email        String      @map("email")
   phone        String      @map("phone")
-  avatarUrl    String?     @map("avatar_url")
-  passwordHash String      @map("password_hash")
-  role         StaffRole   @default(STAFF)
-  status       StaffStatus @default(ACTIVE)
-  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  avatarUpdatedAt DateTime?   @map("avatar_updated_at") @db.Timestamptz(3)
+  passwordHash    String      @map("password_hash")
+  role            StaffRole   @default(STAFF)
+  status          StaffStatus @default(ACTIVE)
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
