@@ -35,7 +35,17 @@ export class UpdateRestaurantProfileUseCase
 		);
 
 		if (this.storageService) {
-			if (result.profile?.logo && !result.profile.logo.startsWith("http")) {
+			if (result.profile?.avatarUpdatedAt) {
+				try {
+					const { downloadUrl } =
+						await this.storageService.generatePresignedGetUrl({
+							key: `restaurants/${restaurantId}/profile/avatar.png`,
+						});
+					result.profile.logo = downloadUrl;
+				} catch {
+					result.profile.logo = null;
+				}
+			} else if (result.profile?.logo && !result.profile.logo.startsWith("http")) {
 				try {
 					const { downloadUrl } =
 						await this.storageService.generatePresignedGetUrl({
@@ -43,8 +53,10 @@ export class UpdateRestaurantProfileUseCase
 						});
 					result.profile.logo = downloadUrl;
 				} catch {
-					// Fall back to original key if presigning fails
+					result.profile.logo = null;
 				}
+			} else if (result.profile) {
+				result.profile.logo = null;
 			}
 
 			if (
