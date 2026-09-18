@@ -127,14 +127,14 @@ model RestaurantProfile {
   id           String @id @default(uuid()) @db.Uuid
   restaurantId String @unique @map("restaurant_id") @db.Uuid
 
-  logoKey        String? @map("logo_key")
-  coverImageKey  String? @map("cover_image_key")
-  description    String? @map("description")
-  cuisineType    String? @map("cuisine_type")
-  averageCost    Int?    @default(0) @map("average_cost")
-  fssaiNumber    String? @map("fssai_number")
-  registerNumber String? @map("register_number")
-  gstNumber      String? @map("gst_number")
+  avatarUpdatedAt DateTime? @map("avatar_updated_at") @db.Timestamptz(3)
+  coverImageKey   String?   @map("cover_image_key")
+  description     String?   @map("description")
+  cuisineType     String?   @map("cuisine_type")
+  averageCost     Int?      @default(0) @map("average_cost")
+  fssaiNumber     String?   @map("fssai_number")
+  registerNumber  String?   @map("register_number")
+  gstNumber       String?   @map("gst_number")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
