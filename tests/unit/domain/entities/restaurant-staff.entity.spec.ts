@@ -34,7 +34,7 @@ describe("RestaurantStaff Entity", () => {
 			fullname: "Bob Chef",
 			email: "bob@spotq.com",
 			phone: "+1234567891",
-			avatarUrl: "https://avatar.com/img.jpg",
+			avatarUpdatedAt: pastDate,
 			passwordHash: "hash123",
 			role: "STAFF",
 			status: "ACTIVE",
@@ -44,6 +44,7 @@ describe("RestaurantStaff Entity", () => {
 
 		expect(reconstituted.id).toBe("b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01");
 		expect(reconstituted.fullname).toBe("Bob Chef");
+		expect(reconstituted.avatarUpdatedAt).toEqual(pastDate);
 		expect(reconstituted.createdAt).toEqual(pastDate);
 	});
 
@@ -65,11 +66,12 @@ describe("RestaurantStaff Entity", () => {
 
 	it("should support domain mutations (updateProfile, changePassword, activate, deactivate, suspend)", () => {
 		const staff = RestaurantStaff.create(validProps);
+		const avatarDate = new Date("2026-09-18T12:00:00Z");
 
-		staff.updateProfile("Alice Wonderland", "+9876543210", "https://img.com");
+		staff.updateProfile("Alice Wonderland", "+9876543210", avatarDate);
 		expect(staff.fullname).toBe("Alice Wonderland");
 		expect(staff.phone).toBe("+9876543210");
-		expect(staff.avatarUrl).toBe("https://img.com");
+		expect(staff.avatarUpdatedAt).toEqual(avatarDate);
 
 		staff.changePassword("new-hash-12345");
 		expect(staff.passwordHash).toBe("new-hash-12345");
