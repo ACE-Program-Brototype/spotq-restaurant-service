@@ -1,11 +1,13 @@
 import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IStorageService } from "@/application/ports/services/storage.service.port";
 import { UpdateRestaurantProfileUseCase } from "@/application/use-cases/update-restaurant-profile.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 
 describe("UpdateRestaurantProfileUseCase", () => {
 	let useCase: UpdateRestaurantProfileUseCase;
 	let mockRestaurantRepo: jest.Mocked<IRestaurantRepository>;
+	let mockStorageService: jest.Mocked<IStorageService>;
 
 	beforeEach(() => {
 		mockRestaurantRepo = {
@@ -13,7 +15,18 @@ describe("UpdateRestaurantProfileUseCase", () => {
 			updateProfileDetails: jest.fn(),
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
-		useCase = new UpdateRestaurantProfileUseCase(mockRestaurantRepo);
+		mockStorageService = {
+			generatePresignedGetUrl: jest.fn().mockResolvedValue({
+				downloadUrl: "https://s3.amazonaws.com/test-bucket/avatar-presigned-url",
+				expiresInSeconds: 900,
+			}),
+			generatePresignedUploadUrl: jest.fn(),
+		};
+
+		useCase = new UpdateRestaurantProfileUseCase(
+			mockRestaurantRepo,
+			mockStorageService,
+		);
 	});
 
 	const mockDto: UpdateRestaurantProfileDto = {
@@ -26,7 +39,7 @@ describe("UpdateRestaurantProfileUseCase", () => {
 			description: "Updated description",
 			cuisineType: "North Indian",
 			averageCost: 750,
-			logoKey: "logo-key-new",
+			hasAvatar: true,
 			coverImageKey: "cover-key-new",
 		},
 		settings: {
@@ -55,7 +68,7 @@ describe("UpdateRestaurantProfileUseCase", () => {
 		expect(mockRestaurantRepo.updateProfileDetails).not.toHaveBeenCalled();
 	});
 
-	it("updates restaurant profile details successfully", async () => {
+	it("updates restaurant profile details and presigns avatar when avatarUpdatedAt is set", async () => {
 		const mockRestaurant = Restaurant.reconstitute({
 			id: "res-123",
 			restaurantName: "Old Name",
@@ -78,7 +91,8 @@ describe("UpdateRestaurantProfileUseCase", () => {
 				ownerName: "Jane Doe",
 			},
 			profile: {
-				logo: "logo-key-new",
+				logo: null,
+				avatarUpdatedAt: new Date("2026-09-18T10:00:00Z"),
 				coverImage: "cover-key-new",
 				description: "Updated description",
 				cuisineType: "North Indian",
@@ -110,11 +124,16 @@ describe("UpdateRestaurantProfileUseCase", () => {
 
 		const result = await useCase.execute("res-123", mockDto);
 
-		expect(result).toEqual(mockResponse);
 		expect(mockRestaurantRepo.findById).toHaveBeenCalledWith("res-123");
 		expect(mockRestaurantRepo.updateProfileDetails).toHaveBeenCalledWith(
 			"res-123",
 			mockDto,
+		);
+		expect(mockStorageService.generatePresignedGetUrl).toHaveBeenCalledWith({
+			key: "restaurants/res-123/profile/avatar.png",
+		});
+		expect(result.profile.logo).toBe(
+			"https://s3.amazonaws.com/test-bucket/avatar-presigned-url",
 		);
 	});
 });

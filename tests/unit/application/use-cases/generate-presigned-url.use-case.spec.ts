@@ -61,6 +61,36 @@ describe("GeneratePresignedUrlUseCase", () => {
 		);
 	});
 
+	it("generates deterministic presigned URL key for PROFILE category following avatar.png convention", async () => {
+		const dto = {
+			entity_type: "restaurants",
+			entity_id: "e4a77d13-6d0e-4a6a-8d19-58b1968817a0",
+			file_name: "custom_logo.png",
+			content_type: "image/png",
+			file_category: FileCategory.PROFILE,
+			file_size: 2048,
+		};
+
+		const result = await useCase.execute(dto, {
+			restaurantId: "e4a77d13-6d0e-4a6a-8d19-58b1968817a0",
+		});
+
+		expect(mockFilePolicyValidator.validate).toHaveBeenCalledWith({
+			fileCategory: FileCategory.PROFILE,
+			contentType: "image/png",
+			fileSize: 2048,
+		});
+
+		expect(mockStorageService.generatePresignedUploadUrl).toHaveBeenCalledWith({
+			key: "restaurants/e4a77d13-6d0e-4a6a-8d19-58b1968817a0/profile/avatar.png",
+			contentType: "image/png",
+		});
+
+		expect(result.s3ObjectKey).toBe(
+			"restaurants/e4a77d13-6d0e-4a6a-8d19-58b1968817a0/profile/avatar.png",
+		);
+	});
+
 	it("rejects unauthorized access when entity_id does not match authContext.restaurantId", async () => {
 		const dto = {
 			entity_type: "restaurants",
