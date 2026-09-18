@@ -17,8 +17,8 @@ import type { ISendRestaurantEmailOtpUseCase } from "@/application/ports/use-cas
 import type { IUpdateRestaurantProfileUseCase } from "@/application/ports/use-cases/update-restaurant-profile.use-case.port";
 import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port";
 import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case";
-import { GetRestaurantProfileUseCase } from "@/application/use-cases/get-restaurant-profile.use-case";
 import { ListRestaurantsUseCase } from "@/application/use-cases/admin/list-restaurants.use-case";
+import { GetRestaurantProfileUseCase } from "@/application/use-cases/get-restaurant-profile.use-case";
 import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case";
 import { GetRestaurantVerificationStatusUseCase } from "@/application/use-cases/get-verification-status.use-case";
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";

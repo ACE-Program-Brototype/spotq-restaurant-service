@@ -30,6 +30,8 @@ export const updateStaffProfileBodySchema = z
 			)
 			.transform((val) => StaffPhone.normalize(val))
 			.optional(),
+		avatarUpdatedAt: z.coerce.date().nullable().optional(),
+		hasAvatar: z.boolean().nullable().optional(),
 		avatar_url: z.string().trim().min(1).max(500).nullable().optional(),
 		avatarUrl: z.string().trim().min(1).max(500).nullable().optional(),
 	})
@@ -39,6 +41,8 @@ export const updateStaffProfileBodySchema = z
 			data.name !== undefined ||
 			data.fullname !== undefined ||
 			data.phone !== undefined ||
+			data.avatarUpdatedAt !== undefined ||
+			data.hasAvatar !== undefined ||
 			data.avatar_url !== undefined ||
 			data.avatarUrl !== undefined,
 		messages.AT_LEAST_ONE_FIELD_REQUIRED,

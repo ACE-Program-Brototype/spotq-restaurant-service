@@ -61,7 +61,11 @@ export const listRestaurantApplicationsSchema = z
 	})
 	.transform((data) => {
 		let fromDate = data.fromDate;
-		if (!fromDate && data.from_date && !Number.isNaN(Date.parse(data.from_date))) {
+		if (
+			!fromDate &&
+			data.from_date &&
+			!Number.isNaN(Date.parse(data.from_date))
+		) {
 			fromDate = new Date(data.from_date);
 		}
 
@@ -78,7 +82,8 @@ export const listRestaurantApplicationsSchema = z
 			const s = data.sort_by;
 			if (s === "created_at" || s === "createdAt") sortBy = "createdAt";
 			else if (s === "updated_at" || s === "updatedAt") sortBy = "updatedAt";
-			else if (s === "restaurant_name" || s === "restaurantName") sortBy = "restaurantName";
+			else if (s === "restaurant_name" || s === "restaurantName")
+				sortBy = "restaurantName";
 			else if (s === "status") sortBy = "status";
 		}
 

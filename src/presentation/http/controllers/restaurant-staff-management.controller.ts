@@ -143,7 +143,10 @@ export class RestaurantStaffManagementController {
 				? req.params.staffId[0]
 				: req.params.staffId;
 
-			if (paramRestaurantId && paramRestaurantId !== authenticatedRestaurantId) {
+			if (
+				paramRestaurantId &&
+				paramRestaurantId !== authenticatedRestaurantId
+			) {
 				res
 					.status(HTTP_STATUS.FORBIDDEN)
 					.json(

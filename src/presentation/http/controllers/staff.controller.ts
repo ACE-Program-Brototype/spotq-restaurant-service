@@ -490,13 +490,23 @@ export class StaffController {
 				throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
 			}
 
-			const { name, fullname, phone, avatar_url, avatarUrl } = req.body;
+			const {
+				name,
+				fullname,
+				phone,
+				avatar_url,
+				avatarUrl,
+				avatarUpdatedAt,
+				hasAvatar,
+			} = req.body;
 
 			const profile = await this.updateStaffProfileUseCase.execute({
 				restaurantId,
 				staffId,
 				name: name ?? fullname,
 				phone,
+				avatarUpdatedAt,
+				hasAvatar,
 				avatar_url: avatar_url !== undefined ? avatar_url : avatarUrl,
 			});
 

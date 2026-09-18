@@ -8,4 +8,3 @@ export type ApproveRestaurantParam = z.infer<
 	typeof approveRestaurantParamSchema
 >;
 export type ApproveRestaurantParams = ApproveRestaurantParam;
-
