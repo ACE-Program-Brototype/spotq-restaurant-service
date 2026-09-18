@@ -31,7 +31,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 		fullname: "John Doe",
 		email: "john@example.com",
 		phone: "+919876543210",
-		avatarUrl: null,
+		avatarUpdatedAt: null,
 		passwordHash: "hashed_pwd",
 		role: "STAFF",
 		status: "ACTIVE",
