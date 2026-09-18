@@ -198,4 +198,17 @@ describe("ListStaffMembersUseCase", () => {
 		expect(result.pagination.total).toBe(0);
 		expect(result.pagination.totalPages).toBe(0);
 	});
+
+	it("should return empty list and zero total when status is REMOVED", async () => {
+		restaurantRepository.findById.mockResolvedValue(mockRestaurant);
+
+		const result = await useCase.execute({
+			restaurantId: mockRestaurantId,
+			status: "REMOVED",
+		});
+
+		expect(result.staff).toHaveLength(0);
+		expect(result.pagination.total).toBe(0);
+		expect(staffRepository.findManyWithFilters).not.toHaveBeenCalled();
+	});
 });

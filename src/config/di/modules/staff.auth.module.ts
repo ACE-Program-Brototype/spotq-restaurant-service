@@ -22,6 +22,7 @@ import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port";
 import type { IUpdateStaffInfoUseCase } from "@/application/ports/use-cases/update-staff-info.use-case.port";
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port";
+import type { IUpdateStaffStatusUseCase } from "@/application/ports/use-cases/update-staff-status.use-case.port";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port";
 import { AcceptInvitationUseCase } from "@/application/use-cases/staff/accept-invitation.use-case";
@@ -41,6 +42,7 @@ import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-passwo
 import { RevokeStaffInvitationUseCase } from "@/application/use-cases/staff/revoke-staff-invitation.use-case";
 import { UpdateStaffInfoUseCase } from "@/application/use-cases/staff/update-staff-info.use-case";
 import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-staff-profile.use-case";
+import { UpdateStaffStatusUseCase } from "@/application/use-cases/staff/update-staff-status.use-case";
 import { ValidateInvitationUseCase } from "@/application/use-cases/staff/validate-invitation.use-case";
 import { VerifyForgotPasswordOtpUseCase } from "@/application/use-cases/staff/verify-forgot-password-otp.use-case";
 import { TYPES } from "@/config/di/types";
@@ -163,6 +165,10 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 
 	bind<IGetStaffProfileUseCase>(TYPES.GetStaffProfileUseCase)
 		.to(GetStaffProfileUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateStaffStatusUseCase>(TYPES.UpdateStaffStatusUseCase)
+		.to(UpdateStaffStatusUseCase)
 		.inSingletonScope();
 
 	bind<IRemoveStaffUseCase>(TYPES.RemoveStaffUseCase)
