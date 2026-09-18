@@ -7,6 +7,7 @@ export interface RestaurantDetailsDto {
 
 export interface ProfileDetailsDto {
 	logo: string | null;
+	avatarUpdatedAt?: Date | null;
 	coverImage: string | null;
 	description: string | null;
 	cuisineType: string | null;
