@@ -4,6 +4,7 @@ import type {
 } from "@/application/dtos/restaurant/generate-presigned-url.dto";
 
 export interface AuthContext {
+	userId?: string;
 	restaurantId?: string;
 	email?: string;
 	role?: string;

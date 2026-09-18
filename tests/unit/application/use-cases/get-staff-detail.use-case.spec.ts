@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import { GetStaffDetailUseCase } from "@/application/use-cases/staff/get-staff-detail.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
@@ -36,13 +37,19 @@ describe("GetStaffDetailUseCase", () => {
 		fullname: "Ravi Kumar",
 		email: "ravi@example.com",
 		phone: "+919876543210",
-		avatarUrl: null,
+		avatarUpdatedAt: new Date("2026-07-14T10:12:00.000Z"),
 		passwordHash: "hashed-password",
 		role: "STAFF",
 		status: "ACTIVE",
 		createdAt: new Date("2026-07-14T10:12:00.000Z"),
 		updatedAt: new Date("2026-07-20T08:30:00.000Z"),
 	});
+
+	let storageService: {
+		generatePresignedGetUrl: jest.Mock<
+			() => Promise<{ downloadUrl: string; expiresIn: number }>
+		>;
+	};
 
 	beforeEach(() => {
 		staffRepository = {
@@ -75,12 +82,26 @@ describe("GetStaffDetailUseCase", () => {
 			findByIdWithDetails: jest.fn(),
 		};
 
-		useCase = new GetStaffDetailUseCase(staffRepository, restaurantRepository);
+		storageService = {
+			generatePresignedGetUrl:
+				jest.fn<() => Promise<{ downloadUrl: string; expiresIn: number }>>(),
+		};
+
+		useCase = new GetStaffDetailUseCase(
+			staffRepository,
+			restaurantRepository,
+			storageService as unknown as IStorageService,
+		);
 	});
 
-	it("should retrieve staff detail successfully and return safe non-sensitive fields", async () => {
+	it("should retrieve staff detail successfully and return safe non-sensitive fields with presigned avatarUrl", async () => {
 		restaurantRepository.findById.mockResolvedValue(dummyRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(dummyStaff);
+		storageService.generatePresignedGetUrl.mockResolvedValue({
+			downloadUrl:
+				"https://s3.amazonaws.com/spotq/restaurants/res_01ABC/staff/stf_02AB/avatar.png?token=xyz",
+			expiresIn: 3600,
+		});
 
 		const result = await useCase.execute({
 			restaurantId: "res_01ABC",
@@ -92,13 +113,17 @@ describe("GetStaffDetailUseCase", () => {
 			"stf_02AB",
 			"res_01ABC",
 		);
+		expect(storageService.generatePresignedGetUrl).toHaveBeenCalledWith({
+			key: "restaurants/res_01ABC/staff/stf_02AB/avatar.png",
+		});
 		expect(result).toEqual({
 			id: "stf_02AB",
 			restaurantId: "res_01ABC",
 			fullname: "Ravi Kumar",
 			email: "ravi@example.com",
 			phone: "+919876543210",
-			avatarUrl: null,
+			avatarUrl:
+				"https://s3.amazonaws.com/spotq/restaurants/res_01ABC/staff/stf_02AB/avatar.png?token=xyz",
 			role: "STAFF",
 			status: "ACTIVE",
 			createdAt: "2026-07-14T10:12:00.000Z",

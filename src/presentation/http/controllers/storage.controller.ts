@@ -1,6 +1,9 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-cases/generate-presigned-url.use-case.port.ts";
+import type {
+	AuthContext,
+	IGeneratePresignedUrlUseCase,
+} from "@/application/ports/use-cases/generate-presigned-url.use-case.port.ts";
 import type { IGetPresignedUrlUseCase } from "@/application/ports/use-cases/get-presigned-url.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -17,9 +20,7 @@ export class StorageController {
 	) {}
 
 	async generatePresignedUrl(req: Request, res: Response): Promise<Response> {
-		const userContext = (
-			req as Request & { user?: { restaurantId?: string; email?: string } }
-		).user;
+		const userContext = (req as Request & { user?: AuthContext }).user;
 
 		const result = await this.generatePresignedUrlUseCase.execute(
 			req.body,

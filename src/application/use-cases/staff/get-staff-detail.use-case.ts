@@ -1,8 +1,9 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import type { GetStaffDetailDTO } from "@/application/dtos/staff/get-staff-detail.dto.ts";
 import type { StaffDetailResponseDTO } from "@/application/dtos/staff/staff-detail-response.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -19,6 +20,9 @@ export class GetStaffDetailUseCase implements IGetStaffDetailUseCase {
 		private readonly staffRepository: IRestaurantStaffRepository,
 		@inject(TYPES.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
+		@inject(TYPES.Services.Storage)
+		@optional()
+		private readonly storageService?: IStorageService,
 	) {}
 
 	public async execute(
@@ -41,6 +45,19 @@ export class GetStaffDetailUseCase implements IGetStaffDetailUseCase {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 
-		return StaffMapper.toDetailDTO(staff);
+		let avatarUrl: string | null = null;
+		if (staff.avatarUpdatedAt && this.storageService) {
+			try {
+				const { downloadUrl } =
+					await this.storageService.generatePresignedGetUrl({
+						key: `restaurants/${restaurantId}/staff/${staff.id}/avatar.png`,
+					});
+				avatarUrl = downloadUrl;
+			} catch {
+				avatarUrl = null;
+			}
+		}
+
+		return StaffMapper.toDetailDTO(staff, avatarUrl);
 	}
 }

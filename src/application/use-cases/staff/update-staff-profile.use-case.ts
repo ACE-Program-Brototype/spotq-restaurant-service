@@ -1,7 +1,8 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import type { UpdateStaffProfileDTO } from "@/application/dtos/staff/update-staff-profile.dto.ts";
 import type { UpdateStaffProfileResponseDTO } from "@/application/dtos/staff/update-staff-profile-response.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -12,7 +13,6 @@ import {
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
-import { StaffAvatarKey } from "@/domain/value-objects/avatar-key.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -20,6 +20,9 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 	constructor(
 		@inject(TYPES.RestaurantStaffRepository)
 		private readonly staffRepository: IRestaurantStaffRepository,
+		@inject(TYPES.Services.Storage)
+		@optional()
+		private readonly storageService?: IStorageService,
 	) {}
 
 	public async execute(
@@ -29,24 +32,24 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 
 		const finalName = dto.name ?? dto.fullname;
 		const finalPhone = dto.phone;
-		const finalAvatarUrl =
-			dto.avatar_url !== undefined ? dto.avatar_url : dto.avatarUrl;
+
+		let avatarUpdatedAt: Date | null | undefined;
+		if (dto.avatarUpdatedAt !== undefined) {
+			avatarUpdatedAt = dto.avatarUpdatedAt;
+		} else if (dto.hasAvatar !== undefined) {
+			avatarUpdatedAt = dto.hasAvatar ? new Date() : null;
+		} else if (dto.avatar_url !== undefined || dto.avatarUrl !== undefined) {
+			const rawAvatar =
+				dto.avatar_url !== undefined ? dto.avatar_url : dto.avatarUrl;
+			avatarUpdatedAt = rawAvatar ? new Date() : null;
+		}
 
 		if (
 			finalName === undefined &&
 			finalPhone === undefined &&
-			finalAvatarUrl === undefined
+			avatarUpdatedAt === undefined
 		) {
 			throw new InvalidStaffDataError(messages.AT_LEAST_ONE_FIELD_REQUIRED);
-		}
-
-		let validatedAvatarUrl = finalAvatarUrl;
-		if (finalAvatarUrl) {
-			const avatarKey = StaffAvatarKey.create(finalAvatarUrl, {
-				restaurantId,
-				staffId,
-			});
-			validatedAvatarUrl = avatarKey.value;
 		}
 
 		const staff = await this.staffRepository.findById(staffId);
@@ -67,10 +70,23 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 			throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
 		}
 
-		staff.updateProfile(finalName, finalPhone, validatedAvatarUrl);
+		staff.updateProfile(finalName, finalPhone, avatarUpdatedAt);
 
 		await this.staffRepository.save(staff);
 
-		return StaffMapper.toUpdateProfileDTO(staff);
+		let avatarUrl: string | null = null;
+		if (staff.avatarUpdatedAt && this.storageService) {
+			try {
+				const { downloadUrl } =
+					await this.storageService.generatePresignedGetUrl({
+						key: `restaurants/${staff.restaurantId}/staff/${staff.id}/avatar.png`,
+					});
+				avatarUrl = downloadUrl;
+			} catch {
+				avatarUrl = null;
+			}
+		}
+
+		return StaffMapper.toUpdateProfileDTO(staff, avatarUrl);
 	}
 }

@@ -5,6 +5,8 @@ export interface UpdateRestaurantDto {
 }
 
 export interface UpdateProfileDto {
+	avatarUpdatedAt?: Date | null;
+	hasAvatar?: boolean | null;
 	logoKey?: string | null;
 	coverImageKey?: string | null;
 	description?: string | null;

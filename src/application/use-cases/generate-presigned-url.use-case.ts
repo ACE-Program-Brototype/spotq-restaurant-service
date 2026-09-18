@@ -15,6 +15,7 @@ import type {
 } from "@/application/ports/use-cases/generate-presigned-url.use-case.port";
 
 import { TYPES } from "@/config/di/types";
+import { FileCategory } from "@/shared/storage/file-category.enum";
 
 @injectable()
 export class GeneratePresignedUrlUseCase
@@ -56,6 +57,7 @@ export class GeneratePresignedUrlUseCase
 			sanitizedEntityId,
 			dto.file_category,
 			dto.file_name,
+			authContext,
 		);
 
 		const { uploadUrl, expiresInSeconds } =
@@ -76,7 +78,24 @@ export class GeneratePresignedUrlUseCase
 		entityId: string,
 		fileCategory: string,
 		fileName: string,
+		authContext?: AuthContext,
 	): string {
+		if (fileCategory.toUpperCase() === FileCategory.PROFILE) {
+			if (authContext?.role === "STAFF" || entityType === "staff") {
+				const restaurantId =
+					authContext?.restaurantId ||
+					(entityType === "restaurants" || entityType === "restaurant"
+						? entityId
+						: "");
+				const staffId =
+					entityType === "staff"
+						? entityId
+						: authContext?.userId || entityId;
+				return `restaurants/${restaurantId}/staff/${staffId}/avatar.png`;
+			}
+			return `${entityType}/${entityId}/profile/avatar.png`;
+		}
+
 		const sanitizedFileName = this.sanitizeFileName(fileName);
 		const fileId = crypto.randomUUID();
 

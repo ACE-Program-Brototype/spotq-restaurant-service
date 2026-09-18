@@ -21,8 +21,11 @@ export const generatePresignedUrlSchema = z.object({
 	file_category: z.preprocess((val) => {
 		if (typeof val === "string") {
 			const upper = val.toUpperCase();
-			if (upper === "LOGO" || upper === "COVER_IMAGE" || upper === "AVATAR") {
+			if (upper === "LOGO" || upper === "AVATAR") {
 				return FileCategory.PROFILE;
+			}
+			if (upper === "COVER_IMAGE" || upper === "COVER") {
+				return FileCategory.IMAGES;
 			}
 			return upper;
 		}

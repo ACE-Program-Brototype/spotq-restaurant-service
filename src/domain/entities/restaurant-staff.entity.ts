@@ -17,7 +17,7 @@ export interface RestaurantStaffProps {
 	fullname: string;
 	email: StaffEmail;
 	phone: StaffPhone;
-	avatarUrl: string | null;
+	avatarUpdatedAt: Date | null;
 	passwordHash?: string;
 	role: StaffRoleVO;
 	status: StaffStatusVO;
@@ -31,6 +31,7 @@ export interface CreateRestaurantStaffProps {
 	fullname: string;
 	email: string | StaffEmail;
 	phone: string | StaffPhone;
+	avatarUpdatedAt?: Date | null;
 	avatarUrl?: string | null;
 	passwordHash: string;
 	role?: string | StaffRoleVO;
@@ -43,7 +44,8 @@ export interface ReconstituteRestaurantStaffProps {
 	fullname: string;
 	email: string;
 	phone: string;
-	avatarUrl: string | null;
+	avatarUpdatedAt?: Date | null;
+	avatarUrl?: string | null;
 	passwordHash?: string;
 	role: string;
 	status: string;
@@ -108,7 +110,12 @@ export class RestaurantStaff {
 			fullname: props.fullname.trim(),
 			email,
 			phone,
-			avatarUrl: props.avatarUrl ?? null,
+			avatarUpdatedAt:
+				props.avatarUpdatedAt !== undefined
+					? props.avatarUpdatedAt
+					: props.avatarUrl
+						? new Date()
+						: null,
 			passwordHash: props.passwordHash,
 			role,
 			status,
@@ -127,7 +134,12 @@ export class RestaurantStaff {
 			fullname: props.fullname,
 			email: StaffEmail.create(props.email),
 			phone: StaffPhone.create(props.phone),
-			avatarUrl: props.avatarUrl,
+			avatarUpdatedAt:
+				props.avatarUpdatedAt !== undefined
+					? props.avatarUpdatedAt
+					: props.avatarUrl
+						? new Date()
+						: null,
 			passwordHash: props.passwordHash ?? "",
 			role: StaffRoleVO.create(props.role),
 			status: StaffStatusVO.create(props.status),
@@ -164,8 +176,12 @@ export class RestaurantStaff {
 		return this._props.phone;
 	}
 
+	public get avatarUpdatedAt(): Date | null {
+		return this._props.avatarUpdatedAt;
+	}
+
 	public get avatarUrl(): string | null {
-		return this._props.avatarUrl;
+		return null;
 	}
 
 	public get passwordHash(): string {
@@ -207,7 +223,7 @@ export class RestaurantStaff {
 	public updateProfile(
 		fullname?: string,
 		phone?: string,
-		avatarUrl?: string | null,
+		avatarUpdatedAt?: Date | null,
 	): void {
 		if (fullname !== undefined) {
 			if (typeof fullname !== "string" || fullname.trim().length < 2) {
@@ -220,8 +236,8 @@ export class RestaurantStaff {
 			this._props.phone = StaffPhone.create(phone);
 		}
 
-		if (avatarUrl !== undefined) {
-			this._props.avatarUrl = avatarUrl;
+		if (avatarUpdatedAt !== undefined) {
+			this._props.avatarUpdatedAt = avatarUpdatedAt;
 		}
 
 		this._props.updatedAt = new Date();

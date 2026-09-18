@@ -6,14 +6,17 @@ import type { UpdateStaffProfileResponseDTO } from "@/application/dtos/staff/upd
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 
 export const StaffMapper = {
-	toDTO(entity: RestaurantStaff): StaffResponseDTO {
+	toDTO(
+		entity: RestaurantStaff,
+		avatarUrl: string | null = null,
+	): StaffResponseDTO {
 		return {
 			id: entity.id,
 			restaurantId: entity.restaurantId,
 			fullname: entity.fullname,
 			email: entity.email,
 			phone: entity.phone,
-			avatarUrl: entity.avatarUrl,
+			avatarUrl,
 			role: entity.role,
 			status: entity.status,
 			createdAt: entity.createdAt.toISOString(),
@@ -21,14 +24,17 @@ export const StaffMapper = {
 		};
 	},
 
-	toProfileDTO(entity: RestaurantStaff): StaffProfileResponseDTO {
+	toProfileDTO(
+		entity: RestaurantStaff,
+		avatarUrl: string | null = null,
+	): StaffProfileResponseDTO {
 		return {
 			id: entity.id,
 			restaurant_id: entity.restaurantId,
 			fullname: entity.fullname,
 			email: entity.email,
 			phone: entity.phone,
-			avatar_url: entity.avatarUrl,
+			avatar_url: avatarUrl,
 			role: entity.role,
 			status: entity.status,
 			created_at: entity.createdAt.toISOString(),
@@ -44,14 +50,17 @@ export const StaffMapper = {
 		};
 	},
 
-	toUpdateProfileDTO(entity: RestaurantStaff): UpdateStaffProfileResponseDTO {
+	toUpdateProfileDTO(
+		entity: RestaurantStaff,
+		avatarUrl: string | null = null,
+	): UpdateStaffProfileResponseDTO {
 		return {
 			id: entity.id,
 			restaurant_id: entity.restaurantId,
 			fullname: entity.fullname,
 			email: entity.email,
 			phone: entity.phone,
-			avatar_url: entity.avatarUrl,
+			avatar_url: avatarUrl,
 			role: entity.role,
 			status: entity.status,
 			created_at: entity.createdAt.toISOString(),
@@ -59,7 +68,10 @@ export const StaffMapper = {
 		};
 	},
 
-	toUpdateStaffInfoDTO(entity: RestaurantStaff): UpdateStaffInfoResponseDTO {
+	toUpdateStaffInfoDTO(
+		entity: RestaurantStaff,
+		avatarUrl: string | null = null,
+	): UpdateStaffInfoResponseDTO {
 		return {
 			id: entity.id,
 			restaurant_id: entity.restaurantId,
@@ -68,20 +80,23 @@ export const StaffMapper = {
 			phone: entity.phone,
 			role: entity.role,
 			status: entity.status,
-			avatar_url: entity.avatarUrl,
+			avatar_url: avatarUrl,
 			created_at: entity.createdAt.toISOString(),
 			updated_at: entity.updatedAt.toISOString(),
 		};
 	},
 
-	toDetailDTO(entity: RestaurantStaff): StaffDetailResponseDTO {
+	toDetailDTO(
+		entity: RestaurantStaff,
+		avatarUrl: string | null = null,
+	): StaffDetailResponseDTO {
 		return {
 			id: entity.id,
 			restaurantId: entity.restaurantId,
 			fullname: entity.fullname,
 			email: entity.email,
 			phone: entity.phone,
-			avatarUrl: entity.avatarUrl,
+			avatarUrl,
 			role: entity.role,
 			status: entity.status,
 			createdAt: entity.createdAt.toISOString(),

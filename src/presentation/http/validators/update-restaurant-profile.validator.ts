@@ -17,6 +17,8 @@ export const updateRestaurantDtoSchema = z
 
 export const updateProfileDtoSchema = z
 	.object({
+		avatarUpdatedAt: z.coerce.date().nullable().optional(),
+		hasAvatar: z.boolean().nullable().optional(),
 		logoKey: z.string().nullable().optional(),
 		coverImageKey: z.string().nullable().optional(),
 		description: z.string().nullable().optional(),
