@@ -59,6 +59,8 @@ model Restaurant {
   address        RestaurantAddress?
   documents      RestaurantDocument[]
   images         RestaurantImage[]
+  menuCategories MenuCategory[]
+  menuItems      MenuItem[]
 
   @@map("restaurants")
 }
@@ -76,11 +78,11 @@ enum StaffStatus {
 }
 
 model RestaurantStaff {
-  id           String      @id @default(uuid()) @db.Uuid
-  restaurantId String      @map("restaurant_id") @db.Uuid
-  fullname     String      @map("fullname")
-  email        String      @map("email")
-  phone        String      @map("phone")
+  id              String      @id @default(uuid()) @db.Uuid
+  restaurantId    String      @map("restaurant_id") @db.Uuid
+  fullname        String      @map("fullname")
+  email           String      @map("email")
+  phone           String      @map("phone")
   avatarUpdatedAt DateTime?   @map("avatar_updated_at") @db.Timestamptz(3)
   passwordHash    String      @map("password_hash")
   role            StaffRole   @default(STAFF)
@@ -88,7 +90,7 @@ model RestaurantStaff {
   createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@unique([restaurantId, email])
   @@index([restaurantId])
@@ -177,7 +179,7 @@ model StaffInvitation {
   createdAt    DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  restaurant   Restaurant       @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
   @@index([restaurantId])
   @@index([email])
@@ -192,6 +194,7 @@ model ProcessedEvent {
 
   @@map("processed_events")
 }
+
 model RestaurantAddress {
   id           String   @id @default(uuid()) @db.Uuid
   restaurantId String   @unique @map("restaurant_id") @db.Uuid
@@ -251,4 +254,103 @@ model RestaurantImage {
 
   @@index([restaurantId])
   @@map("restaurant_images")
+}
+
+model MenuCategory {
+  id           String @id @default(uuid()) @db.Uuid
+  restaurantId String @map("restaurant_id") @db.Uuid
+
+  name         String  @db.VarChar(255)
+  description  String?
+  displayOrder Int     @default(0) @map("display_order")
+  isActive     Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  menuItems MenuItem[]
+
+  @@unique([restaurantId, name])
+  @@index([restaurantId, displayOrder])
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id           String @id @default(uuid()) @db.Uuid
+  restaurantId String @map("restaurant_id") @db.Uuid
+  categoryId   String @map("category_id") @db.Uuid
+
+  name            String  @db.VarChar(255)
+  description     String?
+  price           Decimal @db.Decimal(10, 2)
+  preparationTime Int?    @map("preparation_time")
+  calories        Int?
+
+  isVegetarian Boolean @default(false) @map("is_vegetarian")
+  isFeatured   Boolean @default(false) @map("is_featured")
+  isAvailable  Boolean @default(true) @map("is_available")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  category MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  images   MenuItemImage[]
+  variants MenuItemVariant[]
+  addons   MenuItemAddon[]
+
+  @@index([restaurantId])
+  @@index([categoryId])
+  @@map("menu_items")
+}
+
+model MenuItemImage {
+  id           String   @id @default(uuid()) @db.Uuid
+  menuItemId   String   @map("menu_item_id") @db.Uuid
+  objectKey    String   @map("object_key") @db.VarChar(500)
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId, displayOrder])
+  @@map("menu_item_images")
+}
+
+model MenuItemVariant {
+  id         String  @id @default(uuid()) @db.Uuid
+  menuItemId String  @map("menu_item_id") @db.Uuid
+  sku        String? @db.VarChar(100)
+  name       String  @db.VarChar(255)
+  price      Decimal @db.Decimal(10, 2)
+  isDefault  Boolean @default(false) @map("is_default")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
+  @@map("menu_item_variants")
+}
+
+model MenuItemAddon {
+  id          String  @id @default(uuid()) @db.Uuid
+  menuItemId  String  @map("menu_item_id") @db.Uuid
+  name        String  @db.VarChar(255)
+  imageKey    String? @map("image_key") @db.VarChar(500)
+  price       Decimal @db.Decimal(10, 2)
+  isAvailable Boolean @default(true) @map("is_available")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
+  @@map("menu_item_addons")
 }
