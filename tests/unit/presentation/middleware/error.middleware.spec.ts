@@ -34,4 +34,19 @@ describe("error.middleware", () => {
 			}),
 		);
 	});
+
+	it("should return clean 500 message without exposing raw error or stack trace", () => {
+		const rawError = new Error("Raw database connection failure or Prisma query error");
+
+		errorHandler(rawError, mockReq as Request, mockRes as Response, mockNext);
+
+		expect(mockRes.status).toHaveBeenCalledWith(500);
+		expect(mockRes.json).toHaveBeenCalledWith({
+			success: false,
+			statusCode: 500,
+			code: "INTERNAL_SERVER_ERROR",
+			message: "Internal server error occurred",
+			error: undefined,
+		});
+	});
 });
