@@ -5,13 +5,13 @@ import type {
 	Response,
 } from "express";
 import { ZodError } from "zod";
-import { env } from "@/config/env.ts";
 import { DomainError } from "@/domain/errors/domain.error.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import {
 	DOMAIN_ERROR_STATUS_MAP,
 	getStatusCodeForDomainError,
 } from "@/shared/constants/domain-error-map.constants.ts";
+import { ERROR_CODES } from "@/shared/constants/error-code.constants.ts";
 import {
 	HTTP_STATUS,
 	type HttpStatusCode,
@@ -29,7 +29,7 @@ export const errorHandler: ErrorRequestHandler = (
 	_next: NextFunction,
 ): void => {
 	let statusCode: HttpStatusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
-	let code = "INTERNAL_SERVER_ERROR";
+	let code: string = ERROR_CODES.INTERNAL_SERVER_ERROR;
 	let message: string = messages.INTERNAL_SERVER_ERROR;
 	let errorDetails: unknown;
 
@@ -40,7 +40,7 @@ export const errorHandler: ErrorRequestHandler = (
 		errorDetails = err.details;
 	} else if (err instanceof ZodError) {
 		statusCode = HTTP_STATUS.UNPROCESSABLE_ENTITY;
-		code = "VALIDATION_ERROR";
+		code = ERROR_CODES.VALIDATION_ERROR;
 		message = messages.VALIDATION_ERROR;
 		errorDetails = err.issues.map((issue) => ({
 			field: issue.path.length > 0 ? issue.path.join(".") : "body",
@@ -65,13 +65,9 @@ export const errorHandler: ErrorRequestHandler = (
 			message = err.message;
 		} else {
 			statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
-			code = "INTERNAL_SERVER_ERROR";
-			message =
-				env.APP_ENV === "production"
-					? messages.INTERNAL_SERVER_ERROR
-					: err.message || messages.INTERNAL_SERVER_ERROR;
-			errorDetails =
-				env.APP_ENV === "production" ? undefined : { stack: err.stack };
+			code = ERROR_CODES.INTERNAL_SERVER_ERROR;
+			message = messages.INTERNAL_SERVER_ERROR;
+			errorDetails = undefined;
 		}
 	}
 
