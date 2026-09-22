@@ -272,7 +272,7 @@ model MenuCategory {
 
   menuItems MenuItem[]
 
-  @@index([restaurantId])
+  @@index([restaurantId, displayOrder])
   @@map("menu_categories")
 }
 
@@ -312,11 +312,11 @@ model MenuItemImage {
   menuItemId   String   @map("menu_item_id") @db.Uuid
   objectKey    String   @map("object_key") @db.VarChar(500)
   displayOrder Int      @default(0) @map("display_order")
-  createdAt    DateTime @default(now()) @map("created_at")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
-  @@index([menuItemId])
+  @@index([menuItemId, displayOrder])
   @@map("menu_item_images")
 }
 
