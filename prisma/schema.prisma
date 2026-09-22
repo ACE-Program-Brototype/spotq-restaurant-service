@@ -60,6 +60,7 @@ model Restaurant {
   documents      RestaurantDocument[]
   images         RestaurantImage[]
   menuCategories MenuCategory[]
+  menuItems      MenuItem[]
 
   @@map("restaurants")
 }
@@ -276,4 +277,35 @@ model MenuCategory {
 
   @@index([restaurantId])
   @@map("menu_categories")
+}
+
+model MenuItem {
+  id              String   @id @default(uuid()) @db.Uuid
+  restaurantId    String   @map("restaurant_id") @db.Uuid
+  categoryId      String   @map("category_id") @db.Uuid
+
+  name            String   @db.VarChar(255)
+  description     String?
+  price           Decimal  @db.Decimal(10, 2)
+  preparationTime Int?     @map("preparation_time")
+  calories        Int?
+
+  isVegetarian    Boolean  @default(false) @map("is_vegetarian")
+  isFeatured      Boolean  @default(false) @map("is_featured")
+  isAvailable     Boolean  @default(true) @map("is_available")
+
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  category MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  images   MenuItemImage[]
+  variants MenuItemVariant[]
+  addons   MenuItemAddon[]
+
+  @@index([restaurantId])
+  @@index([categoryId])
+  @@map("menu_items")
 }
