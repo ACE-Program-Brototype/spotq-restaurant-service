@@ -50,6 +50,8 @@ CREATE TABLE "menu_item_variants" (
     "name" VARCHAR(255) NOT NULL,
     "price" DECIMAL(10,2) NOT NULL,
     "is_default" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "menu_item_variants_pkey" PRIMARY KEY ("id")
 );
@@ -59,11 +61,17 @@ CREATE TABLE "menu_item_addons" (
     "id" UUID NOT NULL,
     "menu_item_id" UUID NOT NULL,
     "name" VARCHAR(255) NOT NULL,
+    "image_key" VARCHAR(500),
     "price" DECIMAL(10,2) NOT NULL,
     "is_available" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "menu_item_addons_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "menu_categories_restaurant_id_name_key" ON "menu_categories"("restaurant_id", "name");
 
 -- CreateIndex
 CREATE INDEX "menu_categories_restaurant_id_display_order_idx" ON "menu_categories"("restaurant_id", "display_order");

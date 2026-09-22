@@ -272,6 +272,7 @@ model MenuCategory {
 
   menuItems MenuItem[]
 
+  @@unique([restaurantId, name])
   @@index([restaurantId, displayOrder])
   @@map("menu_categories")
 }
@@ -328,6 +329,9 @@ model MenuItemVariant {
   price      Decimal @db.Decimal(10, 2)
   isDefault  Boolean @default(false) @map("is_default")
 
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
   @@index([menuItemId])
@@ -338,8 +342,12 @@ model MenuItemAddon {
   id          String  @id @default(uuid()) @db.Uuid
   menuItemId  String  @map("menu_item_id") @db.Uuid
   name        String  @db.VarChar(255)
+  imageKey    String? @map("image_key") @db.VarChar(500)
   price       Decimal @db.Decimal(10, 2)
   isAvailable Boolean @default(true) @map("is_available")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
