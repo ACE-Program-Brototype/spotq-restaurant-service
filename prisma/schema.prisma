@@ -59,6 +59,7 @@ model Restaurant {
   address        RestaurantAddress?
   documents      RestaurantDocument[]
   images         RestaurantImage[]
+  menuCategories MenuCategory[]
 
   @@map("restaurants")
 }
@@ -251,4 +252,28 @@ model RestaurantImage {
 
   @@index([restaurantId])
   @@map("restaurant_images")
+}
+
+model MenuCategory {
+  id           String   @id @default(uuid()) @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+
+  name         String   @db.VarChar(255)
+  description  String?
+  displayOrder Int      @default(0) @map("display_order")
+  isActive     Boolean  @default(true) @map("is_active")
+
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant @relation(
+    fields: [restaurantId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  menuItems MenuItem[]
+
+  @@index([restaurantId])
+  @@map("menu_categories")
 }
