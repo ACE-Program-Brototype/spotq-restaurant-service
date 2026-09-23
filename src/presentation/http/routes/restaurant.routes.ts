@@ -1,5 +1,6 @@
 import express from "express";
 import {
+	menuCategoryController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
 	restaurantStatusController,
@@ -16,6 +17,10 @@ import {
 	validateRequestParams,
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
+import {
+	createMenuCategoryBodySchema,
+	createMenuCategoryParamsSchema,
+} from "../validators/create-menu-category.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -178,4 +183,16 @@ restaurantRouter.delete(
 	restaurantStaffManagementController.removeStaff.bind(
 		restaurantStaffManagementController,
 	),
+);
+
+restaurantRouter.post(
+	[
+		RESTAURANT_ROUTES.MENU_CATEGORIES,
+		RESTAURANT_ROUTES.MENU_CATEGORIES_PREFIX,
+		RESTAURANT_ROUTES.MENU_CATEGORIES_FULL,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(createMenuCategoryParamsSchema),
+	validateRequestBody(createMenuCategoryBodySchema),
+	menuCategoryController.createCategory.bind(menuCategoryController),
 );

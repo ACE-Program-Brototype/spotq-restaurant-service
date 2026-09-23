@@ -243,6 +243,11 @@ export const messages = {
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
+	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	CATEGORY_ALREADY_EXISTS:
+		"A category with this name already exists for this restaurant",
+	CATEGORY_NAME_REQUIRED: "Category name is required",
+	CATEGORY_NOT_FOUND: "Category not found",
 } as const;
 
 export type MessageKey = keyof typeof messages;
