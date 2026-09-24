@@ -33,6 +33,13 @@ export interface ReconstituteMenuCategoryProps {
 	updatedAt: Date;
 }
 
+export interface UpdateMenuCategoryProps {
+	name?: string;
+	description?: string | null;
+	displayOrder?: number;
+	isActive?: boolean;
+}
+
 export class MenuCategory {
 	private props: MenuCategoryProps;
 
@@ -87,6 +94,51 @@ export class MenuCategory {
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
+	}
+
+	public update(updateProps: UpdateMenuCategoryProps): void {
+		if (updateProps.name !== undefined) {
+			const trimmedName = updateProps.name.trim();
+			if (!trimmedName) {
+				throw new InvalidCategoryDataError(messages.CATEGORY_NAME_REQUIRED);
+			}
+			if (trimmedName.length > 255) {
+				throw new InvalidCategoryDataError(messages.CATEGORY_NAME_MAX_LENGTH);
+			}
+			this.props.name = trimmedName;
+		}
+
+		if (updateProps.description !== undefined) {
+			const trimmedDescription = updateProps.description?.trim() || null;
+			if (trimmedDescription && trimmedDescription.length > 1000) {
+				throw new InvalidCategoryDataError(
+					messages.CATEGORY_DESCRIPTION_MAX_LENGTH,
+				);
+			}
+			this.props.description = trimmedDescription;
+		}
+
+		if (updateProps.displayOrder !== undefined) {
+			if (
+				typeof updateProps.displayOrder !== "number" ||
+				!Number.isInteger(updateProps.displayOrder) ||
+				updateProps.displayOrder < 0
+			) {
+				throw new InvalidCategoryDataError(
+					"Display order must be a non-negative integer",
+				);
+			}
+			this.props.displayOrder = updateProps.displayOrder;
+		}
+
+		if (updateProps.isActive !== undefined) {
+			if (typeof updateProps.isActive !== "boolean") {
+				throw new InvalidCategoryDataError("isActive must be a boolean");
+			}
+			this.props.isActive = updateProps.isActive;
+		}
+
+		this.props.updatedAt = new Date();
 	}
 
 	public get id(): string {

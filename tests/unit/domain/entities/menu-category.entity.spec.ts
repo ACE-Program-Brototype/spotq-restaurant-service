@@ -119,4 +119,79 @@ describe("MenuCategory Entity", () => {
 		expect(reconstituted.createdAt).toEqual(pastDate);
 		expect(reconstituted.updatedAt).toEqual(pastDate);
 	});
+
+	describe("update", () => {
+		it("should partially update fields and refresh updatedAt", () => {
+			const category = MenuCategory.create(validProps);
+			const initialUpdatedAt = category.updatedAt;
+
+			category.update({
+				name: "Updated Course",
+				description: "New description",
+				displayOrder: 3,
+				isActive: false,
+			});
+
+			expect(category.name).toBe("Updated Course");
+			expect(category.description).toBe("New description");
+			expect(category.displayOrder).toBe(3);
+			expect(category.isActive).toBe(false);
+			expect(category.updatedAt.getTime()).toBeGreaterThanOrEqual(
+				initialUpdatedAt.getTime(),
+			);
+		});
+
+		it("should allow updating nullable description to null", () => {
+			const category = MenuCategory.create(validProps);
+			category.update({ description: null });
+
+			expect(category.description).toBeNull();
+			expect(category.name).toBe("Main Course");
+		});
+
+		it("should trim name and description on update", () => {
+			const category = MenuCategory.create(validProps);
+			category.update({
+				name: "  Trimmed Name  ",
+				description: "  Trimmed Description  ",
+			});
+
+			expect(category.name).toBe("Trimmed Name");
+			expect(category.description).toBe("Trimmed Description");
+		});
+
+		it("should throw InvalidCategoryDataError when updating with empty name", () => {
+			const category = MenuCategory.create(validProps);
+			expect(() => category.update({ name: "" })).toThrow(
+				InvalidCategoryDataError,
+			);
+			expect(() => category.update({ name: "   " })).toThrow(
+				InvalidCategoryDataError,
+			);
+		});
+
+		it("should throw InvalidCategoryDataError when updating with name exceeding 255 chars", () => {
+			const category = MenuCategory.create(validProps);
+			expect(() => category.update({ name: "a".repeat(256) })).toThrow(
+				InvalidCategoryDataError,
+			);
+		});
+
+		it("should throw InvalidCategoryDataError when updating with description exceeding 1000 chars", () => {
+			const category = MenuCategory.create(validProps);
+			expect(() => category.update({ description: "a".repeat(1001) })).toThrow(
+				InvalidCategoryDataError,
+			);
+		});
+
+		it("should throw InvalidCategoryDataError when updating with invalid displayOrder", () => {
+			const category = MenuCategory.create(validProps);
+			expect(() => category.update({ displayOrder: -1 })).toThrow(
+				InvalidCategoryDataError,
+			);
+			expect(() => category.update({ displayOrder: 1.5 as number })).toThrow(
+				InvalidCategoryDataError,
+			);
+		});
+	});
 });
