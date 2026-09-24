@@ -13,30 +13,18 @@ export const addonModule = new ContainerModule(({ bind }) => {
 	bind<IAddonRepository>(TYPES.Repositories.AddonRepository)
 		.to(PrismaAddonRepository)
 		.inSingletonScope();
-	bind<IAddonRepository>(TYPES.AddonRepository)
-		.to(PrismaAddonRepository)
-		.inSingletonScope();
 
 	// Use Cases
 	bind<ICreateAddonUseCase>(TYPES.UseCases.CreateAddonUseCase)
-		.to(CreateAddonUseCase)
-		.inSingletonScope();
-	bind<ICreateAddonUseCase>(TYPES.CreateAddonUseCase)
 		.to(CreateAddonUseCase)
 		.inSingletonScope();
 
 	bind<IListRestaurantAddonsUseCase>(TYPES.UseCases.ListRestaurantAddonsUseCase)
 		.to(ListRestaurantAddonsUseCase)
 		.inSingletonScope();
-	bind<IListRestaurantAddonsUseCase>(TYPES.ListRestaurantAddonsUseCase)
-		.to(ListRestaurantAddonsUseCase)
-		.inSingletonScope();
 
 	// Controller
 	bind(TYPES.Controller.AddonController)
-		.to(AddonController)
-		.inSingletonScope();
-	bind(TYPES.AddonController)
 		.to(AddonController)
 		.inSingletonScope();
 });

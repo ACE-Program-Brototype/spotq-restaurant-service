@@ -53,12 +53,6 @@ export const TYPES = {
 	JWKSController: Symbol.for("JWKSController"),
 	JWKService: Symbol.for("JWKService"),
 
-	// Addon DI Symbols
-	AddonRepository: Symbol.for("AddonRepository"),
-	CreateAddonUseCase: Symbol.for("CreateAddonUseCase"),
-	ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
-	AddonController: Symbol.for("AddonController"),
-
 	// Observability & System
 	HealthCheckService: Symbol.for("HealthCheckService"),
 
