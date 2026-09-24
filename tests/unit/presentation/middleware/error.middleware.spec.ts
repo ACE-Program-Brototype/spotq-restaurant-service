@@ -36,7 +36,9 @@ describe("error.middleware", () => {
 	});
 
 	it("should return clean 500 message without exposing raw error or stack trace", () => {
-		const rawError = new Error("Raw database connection failure or Prisma query error");
+		const rawError = new Error(
+			"Raw database connection failure or Prisma query error",
+		);
 
 		errorHandler(rawError, mockReq as Request, mockRes as Response, mockNext);
 
