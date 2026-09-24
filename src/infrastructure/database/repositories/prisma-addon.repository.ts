@@ -1,7 +1,4 @@
-import type {
-	PrismaClient,
-	Addon as PrismaAddon,
-} from "@prisma/client";
+import type { Addon as PrismaAddon, PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type { IAddonRepository } from "@/application/ports/repositories/addon.repository.port.ts";
@@ -15,11 +12,7 @@ import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
 @injectable()
 export class PrismaAddonRepository
-	extends PrismaBaseRepository<
-		Addon,
-		PrismaAddon,
-		PrismaClient["addon"]
-	>
+	extends PrismaBaseRepository<Addon, PrismaAddon, PrismaClient["addon"]>
 	implements IAddonRepository
 {
 	constructor(
