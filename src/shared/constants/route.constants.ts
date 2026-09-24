@@ -29,6 +29,7 @@ export const RESTAURANT_ROUTES = {
 export const STAFF_ROUTES = {
 	BASE: "/staff",
 	LOGIN: "/login",
+	SELECT_RESTAURANT: "/select-restaurant",
 	LOGOUT: "/logout",
 	REFRESH_TOKEN: "/refresh-token",
 	FORGOT_PASSWORD: "/forgot-password",
