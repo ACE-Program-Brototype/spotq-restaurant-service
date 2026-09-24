@@ -7,7 +7,9 @@ export const acceptInvitationSchema = z.object({
 		.string()
 		.trim()
 		.min(2, messages.FULLNAME_MIN_LENGTH)
-		.max(100, messages.FULLNAME_MAX_LENGTH),
+		.max(100, messages.FULLNAME_MAX_LENGTH)
+		.optional()
+		.or(z.literal("")),
 	phone: z
 		.string()
 		.trim()
@@ -19,16 +21,18 @@ export const acceptInvitationSchema = z.object({
 			const digits = val.replace(/\D/g, "");
 			const last10 = digits.slice(-10);
 			return `+91${last10}`;
-		}),
-	password: z
-		.string({
-			message: messages.PASSWORD_REQUIRED,
 		})
+		.optional()
+		.or(z.literal("")),
+	password: z
+		.string()
 		.min(8, messages.PASSWORD_MIN_LENGTH)
 		.regex(/[A-Z]/, messages.PASSWORD_UPPERCASE_REQUIRED)
 		.regex(/[a-z]/, messages.PASSWORD_LOWERCASE_REQUIRED)
 		.regex(/[0-9]/, messages.PASSWORD_DIGIT_REQUIRED)
-		.regex(/[^A-Za-z0-9]/, messages.PASSWORD_SPECIAL_REQUIRED),
+		.regex(/[^A-Za-z0-9]/, messages.PASSWORD_SPECIAL_REQUIRED)
+		.optional()
+		.or(z.literal("")),
 });
 
 export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;

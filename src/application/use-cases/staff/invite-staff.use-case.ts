@@ -66,7 +66,7 @@ export class InviteStaffUseCase implements IInviteStaffUseCase {
 			normalizedEmail,
 			restaurantId,
 		);
-		if (existingStaff) {
+		if (existingStaff?.isActive()) {
 			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 		}
 

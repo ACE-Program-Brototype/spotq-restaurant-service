@@ -83,6 +83,12 @@ export class UpdateStaffInfoUseCase implements IUpdateStaffInfoUseCase {
 		 * 5. Apply updates through domain entity and persist via staffRepository.save
 		 */
 		staff.updateProfile(finalName, finalPhone);
+		if (this.staffRepository.updateStaffInfo) {
+			await this.staffRepository.updateStaffInfo(staff.id, {
+				fullname: finalName,
+				phone: finalPhone,
+			});
+		}
 		await this.staffRepository.save(staff);
 
 		/**

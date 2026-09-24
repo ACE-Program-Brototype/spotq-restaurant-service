@@ -37,7 +37,7 @@ describe("PrismaRestaurantStaffRepository", () => {
 		status: "ACTIVE",
 		createdAt: now,
 		updatedAt: now,
-	};
+	} as unknown as PrismaStaff;
 
 	const dummyStaff = RestaurantStaff.reconstitute({
 		id: "staff-123",
