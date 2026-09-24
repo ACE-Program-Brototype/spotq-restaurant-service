@@ -4,7 +4,6 @@ import type {
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
-import type { IMenuCategoryRepositoryPort } from "@/application/ports/repositories/menu-category.repository.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import {
@@ -24,7 +23,7 @@ export class PrismaMenuCategoryRepository
 		PrismaMenuCategory,
 		PrismaClient["menuCategory"]
 	>
-	implements IMenuCategoryRepository, IMenuCategoryRepositoryPort
+	implements IMenuCategoryRepository
 {
 	constructor(
 		@inject(TYPES.PrismaClient)
