@@ -3,13 +3,13 @@ import type {
 	CreateMenuCategoryInputDto,
 	MenuCategoryResponseDto,
 } from "@/application/dtos/menu/create-menu-category.dto.ts";
+import type { IMenuCategoryRepositoryPort } from "@/application/ports/repositories/menu-category.repository.port.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import { CategoryAlreadyExistsError } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
-import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -18,7 +18,7 @@ export class CreateMenuCategoryUseCase implements ICreateMenuCategoryUseCase {
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Repositories.MenuCategoryRepository)
-		private readonly menuCategoryRepository: IMenuCategoryRepository,
+		private readonly menuCategoryRepository: IMenuCategoryRepositoryPort,
 	) {}
 
 	public async execute(

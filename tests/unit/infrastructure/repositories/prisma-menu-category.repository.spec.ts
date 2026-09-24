@@ -1,15 +1,20 @@
 import type { PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
-import { CategoryAlreadyExistsError } from "@/domain/errors/menu-category.errors.ts";
+import {
+	CategoryAlreadyExistsError,
+	CategoryNotFoundError,
+} from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { PrismaMenuCategoryRepository } from "@/infrastructure/database/repositories/prisma-menu-category.repository.ts";
 
 describe("PrismaMenuCategoryRepository", () => {
 	let mockPrisma: {
+		$transaction: jest.Mock;
 		menuCategory: {
 			findFirst: jest.Mock;
 			create: jest.Mock;
+			updateMany: jest.Mock;
 			findUnique: jest.Mock;
 			count: jest.Mock;
 			upsert: jest.Mock;
@@ -23,9 +28,14 @@ describe("PrismaMenuCategoryRepository", () => {
 
 	beforeEach(() => {
 		mockPrisma = {
+			// biome-ignore lint/suspicious/noExplicitAny: Mock transaction callback
+			$transaction: jest.fn(async (cb: (tx: any) => Promise<any>) =>
+				cb(mockPrisma),
+			),
 			menuCategory: {
 				findFirst: jest.fn(),
 				create: jest.fn(),
+				updateMany: jest.fn().mockResolvedValue({ count: 0 }),
 				findUnique: jest.fn(),
 				count: jest.fn(),
 				upsert: jest.fn(),
@@ -134,6 +144,49 @@ describe("PrismaMenuCategoryRepository", () => {
 		expect(created.name).toBe("Main Course");
 	});
 
+	it("should shift existing display orders with increment 1 when creating category", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Appetizers",
+			displayOrder: 2,
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 3 });
+		mockPrisma.menuCategory.create.mockResolvedValueOnce({
+			id: category.id,
+			restaurantId: category.restaurantId,
+			name: category.name,
+			description: category.description,
+			displayOrder: category.displayOrder,
+			isActive: category.isActive,
+			createdAt: category.createdAt,
+			updatedAt: category.updatedAt,
+		});
+
+		const created = await repository.create(category);
+
+		expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				displayOrder: {
+					gte: 2,
+				},
+			},
+			data: {
+				displayOrder: {
+					increment: 1,
+				},
+			},
+		});
+		expect(mockPrisma.menuCategory.create).toHaveBeenCalledWith({
+			data: expect.objectContaining({
+				displayOrder: 2,
+			}),
+		});
+		expect(created.displayOrder).toBe(2);
+	});
+
 	it("should translate P2002 error to CategoryAlreadyExistsError", async () => {
 		const category = MenuCategory.create({
 			restaurantId,
@@ -173,6 +226,27 @@ describe("PrismaMenuCategoryRepository", () => {
 
 		await expect(repository.create(category)).rejects.toThrow(
 			RestaurantNotFoundError,
+		);
+	});
+
+	it("should translate P2025 error to CategoryNotFoundError", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Starters",
+		});
+
+		const prismaError = new PrismaClientKnownRequestError(
+			"Record to update not found",
+			{
+				code: "P2025",
+				clientVersion: "6.19.3",
+			},
+		);
+
+		mockPrisma.menuCategory.update = jest.fn().mockRejectedValueOnce(prismaError);
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryNotFoundError,
 		);
 	});
 

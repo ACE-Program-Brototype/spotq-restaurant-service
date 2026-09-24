@@ -4,6 +4,7 @@ import type {
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
+import type { IMenuCategoryRepositoryPort } from "@/application/ports/repositories/menu-category.repository.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import {
@@ -23,13 +24,13 @@ export class PrismaMenuCategoryRepository
 		PrismaMenuCategory,
 		PrismaClient["menuCategory"]
 	>
-	implements IMenuCategoryRepository
+	implements IMenuCategoryRepository, IMenuCategoryRepositoryPort
 {
 	constructor(
 		@inject(TYPES.PrismaClient)
-		private readonly prisma: PrismaClient,
+		private readonly prismaClient: PrismaClient,
 	) {
-		super(prisma.menuCategory, MenuCategoryPersistenceMapper);
+		super(prismaClient.menuCategory, MenuCategoryPersistenceMapper);
 	}
 
 	protected override handlePrismaError(
@@ -95,7 +96,23 @@ export class PrismaMenuCategoryRepository
 	public async create(category: MenuCategory): Promise<MenuCategory> {
 		try {
 			const data = this.mapper.toPersistence(category);
-			const created = await this.dbModel.create({ data });
+			const created = await this.prismaClient.$transaction(async (tx) => {
+				await tx.menuCategory.updateMany({
+					where: {
+						restaurantId: data.restaurantId,
+						displayOrder: {
+							gte: data.displayOrder,
+						},
+					},
+					data: {
+						displayOrder: {
+							increment: 1,
+						},
+					},
+				});
+
+				return tx.menuCategory.create({ data });
+			});
 			return this.mapper.toDomain(created);
 		} catch (error) {
 			this.handlePrismaError(error, category);
@@ -115,7 +132,7 @@ export class PrismaMenuCategoryRepository
 				previousDisplayOrder !== undefined &&
 				previousDisplayOrder !== displayOrder
 			) {
-				const updated = await this.prisma.$transaction(async (tx) => {
+				const updated = await this.prismaClient.$transaction(async (tx) => {
 					if (displayOrder < previousDisplayOrder) {
 						await tx.menuCategory.updateMany({
 							where: {

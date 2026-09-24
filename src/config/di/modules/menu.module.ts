@@ -1,4 +1,5 @@
 import { ContainerModule } from "inversify";
+import type { IMenuCategoryRepositoryPort } from "@/application/ports/repositories/menu-category.repository.port.ts";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
@@ -9,7 +10,9 @@ import { PrismaMenuCategoryRepository } from "@/infrastructure/database/reposito
 import { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller.ts";
 
 export const menuModule = new ContainerModule(({ bind }) => {
-	bind<IMenuCategoryRepository>(TYPES.Repositories.MenuCategoryRepository)
+	bind<IMenuCategoryRepository & IMenuCategoryRepositoryPort>(
+		TYPES.Repositories.MenuCategoryRepository,
+	)
 		.to(PrismaMenuCategoryRepository)
 		.inSingletonScope();
 

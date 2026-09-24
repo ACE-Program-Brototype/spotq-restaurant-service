@@ -119,7 +119,6 @@ describe("MenuCategory Entity", () => {
 		expect(reconstituted.createdAt).toEqual(pastDate);
 		expect(reconstituted.updatedAt).toEqual(pastDate);
 	});
-
 	describe("update", () => {
 		it("should partially update fields and refresh updatedAt", () => {
 			const category = MenuCategory.create(validProps);

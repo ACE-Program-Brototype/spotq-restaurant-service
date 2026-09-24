@@ -1,15 +1,15 @@
+import type { IMenuCategoryRepositoryPort } from "@/application/ports/repositories/menu-category.repository.port.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { CategoryAlreadyExistsError } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
-import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 
 describe("CreateMenuCategoryUseCase", () => {
 	let useCase: CreateMenuCategoryUseCase;
 	let mockRestaurantRepo: jest.Mocked<IRestaurantRepository>;
-	let mockMenuCategoryRepo: jest.Mocked<IMenuCategoryRepository>;
+	let mockMenuCategoryRepo: jest.Mocked<IMenuCategoryRepositoryPort>;
 
 	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 
@@ -34,9 +34,7 @@ describe("CreateMenuCategoryUseCase", () => {
 			getNextDisplayOrder: jest.fn(),
 			create: jest.fn(),
 			updateCategory: jest.fn(),
-			save: jest.fn(),
-			delete: jest.fn(),
-		} as unknown as jest.Mocked<IMenuCategoryRepository>;
+		} as unknown as jest.Mocked<IMenuCategoryRepositoryPort>;
 
 		useCase = new CreateMenuCategoryUseCase(
 			mockRestaurantRepo,
