@@ -59,6 +59,7 @@ export const ADMIN_ROUTES = {
 	GET_RESTAURANT_DETAILS: "/restaurants/:id",
 	BLOCK_RESTAURANT: "/restaurants/:id/block",
 	UNBLOCK_RESTAURANT: "/restaurants/:id/unblock",
+	RESTAURANT_MENU_CATEGORIES: "/restaurants/:restaurantId/menu/categories",
 } as const;
 
 export type RestaurantRoute =

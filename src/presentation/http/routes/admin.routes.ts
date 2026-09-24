@@ -1,5 +1,8 @@
 import express from "express";
-import { adminRestaurantController } from "@/config/di/controllers.resolutions.ts";
+import {
+	adminRestaurantController,
+	menuCategoryController,
+} from "@/config/di/controllers.resolutions.ts";
 import { adminAuthMiddleware } from "@/presentation/http/middleware/admin.auth.middleware.ts";
 import {
 	approveRestaurantRateLimiter,
@@ -26,6 +29,8 @@ import {
 	rejectRestaurantParamSchema,
 } from "@/presentation/http/validators/admin/reject-restaurant.validator.ts";
 import { unblockRestaurantParamSchema } from "@/presentation/http/validators/admin/unblock-restaurant.validator.ts";
+import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/admin/list-menu-categories.validator.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { ADMIN_ROUTES } from "@/shared/constants/route.constants.ts";
 
 export const adminRouter = express.Router();
@@ -96,6 +101,13 @@ adminRouter.patch(
 	unblockRestaurantRateLimiter,
 	validateRequestParams(unblockRestaurantParamSchema),
 	adminRestaurantController.unblockRestaurant.bind(adminRestaurantController),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.RESTAURANT_MENU_CATEGORIES,
+	adminAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamSchema, HTTP_STATUS.BAD_REQUEST),
+	menuCategoryController.listRestaurantCategories.bind(menuCategoryController),
 );
 
 export default adminRouter;
