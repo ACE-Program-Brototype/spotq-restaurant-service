@@ -121,7 +121,7 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 		);
 	});
 
-	it("should return 400 BAD REQUEST when restaurantId param is not a valid UUID", async () => {
+	it("should return 422 UNPROCESSABLE ENTITY when restaurantId param is not a valid UUID", async () => {
 		const req = {
 			params: { restaurantId: "not-a-valid-uuid" },
 		};
