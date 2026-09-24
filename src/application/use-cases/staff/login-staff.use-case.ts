@@ -89,9 +89,14 @@ export class LoginStaffUseCase implements ILoginStaffUseCase {
 			? await this.staffRepository.findActiveByStaffId(staffId)
 			: [];
 
+		const restaurantResults = await Promise.all(
+			memberships.map((m) => this.restaurantRepository.findById(m.restaurantId)),
+		);
+
 		const validMemberships: typeof memberships = [];
-		for (const m of memberships) {
-			const res = await this.restaurantRepository.findById(m.restaurantId);
+		for (let i = 0; i < memberships.length; i++) {
+			const m = memberships[i];
+			const res = restaurantResults[i];
 			if (
 				res &&
 				!res.isBlocked &&
@@ -106,8 +111,7 @@ export class LoginStaffUseCase implements ILoginStaffUseCase {
 			}
 		}
 
-		const requestedRestaurantId = (dto as { restaurantId?: string })
-			?.restaurantId;
+		const requestedRestaurantId = dto.restaurantId;
 		if (requestedRestaurantId) {
 			const match = validMemberships.find(
 				(m) => m.restaurantId === requestedRestaurantId,

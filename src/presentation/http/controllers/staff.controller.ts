@@ -1,6 +1,6 @@
 import { TYPES } from "@di/types.ts";
 import type { CookieOptions, NextFunction, Request, Response } from "express";
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
 import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
 import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
@@ -72,8 +72,7 @@ export class StaffController {
 		@inject(TYPES.UpdateStaffProfileUseCase)
 		private readonly updateStaffProfileUseCase: IUpdateStaffProfileUseCase,
 		@inject(TYPES.SelectRestaurantUseCase)
-		@optional()
-		private readonly selectRestaurantUseCase?: ISelectRestaurantUseCase,
+		private readonly selectRestaurantUseCase: ISelectRestaurantUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
@@ -131,10 +130,6 @@ export class StaffController {
 		req: Request,
 		res: Response,
 	): Promise<void> => {
-		if (!this.selectRestaurantUseCase) {
-			throw new Error("SelectRestaurantUseCase not bound");
-		}
-
 		const result = await this.selectRestaurantUseCase.execute({
 			selectToken: req.body.selectToken,
 			restaurantId: req.body.restaurantId,

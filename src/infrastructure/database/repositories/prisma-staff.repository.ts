@@ -9,7 +9,7 @@ import {
 } from "@/domain/errors/staff.errors.ts";
 import type { IStaffRepository } from "@/domain/repositories/staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { StaffGlobalPersistenceMapper } from "../mappers/staff.mapper.ts";
+import { StaffGlobalPersistenceMapper } from "@/infrastructure/database/mappers/staff.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
 @injectable()

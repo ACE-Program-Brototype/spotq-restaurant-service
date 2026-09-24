@@ -38,10 +38,10 @@ export interface ReconstituteStaffProps {
 }
 
 export class Staff {
-	private _props: StaffProps;
+	private props: StaffProps;
 
 	private constructor(props: StaffProps) {
-		this._props = props;
+		this.props = props;
 	}
 
 	public static create(props: CreateStaffProps): Staff {
@@ -109,47 +109,47 @@ export class Staff {
 	}
 
 	public get id(): string {
-		return this._props.id;
+		return this.props.id;
 	}
 
 	public get fullname(): string {
-		return this._props.fullname;
+		return this.props.fullname;
 	}
 
 	public get email(): string {
-		return this._props.email.value;
+		return this.props.email.value;
 	}
 
 	public get emailVO(): StaffEmail {
-		return this._props.email;
+		return this.props.email;
 	}
 
 	public get phone(): string {
-		return this._props.phone.value;
+		return this.props.phone.value;
 	}
 
 	public get phoneVO(): StaffPhone {
-		return this._props.phone;
+		return this.props.phone;
 	}
 
 	public get passwordHash(): string {
-		return this._props.passwordHash;
+		return this.props.passwordHash;
 	}
 
 	public get avatarUrl(): string | null {
-		return this._props.avatarUrl;
+		return this.props.avatarUrl;
 	}
 
 	public get avatarUpdatedAt(): Date | null {
-		return this._props.avatarUpdatedAt;
+		return this.props.avatarUpdatedAt;
 	}
 
 	public get createdAt(): Date {
-		return this._props.createdAt ?? new Date();
+		return this.props.createdAt ?? new Date();
 	}
 
 	public get updatedAt(): Date {
-		return this._props.updatedAt ?? new Date();
+		return this.props.updatedAt ?? new Date();
 	}
 
 	public updateProfile(
@@ -161,33 +161,33 @@ export class Staff {
 			if (typeof fullname !== "string" || fullname.trim().length < 2) {
 				throw new InvalidStaffDataError(messages.FULLNAME_INVALID);
 			}
-			this._props.fullname = fullname.trim();
+			this.props.fullname = fullname.trim();
 		}
 
 		if (phone !== undefined) {
-			this._props.phone = StaffPhone.create(phone);
+			this.props.phone = StaffPhone.create(phone);
 		}
 
 		if (avatar !== undefined) {
 			if (avatar instanceof Date) {
-				this._props.avatarUpdatedAt = avatar;
+				this.props.avatarUpdatedAt = avatar;
 			} else if (typeof avatar === "string") {
-				this._props.avatarUrl = avatar;
-				this._props.avatarUpdatedAt = new Date();
+				this.props.avatarUrl = avatar;
+				this.props.avatarUpdatedAt = new Date();
 			} else if (avatar === null) {
-				this._props.avatarUrl = null;
-				this._props.avatarUpdatedAt = null;
+				this.props.avatarUrl = null;
+				this.props.avatarUpdatedAt = null;
 			}
 		}
 
-		this._props.updatedAt = new Date();
+		this.props.updatedAt = new Date();
 	}
 
 	public changePassword(newPasswordHash: string): void {
 		if (!newPasswordHash || typeof newPasswordHash !== "string") {
 			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
 		}
-		this._props.passwordHash = newPasswordHash;
-		this._props.updatedAt = new Date();
+		this.props.passwordHash = newPasswordHash;
+		this.props.updatedAt = new Date();
 	}
 }

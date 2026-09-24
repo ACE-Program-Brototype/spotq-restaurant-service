@@ -8,7 +8,7 @@ import {
 	StaffStatusVO,
 } from "@/domain/value-objects/staff-status.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { Staff } from "./staff.entity.ts";
+import { Staff } from "@/domain/entities/staff.entity.ts";
 
 export interface RestaurantStaffProps {
 	id: string;

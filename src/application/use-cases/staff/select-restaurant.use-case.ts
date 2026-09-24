@@ -68,7 +68,7 @@ export class SelectRestaurantUseCase implements ISelectRestaurantUseCase {
 			);
 		}
 
-		if (payload.purpose !== "restaurant-selection") {
+		if (payload?.purpose !== "restaurant-selection") {
 			throw new InvalidTempTokenError(messages.INVALID_TOKEN_PURPOSE);
 		}
 

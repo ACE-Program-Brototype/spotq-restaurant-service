@@ -68,7 +68,7 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 		}
 
 		if (restaurantId && staff.restaurantId !== restaurantId) {
-			throw new StaffForbiddenError("Staff belongs to a different restaurant");
+			throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
 		}
 
 		if (staff.status === "INACTIVE") {
@@ -87,14 +87,6 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 		}
 
 		staff.updateProfile(finalName, finalPhone, avatarToSet);
-
-		if (this.staffRepository.updateStaffInfo) {
-			await this.staffRepository.updateStaffInfo(staff.id, {
-				fullname: finalName,
-				phone: finalPhone,
-				avatarUrl,
-			});
-		}
 		await this.staffRepository.save(staff);
 
 		let finalAvatarUrl: string | null = staff.avatarUrl;

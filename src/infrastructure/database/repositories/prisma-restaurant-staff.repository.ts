@@ -325,12 +325,6 @@ export class PrismaRestaurantStaffRepository
 					}
 				: updateData;
 
-			await this.delegate.upsert({
-				where: { id: entity.id },
-				create: fullCreateData,
-				update: fullUpdateData,
-			});
-
 			if (!this.isLegacyMock && staffId && this.prismaClient?.staff) {
 				const staffUpdateData: Prisma.StaffUpdateInput = {};
 				if (entity.fullname) staffUpdateData.fullname = entity.fullname;
@@ -342,17 +336,45 @@ export class PrismaRestaurantStaffRepository
 				}
 
 				if (Object.keys(staffUpdateData).length > 0) {
-					try {
-						await this.prismaClient.staff.update({
-							where: { id: staffId },
-							data: {
-								...staffUpdateData,
-								updatedAt: new Date(),
-							},
+					if (typeof this.prismaClient.$transaction === "function") {
+						await this.prismaClient.$transaction(async (tx) => {
+							await tx.restaurantStaff.upsert({
+								where: { id: entity.id },
+								create: fullCreateData as Prisma.RestaurantStaffCreateInput,
+								update: fullUpdateData as Prisma.RestaurantStaffUpdateInput,
+							});
+							await tx.staff.update({
+								where: { id: staffId },
+								data: {
+									...staffUpdateData,
+									updatedAt: new Date(),
+								},
+							});
 						});
-					} catch {}
+						return;
+					}
+
+					await this.delegate.upsert({
+						where: { id: entity.id },
+						create: fullCreateData,
+						update: fullUpdateData,
+					});
+					await this.prismaClient.staff.update({
+						where: { id: staffId },
+						data: {
+							...staffUpdateData,
+							updatedAt: new Date(),
+						},
+					});
+					return;
 				}
 			}
+
+			await this.delegate.upsert({
+				where: { id: entity.id },
+				create: fullCreateData,
+				update: fullUpdateData,
+			});
 		} catch (error) {
 			this.handlePrismaError(error, entity);
 			throw error;
@@ -440,39 +462,81 @@ export class PrismaRestaurantStaffRepository
 		data: { fullname?: string; phone?: string; avatarUrl?: string | null },
 	): Promise<RestaurantStaff> {
 		try {
-			const options: Record<string, unknown> = {
-				where: { id },
-				data: {
-					...data,
-					updatedAt: new Date(),
-				},
-				...(this.isLegacyMock ? {} : { include: { staff: true } }),
-			};
+			if (this.isLegacyMock) {
+				const options: Record<string, unknown> = {
+					where: { id },
+					data: {
+						...data,
+						updatedAt: new Date(),
+					},
+				};
 
-			const updated = (await this.delegate.update(
-				options,
-			)) as PrismaRestaurantStaffWithRelations;
-
-			if (!this.isLegacyMock && this.prismaClient?.staff) {
-				const staffId = updated.staffId || updated.id;
-				if (staffId) {
-					const staffData: Prisma.StaffUpdateInput = {};
-					if (data.fullname !== undefined) staffData.fullname = data.fullname;
-					if (data.phone !== undefined) staffData.phone = data.phone;
-					if (data.avatarUrl !== undefined) staffData.avatarUrl = data.avatarUrl;
-					if (Object.keys(staffData).length > 0) {
-						await this.prismaClient.staff
-							.update({
-								where: { id: staffId },
-								data: {
-									...staffData,
-									updatedAt: new Date(),
-								},
-							})
-							.catch(() => {});
-					}
-				}
+				const updated = (await this.delegate.update(
+					options,
+				)) as PrismaRestaurantStaffWithRelations;
+				return this.mapper.toDomain(updated);
 			}
+
+			const existing = (await this.delegate.findUnique({
+				where: { id },
+				include: { staff: true },
+			})) as PrismaRestaurantStaffWithRelations | null;
+
+			const targetRecord =
+				existing ||
+				((await this.delegate.findFirst({
+					where: { OR: [{ id }, { staffId: id }] },
+					include: { staff: true },
+				})) as PrismaRestaurantStaffWithRelations | null);
+
+			const targetId = targetRecord?.id || id;
+			const staffId = targetRecord?.staffId || targetRecord?.id || id;
+
+			const staffData: Prisma.StaffUpdateInput = {};
+			if (data.fullname !== undefined) staffData.fullname = data.fullname;
+			if (data.phone !== undefined) staffData.phone = data.phone;
+			if (data.avatarUrl !== undefined) staffData.avatarUrl = data.avatarUrl;
+
+			if (
+				typeof this.prismaClient?.$transaction === "function" &&
+				this.prismaClient?.staff &&
+				Object.keys(staffData).length > 0
+			) {
+				const updated = await this.prismaClient.$transaction(async (tx) => {
+					await tx.staff.update({
+						where: { id: staffId },
+						data: {
+							...staffData,
+							updatedAt: new Date(),
+						},
+					});
+					return tx.restaurantStaff.update({
+						where: { id: targetId },
+						data: { updatedAt: new Date() },
+						include: { staff: true },
+					});
+				});
+
+				return this.mapper.toDomain(
+					updated as PrismaRestaurantStaffWithRelations,
+				);
+			}
+
+			if (Object.keys(staffData).length > 0 && this.prismaClient?.staff) {
+				await this.prismaClient.staff.update({
+					where: { id: staffId },
+					data: {
+						...staffData,
+						updatedAt: new Date(),
+					},
+				});
+			}
+
+			const updated = (await this.delegate.update({
+				where: { id: targetId },
+				data: { updatedAt: new Date() },
+				include: { staff: true },
+			})) as PrismaRestaurantStaffWithRelations;
 
 			return this.mapper.toDomain(updated);
 		} catch (error) {
