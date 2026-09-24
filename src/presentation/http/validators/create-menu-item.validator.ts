@@ -33,29 +33,43 @@ export const createMenuItemAddonSchema = z.object({
 	displayOrder: z.number().int().min(0).optional(),
 });
 
-export const createMenuItemBodySchema = z.object({
-	category_id: z.string().uuid().optional(),
-	categoryId: z.string().uuid().optional(),
-	name: z
-		.string()
-		.trim()
-		.min(1, { message: messages.MENU_ITEM_NAME_REQUIRED })
-		.max(255, { message: messages.MENU_ITEM_NAME_MAX_LENGTH }),
-	description: z.string().trim().max(1000).optional().nullable(),
-	price: z.number().min(0, { message: messages.MENU_ITEM_PRICE_NEGATIVE }),
-	preparation_time: z.number().int().min(0).optional().nullable(),
-	preparationTime: z.number().int().min(0).optional().nullable(),
-	calories: z.number().int().min(0).optional().nullable(),
-	is_vegetarian: z.boolean().optional(),
-	isVegetarian: z.boolean().optional(),
-	is_featured: z.boolean().optional(),
-	isFeatured: z.boolean().optional(),
-	is_available: z.boolean().optional(),
-	isAvailable: z.boolean().optional(),
-	images: z.array(createMenuItemImageSchema).optional(),
-	variants: z.array(createMenuItemVariantSchema).optional(),
-	addons: z.array(createMenuItemAddonSchema).optional(),
-});
+export const createMenuItemBodySchema = z
+	.object({
+		category_id: z.string().uuid().optional(),
+		categoryId: z.string().uuid().optional(),
+		name: z
+			.string()
+			.trim()
+			.min(1, { message: messages.MENU_ITEM_NAME_REQUIRED })
+			.max(255, { message: messages.MENU_ITEM_NAME_MAX_LENGTH }),
+		description: z.string().trim().max(1000).optional().nullable(),
+		price: z
+			.number()
+			.min(0, { message: messages.MENU_ITEM_PRICE_NEGATIVE })
+			.optional(),
+		preparation_time: z.number().int().min(0).optional().nullable(),
+		preparationTime: z.number().int().min(0).optional().nullable(),
+		calories: z.number().int().min(0).optional().nullable(),
+		is_vegetarian: z.boolean().optional(),
+		isVegetarian: z.boolean().optional(),
+		is_featured: z.boolean().optional(),
+		isFeatured: z.boolean().optional(),
+		is_available: z.boolean().optional(),
+		isAvailable: z.boolean().optional(),
+		images: z.array(createMenuItemImageSchema).optional(),
+		variants: z.array(createMenuItemVariantSchema).optional(),
+		addons: z.array(createMenuItemAddonSchema).optional(),
+	})
+	.refine(
+		(data) =>
+			data.price !== undefined ||
+			(data.variants && data.variants.length > 0),
+		{
+			message: messages.MENU_ITEM_PRICE_NEGATIVE,
+			path: ["price"],
+		},
+	);
 
 export type CreateMenuItemParams = z.infer<typeof createMenuItemParamsSchema>;
 export type CreateMenuItemBody = z.infer<typeof createMenuItemBodySchema>;
+
