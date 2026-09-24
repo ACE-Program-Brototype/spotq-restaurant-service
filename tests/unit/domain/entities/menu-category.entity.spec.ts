@@ -60,6 +60,27 @@ describe("MenuCategory Entity", () => {
 		).toThrow(InvalidCategoryDataError);
 	});
 
+	it("should throw InvalidCategoryDataError when name exceeds 255 characters", () => {
+		const longName = "a".repeat(256);
+		expect(() =>
+			MenuCategory.create({
+				restaurantId: validProps.restaurantId,
+				name: longName,
+			}),
+		).toThrow(InvalidCategoryDataError);
+	});
+
+	it("should throw InvalidCategoryDataError when description exceeds 1000 characters", () => {
+		const longDescription = "a".repeat(1001);
+		expect(() =>
+			MenuCategory.create({
+				restaurantId: validProps.restaurantId,
+				name: "Valid Category",
+				description: longDescription,
+			}),
+		).toThrow(InvalidCategoryDataError);
+	});
+
 	it("should throw InvalidCategoryDataError when restaurantId is empty or whitespace", () => {
 		expect(() =>
 			MenuCategory.create({

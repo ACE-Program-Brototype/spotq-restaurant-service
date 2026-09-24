@@ -46,8 +46,19 @@ export class MenuCategory {
 			throw new InvalidCategoryDataError(messages.CATEGORY_NAME_REQUIRED);
 		}
 
+		if (trimmedName.length > 255) {
+			throw new InvalidCategoryDataError(messages.CATEGORY_NAME_MAX_LENGTH);
+		}
+
 		if (!createProps.restaurantId?.trim()) {
 			throw new InvalidCategoryDataError(messages.INVALID_RESTAURANT_ID);
+		}
+
+		const trimmedDescription = createProps.description?.trim() || null;
+		if (trimmedDescription && trimmedDescription.length > 1000) {
+			throw new InvalidCategoryDataError(
+				messages.CATEGORY_DESCRIPTION_MAX_LENGTH,
+			);
 		}
 
 		const now = new Date();
@@ -55,7 +66,7 @@ export class MenuCategory {
 			id: createProps.id || randomUUID(),
 			restaurantId: createProps.restaurantId.trim(),
 			name: trimmedName,
-			description: createProps.description?.trim() || null,
+			description: trimmedDescription,
 			displayOrder: createProps.displayOrder ?? 0,
 			isActive: createProps.isActive ?? true,
 			createdAt: now,

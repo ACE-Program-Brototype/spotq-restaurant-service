@@ -247,6 +247,9 @@ export const messages = {
 	CATEGORY_ALREADY_EXISTS:
 		"A category with this name already exists for this restaurant",
 	CATEGORY_NAME_REQUIRED: "Category name is required",
+	CATEGORY_NAME_MAX_LENGTH: "Category name must not exceed 255 characters",
+	CATEGORY_DESCRIPTION_MAX_LENGTH:
+		"Category description must not exceed 1000 characters",
 	CATEGORY_NOT_FOUND: "Category not found",
 } as const;
 
