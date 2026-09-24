@@ -7,9 +7,11 @@ import { PrismaMenuCategoryRepository } from "@/infrastructure/database/reposito
 
 describe("PrismaMenuCategoryRepository", () => {
 	let mockPrisma: {
+		$transaction: jest.Mock;
 		menuCategory: {
 			findFirst: jest.Mock;
 			create: jest.Mock;
+			updateMany: jest.Mock;
 			findUnique: jest.Mock;
 			count: jest.Mock;
 			upsert: jest.Mock;
@@ -22,9 +24,14 @@ describe("PrismaMenuCategoryRepository", () => {
 
 	beforeEach(() => {
 		mockPrisma = {
+			// biome-ignore lint/suspicious/noExplicitAny: Mock transaction callback
+			$transaction: jest.fn(async (cb: (tx: any) => Promise<any>) =>
+				cb(mockPrisma),
+			),
 			menuCategory: {
 				findFirst: jest.fn(),
 				create: jest.fn(),
+				updateMany: jest.fn().mockResolvedValue({ count: 0 }),
 				findUnique: jest.fn(),
 				count: jest.fn(),
 				upsert: jest.fn(),
@@ -130,6 +137,49 @@ describe("PrismaMenuCategoryRepository", () => {
 		expect(created).toBeInstanceOf(MenuCategory);
 		expect(created.id).toBe(category.id);
 		expect(created.name).toBe("Main Course");
+	});
+
+	it("should shift existing display orders with increment 1 when creating category", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Appetizers",
+			displayOrder: 2,
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 3 });
+		mockPrisma.menuCategory.create.mockResolvedValueOnce({
+			id: category.id,
+			restaurantId: category.restaurantId,
+			name: category.name,
+			description: category.description,
+			displayOrder: category.displayOrder,
+			isActive: category.isActive,
+			createdAt: category.createdAt,
+			updatedAt: category.updatedAt,
+		});
+
+		const created = await repository.create(category);
+
+		expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				displayOrder: {
+					gte: 2,
+				},
+			},
+			data: {
+				displayOrder: {
+					increment: 1,
+				},
+			},
+		});
+		expect(mockPrisma.menuCategory.create).toHaveBeenCalledWith({
+			data: expect.objectContaining({
+				displayOrder: 2,
+			}),
+		});
+		expect(created.displayOrder).toBe(2);
 	});
 
 	it("should translate P2002 error to CategoryAlreadyExistsError", async () => {

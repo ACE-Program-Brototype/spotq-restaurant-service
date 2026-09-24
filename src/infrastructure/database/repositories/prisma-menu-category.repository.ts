@@ -25,9 +25,9 @@ export class PrismaMenuCategoryRepository
 {
 	constructor(
 		@inject(TYPES.PrismaClient)
-		prisma: PrismaClient,
+		private readonly prismaClient: PrismaClient,
 	) {
-		super(prisma.menuCategory, MenuCategoryPersistenceMapper);
+		super(prismaClient.menuCategory, MenuCategoryPersistenceMapper);
 	}
 
 	protected override handlePrismaError(
@@ -87,7 +87,23 @@ export class PrismaMenuCategoryRepository
 	public async create(category: MenuCategory): Promise<MenuCategory> {
 		try {
 			const data = this.mapper.toPersistence(category);
-			const created = await this.dbModel.create({ data });
+			const created = await this.prismaClient.$transaction(async (tx) => {
+				await tx.menuCategory.updateMany({
+					where: {
+						restaurantId: data.restaurantId,
+						displayOrder: {
+							gte: data.displayOrder,
+						},
+					},
+					data: {
+						displayOrder: {
+							increment: 1,
+						},
+					},
+				});
+
+				return tx.menuCategory.create({ data });
+			});
 			return this.mapper.toDomain(created);
 		} catch (error) {
 			this.handlePrismaError(error, category);

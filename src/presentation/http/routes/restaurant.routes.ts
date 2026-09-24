@@ -186,11 +186,7 @@ restaurantRouter.delete(
 );
 
 restaurantRouter.post(
-	[
-		RESTAURANT_ROUTES.MENU_CATEGORIES,
-		RESTAURANT_ROUTES.MENU_CATEGORIES_PREFIX,
-		RESTAURANT_ROUTES.MENU_CATEGORIES_FULL,
-	],
+	RESTAURANT_ROUTES.MENU_CATEGORIES,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createMenuCategoryParamsSchema),
 	validateRequestBody(createMenuCategoryBodySchema),
