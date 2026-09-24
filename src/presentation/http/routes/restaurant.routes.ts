@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	addonController,
+	menuCategoryController,
 	menuItemController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
@@ -23,6 +24,11 @@ import {
 	createAddonParamsSchema,
 	listAddonsParamsSchema,
 } from "../validators/create-addon.validator";
+import {
+	createMenuCategoryBodySchema,
+	createMenuCategoryParamsSchema,
+	listMenuCategoriesParamsSchema,
+} from "../validators/create-menu-category.validator";
 import {
 	createMenuItemBodySchema,
 	createMenuItemParamsSchema,
@@ -225,3 +231,27 @@ restaurantRouter.post(
 	validateRequestBody(createMenuItemBodySchema),
 	menuItemController.createMenuItem.bind(menuItemController),
 );
+
+restaurantRouter.post(
+	[
+		RESTAURANT_ROUTES.MENU_CATEGORIES,
+		RESTAURANT_ROUTES.MENU_CATEGORIES_PREFIX,
+		RESTAURANT_ROUTES.MENU_CATEGORIES_FULL,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(createMenuCategoryParamsSchema),
+	validateRequestBody(createMenuCategoryBodySchema),
+	menuCategoryController.createCategory.bind(menuCategoryController),
+);
+
+restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.MENU_CATEGORIES,
+		RESTAURANT_ROUTES.MENU_CATEGORIES_PREFIX,
+		RESTAURANT_ROUTES.MENU_CATEGORIES_FULL,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamsSchema),
+	menuCategoryController.listCategories.bind(menuCategoryController),
+);
+

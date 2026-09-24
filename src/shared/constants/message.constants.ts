@@ -259,6 +259,12 @@ export const messages = {
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",
 	MENU_ITEM_NOT_FOUND: "Menu item not found",
+		MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	MENU_CATEGORIES_FETCHED_SUCCESS: "Menu categories retrieved successfully",
+	CATEGORY_ALREADY_EXISTS: "Menu category with this name already exists",
+	CATEGORY_NAME_REQUIRED: "Category name is required",
+	CATEGORY_NAME_MAX_LENGTH: "Category name must not exceed 255 characters",
+	CATEGORY_DESCRIPTION_MAX_LENGTH: "Category description must not exceed 1000 characters",
 	CATEGORY_NOT_FOUND: "Menu category not found for this restaurant",
 	INVALID_CATEGORY_ID: "Invalid category ID",
 	ADDON_NOT_FOUND_FOR_RESTAURANT:
