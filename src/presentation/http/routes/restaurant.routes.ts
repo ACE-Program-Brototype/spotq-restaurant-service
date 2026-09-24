@@ -21,6 +21,7 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
+import { listMenuCategoriesParamSchema } from "../validators/admin/list-menu-categories.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -191,4 +192,11 @@ restaurantRouter.post(
 	validateRequestParams(createMenuCategoryParamsSchema),
 	validateRequestBody(createMenuCategoryBodySchema),
 	menuCategoryController.createCategory.bind(menuCategoryController),
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.MENU_CATEGORIES,
+	restaurantAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamSchema),
+	menuCategoryController.listRestaurantCategories.bind(menuCategoryController),
 );

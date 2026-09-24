@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
+import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -11,6 +12,8 @@ export class MenuCategoryController {
 	constructor(
 		@inject(TYPES.UseCases.CreateMenuCategoryUseCase)
 		private readonly createMenuCategoryUseCase: ICreateMenuCategoryUseCase,
+		@inject(TYPES.UseCases.ListRestaurantMenuCategoriesUseCase)
+		private readonly listRestaurantMenuCategoriesUseCase: IListRestaurantMenuCategoriesUseCase,
 	) {}
 
 	public async createCategory(
@@ -34,6 +37,29 @@ export class MenuCategoryController {
 				result,
 				messages.MENU_CATEGORY_CREATED_SUCCESS,
 				HTTP_STATUS.CREATED,
+			);
+		} catch (error) {
+			next(error);
+		}
+	}
+
+	public async listRestaurantCategories(
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> {
+		try {
+			const restaurantId = String(req.params.restaurantId);
+			const result =
+				await this.listRestaurantMenuCategoriesUseCase.execute({
+					restaurantId,
+				});
+
+			sendSuccessResponse(
+				res,
+				result,
+				messages.MENU_CATEGORIES_FETCHED_SUCCESS,
+				HTTP_STATUS.OK,
 			);
 		} catch (error) {
 			next(error);

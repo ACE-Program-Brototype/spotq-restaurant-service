@@ -106,6 +106,9 @@ export const TYPES = {
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
+		ListRestaurantMenuCategoriesUseCase: Symbol.for(
+			"ListRestaurantMenuCategoriesUseCase",
+		),
 	},
 
 	Controller: {

@@ -255,6 +255,7 @@ export const messages = {
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	MENU_CATEGORIES_FETCHED_SUCCESS: "Menu categories retrieved successfully",
 	CATEGORY_ALREADY_EXISTS:
 		"A category with this name already exists for this restaurant",
 	CATEGORY_NAME_REQUIRED: "Category name is required",

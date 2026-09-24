@@ -7,6 +7,7 @@ export interface IMenuCategoryRepository
 		restaurantId: string,
 		name: string,
 	): Promise<MenuCategory | null>;
+	findByRestaurantId(restaurantId: string): Promise<MenuCategory[]>;
 	getNextDisplayOrder(restaurantId: string): Promise<number>;
 	create(category: MenuCategory): Promise<MenuCategory>;
 }

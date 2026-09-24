@@ -13,6 +13,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			create: jest.Mock;
 			updateMany: jest.Mock;
 			findUnique: jest.Mock;
+			findMany: jest.Mock;
 			count: jest.Mock;
 			upsert: jest.Mock;
 			delete: jest.Mock;
@@ -30,6 +31,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			),
 			menuCategory: {
 				findFirst: jest.fn(),
+				findMany: jest.fn(),
 				create: jest.fn(),
 				updateMany: jest.fn().mockResolvedValue({ count: 0 }),
 				findUnique: jest.fn(),
@@ -86,6 +88,59 @@ describe("PrismaMenuCategoryRepository", () => {
 		);
 
 		expect(result).toBeNull();
+	});
+
+	it("should return categories mapped to domain entities ordered by displayOrder asc", async () => {
+		const rawRecords = [
+			{
+				id: "cat-1",
+				restaurantId,
+				name: "Appetizers",
+				description: "Starters",
+				displayOrder: 0,
+				isActive: true,
+				createdAt: new Date("2026-09-24T10:00:00Z"),
+				updatedAt: new Date("2026-09-24T10:00:00Z"),
+			},
+			{
+				id: "cat-2",
+				restaurantId,
+				name: "Desserts",
+				description: null,
+				displayOrder: 1,
+				isActive: true,
+				createdAt: new Date("2026-09-24T10:00:00Z"),
+				updatedAt: new Date("2026-09-24T10:00:00Z"),
+			},
+		];
+
+		mockPrisma.menuCategory.findMany.mockResolvedValueOnce(rawRecords);
+
+		const result = await repository.findByRestaurantId(restaurantId);
+
+		expect(result).toHaveLength(2);
+		expect(result[0]).toBeInstanceOf(MenuCategory);
+		expect(result[0].id).toBe("cat-1");
+		expect(result[0].displayOrder).toBe(0);
+		expect(result[1]).toBeInstanceOf(MenuCategory);
+		expect(result[1].id).toBe("cat-2");
+		expect(result[1].displayOrder).toBe(1);
+		expect(mockPrisma.menuCategory.findMany).toHaveBeenCalledWith({
+			where: { restaurantId },
+			orderBy: { displayOrder: "asc" },
+		});
+	});
+
+	it("should return an empty array when no categories are found for the restaurant", async () => {
+		mockPrisma.menuCategory.findMany.mockResolvedValueOnce([]);
+
+		const result = await repository.findByRestaurantId(restaurantId);
+
+		expect(result).toEqual([]);
+		expect(mockPrisma.menuCategory.findMany).toHaveBeenCalledWith({
+			where: { restaurantId },
+			orderBy: { displayOrder: "asc" },
+		});
 	});
 
 	it("should calculate next display order as max + 1 when categories exist", async () => {
