@@ -8,7 +8,9 @@ import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
-export class ListRestaurantAddonsUseCase implements IListRestaurantAddonsUseCase {
+export class ListRestaurantAddonsUseCase
+	implements IListRestaurantAddonsUseCase
+{
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,

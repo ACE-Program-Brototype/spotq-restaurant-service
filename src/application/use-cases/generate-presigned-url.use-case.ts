@@ -88,9 +88,7 @@ export class GeneratePresignedUrlUseCase
 						? entityId
 						: "");
 				const staffId =
-					entityType === "staff"
-						? entityId
-						: authContext?.userId || entityId;
+					entityType === "staff" ? entityId : authContext?.userId || entityId;
 				return `restaurants/${restaurantId}/staff/${staffId}/avatar.png`;
 			}
 			return `${entityType}/${entityId}/profile/avatar.png`;
