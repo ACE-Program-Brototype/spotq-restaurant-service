@@ -26,6 +26,9 @@ export const RESTAURANT_ROUTES = {
 	RESTAURANT_ADDONS: "/:restaurantId/addons",
 	RESTAURANT_ADDONS_PREFIX: "/restaurants/:restaurantId/addons",
 	RESTAURANT_ADDONS_FULL: "/api/v1/restaurants/:restaurantId/addons",
+	MENU_ITEMS: "/:restaurantId/menu-items",
+	MENU_ITEMS_PREFIX: "/restaurants/:restaurantId/menu-items",
+	MENU_ITEMS_FULL: "/api/v1/restaurants/:restaurantId/menu-items",
 } as const;
 
 export const STAFF_ROUTES = {

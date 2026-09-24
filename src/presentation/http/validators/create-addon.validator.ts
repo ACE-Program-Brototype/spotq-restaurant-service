@@ -17,9 +17,7 @@ export const createAddonBodySchema = z.object({
 		.max(1000, { message: messages.ADDON_DESCRIPTION_MAX_LENGTH })
 		.optional()
 		.nullable(),
-	price: z
-		.number()
-		.min(0, { message: messages.ADDON_PRICE_NEGATIVE }),
+	price: z.number().min(0, { message: messages.ADDON_PRICE_NEGATIVE }),
 	image_key: z.string().trim().max(500).optional().nullable(),
 	imageKey: z.string().trim().max(500).optional().nullable(),
 	is_available: z.boolean().optional(),

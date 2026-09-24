@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	addonController,
+	menuItemController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
 	restaurantStatusController,
@@ -17,6 +18,15 @@ import {
 	validateRequestParams,
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
+import {
+	createAddonBodySchema,
+	createAddonParamsSchema,
+	listAddonsParamsSchema,
+} from "../validators/create-addon.validator";
+import {
+	createMenuItemBodySchema,
+	createMenuItemParamsSchema,
+} from "../validators/create-menu-item.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -38,11 +48,6 @@ import {
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
-import {
-	createAddonBodySchema,
-	createAddonParamsSchema,
-	listAddonsParamsSchema,
-} from "../validators/create-addon.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -209,3 +214,14 @@ restaurantRouter.get(
 	addonController.listAddons.bind(addonController),
 );
 
+restaurantRouter.post(
+	[
+		RESTAURANT_ROUTES.MENU_ITEMS,
+		RESTAURANT_ROUTES.MENU_ITEMS_PREFIX,
+		RESTAURANT_ROUTES.MENU_ITEMS_FULL,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(createMenuItemParamsSchema),
+	validateRequestBody(createMenuItemBodySchema),
+	menuItemController.createMenuItem.bind(menuItemController),
+);

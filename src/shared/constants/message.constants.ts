@@ -244,15 +244,37 @@ export const messages = {
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 	ADDON_CREATED_SUCCESS: "Menu item add-on created successfully",
-	ADDON_ALREADY_EXISTS: "An add-on with this name already exists for this restaurant",
+	ADDON_ALREADY_EXISTS:
+		"An add-on with this name already exists for this restaurant",
 	ADDON_NOT_FOUND: "Add-on not found",
 	ADDON_NAME_REQUIRED: "Name is required",
 	ADDON_NAME_MAX_LENGTH: "Add-on name must not exceed 255 characters",
 	ADDON_PRICE_REQUIRED: "Price is required",
 	ADDON_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
-	ADDON_DESCRIPTION_MAX_LENGTH: "Add-on description must not exceed 1000 characters",
+	ADDON_DESCRIPTION_MAX_LENGTH:
+		"Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
 	INVALID_ADDON_ID: "Invalid add-on ID",
+	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
+	MENU_ITEM_ALREADY_EXISTS:
+		"A menu item with this name already exists for this restaurant",
+	MENU_ITEM_NOT_FOUND: "Menu item not found",
+	CATEGORY_NOT_FOUND: "Menu category not found for this restaurant",
+	INVALID_CATEGORY_ID: "Invalid category ID",
+	ADDON_NOT_FOUND_FOR_RESTAURANT:
+		"One or more selected add-ons do not belong to this restaurant",
+	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",
+	MENU_ITEM_NAME_MAX_LENGTH: "Menu item name must not exceed 255 characters",
+	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",
+	MENU_ITEM_PRICE_NEGATIVE:
+		"Menu item price must be greater than or equal to 0",
+	PREPARATION_TIME_NEGATIVE: "Preparation time cannot be negative",
+	CALORIES_NEGATIVE: "Calories cannot be negative",
+	INVALID_VARIANT_DATA: "Invalid variant data",
+	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
+	VARIANT_NAME_REQUIRED: "Variant name is required",
+	VARIANT_PRICE_REQUIRED: "Variant price is required",
+	VARIANT_PRICE_NEGATIVE: "Variant price must be greater than or equal to 0",
 } as const;
 
 export type MessageKey = keyof typeof messages;
