@@ -79,6 +79,13 @@ export class UpdateStaffStatusUseCase implements IUpdateStaffStatusUseCase {
 			staff.deactivate();
 		}
 
+		if (this.staffRepository.updateStatus) {
+			await this.staffRepository.updateStatus(
+				staff.id,
+				targetStatus,
+				restaurantId,
+			);
+		}
 		await this.staffRepository.save(staff);
 
 		return StaffMapper.toProfileDTO(staff);

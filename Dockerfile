@@ -5,14 +5,18 @@ WORKDIR /app
 RUN corepack enable
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm exec prisma generate --schema=prisma/schema.prisma && \
-    pnpm build && \
-    pnpm prune --prod --ignore-scripts
 
-FROM node:22-alpine
+RUN pnpm exec prisma generate --schema=prisma/schema.prisma && \
+    pnpm build
+
+RUN pnpm prune --prod --ignore-scripts
+
+
+FROM node:22-alpine AS production
 
 WORKDIR /app
 
@@ -21,10 +25,11 @@ ENV NODE_ENV=production \
     TZ=UTC \
     INFISICAL_DISABLE_UPDATE_CHECK=true
 
-RUN apk add --no-cache bash curl && \
-    curl -1sLf 'https://artifacts-cli.infisical.com/setup.apk.sh' | sh && \
-    apk update && \
-    apk add --no-cache infisical
+RUN apk add --no-cache \
+        bash \
+        curl \
+    && curl -1sLf 'https://artifacts-cli.infisical.com/setup.apk.sh' | sh \
+    && apk add --no-cache infisical
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
@@ -36,7 +41,11 @@ USER node
 
 EXPOSE 3001
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD curl -fsS http://127.0.0.1:3001/health || exit 1
+HEALTHCHECK \
+    --interval=30s \
+    --timeout=5s \
+    --start-period=20s \
+    --retries=3 \
+    CMD curl -fsS http://127.0.0.1:3001/health || exit 1
 
 CMD ["infisical", "run", "--", "node", "dist/server.js"]

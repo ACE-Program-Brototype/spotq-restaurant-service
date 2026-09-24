@@ -45,16 +45,23 @@ export class GetStaffDetailUseCase implements IGetStaffDetailUseCase {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 
-		let avatarUrl: string | null = null;
-		if (staff.avatarUpdatedAt && this.storageService) {
-			try {
-				const { downloadUrl } =
-					await this.storageService.generatePresignedGetUrl({
-						key: `restaurants/${restaurantId}/staff/${staff.id}/avatar.png`,
-					});
-				avatarUrl = downloadUrl;
-			} catch {
-				avatarUrl = null;
+		let avatarUrl: string | null = staff.avatarUrl;
+		if (this.storageService) {
+			const s3Key =
+				staff.avatarUrl ||
+				(staff.avatarUpdatedAt
+					? `restaurants/${staff.restaurantId}/staff/${staff.id}/avatar.png`
+					: null);
+			if (s3Key) {
+				try {
+					const { downloadUrl } =
+						await this.storageService.generatePresignedGetUrl({
+							key: s3Key,
+						});
+					avatarUrl = downloadUrl;
+				} catch {
+					avatarUrl = s3Key;
+				}
 			}
 		}
 

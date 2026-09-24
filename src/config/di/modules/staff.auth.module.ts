@@ -20,6 +20,7 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port";
+import type { ISelectRestaurantUseCase } from "@/application/ports/use-cases/select-restaurant.use-case.port";
 import type { IUpdateStaffInfoUseCase } from "@/application/ports/use-cases/update-staff-info.use-case.port";
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port";
 import type { IUpdateStaffStatusUseCase } from "@/application/ports/use-cases/update-staff-status.use-case.port";
@@ -40,6 +41,7 @@ import { ResendForgotPasswordOtpUseCase } from "@/application/use-cases/staff/re
 import { ResendStaffInvitationUseCase } from "@/application/use-cases/staff/resend-staff-invitation.use-case";
 import { ResetPasswordUseCase } from "@/application/use-cases/staff/reset-password.use-case";
 import { RevokeStaffInvitationUseCase } from "@/application/use-cases/staff/revoke-staff-invitation.use-case";
+import { SelectRestaurantUseCase } from "@/application/use-cases/staff/select-restaurant.use-case";
 import { UpdateStaffInfoUseCase } from "@/application/use-cases/staff/update-staff-info.use-case";
 import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-staff-profile.use-case";
 import { UpdateStaffStatusUseCase } from "@/application/use-cases/staff/update-staff-status.use-case";
@@ -49,9 +51,11 @@ import { TYPES } from "@/config/di/types";
 import { env } from "@/config/env";
 import type { IOtpRepository } from "@/domain/repositories/otp.repository.interface";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface";
+import type { IStaffRepository } from "@/domain/repositories/staff.repository.interface";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface";
 import type { ITokenRevocationRepository } from "@/domain/repositories/token-revocation.repository.interface";
 import { PrismaRestaurantStaffRepository } from "@/infrastructure/database/repositories/prisma-restaurant-staff.repository";
+import { PrismaStaffRepository } from "@/infrastructure/database/repositories/prisma-staff.repository";
 import { PrismaStaffInvitationRepository } from "@/infrastructure/database/repositories/prisma-staff-invitation.repository";
 import { RedisOtpRepository } from "@/infrastructure/database/repositories/redis-otp.repository";
 import { RedisTokenRevocationRepository } from "@/infrastructure/database/repositories/redis-token-revocation.repository";
@@ -65,6 +69,10 @@ import { StaffController } from "@/presentation/http/controllers/staff.controlle
 
 export const staffAuthModule = new ContainerModule(({ bind }) => {
 	// Repositories
+	bind<IStaffRepository>(TYPES.StaffRepository)
+		.to(PrismaStaffRepository)
+		.inSingletonScope();
+
 	bind<IRestaurantStaffRepository>(TYPES.RestaurantStaffRepository)
 		.to(PrismaRestaurantStaffRepository)
 		.inSingletonScope();
@@ -109,6 +117,10 @@ export const staffAuthModule = new ContainerModule(({ bind }) => {
 	// Use Cases
 	bind<ILoginStaffUseCase>(TYPES.LoginStaffUseCase)
 		.to(LoginStaffUseCase)
+		.inSingletonScope();
+
+	bind<ISelectRestaurantUseCase>(TYPES.SelectRestaurantUseCase)
+		.to(SelectRestaurantUseCase)
 		.inSingletonScope();
 
 	bind<ILogoutStaffUseCase>(TYPES.LogoutStaffUseCase)

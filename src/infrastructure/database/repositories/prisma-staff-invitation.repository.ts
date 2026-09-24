@@ -17,7 +17,6 @@ import type {
 	StaffInvitationFilterParams,
 } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { StaffPersistenceMapper } from "../mappers/staff.mapper.ts";
 import { StaffInvitationPersistenceMapper } from "../mappers/staff-invitation.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -153,13 +152,6 @@ export class PrismaStaffInvitationRepository
 		staff: RestaurantStaff,
 		invitation: StaffInvitation,
 	): Promise<void> {
-		const staffData = StaffPersistenceMapper.toPersistence(staff);
-		const {
-			id: _staffId,
-			createdAt: _staffCreatedAt,
-			...staffUpdateData
-		} = staffData;
-
 		const invitationData =
 			StaffInvitationPersistenceMapper.toPersistence(invitation);
 		const {
@@ -169,18 +161,58 @@ export class PrismaStaffInvitationRepository
 		} = invitationData;
 
 		try {
-			await this.prisma.$transaction([
-				this.prisma.restaurantStaff.upsert({
-					where: { id: staff.id },
-					create: staffData,
-					update: staffUpdateData,
-				}),
-				this.prisma.staffInvitation.upsert({
+			await this.prisma.$transaction(async (tx) => {
+				const normalizedEmail = (staff.email || invitation.email)
+					.toLowerCase()
+					.trim();
+
+				const globalStaff = await tx.staff.upsert({
+					where: { email: normalizedEmail },
+					create: {
+						id: staff.staff?.id || staff.staffId || undefined,
+						email: normalizedEmail,
+						fullname: staff.fullname || staff.staff?.fullname || "",
+						phone: staff.phone || staff.staff?.phone || "",
+						passwordHash: staff.passwordHash || staff.staff?.passwordHash || "",
+						avatarUrl: staff.avatarUrl || staff.staff?.avatarUrl || null,
+					},
+					update: {
+						...(staff.fullname && { fullname: staff.fullname }),
+						...(staff.phone && { phone: staff.phone }),
+					},
+				});
+				const staffId = globalStaff.id;
+
+				await tx.restaurantStaff.upsert({
+					where: {
+						staffId_restaurantId: {
+							staffId,
+							restaurantId: staff.restaurantId,
+						},
+					},
+					create: {
+						id: staff.id,
+						staffId,
+						restaurantId: staff.restaurantId,
+						role: staff.role,
+						status: staff.status,
+						joinedAt: staff.joinedAt ?? new Date(),
+						leftAt: staff.leftAt,
+					},
+					update: {
+						status: staff.status,
+						role: staff.role,
+						leftAt: staff.leftAt,
+						updatedAt: new Date(),
+					},
+				});
+
+				await tx.staffInvitation.upsert({
 					where: { id: invitation.id },
 					create: invitationData,
 					update: invUpdateData,
-				}),
-			]);
+				});
+			});
 		} catch (error) {
 			const code = (error as { code?: string })?.code;
 			if (

@@ -2,9 +2,9 @@ import type { StaffResponseDTO } from "./staff-response.dto.ts";
 
 export interface AcceptInvitationDTO {
 	token: string;
-	fullname: string;
-	phone: string;
-	password: string;
+	fullname?: string;
+	phone?: string;
+	password?: string;
 }
 
 export interface AcceptInvitationResponseDTO {
