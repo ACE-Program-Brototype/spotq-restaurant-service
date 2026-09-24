@@ -1,15 +1,12 @@
-import express from "express";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller.ts";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";
-import { restaurantRouter } from "@/presentation/http/routes/restaurant.routes.ts";
 import { ERROR_CODES } from "@/shared/constants/error-code.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("POST /restaurants/:restaurantId/menu/categories - Integration & Controller Suite", () => {
-	let app: express.Express;
 	let mockRestaurantRepo: {
 		findById: jest.Mock;
 	};
@@ -39,13 +36,6 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 			getNextDisplayOrder: jest.fn(),
 			create: jest.fn(),
 		};
-
-		app = express();
-		app.use(express.json());
-
-		// Mount route handlers directly to test full middleware stack
-		app.use("/", restaurantRouter);
-		app.use(errorHandler);
 	});
 
 	it("should return 401 UNAUTHORIZED when no authentication identity header is provided", async () => {
