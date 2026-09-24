@@ -1,5 +1,6 @@
 import express from "express";
 import {
+	addonController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
 	restaurantStatusController,
@@ -37,6 +38,11 @@ import {
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
+import {
+	createAddonBodySchema,
+	createAddonParamsSchema,
+	listAddonsParamsSchema,
+} from "../validators/create-addon.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -179,3 +185,27 @@ restaurantRouter.delete(
 		restaurantStaffManagementController,
 	),
 );
+
+restaurantRouter.post(
+	[
+		RESTAURANT_ROUTES.RESTAURANT_ADDONS,
+		RESTAURANT_ROUTES.RESTAURANT_ADDONS_PREFIX,
+		RESTAURANT_ROUTES.RESTAURANT_ADDONS_FULL,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(createAddonParamsSchema),
+	validateRequestBody(createAddonBodySchema),
+	addonController.createAddon.bind(addonController),
+);
+
+restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.RESTAURANT_ADDONS,
+		RESTAURANT_ROUTES.RESTAURANT_ADDONS_PREFIX,
+		RESTAURANT_ROUTES.RESTAURANT_ADDONS_FULL,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listAddonsParamsSchema),
+	addonController.listAddons.bind(addonController),
+);
+

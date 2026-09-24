@@ -243,6 +243,16 @@ export const messages = {
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
+	ADDON_CREATED_SUCCESS: "Menu item add-on created successfully",
+	ADDON_ALREADY_EXISTS: "An add-on with this name already exists for this restaurant",
+	ADDON_NOT_FOUND: "Add-on not found",
+	ADDON_NAME_REQUIRED: "Name is required",
+	ADDON_NAME_MAX_LENGTH: "Add-on name must not exceed 255 characters",
+	ADDON_PRICE_REQUIRED: "Price is required",
+	ADDON_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
+	ADDON_DESCRIPTION_MAX_LENGTH: "Add-on description must not exceed 1000 characters",
+	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
+	INVALID_ADDON_ID: "Invalid add-on ID",
 } as const;
 
 export type MessageKey = keyof typeof messages;
