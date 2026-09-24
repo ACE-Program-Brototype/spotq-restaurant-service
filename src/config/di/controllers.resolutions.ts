@@ -1,3 +1,4 @@
+import type { AddonController } from "@/presentation/http/controllers/addon.controller";
 import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
 import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
 import type { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
@@ -38,3 +39,8 @@ export const adminRestaurantController =
 	container.get<AdminRestaurantController>(
 		TYPES.Controller.AdminRestaurantController,
 	);
+
+export const addonController = container.get<AddonController>(
+	TYPES.Controller.AddonController,
+);
+

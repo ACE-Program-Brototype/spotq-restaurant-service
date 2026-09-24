@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { Container } from "inversify";
+import { addonModule } from "./modules/addon.module";
 import { adminModule } from "./modules/admin.module";
 import { commonModule } from "./modules/common.module";
 import { restaurantAuthModule } from "./modules/restaurant.auth.module";
@@ -16,4 +17,6 @@ container.load(
 	staffAuthModule,
 	storageModule,
 	adminModule,
+	addonModule,
 );
+

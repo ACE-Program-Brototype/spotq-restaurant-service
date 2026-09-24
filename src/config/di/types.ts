@@ -53,6 +53,12 @@ export const TYPES = {
 	JWKSController: Symbol.for("JWKSController"),
 	JWKService: Symbol.for("JWKService"),
 
+	// Addon DI Symbols
+	AddonRepository: Symbol.for("AddonRepository"),
+	CreateAddonUseCase: Symbol.for("CreateAddonUseCase"),
+	ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
+	AddonController: Symbol.for("AddonController"),
+
 	// Observability & System
 	HealthCheckService: Symbol.for("HealthCheckService"),
 
@@ -103,6 +109,8 @@ export const TYPES = {
 		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
+		CreateAddonUseCase: Symbol.for("CreateAddonUseCase"),
+		ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
 	},
 
 	Controller: {
@@ -110,6 +118,7 @@ export const TYPES = {
 		AdminRestaurantController: Symbol.for("AdminRestaurantController"),
 		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
+		AddonController: Symbol.for("AddonController"),
 	},
 
 	Database: {
@@ -118,6 +127,7 @@ export const TYPES = {
 
 	Repositories: {
 		RestaurantRepository: Symbol.for("RestaurantRepository"),
+		AddonRepository: Symbol.for("AddonRepository"),
 	},
 
 	Redis: {
