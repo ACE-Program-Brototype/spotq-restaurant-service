@@ -431,7 +431,7 @@ describe("RestaurantStaffManagementController", () => {
 			const next = jest.fn();
 
 			await controller.updateStaffStatus(
-				req as Request,
+				req as unknown as Request,
 				res as Response,
 				next as unknown as NextFunction,
 			);
@@ -463,7 +463,7 @@ describe("RestaurantStaffManagementController", () => {
 			const next = jest.fn();
 
 			await controller.updateStaffStatus(
-				req as Request,
+				req as unknown as Request,
 				res as Response,
 				next as unknown as NextFunction,
 			);
@@ -509,7 +509,7 @@ describe("RestaurantStaffManagementController", () => {
 			const next = jest.fn();
 
 			await controller.updateStaffStatus(
-				req as Request,
+				req as unknown as Request,
 				res as Response,
 				next as unknown as NextFunction,
 			);
@@ -548,7 +548,7 @@ describe("RestaurantStaffManagementController", () => {
 			const next = jest.fn();
 
 			await controller.updateStaffStatus(
-				req as Request,
+				req as unknown as Request,
 				res as Response,
 				next as unknown as NextFunction,
 			);

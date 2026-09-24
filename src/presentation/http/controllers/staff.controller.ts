@@ -15,6 +15,7 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { ISelectRestaurantUseCase } from "@/application/ports/use-cases/select-restaurant.use-case.port.ts";
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
@@ -70,15 +71,69 @@ export class StaffController {
 		private readonly getStaffProfileUseCase: IGetStaffProfileUseCase,
 		@inject(TYPES.UpdateStaffProfileUseCase)
 		private readonly updateStaffProfileUseCase: IUpdateStaffProfileUseCase,
+		@inject(TYPES.SelectRestaurantUseCase)
+		private readonly selectRestaurantUseCase: ISelectRestaurantUseCase,
 	) {}
 
 	public login = async (req: Request, res: Response): Promise<void> => {
 		const dto: LoginStaffDTO = {
 			email: req.body.email,
 			password: req.body.password,
+			...(req.body.restaurantId && { restaurantId: req.body.restaurantId }),
 		};
 
 		const result = await this.loginStaffUseCase.execute(dto);
+
+		if (result.requiresRestaurantSelection) {
+			sendSuccessResponse(
+				res,
+				{
+					requiresRestaurantSelection: true,
+					selectToken: result.selectToken,
+					restaurants: result.restaurants,
+				},
+				messages.SELECT_RESTAURANT_PROMPT,
+				HTTP_STATUS.OK,
+			);
+			return;
+		}
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		if (result.refreshToken) {
+			res.cookie(
+				env.COOKIE_NAME_REFRESH_TOKEN,
+				result.refreshToken,
+				cookieOptions,
+			);
+		}
+
+		sendSuccessResponse(
+			res,
+			{
+				staff: result.staff,
+				accessToken: result.accessToken,
+			},
+			messages.STAFF_LOGIN_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public selectRestaurant = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const result = await this.selectRestaurantUseCase.execute({
+			selectToken: req.body.selectToken,
+			restaurantId: req.body.restaurantId,
+		});
 
 		const cookieOptions: CookieOptions = {
 			httpOnly: env.COOKIE_HTTP_ONLY,
@@ -374,7 +429,8 @@ export class StaffController {
 
 	public getProfile = async (req: Request, res: Response): Promise<void> => {
 		const authReq = req as AuthenticatedRequest;
-		const staffId = authReq.user?.userId ?? authReq.userId;
+		const authUser = authReq.user;
+		const staffId = authUser?.userId ?? authReq.userId;
 
 		if (!staffId) {
 			res
@@ -389,7 +445,9 @@ export class StaffController {
 			return;
 		}
 
-		const profile = await this.getStaffProfileUseCase.execute({ staffId });
+		const profile = await this.getStaffProfileUseCase.execute({
+			staffId,
+		});
 
 		sendSuccessResponse(
 			res,
@@ -486,9 +544,15 @@ export class StaffController {
 				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN_UPDATE);
 			}
 
-			if (authUser?.restaurantId && authUser.restaurantId !== restaurantId) {
-				throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
+			if (
+				authUser?.restaurantId &&
+				restaurantId &&
+				authUser.restaurantId !== restaurantId
+			) {
+				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN_UPDATE);
 			}
+
+			const targetRestaurantId = authUser?.restaurantId || restaurantId;
 
 			const {
 				name,
@@ -501,13 +565,14 @@ export class StaffController {
 			} = req.body;
 
 			const profile = await this.updateStaffProfileUseCase.execute({
-				restaurantId,
+				restaurantId: targetRestaurantId,
 				staffId,
 				name: name ?? fullname,
 				phone,
 				avatarUpdatedAt,
 				hasAvatar,
 				avatar_url: avatar_url !== undefined ? avatar_url : avatarUrl,
+				avatarUrl: avatarUrl !== undefined ? avatarUrl : avatar_url,
 			});
 
 			sendSuccessResponse(

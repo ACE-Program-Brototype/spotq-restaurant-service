@@ -52,9 +52,18 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 		const staffId =
 			(payload as unknown as { sub?: string; id?: string }).sub ??
 			(payload as unknown as { id?: string }).id;
-		const staff = await this.restaurantStaffRepository.findById(
-			staffId as string,
-		);
+		const restaurantId = (payload as unknown as { restaurantId?: string })
+			.restaurantId;
+
+		const staff =
+			restaurantId &&
+			this.restaurantStaffRepository.findByStaffIdAndRestaurantId
+				? await this.restaurantStaffRepository.findByStaffIdAndRestaurantId(
+						staffId as string,
+						restaurantId,
+					)
+				: await this.restaurantStaffRepository.findById(staffId as string);
+
 		if (!staff) {
 			throw new StaffNotFoundError();
 		}
@@ -68,8 +77,8 @@ export class RefreshTokenUseCase implements IRefreshTokenUseCase {
 		}
 
 		const tokenPayload: StaffTokenPayload = {
-			id: staff.id,
-			sub: staff.id,
+			id: staff.staffId || staff.id,
+			sub: staff.staffId || staff.id,
 			restaurantId: staff.restaurantId,
 			email: staff.email,
 			role: staff.role,
