@@ -105,6 +105,7 @@ export const TYPES = {
 		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
 		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
+		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
 	},
 
 	Controller: {
@@ -112,6 +113,7 @@ export const TYPES = {
 		AdminRestaurantController: Symbol.for("AdminRestaurantController"),
 		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
+		MenuCategoryController: Symbol.for("MenuCategoryController"),
 	},
 
 	Database: {
@@ -120,6 +122,7 @@ export const TYPES = {
 
 	Repositories: {
 		RestaurantRepository: Symbol.for("RestaurantRepository"),
+		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
 	},
 
 	Redis: {
