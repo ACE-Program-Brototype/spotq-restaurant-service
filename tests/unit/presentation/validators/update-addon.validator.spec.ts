@@ -184,6 +184,19 @@ describe("updateAddonBodySchema", () => {
 		}
 	});
 
+	it("should fail validation when price exceeds max limit", () => {
+		const result = updateAddonBodySchema.safeParse({
+			price: 100000000,
+		});
+
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues[0].message).toBe(
+				messages.ADDON_PRICE_MAX_EXCEEDED,
+			);
+		}
+	});
+
 	it("should fail validation when unknown / system fields are included (strict mode)", () => {
 		const result = updateAddonBodySchema.safeParse({
 			name: "New Name",

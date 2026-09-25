@@ -69,8 +69,15 @@ export class Addon {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_REQUIRED);
 		}
 
-		if (createProps.price < 0 || Number.isNaN(createProps.price)) {
+		if (
+			createProps.price < 0 ||
+			Number.isNaN(createProps.price)
+		) {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
+		}
+
+		if (createProps.price > 99999999.99) {
+			throw new InvalidAddonDataError(messages.ADDON_PRICE_MAX_EXCEEDED);
 		}
 
 		const trimmedDescription = createProps.description?.trim() || null;
@@ -135,6 +142,9 @@ export class Addon {
 				updateProps.price < 0
 			) {
 				throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
+			}
+			if (updateProps.price > 99999999.99) {
+				throw new InvalidAddonDataError(messages.ADDON_PRICE_MAX_EXCEEDED);
 			}
 			this.props.price = updateProps.price;
 		}

@@ -25,6 +25,7 @@ export const updateAddonBodySchema = z
 		price: z
 			.number()
 			.min(0, { message: messages.ADDON_PRICE_NEGATIVE })
+			.max(99999999.99, { message: messages.ADDON_PRICE_MAX_EXCEEDED })
 			.optional(),
 		imageKey: z.string().trim().max(500).nullable().optional(),
 		isAvailable: z.boolean().optional(),

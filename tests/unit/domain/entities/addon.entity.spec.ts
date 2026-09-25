@@ -82,6 +82,15 @@ describe("Addon Entity", () => {
 		).toThrow(messages.ADDON_PRICE_NEGATIVE);
 	});
 
+	it("should throw InvalidAddonDataError when price exceeds max limit", () => {
+		expect(() =>
+			Addon.create({
+				...validProps,
+				price: 100000000,
+			}),
+		).toThrow(messages.ADDON_PRICE_MAX_EXCEEDED);
+	});
+
 	it("should throw InvalidAddonDataError when description exceeds 1000 chars", () => {
 		expect(() =>
 			Addon.create({
@@ -171,6 +180,13 @@ describe("Addon Entity", () => {
 			expect(() => addon.update({ price: -5 })).toThrow(InvalidAddonDataError);
 			expect(() => addon.update({ price: Number.NaN })).toThrow(
 				InvalidAddonDataError,
+			);
+		});
+
+		it("should throw InvalidAddonDataError when updating with price exceeding max limit", () => {
+			const addon = Addon.create(validProps);
+			expect(() => addon.update({ price: 100000000 })).toThrow(
+				messages.ADDON_PRICE_MAX_EXCEEDED,
 			);
 		});
 

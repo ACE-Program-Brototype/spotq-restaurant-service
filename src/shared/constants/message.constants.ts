@@ -262,6 +262,7 @@ export const messages = {
 	ADDON_NAME_MAX_LENGTH: "Add-on name must not exceed 255 characters",
 	ADDON_PRICE_REQUIRED: "Price is required",
 	ADDON_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
+	ADDON_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
 	ADDON_DESCRIPTION_MAX_LENGTH:
 		"Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
