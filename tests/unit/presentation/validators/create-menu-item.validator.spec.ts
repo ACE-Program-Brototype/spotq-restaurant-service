@@ -163,5 +163,37 @@ describe("create-menu-item.validator", () => {
 			});
 			expect(result.success).toBe(false);
 		});
+
+		it("should fail when price exceeds 99999999.99", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				categoryId: validCategoryId,
+				name: "Gold Leaf Steak",
+				price: 100000000,
+			});
+			expect(result.success).toBe(false);
+		});
+
+		it("should fail when variant price exceeds 99999999.99", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				categoryId: validCategoryId,
+				name: "Biryani",
+				variants: [
+					{ name: "Family Pack", price: 100000000 },
+				],
+			});
+			expect(result.success).toBe(false);
+		});
+
+		it("should fail when addon price_override exceeds 99999999.99", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				categoryId: validCategoryId,
+				name: "Biryani",
+				price: 300,
+				addons: [
+					{ addonId: validAddonId, priceOverride: 100000000 },
+				],
+			});
+			expect(result.success).toBe(false);
+		});
 	});
 });

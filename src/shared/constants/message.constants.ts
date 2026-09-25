@@ -299,6 +299,7 @@ export const messages = {
 	VARIANT_NAME_REQUIRED: "Variant name is required",
 	VARIANT_PRICE_REQUIRED: "Variant price is required",
 	VARIANT_PRICE_NEGATIVE: "Variant price must be greater than or equal to 0",
+	PRICE_EXCEEDS_MAXIMUM: "Price exceeds maximum allowed value",
 } as const;
 
 export type MessageKey = keyof typeof messages;

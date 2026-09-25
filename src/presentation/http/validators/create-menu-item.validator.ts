@@ -24,7 +24,10 @@ export const createMenuItemVariantSchema = z.object({
 		.trim()
 		.min(1, { message: messages.VARIANT_NAME_REQUIRED })
 		.max(255, { message: messages.MENU_ITEM_NAME_MAX_LENGTH }),
-	price: z.number().min(0, { message: messages.VARIANT_PRICE_NEGATIVE }),
+	price: z
+		.number()
+		.min(0, { message: messages.VARIANT_PRICE_NEGATIVE })
+		.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM }),
 	is_default: z.boolean().optional(),
 	isDefault: z.boolean().optional(),
 });
@@ -33,8 +36,18 @@ export const createMenuItemAddonSchema = z
 	.object({
 		addon_id: z.string().uuid().optional(),
 		addonId: z.string().uuid().optional(),
-		price_override: z.number().min(0).optional().nullable(),
-		priceOverride: z.number().min(0).optional().nullable(),
+		price_override: z
+			.number()
+			.min(0)
+			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
+			.optional()
+			.nullable(),
+		priceOverride: z
+			.number()
+			.min(0)
+			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
+			.optional()
+			.nullable(),
 		display_order: z.number().int().min(0).optional(),
 		displayOrder: z.number().int().min(0).optional(),
 	})
@@ -56,6 +69,7 @@ export const createMenuItemBodySchema = z
 		price: z
 			.number()
 			.min(0, { message: messages.MENU_ITEM_PRICE_NEGATIVE })
+			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
 			.optional(),
 		preparation_time: z.number().int().min(0).optional().nullable(),
 		preparationTime: z.number().int().min(0).optional().nullable(),
