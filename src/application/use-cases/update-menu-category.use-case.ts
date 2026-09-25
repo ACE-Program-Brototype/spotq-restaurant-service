@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import type { MenuCategoryResponseDto } from "@/application/dtos/menu/create-menu-category.dto.ts";
 import type { UpdateMenuCategoryInputDto } from "@/application/dtos/menu/update-menu-category.dto.ts";
+import { MenuCategoryMapper } from "@/application/mappers/menu-category.mapper.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -68,15 +69,6 @@ export class UpdateMenuCategoryUseCase implements IUpdateMenuCategoryUseCase {
 			input.displayOrder !== undefined ? previousDisplayOrder : undefined,
 		);
 
-		return {
-			id: updated.id,
-			restaurantId: updated.restaurantId,
-			name: updated.name,
-			description: updated.description,
-			displayOrder: updated.displayOrder,
-			isActive: updated.isActive,
-			createdAt: updated.createdAt.toISOString(),
-			updatedAt: updated.updatedAt.toISOString(),
-		};
+		return MenuCategoryMapper.toResponseDto(updated);
 	}
 }

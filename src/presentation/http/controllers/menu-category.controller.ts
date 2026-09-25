@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
@@ -16,60 +16,50 @@ export class MenuCategoryController {
 		private readonly updateMenuCategoryUseCase: IUpdateMenuCategoryUseCase,
 	) {}
 
-	public async createCategory(
+	public createCategory = async (
 		req: Request,
 		res: Response,
-		next: NextFunction,
-	): Promise<void> {
-		try {
-			const restaurantId = String(req.params.restaurantId);
-			const { name, description, displayOrder } = req.body;
+	): Promise<Response> => {
+		const restaurantId = String(req.params.restaurantId);
+		const { name, description, displayOrder } = req.body;
 
-			const result = await this.createMenuCategoryUseCase.execute({
-				restaurantId,
-				name,
-				description,
-				displayOrder,
-			});
+		const result = await this.createMenuCategoryUseCase.execute({
+			restaurantId,
+			name,
+			description,
+			displayOrder,
+		});
 
-			sendSuccessResponse(
-				res,
-				result,
-				messages.MENU_CATEGORY_CREATED_SUCCESS,
-				HTTP_STATUS.CREATED,
-			);
-		} catch (error) {
-			next(error);
-		}
-	}
+		return sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_CATEGORY_CREATED_SUCCESS,
+			HTTP_STATUS.CREATED,
+		);
+	};
 
-	public async updateCategory(
+	public updateCategory = async (
 		req: Request,
 		res: Response,
-		next: NextFunction,
-	): Promise<void> {
-		try {
-			const restaurantId = String(req.params.restaurantId);
-			const categoryId = String(req.params.categoryId);
-			const { name, description, displayOrder, isActive } = req.body;
+	): Promise<Response> => {
+		const restaurantId = String(req.params.restaurantId);
+		const categoryId = String(req.params.categoryId);
+		const { name, description, displayOrder, isActive } = req.body;
 
-			const result = await this.updateMenuCategoryUseCase.execute({
-				restaurantId,
-				categoryId,
-				name,
-				description,
-				displayOrder,
-				isActive,
-			});
+		const result = await this.updateMenuCategoryUseCase.execute({
+			restaurantId,
+			categoryId,
+			name,
+			description,
+			displayOrder,
+			isActive,
+		});
 
-			sendSuccessResponse(
-				res,
-				result,
-				messages.MENU_CATEGORY_UPDATED_SUCCESS,
-				HTTP_STATUS.OK,
-			);
-		} catch (error) {
-			next(error);
-		}
-	}
+		return sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_CATEGORY_UPDATED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
 }

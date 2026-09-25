@@ -62,9 +62,7 @@ describe("MenuCategoryController", () => {
 				json: jsonMock,
 			} as unknown as Response;
 
-			const nextMock = jest.fn();
-
-			await controller.createCategory(req, res, nextMock);
+			await controller.createCategory(req, res);
 
 			expect(mockCreateUseCase.execute).toHaveBeenCalledWith({
 				restaurantId,
@@ -81,10 +79,9 @@ describe("MenuCategoryController", () => {
 					data: expectedResponse,
 				}),
 			);
-			expect(nextMock).not.toHaveBeenCalled();
 		});
 
-		it("should call next with error when use case throws an exception", async () => {
+		it("should reject with error when use case throws an exception", async () => {
 			const testError = new Error("Database failure");
 			mockCreateUseCase.execute.mockRejectedValueOnce(testError);
 
@@ -94,11 +91,10 @@ describe("MenuCategoryController", () => {
 			} as unknown as Request;
 
 			const res = {} as Response;
-			const nextMock = jest.fn();
 
-			await controller.createCategory(req, res, nextMock);
-
-			expect(nextMock).toHaveBeenCalledWith(testError);
+			await expect(controller.createCategory(req, res)).rejects.toThrow(
+				testError,
+			);
 		});
 	});
 
@@ -134,9 +130,7 @@ describe("MenuCategoryController", () => {
 				json: jsonMock,
 			} as unknown as Response;
 
-			const nextMock = jest.fn();
-
-			await controller.updateCategory(req, res, nextMock);
+			await controller.updateCategory(req, res);
 
 			expect(mockUpdateUseCase.execute).toHaveBeenCalledWith({
 				restaurantId,
@@ -155,10 +149,9 @@ describe("MenuCategoryController", () => {
 					data: expectedResponse,
 				}),
 			);
-			expect(nextMock).not.toHaveBeenCalled();
 		});
 
-		it("should call next with error when update use case throws an exception", async () => {
+		it("should reject with error when update use case throws an exception", async () => {
 			const testError = new Error("Database failure");
 			mockUpdateUseCase.execute.mockRejectedValueOnce(testError);
 
@@ -168,11 +161,10 @@ describe("MenuCategoryController", () => {
 			} as unknown as Request;
 
 			const res = {} as Response;
-			const nextMock = jest.fn();
 
-			await controller.updateCategory(req, res, nextMock);
-
-			expect(nextMock).toHaveBeenCalledWith(testError);
+			await expect(controller.updateCategory(req, res)).rejects.toThrow(
+				testError,
+			);
 		});
 	});
 });

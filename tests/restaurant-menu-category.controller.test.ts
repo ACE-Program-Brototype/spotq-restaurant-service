@@ -196,11 +196,11 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 		);
 		const controller = new MenuCategoryController(useCase, {} as never);
 
-		const next = (error: unknown) => {
+		try {
+			await controller.createCategory(req as never, res as never);
+		} catch (error) {
 			errorHandler(error as never, req as never, res as never, jest.fn());
-		};
-
-		await controller.createCategory(req as never, res as never, next);
+		}
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -243,11 +243,11 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 		);
 		const controller = new MenuCategoryController(useCase, {} as never);
 
-		const next = (error: unknown) => {
+		try {
+			await controller.createCategory(req as never, res as never);
+		} catch (error) {
 			errorHandler(error as never, req as never, res as never, jest.fn());
-		};
-
-		await controller.createCategory(req as never, res as never, next);
+		}
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.CONFLICT);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -290,9 +290,8 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 			mockMenuCategoryRepo as never,
 		);
 		const controller = new MenuCategoryController(useCase, {} as never);
-		const next = jest.fn();
 
-		await controller.createCategory(req as never, res as never, next);
+		await controller.createCategory(req as never, res as never);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.CREATED);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -309,7 +308,6 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 				}),
 			}),
 		);
-		expect(next).not.toHaveBeenCalled();
 	});
 });
 
@@ -507,11 +505,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 		);
 		const controller = new MenuCategoryController({} as never, useCase);
 
-		const next = (error: unknown) => {
+		try {
+			await controller.updateCategory(req as never, res as never);
+		} catch (error) {
 			errorHandler(error as never, req as never, res as never, jest.fn());
-		};
-
-		await controller.updateCategory(req as never, res as never, next);
+		}
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -550,11 +548,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 		);
 		const controller = new MenuCategoryController({} as never, useCase);
 
-		const next = (error: unknown) => {
+		try {
+			await controller.updateCategory(req as never, res as never);
+		} catch (error) {
 			errorHandler(error as never, req as never, res as never, jest.fn());
-		};
-
-		await controller.updateCategory(req as never, res as never, next);
+		}
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -598,11 +596,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 		);
 		const controller = new MenuCategoryController({} as never, useCase);
 
-		const next = (error: unknown) => {
+		try {
+			await controller.updateCategory(req as never, res as never);
+		} catch (error) {
 			errorHandler(error as never, req as never, res as never, jest.fn());
-		};
-
-		await controller.updateCategory(req as never, res as never, next);
+		}
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -655,11 +653,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 		);
 		const controller = new MenuCategoryController({} as never, useCase);
 
-		const next = (error: unknown) => {
+		try {
+			await controller.updateCategory(req as never, res as never);
+		} catch (error) {
 			errorHandler(error as never, req as never, res as never, jest.fn());
-		};
-
-		await controller.updateCategory(req as never, res as never, next);
+		}
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.CONFLICT);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -713,9 +711,8 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 			mockMenuCategoryRepo as never,
 		);
 		const controller = new MenuCategoryController({} as never, useCase);
-		const next = jest.fn();
 
-		await controller.updateCategory(req as never, res as never, next);
+		await controller.updateCategory(req as never, res as never);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -733,6 +730,5 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 				}),
 			}),
 		);
-		expect(next).not.toHaveBeenCalled();
 	});
 });
