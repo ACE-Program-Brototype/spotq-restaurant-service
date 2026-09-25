@@ -28,6 +28,7 @@ import { resendForgotPasswordOtpSchema } from "@/presentation/http/validators/st
 import { resendInvitationSchema } from "@/presentation/http/validators/staff/resend-invitation.validator";
 import { resetPasswordSchema } from "@/presentation/http/validators/staff/reset-password.validator";
 import { revokeInvitationSchema } from "@/presentation/http/validators/staff/revoke-invitation.validator";
+import { selectRestaurantSchema } from "@/presentation/http/validators/staff/select-restaurant.validator";
 import { validateInvitationSchema } from "@/presentation/http/validators/staff/validate-invitation.validator";
 import { verifyForgotPasswordOtpSchema } from "@/presentation/http/validators/staff/verify-forgot-password-otp.validator";
 import { STAFF_ROUTES } from "@/shared/constants/route.constants";
@@ -88,6 +89,13 @@ staffRouter.post(
 	loginRateLimiter,
 	validateRequestBody(loginStaffSchema),
 	staffController.login,
+);
+
+staffRouter.post(
+	STAFF_ROUTES.SELECT_RESTAURANT,
+	loginRateLimiter,
+	validateRequestBody(selectRestaurantSchema),
+	staffController.selectRestaurant,
 );
 
 staffRouter.post(STAFF_ROUTES.LOGOUT, staffController.logout);

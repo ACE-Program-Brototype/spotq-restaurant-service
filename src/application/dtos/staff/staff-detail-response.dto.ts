@@ -5,6 +5,7 @@ export interface StaffDetailResponseDTO {
 	email: string;
 	phone: string;
 	avatarUrl: string | null;
+	avatar_url?: string | null;
 	role: string;
 	status: string;
 	createdAt: string;

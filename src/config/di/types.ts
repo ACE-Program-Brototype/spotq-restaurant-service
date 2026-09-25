@@ -4,6 +4,7 @@ export const TYPES = {
 	RedisClient: Symbol.for("RedisClient"),
 
 	// Staff Repositories
+	StaffRepository: Symbol.for("StaffRepository"),
 	RestaurantStaffRepository: Symbol.for("RestaurantStaffRepository"),
 	StaffInvitationRepository: Symbol.for("StaffInvitationRepository"),
 	RestaurantRepository: Symbol.for("RestaurantRepository"),
@@ -20,6 +21,7 @@ export const TYPES = {
 
 	// Staff Use Cases
 	LoginStaffUseCase: Symbol.for("LoginStaffUseCase"),
+	SelectRestaurantUseCase: Symbol.for("SelectRestaurantUseCase"),
 	LogoutStaffUseCase: Symbol.for("LogoutStaffUseCase"),
 	RefreshTokenUseCase: Symbol.for("RefreshTokenUseCase"),
 	ForgotPasswordUseCase: Symbol.for("ForgotPasswordUseCase"),
@@ -105,6 +107,7 @@ export const TYPES = {
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 		CreateAddonUseCase: Symbol.for("CreateAddonUseCase"),
 		ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
+		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
 	},
 
 	Controller: {
@@ -113,6 +116,7 @@ export const TYPES = {
 		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
 		AddonController: Symbol.for("AddonController"),
+		MenuCategoryController: Symbol.for("MenuCategoryController"),
 	},
 
 	Database: {
@@ -122,6 +126,7 @@ export const TYPES = {
 	Repositories: {
 		RestaurantRepository: Symbol.for("RestaurantRepository"),
 		AddonRepository: Symbol.for("AddonRepository"),
+		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
 	},
 
 	Redis: {

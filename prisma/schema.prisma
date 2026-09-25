@@ -78,24 +78,38 @@ enum StaffStatus {
   REMOVED
 }
 
-model RestaurantStaff {
-  id              String      @id @default(uuid()) @db.Uuid
-  restaurantId    String      @map("restaurant_id") @db.Uuid
-  fullname        String      @map("fullname")
-  email           String      @map("email")
-  phone           String      @map("phone")
-  avatarUpdatedAt DateTime?   @map("avatar_updated_at") @db.Timestamptz(3)
-  passwordHash    String      @map("password_hash")
-  role            StaffRole   @default(STAFF)
-  status          StaffStatus @default(ACTIVE)
-  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+model Staff {
+  id           String            @id @default(uuid()) @db.Uuid
+  email        String            @unique @map("email")
+  fullname     String            @map("fullname")
+  phone        String            @map("phone")
+  passwordHash String            @map("password_hash")
+  avatarUrl    String?           @map("avatar_url")
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
 
+  memberships  RestaurantStaff[]
+
+  @@map("staff")
+}
+
+model RestaurantStaff {
+  id           String      @id @default(uuid()) @db.Uuid
+  staffId      String      @map("staff_id") @db.Uuid
+  restaurantId String      @map("restaurant_id") @db.Uuid
+  role         StaffRole   @default(STAFF)
+  status       StaffStatus @default(ACTIVE)
+  joinedAt     DateTime?   @default(now()) @map("joined_at") @db.Timestamptz(3)
+  leftAt       DateTime?   @map("left_at") @db.Timestamptz(3)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  staff      Staff      @relation(fields: [staffId], references: [id], onDelete: Cascade)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
 
-  @@unique([restaurantId, email])
+  @@unique([staffId, restaurantId])
   @@index([restaurantId])
-  @@index([email])
+  @@index([staffId])
   @@map("restaurant_staff")
 }
 

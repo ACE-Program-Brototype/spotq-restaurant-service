@@ -9,6 +9,7 @@ export const loginStaffSchema = z.object({
 	password: z
 		.string({ message: messages.PASSWORD_REQUIRED })
 		.min(6, messages.PASSWORD_MIN_LENGTH_6),
+	restaurantId: z.string().uuid().optional(),
 });
 
 export type LoginStaffInput = z.infer<typeof loginStaffSchema>;

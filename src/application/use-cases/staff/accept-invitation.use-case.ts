@@ -56,25 +56,49 @@ export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
 			throw new InvitationExpiredError();
 		}
 
-		const existingStaff = await this.staffRepository.findByEmailAndRestaurantId(
-			invitation.email,
-			invitation.restaurantId,
-		);
-		if (existingStaff) {
+		const existingMembership =
+			await this.staffRepository.findByEmailAndRestaurantId(
+				invitation.email,
+				invitation.restaurantId,
+			);
+		if (existingMembership?.isActive()) {
 			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 		}
 
-		const passwordHash = await this.passwordHasher.hash(dto.password);
+		// Check if global staff already exists
+		const existingStaff = await this.staffRepository.findByEmail(
+			invitation.email,
+		);
 
-		const staff = RestaurantStaff.create({
-			restaurantId: invitation.restaurantId,
-			fullname: dto.fullname,
-			email: invitation.email,
-			phone: dto.phone,
-			passwordHash,
-			role: StaffRoleVO.staff(),
-			status: StaffStatusVO.active(),
-		});
+		let staff: RestaurantStaff;
+
+		if (existingStaff) {
+			// Scenario 2: Existing Staff joining this restaurant
+			const staffId = existingStaff.staffId || existingStaff.id;
+			staff = RestaurantStaff.create({
+				id: existingMembership?.id || crypto.randomUUID(),
+				staffId,
+				restaurantId: invitation.restaurantId,
+				role: StaffRoleVO.staff(),
+				status: StaffStatusVO.active(),
+				joinedAt: new Date(),
+				staff: existingStaff.staff,
+			});
+		} else {
+			// Scenario 1: New Staff registering account and membership
+			const passwordHash = await this.passwordHasher.hash(dto.password || "");
+
+			staff = RestaurantStaff.create({
+				restaurantId: invitation.restaurantId,
+				fullname: dto.fullname || "",
+				email: invitation.email,
+				phone: dto.phone || "",
+				passwordHash,
+				role: StaffRoleVO.staff(),
+				status: StaffStatusVO.active(),
+				joinedAt: new Date(),
+			});
+		}
 
 		invitation.accept();
 
@@ -83,10 +107,11 @@ export class AcceptInvitationUseCase implements IAcceptInvitationUseCase {
 			invitation,
 		);
 
+		const staffId = staff.staffId || staff.id;
 		const tokenPayload: StaffTokenPayload = {
-			sub: staff.id,
+			sub: staffId,
 			restaurantId: staff.restaurantId,
-			email: staff.email,
+			email: staff.email || invitation.email,
 			role: staff.role,
 		};
 

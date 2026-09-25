@@ -24,13 +24,13 @@ export const RESTAURANT_ROUTES = {
 	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
 	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
 	RESTAURANT_ADDONS: "/:restaurantId/addons",
-	RESTAURANT_ADDONS_PREFIX: "/restaurants/:restaurantId/addons",
-	RESTAURANT_ADDONS_FULL: "/api/v1/restaurants/:restaurantId/addons",
+	MENU_CATEGORIES: "/:restaurantId/menu/categories",
 } as const;
 
 export const STAFF_ROUTES = {
 	BASE: "/staff",
 	LOGIN: "/login",
+	SELECT_RESTAURANT: "/select-restaurant",
 	LOGOUT: "/logout",
 	REFRESH_TOKEN: "/refresh-token",
 	FORGOT_PASSWORD: "/forgot-password",

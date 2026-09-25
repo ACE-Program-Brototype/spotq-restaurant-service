@@ -86,10 +86,10 @@ export const AdminRestaurantResponseMapper = {
 				created_at: img.createdAt,
 			})),
 			linked_account: {
-				email: dto.linkedAccount.email,
-				phone: dto.linkedAccount.phone,
-				is_email_verified: dto.linkedAccount.isEmailVerified,
-				last_login_at: dto.linkedAccount.lastLoginAt,
+				email: dto.linkedAccount?.email ?? "",
+				phone: dto.linkedAccount?.phone ?? "",
+				is_email_verified: dto.linkedAccount?.isEmailVerified ?? false,
+				last_login_at: dto.linkedAccount?.lastLoginAt ?? null,
 			},
 		};
 	},

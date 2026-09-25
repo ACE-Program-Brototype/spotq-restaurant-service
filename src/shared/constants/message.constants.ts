@@ -25,6 +25,17 @@ export const messages = {
 	STAFF_UPDATED_SUCCESS: "Staff information updated successfully",
 	RESTAURANTS_FETCHED_SUCCESS: "Restaurants retrieved successfully",
 	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
+	SELECT_RESTAURANT_PROMPT: "Please select a restaurant to continue",
+	RESTAURANT_SELECTED_SUCCESS: "Restaurant selected successfully",
+	SELECTION_TOKEN_REQUIRED: "Selection token is required",
+	SELECTION_TOKEN_EMPTY: "Selection token cannot be empty",
+	INVALID_OR_EXPIRED_SELECTION_TOKEN: "Invalid or expired selection token",
+	STAFF_NOT_MEMBER_OF_RESTAURANT:
+		"Staff is not a member of the selected restaurant",
+	STAFF_ACCOUNT_DEACTIVATED:
+		"Your staff account for this restaurant has been deactivated. Please contact your restaurant administrator.",
+	NO_ACTIVE_RESTAURANT_MEMBERSHIPS:
+		"No active restaurant memberships found",
 
 	PRESIGNED_URL_GENERATED_SUCCESS:
 		"Presigned upload URL generated successfully.",
@@ -253,6 +264,14 @@ export const messages = {
 	ADDON_DESCRIPTION_MAX_LENGTH: "Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
 	INVALID_ADDON_ID: "Invalid add-on ID",
+	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	CATEGORY_ALREADY_EXISTS:
+		"A category with this name already exists for this restaurant",
+	CATEGORY_NAME_REQUIRED: "Category name is required",
+	CATEGORY_NAME_MAX_LENGTH: "Category name must not exceed 255 characters",
+	CATEGORY_DESCRIPTION_MAX_LENGTH:
+		"Category description must not exceed 1000 characters",
+	CATEGORY_NOT_FOUND: "Category not found",
 } as const;
 
 export type MessageKey = keyof typeof messages;

@@ -15,6 +15,7 @@ import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-ca
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
 import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { ISelectRestaurantUseCase } from "@/application/ports/use-cases/select-restaurant.use-case.port.ts";
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
@@ -37,6 +38,7 @@ describe("StaffController", () => {
 	let listStaffMembersUseCase: jest.Mocked<IListStaffMembersUseCase>;
 	let getStaffProfileUseCase: jest.Mocked<IGetStaffProfileUseCase>;
 	let updateStaffProfileUseCase: jest.Mocked<IUpdateStaffProfileUseCase>;
+	let selectRestaurantUseCase: jest.Mocked<ISelectRestaurantUseCase>;
 	let controller: StaffController;
 	let res: Partial<Response>;
 
@@ -57,6 +59,7 @@ describe("StaffController", () => {
 		listStaffMembersUseCase = { execute: jest.fn() };
 		getStaffProfileUseCase = { execute: jest.fn() };
 		updateStaffProfileUseCase = { execute: jest.fn() };
+		selectRestaurantUseCase = { execute: jest.fn() };
 
 		controller = new StaffController(
 			loginStaffUseCase,
@@ -75,6 +78,7 @@ describe("StaffController", () => {
 			listStaffMembersUseCase,
 			getStaffProfileUseCase,
 			updateStaffProfileUseCase,
+			selectRestaurantUseCase,
 		);
 
 		res = {
@@ -581,6 +585,7 @@ describe("StaffController", () => {
 
 			expect(getStaffProfileUseCase.execute).toHaveBeenCalledWith({
 				staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+				restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 			});
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith(
@@ -807,6 +812,58 @@ describe("StaffController", () => {
 			expect(next).toHaveBeenCalledWith(
 				expect.objectContaining({
 					message: expect.stringContaining("Forbidden"),
+				}),
+			);
+		});
+	});
+
+	describe("selectRestaurant", () => {
+		it("should execute selectRestaurantUseCase and return staff with accessToken and set refresh cookie", async () => {
+			const req: Partial<Request> = {
+				body: {
+					selectToken: "valid-select-token",
+					restaurantId: "rest-123",
+				},
+			};
+
+			const mockResult = {
+				staff: {
+					id: "staff-123",
+					email: "staff@example.com",
+					fullname: "Staff Name",
+					restaurantId: "rest-123",
+					role: "STAFF" as const,
+					status: "ACTIVE" as const,
+					hasAvatar: false,
+					joinedAt: new Date(),
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				accessToken: "access-token-xyz",
+				refreshToken: "refresh-token-xyz",
+			};
+
+			selectRestaurantUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.selectRestaurant(req as Request, res as Response);
+
+			expect(selectRestaurantUseCase.execute).toHaveBeenCalledWith({
+				selectToken: "valid-select-token",
+				restaurantId: "rest-123",
+			});
+			expect(res.cookie).toHaveBeenCalledWith(
+				expect.any(String),
+				"refresh-token-xyz",
+				expect.any(Object),
+			);
+			expect(res.status).toHaveBeenCalledWith(200);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					data: {
+						staff: mockResult.staff,
+						accessToken: "access-token-xyz",
+					},
 				}),
 			);
 		});

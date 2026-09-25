@@ -1,6 +1,4 @@
 import { InvalidStaffDataError } from "@/domain/errors/staff.errors.ts";
-import { StaffEmail } from "@/domain/value-objects/email.vo.ts";
-import { StaffPhone } from "@/domain/value-objects/phone.vo.ts";
 import {
 	type StaffRole,
 	StaffRoleVO,
@@ -10,47 +8,59 @@ import {
 	StaffStatusVO,
 } from "@/domain/value-objects/staff-status.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { Staff } from "@/domain/entities/staff.entity.ts";
 
 export interface RestaurantStaffProps {
 	id: string;
+	staffId: string;
 	restaurantId: string;
-	fullname: string;
-	email: StaffEmail;
-	phone: StaffPhone;
-	avatarUpdatedAt: Date | null;
-	passwordHash?: string;
 	role: StaffRoleVO;
 	status: StaffStatusVO;
+	joinedAt?: Date | null;
+	leftAt?: Date | null;
 	createdAt?: Date;
 	updatedAt?: Date;
+	staff?: Staff;
 }
 
 export interface CreateRestaurantStaffProps {
 	id?: string;
+	staffId?: string;
 	restaurantId: string;
-	fullname: string;
-	email: string | StaffEmail;
-	phone: string | StaffPhone;
-	avatarUpdatedAt?: Date | null;
-	avatarUrl?: string | null;
-	passwordHash: string;
 	role?: string | StaffRoleVO;
 	status?: string | StaffStatusVO;
+	joinedAt?: Date | null;
+	leftAt?: Date | null;
+	staff?: Staff;
+
+	// Optional compatibility fields when creating staff alongside membership
+	fullname?: string;
+	email?: string;
+	phone?: string;
+	avatarUpdatedAt?: Date | null;
+	avatarUrl?: string | null;
+	passwordHash?: string;
 }
 
 export interface ReconstituteRestaurantStaffProps {
 	id: string;
+	staffId?: string;
 	restaurantId: string;
-	fullname: string;
-	email: string;
-	phone: string;
+	role: string;
+	status: string;
+	joinedAt?: Date | null;
+	leftAt?: Date | null;
+	createdAt?: Date;
+	updatedAt?: Date;
+	staff?: Staff;
+
+	// Compatibility fields if reconstituted from legacy or flattened joined query
+	fullname?: string;
+	email?: string;
+	phone?: string;
 	avatarUpdatedAt?: Date | null;
 	avatarUrl?: string | null;
 	passwordHash?: string;
-	role: string;
-	status: string;
-	createdAt?: Date;
-	updatedAt?: Date;
 }
 
 export class RestaurantStaff {
@@ -65,27 +75,28 @@ export class RestaurantStaff {
 			throw new InvalidStaffDataError(messages.RESTAURANT_ID_REQUIRED);
 		}
 
-		if (
-			!props.fullname ||
-			typeof props.fullname !== "string" ||
-			props.fullname.trim().length < 2
-		) {
-			throw new InvalidStaffDataError(messages.FULLNAME_INVALID);
+		let staff = props.staff;
+		let staffId = props.staffId || props.id;
+
+		if (!staff && props.email && props.fullname && props.passwordHash) {
+			staff = Staff.create({
+				id: staffId,
+				email: props.email,
+				fullname: props.fullname,
+				phone: props.phone || "",
+				passwordHash: props.passwordHash,
+				avatarUpdatedAt: props.avatarUpdatedAt,
+				avatarUrl: props.avatarUrl,
+			});
+			staffId = staff.id;
 		}
 
-		if (!props.passwordHash || typeof props.passwordHash !== "string") {
-			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
+		const id = props.id || crypto.randomUUID();
+		if (!staffId && !staff) {
+			staffId = id;
+		} else if (staff && !staffId) {
+			staffId = staff.id;
 		}
-
-		const email =
-			props.email instanceof StaffEmail
-				? props.email
-				: StaffEmail.create(props.email);
-
-		const phone =
-			props.phone instanceof StaffPhone
-				? props.phone
-				: StaffPhone.create(props.phone);
 
 		const role =
 			props.role instanceof StaffRoleVO
@@ -102,25 +113,18 @@ export class RestaurantStaff {
 					);
 
 		const now = new Date();
-		const id = props.id || crypto.randomUUID();
 
 		return new RestaurantStaff({
 			id,
+			staffId: staffId as string,
 			restaurantId: props.restaurantId,
-			fullname: props.fullname.trim(),
-			email,
-			phone,
-			avatarUpdatedAt:
-				props.avatarUpdatedAt !== undefined
-					? props.avatarUpdatedAt
-					: props.avatarUrl
-						? new Date()
-						: null,
-			passwordHash: props.passwordHash,
 			role,
 			status,
+			joinedAt: props.joinedAt ?? now,
+			leftAt: props.leftAt ?? null,
 			createdAt: now,
 			updatedAt: now,
+			staff,
 		});
 	}
 
@@ -128,23 +132,36 @@ export class RestaurantStaff {
 		props: ReconstituteRestaurantStaffProps,
 	): RestaurantStaff {
 		const now = new Date();
+
+		let staff = props.staff;
+		let staffId = props.staffId;
+
+		if (!staff && props.email) {
+			staff = Staff.reconstitute({
+				id: staffId || props.id,
+				email: props.email,
+				fullname: props.fullname || "",
+				phone: props.phone || "",
+				passwordHash: props.passwordHash || "",
+				avatarUrl: props.avatarUrl ?? null,
+				avatarUpdatedAt: props.avatarUpdatedAt ?? null,
+				createdAt: props.createdAt ?? now,
+				updatedAt: props.updatedAt ?? now,
+			});
+			staffId = staff.id;
+		}
+
 		return new RestaurantStaff({
 			id: props.id,
+			staffId: (staffId || props.id) as string,
 			restaurantId: props.restaurantId,
-			fullname: props.fullname,
-			email: StaffEmail.create(props.email),
-			phone: StaffPhone.create(props.phone),
-			avatarUpdatedAt:
-				props.avatarUpdatedAt !== undefined
-					? props.avatarUpdatedAt
-					: props.avatarUrl
-						? new Date()
-						: null,
-			passwordHash: props.passwordHash ?? "",
 			role: StaffRoleVO.create(props.role),
 			status: StaffStatusVO.create(props.status),
+			joinedAt: props.joinedAt ?? now,
+			leftAt: props.leftAt ?? null,
 			createdAt: props.createdAt ?? now,
 			updatedAt: props.updatedAt ?? now,
+			staff,
 		});
 	}
 
@@ -152,40 +169,12 @@ export class RestaurantStaff {
 		return this._props.id;
 	}
 
+	public get staffId(): string {
+		return this._props.staffId;
+	}
+
 	public get restaurantId(): string {
 		return this._props.restaurantId;
-	}
-
-	public get fullname(): string {
-		return this._props.fullname;
-	}
-
-	public get email(): string {
-		return this._props.email.value;
-	}
-
-	public get emailVO(): StaffEmail {
-		return this._props.email;
-	}
-
-	public get phone(): string {
-		return this._props.phone.value;
-	}
-
-	public get phoneVO(): StaffPhone {
-		return this._props.phone;
-	}
-
-	public get avatarUpdatedAt(): Date | null {
-		return this._props.avatarUpdatedAt;
-	}
-
-	public get avatarUrl(): string | null {
-		return null;
-	}
-
-	public get passwordHash(): string {
-		return this._props.passwordHash ?? "";
 	}
 
 	public get role(): StaffRole {
@@ -204,12 +193,54 @@ export class RestaurantStaff {
 		return this._props.status;
 	}
 
+	public get joinedAt(): Date | null {
+		return this._props.joinedAt ?? null;
+	}
+
+	public get leftAt(): Date | null {
+		return this._props.leftAt ?? null;
+	}
+
 	public get createdAt(): Date {
 		return this._props.createdAt ?? new Date();
 	}
 
 	public get updatedAt(): Date {
 		return this._props.updatedAt ?? new Date();
+	}
+
+	public get staff(): Staff | undefined {
+		return this._props.staff;
+	}
+
+	public attachStaff(staff: Staff): void {
+		this._props.staff = staff;
+		this._props.staffId = staff.id;
+	}
+
+	// Convenience accessors delegating to attached Staff
+	public get fullname(): string {
+		return this._props.staff?.fullname ?? "";
+	}
+
+	public get email(): string {
+		return this._props.staff?.email ?? "";
+	}
+
+	public get phone(): string {
+		return this._props.staff?.phone ?? "";
+	}
+
+	public get avatarUrl(): string | null {
+		return this._props.staff?.avatarUrl ?? null;
+	}
+
+	public get avatarUpdatedAt(): Date | null {
+		return this._props.staff?.avatarUpdatedAt ?? null;
+	}
+
+	public get passwordHash(): string {
+		return this._props.staff?.passwordHash ?? "";
 	}
 
 	public isActive(): boolean {
@@ -220,41 +251,8 @@ export class RestaurantStaff {
 		return this._props.status.isSuspended();
 	}
 
-	public updateProfile(
-		fullname?: string,
-		phone?: string,
-		avatarUpdatedAt?: Date | null,
-	): void {
-		if (fullname !== undefined) {
-			if (typeof fullname !== "string" || fullname.trim().length < 2) {
-				throw new InvalidStaffDataError(messages.FULLNAME_INVALID);
-			}
-			this._props.fullname = fullname.trim();
-		}
-
-		if (phone !== undefined) {
-			this._props.phone = StaffPhone.create(phone);
-		}
-
-		if (avatarUpdatedAt !== undefined) {
-			this._props.avatarUpdatedAt = avatarUpdatedAt;
-		}
-
-		this._props.updatedAt = new Date();
-	}
-
-	public changePassword(newPasswordHash: string): void {
-		if (!newPasswordHash || typeof newPasswordHash !== "string") {
-			throw new InvalidStaffDataError(messages.PASSWORD_HASH_REQUIRED);
-		}
-		this._props.passwordHash = newPasswordHash;
-		this._props.updatedAt = new Date();
-	}
-
-	public changeRole(newRole: string | StaffRoleVO): void {
-		this._props.role =
-			newRole instanceof StaffRoleVO ? newRole : StaffRoleVO.create(newRole);
-		this._props.updatedAt = new Date();
+	public isRemoved(): boolean {
+		return this._props.status.isRemoved();
 	}
 
 	public activate(): void {
@@ -274,6 +272,31 @@ export class RestaurantStaff {
 
 	public remove(): void {
 		this._props.status = StaffStatusVO.create("REMOVED");
+		this._props.leftAt = new Date();
+		this._props.updatedAt = new Date();
+	}
+
+	public changeRole(newRole: string | StaffRoleVO): void {
+		this._props.role =
+			newRole instanceof StaffRoleVO ? newRole : StaffRoleVO.create(newRole);
+		this._props.updatedAt = new Date();
+	}
+
+	public updateProfile(
+		fullname?: string,
+		phone?: string,
+		avatar?: string | Date | null,
+	): void {
+		if (this._props.staff) {
+			this._props.staff.updateProfile(fullname, phone, avatar);
+		}
+		this._props.updatedAt = new Date();
+	}
+
+	public changePassword(newPasswordHash: string): void {
+		if (this._props.staff) {
+			this._props.staff.changePassword(newPasswordHash);
+		}
 		this._props.updatedAt = new Date();
 	}
 }
