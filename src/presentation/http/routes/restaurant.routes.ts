@@ -215,7 +215,7 @@ restaurantRouter.post(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createMenuCategoryParamsSchema),
 	validateRequestBody(createMenuCategoryBodySchema),
-	menuCategoryController.createCategory.bind(menuCategoryController),
+	menuCategoryController.createCategory,
 );
 
 restaurantRouter.patch(
@@ -223,5 +223,5 @@ restaurantRouter.patch(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(updateMenuCategoryParamsSchema),
 	validateRequestBody(updateMenuCategoryBodySchema),
-	menuCategoryController.updateCategory.bind(menuCategoryController),
+	menuCategoryController.updateCategory,
 );

@@ -1,5 +1,6 @@
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import { InvalidCategoryDataError } from "@/domain/errors/menu-category.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("MenuCategory Entity", () => {
 	const validProps = {
@@ -191,6 +192,29 @@ describe("MenuCategory Entity", () => {
 			expect(() => category.update({ displayOrder: 1.5 as number })).toThrow(
 				InvalidCategoryDataError,
 			);
+			try {
+				category.update({ displayOrder: -1 });
+			} catch (err) {
+				expect((err as InvalidCategoryDataError).message).toBe(
+					messages.CATEGORY_DISPLAY_ORDER_INVALID,
+				);
+			}
+		});
+
+		it("should throw InvalidCategoryDataError when updating with invalid isActive type", () => {
+			const category = MenuCategory.create(validProps);
+			// biome-ignore lint/suspicious/noExplicitAny: test invalid runtime input
+			expect(() => category.update({ isActive: "invalid" as any })).toThrow(
+				InvalidCategoryDataError,
+			);
+			try {
+				// biome-ignore lint/suspicious/noExplicitAny: test invalid runtime input
+				category.update({ isActive: "invalid" as any });
+			} catch (err) {
+				expect((err as InvalidCategoryDataError).message).toBe(
+					messages.CATEGORY_IS_ACTIVE_INVALID,
+				);
+			}
 		});
 	});
 });

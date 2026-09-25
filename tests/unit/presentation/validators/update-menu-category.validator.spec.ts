@@ -43,6 +43,16 @@ describe("updateMenuCategoryParamsSchema", () => {
 			expect(result.error.issues[0].message).toBe(messages.INVALID_CATEGORY_ID);
 		}
 	});
+
+	it("should fail validation when extra parameters are provided (strict mode)", () => {
+		const result = updateMenuCategoryParamsSchema.safeParse({
+			restaurantId: validRestaurantId,
+			categoryId: validCategoryId,
+			extraParam: "unexpected",
+		});
+
+		expect(result.success).toBe(false);
+	});
 });
 
 describe("updateMenuCategoryBodySchema", () => {

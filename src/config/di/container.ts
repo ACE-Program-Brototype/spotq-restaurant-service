@@ -21,4 +21,3 @@ container.load(
 	addonModule,
 	menuModule,
 );
-

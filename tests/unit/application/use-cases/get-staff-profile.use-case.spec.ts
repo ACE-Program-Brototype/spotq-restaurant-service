@@ -148,7 +148,9 @@ describe("GetStaffProfileUseCase", () => {
 		});
 		staffRepository.findById.mockResolvedValue(inactiveStaff);
 
-		const result = await useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" });
+		const result = await useCase.execute({
+			staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+		});
 		expect(result.id).toBe("b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01");
 		expect(result.status).toBe("INACTIVE");
 	});
@@ -166,7 +168,9 @@ describe("GetStaffProfileUseCase", () => {
 		});
 		staffRepository.findById.mockResolvedValue(suspendedStaff);
 
-		const result = await useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" });
+		const result = await useCase.execute({
+			staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+		});
 		expect(result.id).toBe("b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01");
 		expect(result.status).toBe("SUSPENDED");
 	});

@@ -31,11 +31,10 @@ export class CreateAddonUseCase implements ICreateAddonUseCase {
 		}
 
 		const trimmedName = input.name.trim();
-		const existingAddon =
-			await this.addonRepository.findByNameAndRestaurantId(
-				trimmedName,
-				input.restaurantId,
-			);
+		const existingAddon = await this.addonRepository.findByNameAndRestaurantId(
+			trimmedName,
+			input.restaurantId,
+		);
 		if (existingAddon) {
 			throw new AddonAlreadyExistsError(messages.ADDON_ALREADY_EXISTS);
 		}

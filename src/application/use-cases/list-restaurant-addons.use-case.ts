@@ -9,7 +9,9 @@ import type { IAddonRepository } from "@/domain/repositories/addon.repository.in
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
-export class ListRestaurantAddonsUseCase implements IListRestaurantAddonsUseCase {
+export class ListRestaurantAddonsUseCase
+	implements IListRestaurantAddonsUseCase
+{
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,

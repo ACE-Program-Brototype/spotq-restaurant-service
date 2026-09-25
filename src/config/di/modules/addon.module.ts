@@ -24,7 +24,5 @@ export const addonModule = new ContainerModule(({ bind }) => {
 		.inSingletonScope();
 
 	// Controller
-	bind(TYPES.Controller.AddonController)
-		.to(AddonController)
-		.inSingletonScope();
+	bind(TYPES.Controller.AddonController).to(AddonController).inSingletonScope();
 });

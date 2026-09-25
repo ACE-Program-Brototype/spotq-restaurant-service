@@ -125,7 +125,7 @@ export class MenuCategory {
 				updateProps.displayOrder < 0
 			) {
 				throw new InvalidCategoryDataError(
-					"Display order must be a non-negative integer",
+					messages.CATEGORY_DISPLAY_ORDER_INVALID,
 				);
 			}
 			this.props.displayOrder = updateProps.displayOrder;
@@ -133,7 +133,7 @@ export class MenuCategory {
 
 		if (updateProps.isActive !== undefined) {
 			if (typeof updateProps.isActive !== "boolean") {
-				throw new InvalidCategoryDataError("isActive must be a boolean");
+				throw new InvalidCategoryDataError(messages.CATEGORY_IS_ACTIVE_INVALID);
 			}
 			this.props.isActive = updateProps.isActive;
 		}

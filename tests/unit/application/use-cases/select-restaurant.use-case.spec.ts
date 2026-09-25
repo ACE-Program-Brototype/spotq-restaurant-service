@@ -137,7 +137,9 @@ describe("SelectRestaurantUseCase", () => {
 		);
 
 		const membership = createMockMembership();
-		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(membership);
+		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(
+			membership,
+		);
 
 		const restaurant = createMockRestaurant();
 		mockRestaurantRepository.findById.mockResolvedValue(restaurant);
@@ -262,7 +264,9 @@ describe("SelectRestaurantUseCase", () => {
 		);
 
 		const membership = createMockMembership();
-		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(membership);
+		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(
+			membership,
+		);
 		mockRestaurantRepository.findById.mockResolvedValue(null);
 
 		await expect(
@@ -281,7 +285,9 @@ describe("SelectRestaurantUseCase", () => {
 		);
 
 		const membership = createMockMembership();
-		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(membership);
+		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(
+			membership,
+		);
 
 		const blockedRestaurant = createMockRestaurant({ isBlocked: true });
 		mockRestaurantRepository.findById.mockResolvedValue(blockedRestaurant);
@@ -302,7 +308,9 @@ describe("SelectRestaurantUseCase", () => {
 		);
 
 		const membership = createMockMembership();
-		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(membership);
+		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(
+			membership,
+		);
 
 		const incompleteRestaurant = createMockRestaurant({
 			onboardingStatus: "PENDING",
@@ -325,7 +333,9 @@ describe("SelectRestaurantUseCase", () => {
 		);
 
 		const membership = createMockMembership();
-		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(membership);
+		mockStaffRepository.findByStaffIdAndRestaurantId.mockResolvedValue(
+			membership,
+		);
 
 		const expiredRestaurant = createMockRestaurant({
 			isSubscriptionActive: false,

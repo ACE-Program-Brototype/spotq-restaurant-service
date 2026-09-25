@@ -243,7 +243,9 @@ describe("PrismaMenuCategoryRepository", () => {
 			},
 		);
 
-		mockPrisma.menuCategory.update = jest.fn().mockRejectedValueOnce(prismaError);
+		mockPrisma.menuCategory.update = jest
+			.fn()
+			.mockRejectedValueOnce(prismaError);
 
 		await expect(repository.updateCategory(category)).rejects.toThrow(
 			CategoryNotFoundError,
