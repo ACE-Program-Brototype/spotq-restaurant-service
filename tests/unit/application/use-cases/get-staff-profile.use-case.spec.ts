@@ -2,11 +2,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import { GetStaffProfileUseCase } from "@/application/use-cases/staff/get-staff-profile.use-case.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
-import {
-	StaffInactiveError,
-	StaffNotFoundError,
-	StaffSuspendedError,
-} from "@/domain/errors/staff.errors.ts";
+import { StaffNotFoundError } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("GetStaffProfileUseCase", () => {
@@ -24,6 +20,7 @@ describe("GetStaffProfileUseCase", () => {
 		fullname: "John Doe",
 		email: "john.doe@spiceroute.com",
 		phone: "+919876543210",
+		avatarUrl: "https://s3.amazonaws.com/spotq/avatar.png",
 		avatarUpdatedAt: new Date("2026-01-01T12:00:00.000Z"),
 		role: "STAFF",
 		status: "ACTIVE",
@@ -68,13 +65,8 @@ describe("GetStaffProfileUseCase", () => {
 		);
 	});
 
-	it("should retrieve staff profile and presign avatar url when avatarUpdatedAt is set", async () => {
+	it("should retrieve staff profile with avatar url without s3 presigning", async () => {
 		staffRepository.findById.mockResolvedValue(dummyStaffWithAvatar);
-		storageService.generatePresignedGetUrl.mockResolvedValue({
-			downloadUrl:
-				"https://s3.amazonaws.com/spotq/restaurants/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/staff/b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01/avatar.png?token=xyz",
-			expiresIn: 3600,
-		});
 
 		const result = await useCase.execute({
 			staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
@@ -83,17 +75,14 @@ describe("GetStaffProfileUseCase", () => {
 		expect(staffRepository.findById).toHaveBeenCalledWith(
 			"b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
 		);
-		expect(storageService.generatePresignedGetUrl).toHaveBeenCalledWith({
-			key: "restaurants/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/staff/b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01/avatar.png",
-		});
+		expect(storageService.generatePresignedGetUrl).not.toHaveBeenCalled();
 		expect(result).toEqual({
 			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
 			restaurant_id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 			fullname: "John Doe",
 			email: "john.doe@spiceroute.com",
 			phone: "+919876543210",
-			avatar_url:
-				"https://s3.amazonaws.com/spotq/restaurants/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/staff/b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01/avatar.png?token=xyz",
+			avatar_url: "https://s3.amazonaws.com/spotq/avatar.png",
 			role: "STAFF",
 			status: "ACTIVE",
 			created_at: "2026-01-01T12:00:00.000Z",
@@ -110,7 +99,7 @@ describe("GetStaffProfileUseCase", () => {
 		).toBeUndefined();
 	});
 
-	it("should not call storageService and return avatar_url null when avatarUpdatedAt is null", async () => {
+	it("should return avatar_url null when staff has no avatar", async () => {
 		staffRepository.findById.mockResolvedValue(dummyStaffWithoutAvatar);
 
 		const result = await useCase.execute({
@@ -146,7 +135,7 @@ describe("GetStaffProfileUseCase", () => {
 		).rejects.toThrow("Database connection lost");
 	});
 
-	it("should throw StaffInactiveError when staff status is INACTIVE", async () => {
+	it("should retrieve profile even when staff membership status is INACTIVE", async () => {
 		const inactiveStaff = RestaurantStaff.reconstitute({
 			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
 			restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
@@ -159,12 +148,12 @@ describe("GetStaffProfileUseCase", () => {
 		});
 		staffRepository.findById.mockResolvedValue(inactiveStaff);
 
-		await expect(
-			useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" }),
-		).rejects.toThrow(StaffInactiveError);
+		const result = await useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" });
+		expect(result.id).toBe("b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01");
+		expect(result.status).toBe("INACTIVE");
 	});
 
-	it("should throw StaffSuspendedError when staff status is SUSPENDED", async () => {
+	it("should retrieve profile even when staff membership status is SUSPENDED", async () => {
 		const suspendedStaff = RestaurantStaff.reconstitute({
 			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
 			restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
@@ -177,8 +166,8 @@ describe("GetStaffProfileUseCase", () => {
 		});
 		staffRepository.findById.mockResolvedValue(suspendedStaff);
 
-		await expect(
-			useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" }),
-		).rejects.toThrow(StaffSuspendedError);
+		const result = await useCase.execute({ staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01" });
+		expect(result.id).toBe("b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01");
+		expect(result.status).toBe("SUSPENDED");
 	});
 });

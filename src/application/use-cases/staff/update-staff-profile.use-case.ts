@@ -1,16 +1,12 @@
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 import type { UpdateStaffProfileDTO } from "@/application/dtos/staff/update-staff-profile.dto.ts";
 import type { UpdateStaffProfileResponseDTO } from "@/application/dtos/staff/update-staff-profile-response.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
-import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
 	InvalidStaffDataError,
-	StaffForbiddenError,
-	StaffInactiveError,
 	StaffNotFoundError,
-	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -20,9 +16,6 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 	constructor(
 		@inject(TYPES.RestaurantStaffRepository)
 		private readonly staffRepository: IRestaurantStaffRepository,
-		@inject(TYPES.Services.Storage)
-		@optional()
-		private readonly storageService?: IStorageService,
 	) {}
 
 	public async execute(
@@ -67,18 +60,6 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
 		}
 
-		if (restaurantId && staff.restaurantId !== restaurantId) {
-			throw new StaffForbiddenError(messages.STAFF_RESTAURANT_FORBIDDEN);
-		}
-
-		if (staff.status === "INACTIVE") {
-			throw new StaffInactiveError();
-		}
-
-		if (staff.status === "SUSPENDED") {
-			throw new StaffSuspendedError();
-		}
-
 		let avatarToSet: string | Date | null | undefined = avatarUrl;
 		if (dto.hasAvatar === true && avatarUrl === undefined) {
 			avatarToSet = new Date();
@@ -89,24 +70,6 @@ export class UpdateStaffProfileUseCase implements IUpdateStaffProfileUseCase {
 		staff.updateProfile(finalName, finalPhone, avatarToSet);
 		await this.staffRepository.save(staff);
 
-		let finalAvatarUrl: string | null = staff.avatarUrl;
-		if (dto.hasAvatar === false) {
-			finalAvatarUrl = null;
-		} else if (this.storageService && (dto.hasAvatar === true || staff.avatarUrl || staff.avatarUpdatedAt)) {
-			const s3Key =
-				staff.avatarUrl ||
-				`restaurants/${staff.restaurantId}/staff/${staff.id}/avatar.png`;
-			try {
-				const { downloadUrl } =
-					await this.storageService.generatePresignedGetUrl({
-						key: s3Key,
-					});
-				finalAvatarUrl = downloadUrl;
-			} catch {
-				finalAvatarUrl = s3Key;
-			}
-		}
-
-		return StaffMapper.toUpdateProfileDTO(staff, finalAvatarUrl);
+		return StaffMapper.toUpdateProfileDTO(staff, staff.avatarUrl);
 	}
 }

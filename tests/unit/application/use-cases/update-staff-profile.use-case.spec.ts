@@ -4,10 +4,7 @@ import { UpdateStaffProfileUseCase } from "@/application/use-cases/staff/update-
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import {
 	InvalidStaffDataError,
-	StaffForbiddenError,
-	StaffInactiveError,
 	StaffNotFoundError,
-	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
@@ -66,33 +63,25 @@ describe("UpdateStaffProfileUseCase", () => {
 		);
 	});
 
-	it("should successfully update staff profile and presign avatar url when avatar is updated", async () => {
+	it("should successfully update staff profile with avatar url directly", async () => {
 		const staff = createMockStaff("ACTIVE");
 		staffRepository.findById.mockResolvedValue(staff);
 		staffRepository.save.mockResolvedValue(undefined);
-		storageService.generatePresignedGetUrl.mockResolvedValue({
-			downloadUrl: `https://s3.amazonaws.com/spotq/restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar.png?token=xyz`,
-			expiresIn: 3600,
-		});
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
 			staffId: mockStaffId,
 			fullname: "Updated Name",
 			phone: "+919876543211",
-			hasAvatar: true,
+			avatarUrl: "https://s3.amazonaws.com/spotq/avatar.png",
 		});
 
 		expect(staffRepository.findById).toHaveBeenCalledWith(mockStaffId);
 		expect(staffRepository.save).toHaveBeenCalledWith(staff);
 		expect(result.fullname).toBe("Updated Name");
 		expect(result.phone).toBe("+919876543211");
-		expect(storageService.generatePresignedGetUrl).toHaveBeenCalledWith({
-			key: `restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar.png`,
-		});
-		expect(result.avatar_url).toBe(
-			`https://s3.amazonaws.com/spotq/restaurants/${mockRestaurantId}/staff/${mockStaffId}/avatar.png?token=xyz`,
-		);
+		expect(storageService.generatePresignedGetUrl).not.toHaveBeenCalled();
+		expect(result.avatar_url).toBe("https://s3.amazonaws.com/spotq/avatar.png");
 	});
 
 	it("should support removing avatar when hasAvatar is false", async () => {
@@ -135,42 +124,29 @@ describe("UpdateStaffProfileUseCase", () => {
 		).rejects.toThrow(StaffNotFoundError);
 	});
 
-	it("should throw StaffInactiveError when staff account is INACTIVE", async () => {
+	it("should allow updating profile when staff membership status is INACTIVE", async () => {
 		const staff = createMockStaff("INACTIVE");
 		staffRepository.findById.mockResolvedValue(staff);
+		staffRepository.save.mockResolvedValue(undefined);
 
-		await expect(
-			useCase.execute({
-				restaurantId: mockRestaurantId,
-				staffId: mockStaffId,
-				fullname: "New Name",
-			}),
-		).rejects.toThrow(StaffInactiveError);
+		const result = await useCase.execute({
+			restaurantId: mockRestaurantId,
+			staffId: mockStaffId,
+			fullname: "New Name",
+		});
+		expect(result.fullname).toBe("New Name");
 	});
 
-	it("should throw StaffSuspendedError when staff account is SUSPENDED", async () => {
+	it("should allow updating profile when staff membership status is SUSPENDED", async () => {
 		const staff = createMockStaff("SUSPENDED");
 		staffRepository.findById.mockResolvedValue(staff);
+		staffRepository.save.mockResolvedValue(undefined);
 
-		await expect(
-			useCase.execute({
-				restaurantId: mockRestaurantId,
-				staffId: mockStaffId,
-				fullname: "New Name",
-			}),
-		).rejects.toThrow(StaffSuspendedError);
-	});
-
-	it("should throw StaffForbiddenError when staff belongs to a different restaurant", async () => {
-		const staff = createMockStaff("ACTIVE", "other-restaurant-id");
-		staffRepository.findById.mockResolvedValue(staff);
-
-		await expect(
-			useCase.execute({
-				restaurantId: mockRestaurantId,
-				staffId: mockStaffId,
-				fullname: "New Name",
-			}),
-		).rejects.toThrow(StaffForbiddenError);
+		const result = await useCase.execute({
+			restaurantId: mockRestaurantId,
+			staffId: mockStaffId,
+			fullname: "New Name",
+		});
+		expect(result.fullname).toBe("New Name");
 	});
 });
