@@ -61,6 +61,7 @@ model Restaurant {
   images         RestaurantImage[]
   menuCategories MenuCategory[]
   menuItems      MenuItem[]
+  addons         Addon[]
 
   @@map("restaurants")
 }
@@ -352,19 +353,41 @@ model MenuItemVariant {
   @@map("menu_item_variants")
 }
 
+model Addon {
+  id           String  @id @default(uuid()) @db.Uuid
+  restaurantId String  @map("restaurant_id") @db.Uuid
+  name         String  @db.VarChar(255)
+  description  String?
+  price        Decimal @db.Decimal(10, 2)
+  imageKey     String? @map("image_key") @db.VarChar(500)
+  isAvailable  Boolean @default(true) @map("is_available")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItems  MenuItemAddon[]
+
+  @@unique([restaurantId, name])
+  @@index([restaurantId])
+  @@map("addons")
+}
+
 model MenuItemAddon {
-  id          String  @id @default(uuid()) @db.Uuid
-  menuItemId  String  @map("menu_item_id") @db.Uuid
-  name        String  @db.VarChar(255)
-  imageKey    String? @map("image_key") @db.VarChar(500)
-  price       Decimal @db.Decimal(10, 2)
-  isAvailable Boolean @default(true) @map("is_available")
+  id            String   @id @default(uuid()) @db.Uuid
+  menuItemId    String   @map("menu_item_id") @db.Uuid
+  addonId       String   @map("addon_id") @db.Uuid
+  priceOverride Decimal? @map("price_override") @db.Decimal(10, 2)
+  displayOrder  Int      @default(0) @map("display_order")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  addon    Addon    @relation(fields: [addonId], references: [id], onDelete: Cascade)
 
+  @@unique([menuItemId, addonId])
   @@index([menuItemId])
+  @@index([addonId])
   @@map("menu_item_addons")
 }
