@@ -52,6 +52,10 @@ import {
 	createAddonParamsSchema,
 	listAddonsParamsSchema,
 } from "../validators/create-addon.validator";
+import {
+	updateAddonBodySchema,
+	updateAddonParamsSchema,
+} from "../validators/update-addon.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -200,14 +204,22 @@ restaurantRouter.post(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createAddonParamsSchema),
 	validateRequestBody(createAddonBodySchema),
-	addonController.createAddon.bind(addonController),
+	addonController.createAddon,
 );
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(listAddonsParamsSchema),
-	addonController.listAddons.bind(addonController),
+	addonController.listAddons,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.RESTAURANT_ADDON_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateAddonParamsSchema),
+	validateRequestBody(updateAddonBodySchema),
+	addonController.updateAddon,
 );
 
 restaurantRouter.post(

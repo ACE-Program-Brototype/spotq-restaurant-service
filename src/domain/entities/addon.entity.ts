@@ -36,6 +36,14 @@ export interface ReconstituteAddonProps {
 	updatedAt: Date;
 }
 
+export interface UpdateAddonProps {
+	name?: string;
+	description?: string | null;
+	price?: number;
+	imageKey?: string | null;
+	isAvailable?: boolean;
+}
+
 export class Addon {
 	private props: AddonProps;
 
@@ -98,6 +106,52 @@ export class Addon {
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
+	}
+
+	public update(updateProps: UpdateAddonProps): void {
+		if (updateProps.name !== undefined) {
+			const trimmedName = updateProps.name.trim();
+			if (!trimmedName) {
+				throw new InvalidAddonDataError(messages.ADDON_NAME_REQUIRED);
+			}
+			if (trimmedName.length > 255) {
+				throw new InvalidAddonDataError(messages.ADDON_NAME_MAX_LENGTH);
+			}
+			this.props.name = trimmedName;
+		}
+
+		if (updateProps.description !== undefined) {
+			const trimmedDescription = updateProps.description?.trim() || null;
+			if (trimmedDescription && trimmedDescription.length > 1000) {
+				throw new InvalidAddonDataError(messages.ADDON_DESCRIPTION_MAX_LENGTH);
+			}
+			this.props.description = trimmedDescription;
+		}
+
+		if (updateProps.price !== undefined) {
+			if (
+				typeof updateProps.price !== "number" ||
+				Number.isNaN(updateProps.price) ||
+				updateProps.price < 0
+			) {
+				throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
+			}
+			this.props.price = updateProps.price;
+		}
+
+		if (updateProps.imageKey !== undefined) {
+			const trimmedImageKey = updateProps.imageKey?.trim() || null;
+			this.props.imageKey = trimmedImageKey;
+		}
+
+		if (updateProps.isAvailable !== undefined) {
+			if (typeof updateProps.isAvailable !== "boolean") {
+				throw new InvalidAddonDataError(messages.ADDON_IS_AVAILABLE_INVALID);
+			}
+			this.props.isAvailable = updateProps.isAvailable;
+		}
+
+		this.props.updatedAt = new Date();
 	}
 
 	public get id(): string {
