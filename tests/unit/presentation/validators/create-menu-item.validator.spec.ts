@@ -130,5 +130,25 @@ describe("create-menu-item.validator", () => {
 			});
 			expect(result.success).toBe(false);
 		});
+
+		it("should fail when image has empty objectKey and object_key", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				categoryId: validCategoryId,
+				name: "Chicken Dum Biryani",
+				price: 320.0,
+				images: [{}],
+			});
+			expect(result.success).toBe(false);
+		});
+
+		it("should fail when addon has no addonId and no addon_id", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				categoryId: validCategoryId,
+				name: "Chicken Dum Biryani",
+				price: 320.0,
+				addons: [{}],
+			});
+			expect(result.success).toBe(false);
+		});
 	});
 });

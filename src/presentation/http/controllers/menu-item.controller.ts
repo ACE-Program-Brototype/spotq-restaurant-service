@@ -49,7 +49,7 @@ export class MenuItemController {
 					displayOrder?: number;
 					display_order?: number;
 				}) => ({
-					objectKey: String(img.objectKey ?? img.object_key),
+					objectKey: String(img.objectKey ?? img.object_key ?? "").trim(),
 					displayOrder: img.displayOrder ?? img.display_order ?? 0,
 				}),
 			);
@@ -78,7 +78,7 @@ export class MenuItemController {
 					displayOrder?: number;
 					display_order?: number;
 				}) => ({
-					addonId: String(a.addonId ?? a.addon_id),
+					addonId: String(a.addonId ?? a.addon_id ?? "").trim(),
 					priceOverride:
 						a.priceOverride !== undefined
 							? a.priceOverride
