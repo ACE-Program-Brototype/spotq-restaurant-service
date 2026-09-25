@@ -45,10 +45,19 @@ describe("create-addon.validator", () => {
 				name: "Extra Cheese",
 				description: "Delicious melted cheese",
 				price: 50.0,
-				image_key: "addons/cheese.png",
-				is_available: true,
+				imageKey: "addons/cheese.png",
+				isAvailable: true,
 			});
 			expect(result.success).toBe(true);
+		});
+
+		it("should fail when extra undeclared fields are provided (.strict())", () => {
+			const result = createAddonBodySchema.safeParse({
+				name: "Extra Cheese",
+				price: 50.0,
+				image_key: "addons/cheese.png",
+			});
+			expect(result.success).toBe(false);
 		});
 
 		it("should fail when name is missing or empty", () => {

@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import type {
 	ValidateInvitationDTO,
 	ValidateInvitationResponseDTO,
@@ -11,6 +11,7 @@ import {
 	InvalidInvitationTokenError,
 	InvitationExpiredError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 
 @injectable()
@@ -22,6 +23,9 @@ export class ValidateInvitationUseCase implements IValidateInvitationUseCase {
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.InvitationTokenService)
 		private readonly invitationTokenService: IInvitationTokenService,
+		@inject(TYPES.RestaurantStaffRepository)
+		@optional()
+		private readonly staffRepository?: IRestaurantStaffRepository,
 	) {}
 
 	public async execute(
@@ -45,10 +49,24 @@ export class ValidateInvitationUseCase implements IValidateInvitationUseCase {
 			invitation.restaurantId,
 		);
 
+		let isExistingStaff = false;
+		let fullname: string | undefined;
+
+		if (this.staffRepository) {
+			const existingStaff = await this.staffRepository.findByEmail(
+				invitation.email,
+			);
+			if (existingStaff) {
+				isExistingStaff = true;
+				fullname = existingStaff.fullname;
+			}
+		}
+
 		return {
 			valid: true,
 			email: invitation.email,
 			restaurantName: restaurant?.restaurantName ?? "Restaurant",
+			...(isExistingStaff ? { isExistingStaff: true, fullname } : {}),
 		};
 	}
 }

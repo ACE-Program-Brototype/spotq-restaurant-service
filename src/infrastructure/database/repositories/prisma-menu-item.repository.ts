@@ -214,7 +214,6 @@ export class PrismaMenuItemRepository
 								addonLink.priceOverride !== null
 									? new Prisma.Decimal(addonLink.priceOverride)
 									: null,
-							displayOrder: addonLink.displayOrder,
 						},
 					});
 
@@ -228,7 +227,7 @@ export class PrismaMenuItemRepository
 							createdJunction.priceOverride !== null
 								? Number(createdJunction.priceOverride)
 								: null,
-						displayOrder: createdJunction.displayOrder,
+						displayOrder: addonLink.displayOrder,
 					});
 				}
 

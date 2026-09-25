@@ -12,6 +12,14 @@ export interface StaffFilterParams {
 	sortOrder: "asc" | "desc";
 }
 
+export interface ActiveMembershipInfo {
+	membership: RestaurantStaff;
+	restaurantId: string;
+	restaurantName: string;
+	role: string;
+	status?: string;
+}
+
 export interface IRestaurantStaffRepository
 	extends IBaseRepository<RestaurantStaff, string> {
 	findByEmail(email: string): Promise<RestaurantStaff | null>;
@@ -19,17 +27,15 @@ export interface IRestaurantStaffRepository
 		email: string,
 		restaurantId: string,
 	): Promise<RestaurantStaff | null>;
+	findByStaffIdAndRestaurantId(
+		staffId: string,
+		restaurantId: string,
+	): Promise<RestaurantStaff | null>;
+	findActiveByStaffId(staffId: string): Promise<ActiveMembershipInfo[]>;
 	findByRestaurantId(restaurantId: string): Promise<RestaurantStaff[]>;
 	findManyWithFilters(
 		params: StaffFilterParams,
 	): Promise<{ staff: RestaurantStaff[]; total: number }>;
-	/**
-	 * Find a staff member strictly belonging to the specified restaurant.
-	 *
-	 * @param id - Unique identifier of the staff member
-	 * @param restaurantId - Unique identifier of the restaurant
-	 * @returns The RestaurantStaff entity if found and matching restaurantId, otherwise null
-	 */
 	findByIdAndRestaurantId(
 		id: string,
 		restaurantId: string,
@@ -37,17 +43,11 @@ export interface IRestaurantStaffRepository
 	removeStaff(id: string, restaurantId: string): Promise<void>;
 	updateStaffInfo(
 		id: string,
-		data: { fullname?: string; phone?: string },
+		data: { fullname?: string; phone?: string; avatarUrl?: string | null },
 	): Promise<RestaurantStaff>;
-	/**
-	 * Update only the status of a staff member.
-	 *
-	 * @param id - Unique identifier of the staff member
-	 * @param status - The new status ("ACTIVE" | "INACTIVE")
-	 * @returns The updated RestaurantStaff entity
-	 */
 	updateStatus?(
 		id: string,
 		status: "ACTIVE" | "INACTIVE",
+		restaurantId?: string,
 	): Promise<RestaurantStaff>;
 }

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IAddonRepository } from "@/application/ports/repositories/addon.repository.port.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import { CreateAddonUseCase } from "@/application/use-cases/create-addon.use-case.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";

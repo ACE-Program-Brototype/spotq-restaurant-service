@@ -25,6 +25,16 @@ export const messages = {
 	STAFF_UPDATED_SUCCESS: "Staff information updated successfully",
 	RESTAURANTS_FETCHED_SUCCESS: "Restaurants retrieved successfully",
 	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
+	SELECT_RESTAURANT_PROMPT: "Please select a restaurant to continue",
+	RESTAURANT_SELECTED_SUCCESS: "Restaurant selected successfully",
+	SELECTION_TOKEN_REQUIRED: "Selection token is required",
+	SELECTION_TOKEN_EMPTY: "Selection token cannot be empty",
+	INVALID_OR_EXPIRED_SELECTION_TOKEN: "Invalid or expired selection token",
+	STAFF_NOT_MEMBER_OF_RESTAURANT:
+		"Staff is not a member of the selected restaurant",
+	STAFF_ACCOUNT_DEACTIVATED:
+		"Your staff account for this restaurant has been deactivated. Please contact your restaurant administrator.",
+	NO_ACTIVE_RESTAURANT_MEMBERSHIPS: "No active restaurant memberships found",
 
 	PRESIGNED_URL_GENERATED_SUCCESS:
 		"Presigned upload URL generated successfully.",
@@ -188,6 +198,7 @@ export const messages = {
 		"If this email is eligible for registration, a verification code will be sent.",
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
+	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
 	RESTAURANT_APPROVED_SUCCESS: "Restaurant application approved successfully.",
 	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
@@ -242,6 +253,7 @@ export const messages = {
 	STAFF_REMOVED_SUCCESS: "Staff member removed successfully",
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
+	INVALID_CATEGORY_ID: "Invalid category ID",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 	ADDON_CREATED_SUCCESS: "Menu item add-on created successfully",
 	ADDON_ALREADY_EXISTS:
@@ -255,18 +267,22 @@ export const messages = {
 		"Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
 	INVALID_ADDON_ID: "Invalid add-on ID",
+	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
+	CATEGORY_ALREADY_EXISTS:
+		"A category with this name already exists for this restaurant",
+	CATEGORY_NAME_REQUIRED: "Category name is required",
+	CATEGORY_NAME_MAX_LENGTH: "Category name must not exceed 255 characters",
+	CATEGORY_DESCRIPTION_MAX_LENGTH:
+		"Category description must not exceed 1000 characters",
+	CATEGORY_NOT_FOUND: "Category not found",
+	CATEGORY_DISPLAY_ORDER_INVALID:
+		"Display order must be a non-negative integer",
+	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
 	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",
 	MENU_ITEM_NOT_FOUND: "Menu item not found",
-		MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
-	MENU_CATEGORIES_FETCHED_SUCCESS: "Menu categories retrieved successfully",
-	CATEGORY_ALREADY_EXISTS: "Menu category with this name already exists",
-	CATEGORY_NAME_REQUIRED: "Category name is required",
-	CATEGORY_NAME_MAX_LENGTH: "Category name must not exceed 255 characters",
-	CATEGORY_DESCRIPTION_MAX_LENGTH: "Category description must not exceed 1000 characters",
-	CATEGORY_NOT_FOUND: "Menu category not found for this restaurant",
-	INVALID_CATEGORY_ID: "Invalid category ID",
 	ADDON_NOT_FOUND_FOR_RESTAURANT:
 		"One or more selected add-ons do not belong to this restaurant",
 	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",

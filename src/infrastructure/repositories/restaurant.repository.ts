@@ -143,15 +143,8 @@ export class RestaurantRepository implements IRestaurantRepository {
 					},
 				},
 				staff: {
-					select: {
-						id: true,
-						fullname: true,
-						email: true,
-						phone: true,
-						role: true,
-						status: true,
-						avatarUrl: true,
-						createdAt: true,
+					include: {
+						staff: true,
 					},
 				},
 			},
@@ -222,15 +215,15 @@ export class RestaurantRepository implements IRestaurantRepository {
 				openTime: oh.openTime,
 				closeTime: oh.closeTime,
 			})),
-			staff: (raw.staff || []).map((s) => ({
-				id: s.id,
-				fullname: s.fullname,
-				email: s.email,
-				phone: s.phone,
-				role: s.role,
-				status: s.status,
-				avatarUrl: null,
-				createdAt: s.createdAt,
+			staff: (raw.staff || []).map((membership) => ({
+				id: membership.id,
+				fullname: membership.staff?.fullname ?? "",
+				email: membership.staff?.email ?? "",
+				phone: membership.staff?.phone ?? "",
+				role: membership.role,
+				status: membership.status,
+				avatarUrl: membership.staff?.avatarUrl ?? null,
+				createdAt: membership.createdAt,
 			})),
 			documents: (raw.documents || []).map((doc) => ({
 				id: doc.id,

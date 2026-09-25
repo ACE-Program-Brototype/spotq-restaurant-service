@@ -11,6 +11,10 @@ import type { StorageController } from "@/presentation/http/controllers/storage.
 import { container } from "./container";
 import { TYPES } from "./types";
 
+export const menuCategoryController = container.get<MenuCategoryController>(
+	TYPES.Controller.MenuCategoryController,
+);
+
 export const restaurantAuthController = container.get<RestaurantAuthController>(
 	TYPES.Controller.RestaurantAuthController,
 );
@@ -50,6 +54,3 @@ export const menuItemController = container.get<MenuItemController>(
 	TYPES.Controller.MenuItemController,
 );
 
-export const menuCategoryController = container.get<MenuCategoryController>(
-	TYPES.Controller.MenuCategoryController,
-);

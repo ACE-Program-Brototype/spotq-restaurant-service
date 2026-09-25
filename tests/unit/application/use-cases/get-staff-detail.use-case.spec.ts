@@ -37,6 +37,7 @@ describe("GetStaffDetailUseCase", () => {
 		fullname: "Ravi Kumar",
 		email: "ravi@example.com",
 		phone: "+919876543210",
+		avatarUrl: "https://s3.amazonaws.com/spotq/avatar.png",
 		avatarUpdatedAt: new Date("2026-07-14T10:12:00.000Z"),
 		passwordHash: "hashed-password",
 		role: "STAFF",
@@ -94,14 +95,9 @@ describe("GetStaffDetailUseCase", () => {
 		);
 	});
 
-	it("should retrieve staff detail successfully and return safe non-sensitive fields with presigned avatarUrl", async () => {
+	it("should retrieve staff detail successfully and return safe non-sensitive fields with avatarUrl", async () => {
 		restaurantRepository.findById.mockResolvedValue(dummyRestaurant);
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue(dummyStaff);
-		storageService.generatePresignedGetUrl.mockResolvedValue({
-			downloadUrl:
-				"https://s3.amazonaws.com/spotq/restaurants/res_01ABC/staff/stf_02AB/avatar.png?token=xyz",
-			expiresIn: 3600,
-		});
 
 		const result = await useCase.execute({
 			restaurantId: "res_01ABC",
@@ -113,17 +109,14 @@ describe("GetStaffDetailUseCase", () => {
 			"stf_02AB",
 			"res_01ABC",
 		);
-		expect(storageService.generatePresignedGetUrl).toHaveBeenCalledWith({
-			key: "restaurants/res_01ABC/staff/stf_02AB/avatar.png",
-		});
+		expect(storageService.generatePresignedGetUrl).not.toHaveBeenCalled();
 		expect(result).toEqual({
 			id: "stf_02AB",
 			restaurantId: "res_01ABC",
 			fullname: "Ravi Kumar",
 			email: "ravi@example.com",
 			phone: "+919876543210",
-			avatarUrl:
-				"https://s3.amazonaws.com/spotq/restaurants/res_01ABC/staff/stf_02AB/avatar.png?token=xyz",
+			avatarUrl: "https://s3.amazonaws.com/spotq/avatar.png",
 			role: "STAFF",
 			status: "ACTIVE",
 			createdAt: "2026-07-14T10:12:00.000Z",

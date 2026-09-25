@@ -20,14 +20,8 @@ import {
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
 import {
-	createAddonBodySchema,
-	createAddonParamsSchema,
-	listAddonsParamsSchema,
-} from "../validators/create-addon.validator";
-import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
-	listMenuCategoriesParamsSchema,
 } from "../validators/create-menu-category.validator";
 import {
 	createMenuItemBodySchema,
@@ -53,7 +47,16 @@ import {
 	updateStaffStatusParamsSchema,
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
+import {
+	updateMenuCategoryBodySchema,
+	updateMenuCategoryParamsSchema,
+} from "../validators/update-menu-category.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
+import {
+	createAddonBodySchema,
+	createAddonParamsSchema,
+	listAddonsParamsSchema,
+} from "../validators/create-addon.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -198,11 +201,7 @@ restaurantRouter.delete(
 );
 
 restaurantRouter.post(
-	[
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_PREFIX,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_FULL,
-	],
+	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createAddonParamsSchema),
 	validateRequestBody(createAddonBodySchema),
@@ -210,11 +209,7 @@ restaurantRouter.post(
 );
 
 restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_PREFIX,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_FULL,
-	],
+	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(listAddonsParamsSchema),
 	addonController.listAddons.bind(addonController),
@@ -233,25 +228,17 @@ restaurantRouter.post(
 );
 
 restaurantRouter.post(
-	[
-		RESTAURANT_ROUTES.MENU_CATEGORIES,
-		RESTAURANT_ROUTES.MENU_CATEGORIES_PREFIX,
-		RESTAURANT_ROUTES.MENU_CATEGORIES_FULL,
-	],
+	RESTAURANT_ROUTES.MENU_CATEGORIES,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createMenuCategoryParamsSchema),
 	validateRequestBody(createMenuCategoryBodySchema),
-	menuCategoryController.createCategory.bind(menuCategoryController),
+	menuCategoryController.createCategory,
 );
 
-restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.MENU_CATEGORIES,
-		RESTAURANT_ROUTES.MENU_CATEGORIES_PREFIX,
-		RESTAURANT_ROUTES.MENU_CATEGORIES_FULL,
-	],
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_CATEGORY_UPDATE,
 	restaurantOwnerAuthMiddleware,
-	validateRequestParams(listMenuCategoriesParamsSchema),
-	menuCategoryController.listCategories.bind(menuCategoryController),
+	validateRequestParams(updateMenuCategoryParamsSchema),
+	validateRequestBody(updateMenuCategoryBodySchema),
+	menuCategoryController.updateCategory,
 );
-

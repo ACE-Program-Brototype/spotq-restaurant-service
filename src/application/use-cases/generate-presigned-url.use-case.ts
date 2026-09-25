@@ -47,7 +47,10 @@ export class GeneratePresignedUrlUseCase
 			(normalizedEntityType === "restaurants" ||
 				normalizedEntityType === "restaurant")
 		) {
-			if (authContext.restaurantId !== sanitizedEntityId) {
+			if (
+				authContext.restaurantId !== sanitizedEntityId &&
+				authContext.role !== "STAFF"
+			) {
 				throw new UnauthorizedEntityAccessError();
 			}
 		}

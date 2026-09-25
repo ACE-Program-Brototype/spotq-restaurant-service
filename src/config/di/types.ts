@@ -4,6 +4,7 @@ export const TYPES = {
 	RedisClient: Symbol.for("RedisClient"),
 
 	// Staff Repositories
+	StaffRepository: Symbol.for("StaffRepository"),
 	RestaurantStaffRepository: Symbol.for("RestaurantStaffRepository"),
 	StaffInvitationRepository: Symbol.for("StaffInvitationRepository"),
 	RestaurantRepository: Symbol.for("RestaurantRepository"),
@@ -20,6 +21,7 @@ export const TYPES = {
 
 	// Staff Use Cases
 	LoginStaffUseCase: Symbol.for("LoginStaffUseCase"),
+	SelectRestaurantUseCase: Symbol.for("SelectRestaurantUseCase"),
 	LogoutStaffUseCase: Symbol.for("LogoutStaffUseCase"),
 	RefreshTokenUseCase: Symbol.for("RefreshTokenUseCase"),
 	ForgotPasswordUseCase: Symbol.for("ForgotPasswordUseCase"),
@@ -107,7 +109,7 @@ export const TYPES = {
 		ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
 		CreateMenuItemUseCase: Symbol.for("CreateMenuItemUseCase"),
 		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
-		ListMenuCategoriesUseCase: Symbol.for("ListMenuCategoriesUseCase"),
+		UpdateMenuCategoryUseCase: Symbol.for("UpdateMenuCategoryUseCase"),
 	},
 
 	Controller: {

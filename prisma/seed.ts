@@ -27,6 +27,9 @@ async function main() {
 			ownerEmail: "owner@spotq.com",
 			status: RestaurantStatus.APPROVED,
 			onboardingStatus: OnboardingStatus.COMPLETED,
+			isSubscriptionActive: true,
+			isBlocked: false,
+			emailVerifiedAt: new Date(),
 		},
 		{
 			id: "a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
@@ -37,6 +40,9 @@ async function main() {
 			ownerEmail: "sarah.owner@spotq.com",
 			status: RestaurantStatus.APPROVED,
 			onboardingStatus: OnboardingStatus.COMPLETED,
+			isSubscriptionActive: true,
+			isBlocked: false,
+			emailVerifiedAt: new Date(),
 		},
 	];
 
@@ -51,6 +57,9 @@ async function main() {
 				ownerEmail: restaurant.ownerEmail,
 				status: restaurant.status,
 				onboardingStatus: restaurant.onboardingStatus,
+				isSubscriptionActive: restaurant.isSubscriptionActive,
+				isBlocked: restaurant.isBlocked,
+				emailVerifiedAt: restaurant.emailVerifiedAt,
 			},
 			create: restaurant,
 		});
@@ -63,120 +72,222 @@ async function main() {
 	const bistroId = sampleRestaurants[0].id;
 	const spiceLoungeId = sampleRestaurants[1].id;
 
-	// 2. Seed Sample Restaurant Staff
-	const sampleStaffMembers = [
-		// Staff for SpotQ Grand Bistro
+	// 2. Seed Global Staff Identities
+	console.log("\n👤 Seeding Global Staff Identities...");
+	const globalStaffList = [
+		// Multi-restaurant staff account
 		{
-			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
-			restaurantId: bistroId,
-			fullname: "John Owner",
-			email: "owner@spotq.com",
-			phone: "+1234567890",
-			avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
+			id: "c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			email: "multistaff@spotq.com",
+			fullname: "Alex Multi",
+			phone: "+919876543210",
 			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.ACTIVE,
 		},
+		// Single-restaurant staff accounts
 		{
-			id: "b2eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
-			restaurantId: bistroId,
-			fullname: "Sarah Manager",
+			id: "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
 			email: "manager@spotq.com",
-			phone: "+1234567891",
-			avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9",
+			fullname: "Sarah Manager",
+			phone: "+919876543211",
 			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.ACTIVE,
 		},
 		{
-			id: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
-			restaurantId: bistroId,
-			fullname: "Chef Gordon",
-			email: "chef@spotq.com",
-			phone: "+1234567892",
-			avatarUrl: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c",
-			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.ACTIVE,
-		},
-		{
-			id: "b4eebc99-9c0b-4ef8-bb6d-6bb9bd380a04",
-			restaurantId: bistroId,
-			fullname: "Alex Waiter",
-			email: "waiter@spotq.com",
-			phone: "+1234567893",
-			avatarUrl: null,
-			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.ACTIVE,
-		},
-		// SpotQ Official Staff Account for Testing Real Emails
-		{
-			id: "b8eebc99-9c0b-4ef8-bb6d-6bb9bd380a08",
-			restaurantId: bistroId,
-			fullname: "SpotQ Official",
-			email: "spotqofficial@gmail.com",
-			phone: "+1234567899",
-			avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
-			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.ACTIVE,
-		},
-		// Staff for SpotQ Spice Lounge
-		{
-			id: "b5eebc99-9c0b-4ef8-bb6d-6bb9bd380a05",
-			restaurantId: spiceLoungeId,
-			fullname: "Raj Manager",
+			id: "c3eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
 			email: "manager.spice@spotq.com",
-			phone: "+1234567895",
-			avatarUpdatedAt: new Date(),
+			fullname: "Raj Manager",
+			phone: "+919876543212",
 			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.ACTIVE,
 		},
 		{
-			id: "b6eebc99-9c0b-4ef8-bb6d-6bb9bd380a06",
-			restaurantId: spiceLoungeId,
-			fullname: "Chef Sanjeev",
-			email: "chef.spice@spotq.com",
-			phone: "+1234567896",
-			avatarUpdatedAt: new Date(),
+			id: "c4eebc99-9c0b-4ef8-bb6d-6bb9bd380a04",
+			email: "spotqofficial@gmail.com",
+			fullname: "SpotQ Official",
+			phone: "+919876543213",
 			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.ACTIVE,
 		},
-		// Inactive Test Account
 		{
-			id: "b7eebc99-9c0b-4ef8-bb6d-6bb9bd380a07",
-			restaurantId: bistroId,
-			fullname: "Emma Inactive",
+			id: "c5eebc99-9c0b-4ef8-bb6d-6bb9bd380a05",
+			email: "owner@spotq.com",
+			fullname: "John Owner",
+			phone: "+919876543214",
+			passwordHash,
+		},
+		{
+			id: "c6eebc99-9c0b-4ef8-bb6d-6bb9bd380a06",
+			email: "chef@spotq.com",
+			fullname: "Chef Gordon",
+			phone: "+919876543215",
+			passwordHash,
+		},
+		{
+			id: "c7eebc99-9c0b-4ef8-bb6d-6bb9bd380a07",
+			email: "waiter@spotq.com",
+			fullname: "Alex Waiter",
+			phone: "+919876543216",
+			passwordHash,
+		},
+		{
+			id: "c8eebc99-9c0b-4ef8-bb6d-6bb9bd380a08",
 			email: "inactive@spotq.com",
-			phone: "+1234567894",
-			avatarUpdatedAt: null,
+			fullname: "Emma Inactive",
+			phone: "+919876543217",
 			passwordHash,
-			role: StaffRole.STAFF,
-			status: StaffStatus.INACTIVE,
 		},
 	];
 
-	console.log("\n👥 Seeding Restaurant Staff Members...");
-	for (const staff of sampleStaffMembers) {
-		const upserted = await prisma.restaurantStaff.upsert({
-			where: { id: staff.id },
+	for (const staff of globalStaffList) {
+		const seededGlobal = await prisma.staff.upsert({
+			where: { email: staff.email },
 			update: {
-				restaurantId: staff.restaurantId,
 				fullname: staff.fullname,
 				phone: staff.phone,
-				avatarUpdatedAt: staff.avatarUpdatedAt,
 				passwordHash: staff.passwordHash,
-				role: staff.role,
-				status: staff.status,
 			},
 			create: staff,
 		});
 
 		console.log(
-			`   ✅ ${upserted.fullname.padEnd(16)} | ${upserted.email.padEnd(26)} | Role: ${upserted.role.padEnd(8)} | Status: ${upserted.status}`,
+			`   👤 Global Staff: ${seededGlobal.fullname.padEnd(16)} | ${seededGlobal.email.padEnd(26)} (ID: ${seededGlobal.id})`,
+		);
+	}
+
+	// 3. Seed RestaurantStaff Memberships
+	console.log("\n👥 Seeding RestaurantStaff Memberships...");
+	const sampleMemberships = [
+		// --- MULTI-RESTAURANT STAFF: Alex Multi is member of BOTH restaurants ---
+		{
+			id: "d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			staffId: "c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			restaurantId: bistroId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "Alex Multi",
+			email: "multistaff@spotq.com",
+			phone: "+919876543210",
+			passwordHash,
+		},
+		{
+			id: "d1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+			staffId: "c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			restaurantId: spiceLoungeId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "Alex Multi",
+			email: "multistaff@spotq.com",
+			phone: "+919876543210",
+			passwordHash,
+		},
+
+		// --- SINGLE-RESTAURANT STAFF: Sarah Manager at Grand Bistro ONLY ---
+		{
+			id: "d2eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			staffId: "c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+			restaurantId: bistroId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "Sarah Manager",
+			email: "manager@spotq.com",
+			phone: "+919876543211",
+			passwordHash,
+		},
+
+		// --- SINGLE-RESTAURANT STAFF: Raj Manager at Spice Lounge ONLY ---
+		{
+			id: "d3eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			staffId: "c3eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
+			restaurantId: spiceLoungeId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "Raj Manager",
+			email: "manager.spice@spotq.com",
+			phone: "+919876543212",
+			passwordHash,
+		},
+
+		// Other accounts
+		{
+			id: "d4eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			staffId: "c4eebc99-9c0b-4ef8-bb6d-6bb9bd380a04",
+			restaurantId: bistroId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "SpotQ Official",
+			email: "spotqofficial@gmail.com",
+			phone: "+919876543213",
+			passwordHash,
+		},
+		{
+			id: "d5eebc99-9c0b-4ef8-bb6d-6bb9bd380a05",
+			staffId: "c5eebc99-9c0b-4ef8-bb6d-6bb9bd380a05",
+			restaurantId: bistroId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "John Owner",
+			email: "owner@spotq.com",
+			phone: "+919876543214",
+			passwordHash,
+		},
+		{
+			id: "d6eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			staffId: "c6eebc99-9c0b-4ef8-bb6d-6bb9bd380a06",
+			restaurantId: bistroId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "Chef Gordon",
+			email: "chef@spotq.com",
+			phone: "+919876543215",
+			passwordHash,
+		},
+		{
+			id: "d7eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			staffId: "c7eebc99-9c0b-4ef8-bb6d-6bb9bd380a07",
+			restaurantId: bistroId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.ACTIVE,
+			fullname: "Alex Waiter",
+			email: "waiter@spotq.com",
+			phone: "+919876543216",
+			passwordHash,
+		},
+		// Inactive Account
+		{
+			id: "d8eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			staffId: "c8eebc99-9c0b-4ef8-bb6d-6bb9bd380a08",
+			restaurantId: bistroId,
+			role: StaffRole.STAFF,
+			status: StaffStatus.INACTIVE,
+			fullname: "Emma Inactive",
+			email: "inactive@spotq.com",
+			phone: "+919876543217",
+			passwordHash,
+		},
+	];
+
+	for (const membership of sampleMemberships) {
+		const upserted = await prisma.restaurantStaff.upsert({
+			where: {
+				staffId_restaurantId: {
+					staffId: membership.staffId,
+					restaurantId: membership.restaurantId,
+				},
+			},
+			update: {
+				role: membership.role,
+				status: membership.status,
+				leftAt: membership.status === StaffStatus.ACTIVE ? null : new Date(),
+			},
+			create: {
+				id: membership.id,
+				staffId: membership.staffId,
+				restaurantId: membership.restaurantId,
+				role: membership.role,
+				status: membership.status,
+				joinedAt: new Date(),
+			},
+		});
+
+		console.log(
+			`   ✅ ${membership.fullname?.padEnd(16)} | ${membership.email?.padEnd(26)} | Rest: ${upserted.restaurantId.slice(-6)} | Role: ${upserted.role.padEnd(8)} | Status: ${upserted.status}`,
 		);
 	}
 
@@ -184,39 +295,24 @@ async function main() {
 	console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 	console.log("🔑 Available Staff Login Test Accounts:");
 	console.log(
-		"   • spotqofficial@gmail.com  (Password: " +
+		"   • multistaff@spotq.com     (Password: " +
 			defaultPassword +
-			" | Grand Bistro - MANAGER)",
-	);
-	console.log(
-		"   • owner@spotq.com          (Password: " +
-			defaultPassword +
-			" | Grand Bistro - OWNER)",
+			" | MULTIPLE RESTAURANTS: Grand Bistro & Spice Lounge)",
 	);
 	console.log(
 		"   • manager@spotq.com        (Password: " +
 			defaultPassword +
-			" | Grand Bistro - MANAGER)",
-	);
-	console.log(
-		"   • chef@spotq.com           (Password: " +
-			defaultPassword +
-			" | Grand Bistro - CHEF)",
-	);
-	console.log(
-		"   • waiter@spotq.com         (Password: " +
-			defaultPassword +
-			" | Grand Bistro - WAITER)",
+			" | SINGLE RESTAURANT: Grand Bistro - Normal login)",
 	);
 	console.log(
 		"   • manager.spice@spotq.com  (Password: " +
 			defaultPassword +
-			" | Spice Lounge - MANAGER)",
+			" | SINGLE RESTAURANT: Spice Lounge - Normal login)",
 	);
 	console.log(
-		"   • chef.spice@spotq.com     (Password: " +
+		"   • spotqofficial@gmail.com  (Password: " +
 			defaultPassword +
-			" | Spice Lounge - CHEF)",
+			" | Grand Bistro)",
 	);
 	console.log(
 		"   • inactive@spotq.com       (Password: " +

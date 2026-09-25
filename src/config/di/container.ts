@@ -23,3 +23,4 @@ container.load(
 	menuItemModule,
 	menuModule,
 );
+

@@ -90,7 +90,7 @@ export class MenuItemController {
 			);
 
 			const defaultVariant =
-				mappedVariants.find((v) => v.isDefault) ?? mappedVariants[0];
+				mappedVariants.find((v: { isDefault: boolean; price: number }) => v.isDefault) ?? mappedVariants[0];
 			const resolvedPrice =
 				price !== undefined && price !== null
 					? Number(price)
