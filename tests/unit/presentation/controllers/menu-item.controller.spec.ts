@@ -157,5 +157,38 @@ describe("MenuItemController", () => {
 
 			expect(next).toHaveBeenCalledWith(expectedError);
 		});
+
+		it("should leave displayOrder undefined for images and addons when omitted", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					price: 320.0,
+					images: [{ objectKey: "menu/biryani.png" }],
+					addons: [{ addonId: "addon-1" }],
+				},
+			};
+
+			createMenuItemUseCase.execute.mockResolvedValue({} as never);
+
+			await controller.createMenuItem(
+				req as Request,
+				res as Response,
+				next as never,
+			);
+
+			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					images: [{ objectKey: "menu/biryani.png", displayOrder: undefined }],
+					addons: [
+						expect.objectContaining({
+							addonId: "addon-1",
+							displayOrder: undefined,
+						}),
+					],
+				}),
+			);
+		});
 	});
 });
