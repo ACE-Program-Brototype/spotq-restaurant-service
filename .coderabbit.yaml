@@ -1,0 +1,264 @@
+language: "en-US"
+
+reviews:
+  profile: "assertive"
+
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+
+  review_status: true
+  commit_status: true
+
+  auto_review:
+    enabled: true
+    drafts: false
+
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/dist/**"
+    - "!**/coverage/**"
+    - "!**/*.lock"
+
+  instructions: |
+    Review this repository as a senior backend engineer familiar with
+    Clean Architecture, Hexagonal Architecture, TypeScript, Express,
+    InversifyJS, Prisma, Zod, Redis, BullMQ and PostgreSQL.
+
+    Prioritize high-signal findings over comment volume.
+
+    REVIEW PRIORITY:
+    1. Correctness and business logic
+    2. Security and authorization
+    3. Architecture and dependency violations
+    4. Input validation
+    5. Error handling
+    6. Database/data integrity
+    7. Performance
+    8. Testing
+    9. Maintainability
+
+    ARCHITECTURE:
+    - Domain must remain framework and infrastructure independent.
+    - Application depends on domain and abstract ports only.
+    - Presentation handles HTTP concerns, validation, authentication,
+      authorization and response formatting.
+    - Infrastructure implements application ports and handles Prisma,
+      Redis, BullMQ and external services.
+    - Inner layers must not depend on outer layers.
+    - Controllers must not contain business logic or directly access
+      Prisma, Redis, BullMQ, S3 or external providers.
+    - Use cases must use dependency injection instead of creating
+      infrastructure dependencies directly.
+
+    DEPENDENCY INJECTION:
+    - Use InversifyJS with @injectable().
+    - Dependencies must be injected using the project's TYPES tokens.
+    - New controllers, use cases, repositories and services must have
+      appropriate DI registrations.
+    - Check both src/config/di/types.ts and the appropriate module.
+
+    VALIDATION:
+    - HTTP body, query and path parameters must be validated using the
+      existing Zod validation middleware.
+    - Validators belong in src/presentation/http/validators/.
+    - Flag routes that accept unvalidated external input.
+
+    AUTHORIZATION:
+    - Verify that protected routes use the appropriate authentication
+      and authorization middleware.
+    - Admin routes must use admin authorization.
+    - Staff routes must use staff authorization.
+    - Restaurant-owner routes must use restaurant-owner authorization.
+    - Restaurant-specific resources must enforce tenant/resource ownership.
+    - Flag missing or incorrectly applied authorization.
+
+    SECURITY:
+    - Flag hardcoded secrets, credentials or sensitive configuration.
+    - Flag exposure of passwords, OTP hashes, tokens or sensitive data.
+    - Refresh-token cookies must follow the project's secure cookie policy.
+    - File uploads must follow the existing MIME type and size policies.
+    - Presigned S3 URLs must not bypass file policy validation.
+    - Public authentication, OTP and invitation endpoints should use
+      the existing rate-limiting mechanism.
+
+    ERROR HANDLING:
+    - Domain errors must extend DomainError.
+    - New domain error codes must follow the project's error-code constants.
+    - Domain errors must have appropriate HTTP status mappings.
+    - Use the centralized error middleware.
+    - Follow the project's ApiResponse/sendSuccessResponse conventions.
+    - Do not introduce ad-hoc response formats.
+    - Do not silently suppress errors.
+
+    DATABASE:
+    - Direct Prisma access belongs in infrastructure/database.
+    - Do not expose raw Prisma models to application or domain layers.
+    - Repository implementations must follow the existing repository pattern.
+    - Persistence records must be mapped to domain entities where required.
+    - Review multi-step database operations for data-integrity and
+      transaction risks.
+    - Flag unsafe schema changes or broken relations.
+
+    LOGGING:
+    - Use the project's structured Pino logger.
+    - Do not introduce console.log or console.error for application logging.
+    - Avoid logging secrets, tokens, passwords or sensitive user data.
+    - Include useful contextual metadata where the existing logging pattern
+      requires it.
+
+    TESTING:
+    - New or changed business behavior should have meaningful tests when
+      appropriate.
+    - Use case unit tests should mock repository/service ports rather than
+      real databases or Redis.
+    - Domain tests should verify business invariants and validation failures.
+    - Follow the existing tests/unit directory structure.
+    - Do not demand tests for trivial changes where tests provide little value.
+
+    CODE QUALITY:
+    - Apply SOLID, DRY, KISS and YAGNI pragmatically.
+    - Flag meaningful separation-of-concern violations.
+    - Do not demand abstractions merely for theoretical purity.
+    - Follow existing naming and folder conventions.
+    - Avoid speculative refactoring.
+
+    NOISE REDUCTION:
+    Do not comment on:
+    - Formatting handled by Biome
+    - Import ordering handled by Biome
+    - Basic TypeScript errors handled by the compiler
+    - Standard Biome lint rules
+    - Personal style preferences
+    - Minor refactoring with no meaningful benefit
+    - Speculative future problems
+    - Correct code
+    - Duplicate observations of the same issue
+
+    COMMENT QUALITY:
+    - Comment only when a meaningful issue exists.
+    - Identify the exact problem.
+    - Explain why it matters.
+    - Suggest a practical fix when appropriate.
+    - Keep comments concise.
+    - Avoid duplicate findings.
+    - Prefer real defects and risks over stylistic suggestions.
+
+  path_instructions:
+    - path: "src/domain/**"
+      instructions: |
+        Domain layer must remain completely framework and infrastructure
+        independent.
+
+        Check for:
+        - Express imports
+        - Prisma imports
+        - Inversify decorators
+        - Redis/BullMQ dependencies
+        - External service dependencies
+        - Incorrect business invariants
+        - Incorrect entity/value-object responsibilities
+
+        Entities should follow the existing create()/reconstitute() factory
+        pattern where applicable.
+
+    - path: "src/application/**"
+      instructions: |
+        Application layer orchestrates business workflows.
+
+        Check for:
+        - Use-case responsibility
+        - Dependency inversion
+        - Port/interface usage
+        - Direct infrastructure dependencies
+        - Correct DTO usage
+        - Correct mapper usage
+        - Proper dependency injection
+
+        Do not require unnecessary abstractions.
+
+    - path: "src/presentation/http/controllers/**"
+      instructions: |
+        Controllers should only:
+        - Extract validated request data
+        - Invoke use cases
+        - Return standardized responses
+
+        Flag:
+        - Business logic
+        - Direct Prisma/Redis access
+        - Direct external-service calls
+        - Manual error suppression
+        - Incorrect response handling
+        - Missing dependency injection
+
+    - path: "src/presentation/http/routes/**"
+      instructions: |
+        Review route middleware ordering and protection.
+
+        Check:
+        - Authentication
+        - Authorization
+        - Rate limiting where required
+        - Zod validation
+        - Correct controller binding
+        - Correct route-to-controller mapping
+
+    - path: "src/presentation/http/validators/**"
+      instructions: |
+        Validators must use Zod and represent the actual HTTP contract.
+
+        Check body, query and path parameter validation.
+        Check meaningful normalization such as trimming and lowercasing
+        where appropriate.
+
+    - path: "src/infrastructure/database/**"
+      instructions: |
+        Database access belongs here.
+
+        Check:
+        - Repository interface implementation
+        - Prisma usage
+        - Domain/persistence mapping
+        - Prisma error translation
+        - Transaction integrity
+        - No raw Prisma models leaking into application/domain layers
+
+    - path: "src/infrastructure/queue/**"
+      instructions: |
+        Review BullMQ usage.
+
+        Check:
+        - Standard queue names
+        - Shared connection configuration
+        - Error handling
+        - Job reliability
+        - Duplicate/unintended processing risks
+
+    - path: "src/shared/storage/**"
+      instructions: |
+        File upload policies are security-sensitive.
+
+        Check that file category, MIME type and maximum size are validated
+        before generating presigned S3 URLs.
+
+    - path: "src/config/di/**"
+      instructions: |
+        Check that new injectable classes have:
+        - Correct TYPES token
+        - Correct @injectable() usage
+        - Correct @inject() usage
+        - Correct module registration
+        - Correct loading into the central container
+
+    - path: "tests/**"
+      instructions: |
+        Review test correctness rather than test quantity.
+
+        Check:
+        - Meaningful assertions
+        - Edge cases
+        - Business invariant coverage
+        - Proper mocking of ports
+        - No accidental real database/Redis dependencies
+        - Tests match the intended behavior
