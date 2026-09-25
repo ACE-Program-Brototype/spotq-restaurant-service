@@ -42,6 +42,10 @@ import {
 	updateStaffStatusParamsSchema,
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
+import {
+	updateMenuCategoryBodySchema,
+	updateMenuCategoryParamsSchema,
+} from "../validators/update-menu-category.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 import {
 	createAddonBodySchema,
@@ -211,5 +215,13 @@ restaurantRouter.post(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createMenuCategoryParamsSchema),
 	validateRequestBody(createMenuCategoryBodySchema),
-	menuCategoryController.createCategory.bind(menuCategoryController),
+	menuCategoryController.createCategory,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_CATEGORY_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateMenuCategoryParamsSchema),
+	validateRequestBody(updateMenuCategoryBodySchema),
+	menuCategoryController.updateCategory,
 );

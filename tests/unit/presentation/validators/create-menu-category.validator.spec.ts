@@ -87,7 +87,9 @@ describe("CreateMenuCategoryValidator", () => {
 			if (result.success) {
 				expect(result.data.name).toBe("Desserts");
 				expect((result.data as Record<string, unknown>).id).toBeUndefined();
-				expect((result.data as Record<string, unknown>).isActive).toBeUndefined();
+				expect(
+					(result.data as Record<string, unknown>).isActive,
+				).toBeUndefined();
 			}
 		});
 	});

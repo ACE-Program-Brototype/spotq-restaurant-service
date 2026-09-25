@@ -6,10 +6,7 @@ import type { UpdateStaffProfileResponseDTO } from "@/application/dtos/staff/upd
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 
 export const StaffMapper = {
-	toDTO(
-		entity: RestaurantStaff,
-		avatarUrl?: string | null,
-	): StaffResponseDTO {
+	toDTO(entity: RestaurantStaff, avatarUrl?: string | null): StaffResponseDTO {
 		const finalAvatarUrl =
 			avatarUrl !== undefined ? avatarUrl : (entity.avatarUrl ?? null);
 		return {

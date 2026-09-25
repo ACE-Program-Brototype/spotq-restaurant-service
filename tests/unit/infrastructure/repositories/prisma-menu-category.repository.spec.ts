@@ -1,7 +1,10 @@
 import type { PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
-import { CategoryAlreadyExistsError } from "@/domain/errors/menu-category.errors.ts";
+import {
+	CategoryAlreadyExistsError,
+	CategoryNotFoundError,
+} from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { PrismaMenuCategoryRepository } from "@/infrastructure/database/repositories/prisma-menu-category.repository.ts";
 
@@ -16,6 +19,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			count: jest.Mock;
 			upsert: jest.Mock;
 			delete: jest.Mock;
+			update: jest.Mock;
 		};
 	};
 	let repository: PrismaMenuCategoryRepository;
@@ -36,6 +40,7 @@ describe("PrismaMenuCategoryRepository", () => {
 				count: jest.fn(),
 				upsert: jest.fn(),
 				delete: jest.fn(),
+				update: jest.fn(),
 			},
 		};
 		repository = new PrismaMenuCategoryRepository(
@@ -222,5 +227,180 @@ describe("PrismaMenuCategoryRepository", () => {
 		await expect(repository.create(category)).rejects.toThrow(
 			RestaurantNotFoundError,
 		);
+	});
+
+	it("should translate P2025 error to CategoryNotFoundError", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Starters",
+		});
+
+		const prismaError = new PrismaClientKnownRequestError(
+			"Record to update not found",
+			{
+				code: "P2025",
+				clientVersion: "6.19.3",
+			},
+		);
+
+		mockPrisma.menuCategory.update = jest
+			.fn()
+			.mockRejectedValueOnce(prismaError);
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryNotFoundError,
+		);
+	});
+
+	it("should update category without reordering when previousDisplayOrder is not provided or equal", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 2,
+			isActive: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.update = jest.fn().mockResolvedValueOnce({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 2,
+			isActive: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const updated = await repository.updateCategory(category, 2);
+
+		expect(updated).toBeInstanceOf(MenuCategory);
+		expect(updated.name).toBe("Updated Main Course");
+		expect(mockPrisma.menuCategory.update).toHaveBeenCalledWith({
+			where: { id: "cat-1" },
+			data: expect.objectContaining({
+				name: "Updated Main Course",
+				description: "Updated description",
+				displayOrder: 2,
+				isActive: true,
+			}),
+		});
+	});
+
+	it("should execute transaction and increment display orders when moving item to lower order", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 1, // moved from 3 to 1
+			isActive: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const txMock = {
+			menuCategory: {
+				updateMany: jest.fn().mockResolvedValue({ count: 2 }),
+				update: jest.fn().mockResolvedValue({
+					id: "cat-1",
+					restaurantId,
+					name: "Updated Main Course",
+					description: "Updated description",
+					displayOrder: 1,
+					isActive: true,
+					createdAt: new Date("2026-09-23T10:00:00Z"),
+					updatedAt: new Date("2026-09-24T10:00:00Z"),
+				}),
+			},
+		};
+
+		(mockPrisma as unknown as { $transaction: jest.Mock }).$transaction = jest
+			.fn()
+			.mockImplementation(async (callback: (tx: unknown) => unknown) => {
+				return callback(txMock);
+			});
+
+		const updated = await repository.updateCategory(category, 3);
+
+		expect(updated.displayOrder).toBe(1);
+		expect(txMock.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				id: { not: "cat-1" },
+				displayOrder: {
+					gte: 1,
+					lt: 3,
+				},
+			},
+			data: {
+				displayOrder: {
+					increment: 1,
+				},
+			},
+		});
+		expect(txMock.menuCategory.update).toHaveBeenCalledWith({
+			where: { id: "cat-1" },
+			data: expect.objectContaining({
+				displayOrder: 1,
+			}),
+		});
+	});
+
+	it("should execute transaction and decrement display orders when moving item to higher order", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 4, // moved from 1 to 4
+			isActive: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const txMock = {
+			menuCategory: {
+				updateMany: jest.fn().mockResolvedValue({ count: 3 }),
+				update: jest.fn().mockResolvedValue({
+					id: "cat-1",
+					restaurantId,
+					name: "Updated Main Course",
+					description: "Updated description",
+					displayOrder: 4,
+					isActive: true,
+					createdAt: new Date("2026-09-23T10:00:00Z"),
+					updatedAt: new Date("2026-09-24T10:00:00Z"),
+				}),
+			},
+		};
+
+		(mockPrisma as unknown as { $transaction: jest.Mock }).$transaction = jest
+			.fn()
+			.mockImplementation(async (callback: (tx: unknown) => unknown) => {
+				return callback(txMock);
+			});
+
+		const updated = await repository.updateCategory(category, 1);
+
+		expect(updated.displayOrder).toBe(4);
+		expect(txMock.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				id: { not: "cat-1" },
+				displayOrder: {
+					gt: 1,
+					lte: 4,
+				},
+			},
+			data: {
+				displayOrder: {
+					decrement: 1,
+				},
+			},
+		});
 	});
 });

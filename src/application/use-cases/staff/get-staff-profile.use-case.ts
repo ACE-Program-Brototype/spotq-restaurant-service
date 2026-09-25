@@ -24,10 +24,7 @@ export class GetStaffProfileUseCase implements IGetStaffProfileUseCase {
 		}
 
 		let staff: RestaurantStaff | null = null;
-		if (
-			dto.restaurantId &&
-			this.staffRepository.findByStaffIdAndRestaurantId
-		) {
+		if (dto.restaurantId && this.staffRepository.findByStaffIdAndRestaurantId) {
 			staff = await this.staffRepository.findByStaffIdAndRestaurantId(
 				dto.staffId,
 				dto.restaurantId,

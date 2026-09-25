@@ -34,8 +34,7 @@ export const messages = {
 		"Staff is not a member of the selected restaurant",
 	STAFF_ACCOUNT_DEACTIVATED:
 		"Your staff account for this restaurant has been deactivated. Please contact your restaurant administrator.",
-	NO_ACTIVE_RESTAURANT_MEMBERSHIPS:
-		"No active restaurant memberships found",
+	NO_ACTIVE_RESTAURANT_MEMBERSHIPS: "No active restaurant memberships found",
 
 	PRESIGNED_URL_GENERATED_SUCCESS:
 		"Presigned upload URL generated successfully.",
@@ -253,18 +252,22 @@ export const messages = {
 	STAFF_REMOVED_SUCCESS: "Staff member removed successfully",
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
+	INVALID_CATEGORY_ID: "Invalid category ID",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 	ADDON_CREATED_SUCCESS: "Menu item add-on created successfully",
-	ADDON_ALREADY_EXISTS: "An add-on with this name already exists for this restaurant",
+	ADDON_ALREADY_EXISTS:
+		"An add-on with this name already exists for this restaurant",
 	ADDON_NOT_FOUND: "Add-on not found",
 	ADDON_NAME_REQUIRED: "Name is required",
 	ADDON_NAME_MAX_LENGTH: "Add-on name must not exceed 255 characters",
 	ADDON_PRICE_REQUIRED: "Price is required",
 	ADDON_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
-	ADDON_DESCRIPTION_MAX_LENGTH: "Add-on description must not exceed 1000 characters",
+	ADDON_DESCRIPTION_MAX_LENGTH:
+		"Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
 	INVALID_ADDON_ID: "Invalid add-on ID",
 	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
 	CATEGORY_ALREADY_EXISTS:
 		"A category with this name already exists for this restaurant",
 	CATEGORY_NAME_REQUIRED: "Category name is required",
@@ -272,6 +275,9 @@ export const messages = {
 	CATEGORY_DESCRIPTION_MAX_LENGTH:
 		"Category description must not exceed 1000 characters",
 	CATEGORY_NOT_FOUND: "Category not found",
+	CATEGORY_DISPLAY_ORDER_INVALID:
+		"Display order must be a non-negative integer",
+	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
 } as const;
 
 export type MessageKey = keyof typeof messages;

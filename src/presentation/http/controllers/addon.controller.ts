@@ -40,8 +40,7 @@ export class AddonController {
 	public listAddons = async (req: Request, res: Response): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 
-		const result =
-			await this.listRestaurantAddonsUseCase.execute(restaurantId);
+		const result = await this.listRestaurantAddonsUseCase.execute(restaurantId);
 
 		sendSuccessResponse(
 			res,
