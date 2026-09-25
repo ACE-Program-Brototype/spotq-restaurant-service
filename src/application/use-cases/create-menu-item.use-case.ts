@@ -12,6 +12,7 @@ import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
 import {
 	AddonNotFoundForRestaurantError,
 	CategoryNotFoundError,
+	InvalidMenuItemDataError,
 	InvalidVariantDataError,
 	MenuItemAlreadyExistsError,
 } from "@/domain/errors/menu-item.errors.ts";
@@ -66,6 +67,11 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 			const addonIds = Array.from(
 				new Set(input.addons.map((a) => a.addonId.trim())),
 			);
+			if (addonIds.length !== input.addons.length) {
+				throw new InvalidMenuItemDataError(
+					messages.DUPLICATE_ADDON_IN_MENU_ITEM,
+				);
+			}
 			const allBelong =
 				await this.menuItemRepository.verifyAddonsBelongToRestaurant(
 					addonIds,

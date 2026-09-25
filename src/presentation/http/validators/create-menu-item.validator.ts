@@ -78,6 +78,19 @@ export const createMenuItemBodySchema = z
 			message: messages.MENU_ITEM_PRICE_NEGATIVE,
 			path: ["price"],
 		},
+	)
+	.refine(
+		(data) => {
+			if (!data.addons || data.addons.length <= 1) return true;
+			const addonIds = data.addons
+				.map((a) => (a.addonId ?? a.addon_id)?.trim())
+				.filter(Boolean);
+			return new Set(addonIds).size === addonIds.length;
+		},
+		{
+			message: messages.DUPLICATE_ADDON_IN_MENU_ITEM,
+			path: ["addons"],
+		},
 	);
 
 export type CreateMenuItemParams = z.infer<typeof createMenuItemParamsSchema>;

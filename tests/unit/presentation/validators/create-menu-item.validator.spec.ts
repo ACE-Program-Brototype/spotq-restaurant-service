@@ -150,5 +150,18 @@ describe("create-menu-item.validator", () => {
 			});
 			expect(result.success).toBe(false);
 		});
+
+		it("should fail when duplicate addon IDs are provided", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				categoryId: validCategoryId,
+				name: "Chicken Dum Biryani",
+				price: 320.0,
+				addons: [
+					{ addonId: validAddonId },
+					{ addonId: validAddonId },
+				],
+			});
+			expect(result.success).toBe(false);
+		});
 	});
 });

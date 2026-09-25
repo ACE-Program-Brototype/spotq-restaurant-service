@@ -285,6 +285,8 @@ export const messages = {
 	MENU_ITEM_NOT_FOUND: "Menu item not found",
 	ADDON_NOT_FOUND_FOR_RESTAURANT:
 		"One or more selected add-ons do not belong to this restaurant",
+	DUPLICATE_ADDON_IN_MENU_ITEM:
+		"Duplicate add-ons are not allowed for a menu item",
 	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",
 	MENU_ITEM_NAME_MAX_LENGTH: "Menu item name must not exceed 255 characters",
 	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",

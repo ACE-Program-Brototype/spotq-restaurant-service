@@ -45,10 +45,19 @@ export class PrismaMenuItemRepository
 		_context?: unknown,
 	): void {
 		const code = (error as { code?: string })?.code;
+		const meta = (error as { meta?: { target?: string[] | string } })?.meta;
 		if (
 			code === "P2002" ||
 			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
 		) {
+			const target = Array.isArray(meta?.target)
+				? meta?.target.join(",")
+				: String(meta?.target || "");
+			if (target.includes("addon")) {
+				throw new InvalidMenuItemDataError(
+					messages.DUPLICATE_ADDON_IN_MENU_ITEM,
+				);
+			}
 			throw new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
 		}
 		if (

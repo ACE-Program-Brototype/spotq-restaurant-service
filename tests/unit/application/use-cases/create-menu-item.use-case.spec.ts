@@ -8,6 +8,7 @@ import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import {
 	AddonNotFoundForRestaurantError,
 	CategoryNotFoundError,
+	InvalidMenuItemDataError,
 	InvalidVariantDataError,
 	MenuItemAlreadyExistsError,
 } from "@/domain/errors/menu-item.errors.ts";
@@ -283,6 +284,24 @@ describe("CreateMenuItemUseCase", () => {
 
 		await expect(useCase.execute(dtoWithTwoDefaults)).rejects.toThrow(
 			InvalidVariantDataError,
+		);
+	});
+
+	it("should throw InvalidMenuItemDataError when duplicate addons are provided", async () => {
+		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
+		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(true);
+		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
+
+		const dtoWithDuplicateAddons = {
+			...validDto,
+			addons: [
+				{ addonId, priceOverride: 10 },
+				{ addonId, priceOverride: 20 },
+			],
+		};
+
+		await expect(useCase.execute(dtoWithDuplicateAddons)).rejects.toThrow(
+			InvalidMenuItemDataError,
 		);
 	});
 });
