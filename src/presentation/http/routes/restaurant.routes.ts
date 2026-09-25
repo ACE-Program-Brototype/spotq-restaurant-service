@@ -187,11 +187,7 @@ restaurantRouter.delete(
 );
 
 restaurantRouter.post(
-	[
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_PREFIX,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_FULL,
-	],
+	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createAddonParamsSchema),
 	validateRequestBody(createAddonBodySchema),
@@ -199,11 +195,7 @@ restaurantRouter.post(
 );
 
 restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_PREFIX,
-		RESTAURANT_ROUTES.RESTAURANT_ADDONS_FULL,
-	],
+	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(listAddonsParamsSchema),
 	addonController.listAddons.bind(addonController),

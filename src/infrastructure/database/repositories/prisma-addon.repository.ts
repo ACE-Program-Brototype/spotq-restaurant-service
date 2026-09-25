@@ -4,7 +4,7 @@ import type {
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
-import type { IAddonRepository } from "@/application/ports/repositories/addon.repository.port.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { Addon } from "@/domain/entities/addon.entity.ts";
 import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";

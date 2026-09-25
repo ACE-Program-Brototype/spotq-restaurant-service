@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
 import type { IListRestaurantAddonsUseCase } from "@/application/ports/use-cases/list-restaurant-addons.use-case.port.ts";
 import { AddonController } from "@/presentation/http/controllers/addon.controller.ts";
@@ -12,7 +12,6 @@ describe("AddonController", () => {
 	let controller: AddonController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
-	let next: jest.MockedFunction<NextFunction>;
 
 	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 
@@ -33,7 +32,6 @@ describe("AddonController", () => {
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
 		};
-		next = jest.fn();
 	});
 
 	describe("createAddon", () => {
@@ -44,8 +42,8 @@ describe("AddonController", () => {
 					name: "Extra Cheese",
 					description: "Creamy cheese",
 					price: 50.0,
-					image_key: "addons/cheese.png",
-					is_available: true,
+					imageKey: "addons/cheese.png",
+					isAvailable: true,
 				},
 			};
 
@@ -62,7 +60,7 @@ describe("AddonController", () => {
 			};
 			createAddonUseCase.execute.mockResolvedValue(mockResult);
 
-			await controller.createAddon(req as Request, res as Response, next);
+			await controller.createAddon(req as Request, res as Response);
 
 			expect(createAddonUseCase.execute).toHaveBeenCalledWith({
 				restaurantId,
@@ -83,7 +81,7 @@ describe("AddonController", () => {
 			);
 		});
 
-		it("should call next with error when use case throws", async () => {
+		it("should propagate error when use case throws", async () => {
 			req = {
 				params: { restaurantId },
 				body: { name: "Extra Cheese", price: 50.0 },
@@ -91,9 +89,9 @@ describe("AddonController", () => {
 			const error = new Error("Database failure");
 			createAddonUseCase.execute.mockRejectedValue(error);
 
-			await controller.createAddon(req as Request, res as Response, next);
-
-			expect(next).toHaveBeenCalledWith(error);
+			await expect(
+				controller.createAddon(req as Request, res as Response),
+			).rejects.toThrow("Database failure");
 		});
 	});
 
@@ -118,7 +116,7 @@ describe("AddonController", () => {
 			];
 			listRestaurantAddonsUseCase.execute.mockResolvedValue(mockResults);
 
-			await controller.listAddons(req as Request, res as Response, next);
+			await controller.listAddons(req as Request, res as Response);
 
 			expect(listRestaurantAddonsUseCase.execute).toHaveBeenCalledWith(
 				restaurantId,
@@ -134,16 +132,16 @@ describe("AddonController", () => {
 			);
 		});
 
-		it("should call next with error when usecase throws", async () => {
+		it("should propagate error when usecase throws", async () => {
 			req = {
 				params: { restaurantId },
 			};
 			const error = new Error("Not found");
 			listRestaurantAddonsUseCase.execute.mockRejectedValue(error);
 
-			await controller.listAddons(req as Request, res as Response, next);
-
-			expect(next).toHaveBeenCalledWith(error);
+			await expect(
+				controller.listAddons(req as Request, res as Response),
+			).rejects.toThrow("Not found");
 		});
 	});
 });

@@ -3,13 +3,14 @@ import type {
 	AddonResponseDto,
 	CreateAddonInputDto,
 } from "@/application/dtos/addon/create-addon.dto.ts";
-import type { IAddonRepository } from "@/application/ports/repositories/addon.repository.port.ts";
+import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -50,16 +51,6 @@ export class CreateAddonUseCase implements ICreateAddonUseCase {
 
 		const created = await this.addonRepository.create(entity);
 
-		return {
-			id: created.id,
-			restaurantId: created.restaurantId,
-			name: created.name,
-			description: created.description,
-			price: created.price,
-			imageKey: created.imageKey,
-			isAvailable: created.isAvailable,
-			createdAt: created.createdAt.toISOString(),
-			updatedAt: created.updatedAt.toISOString(),
-		};
+		return AddonMapper.toResponseDto(created);
 	}
 }
