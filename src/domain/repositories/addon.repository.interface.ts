@@ -8,5 +8,9 @@ export interface IAddonRepository {
 		restaurantId: string,
 	): Promise<Addon | null>;
 	findByRestaurantId(restaurantId: string): Promise<Addon[]>;
+	findByIdsAndRestaurantId(
+		ids: string[],
+		restaurantId: string,
+	): Promise<Addon[]>;
 	updateAddon(addon: Addon): Promise<Addon>;
 }

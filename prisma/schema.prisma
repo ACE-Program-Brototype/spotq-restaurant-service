@@ -379,6 +379,7 @@ model MenuItemAddon {
   addonId       String   @map("addon_id") @db.Uuid
   priceOverride Decimal? @map("price_override") @db.Decimal(10, 2)
 
+
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 

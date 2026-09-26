@@ -27,6 +27,7 @@ export const RESTAURANT_ROUTES = {
 	RESTAURANT_ADDON_UPDATE: "/:restaurantId/addons/:addonId",
 	MENU_CATEGORIES: "/:restaurantId/menu/categories",
 	MENU_CATEGORY_UPDATE: "/:restaurantId/menu/categories/:categoryId",
+	MENU_ITEMS: "/:restaurantId/menu-items",
 } as const;
 
 export const STAFF_ROUTES = {

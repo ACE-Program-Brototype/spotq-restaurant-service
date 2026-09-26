@@ -2,6 +2,7 @@ import express from "express";
 import {
 	addonController,
 	menuCategoryController,
+	menuItemController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
 	restaurantStatusController,
@@ -22,6 +23,10 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
+import {
+	createMenuItemBodySchema,
+	createMenuItemParamsSchema,
+} from "../validators/create-menu-item.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -220,6 +225,14 @@ restaurantRouter.patch(
 	validateRequestParams(updateAddonParamsSchema),
 	validateRequestBody(updateAddonBodySchema),
 	addonController.updateAddon,
+);
+
+restaurantRouter.post(
+	RESTAURANT_ROUTES.MENU_ITEMS,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(createMenuItemParamsSchema),
+	validateRequestBody(createMenuItemBodySchema),
+	menuItemController.createMenuItem.bind(menuItemController),
 );
 
 restaurantRouter.post(

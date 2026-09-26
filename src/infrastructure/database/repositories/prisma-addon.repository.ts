@@ -96,6 +96,25 @@ export class PrismaAddonRepository
 		}
 	}
 
+	public async findByIdsAndRestaurantId(
+		ids: string[],
+		restaurantId: string,
+	): Promise<Addon[]> {
+		try {
+			if (ids.length === 0) return [];
+			const records = await this.dbModel.findMany({
+				where: {
+					id: { in: ids },
+					restaurantId,
+				},
+			});
+			return records.map((r) => this.mapper.toDomain(r));
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
 	public async create(addon: Addon): Promise<Addon> {
 		try {
 			const data = this.mapper.toPersistence(addon);

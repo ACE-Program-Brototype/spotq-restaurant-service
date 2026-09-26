@@ -107,6 +107,7 @@ export const TYPES = {
 		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
 		CreateAddonUseCase: Symbol.for("CreateAddonUseCase"),
 		ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
+		CreateMenuItemUseCase: Symbol.for("CreateMenuItemUseCase"),
 		UpdateAddonUseCase: Symbol.for("UpdateAddonUseCase"),
 		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
 		UpdateMenuCategoryUseCase: Symbol.for("UpdateMenuCategoryUseCase"),
@@ -118,6 +119,7 @@ export const TYPES = {
 		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
 		AddonController: Symbol.for("AddonController"),
+		MenuItemController: Symbol.for("MenuItemController"),
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
 	},
 
@@ -128,6 +130,7 @@ export const TYPES = {
 	Repositories: {
 		RestaurantRepository: Symbol.for("RestaurantRepository"),
 		AddonRepository: Symbol.for("AddonRepository"),
+		MenuItemRepository: Symbol.for("MenuItemRepository"),
 		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
 	},
 

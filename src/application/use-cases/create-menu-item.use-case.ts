@@ -1,0 +1,167 @@
+import { randomUUID } from "node:crypto";
+import { inject, injectable } from "inversify";
+import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
+import type {
+	CreateMenuItemInputDto,
+	MenuItemResponseDto,
+} from "@/application/dtos/menu-item/create-menu-item.dto.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
+import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
+import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
+import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
+import {
+	AddonNotFoundForRestaurantError,
+	CategoryNotFoundError,
+	InvalidMenuItemDataError,
+	InvalidVariantDataError,
+	MenuItemAlreadyExistsError,
+} from "@/domain/errors/menu-item.errors.ts";
+import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
+
+@injectable()
+export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
+	constructor(
+		@inject(TYPES.Repositories.RestaurantRepository)
+		private readonly restaurantRepository: IRestaurantRepository,
+		@inject(TYPES.Repositories.MenuItemRepository)
+		private readonly menuItemRepository: IMenuItemRepository,
+		@inject(TYPES.Repositories.MenuCategoryRepository)
+		private readonly menuCategoryRepository: IMenuCategoryRepository,
+		@inject(TYPES.Repositories.AddonRepository)
+		private readonly addonRepository: IAddonRepository,
+	) {}
+
+	public async execute(
+		input: CreateMenuItemInputDto,
+	): Promise<MenuItemResponseDto> {
+		const restaurant = await this.restaurantRepository.findById(
+			input.restaurantId,
+		);
+		if (!restaurant) {
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+
+		const category = await this.menuCategoryRepository.findById(
+			input.categoryId,
+		);
+		if (!category || category.restaurantId !== input.restaurantId) {
+			throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+		}
+
+		const trimmedName = input.name.trim();
+		const existingItem =
+			await this.menuItemRepository.findByNameAndRestaurantId(
+				trimmedName,
+				input.restaurantId,
+			);
+		if (existingItem) {
+			throw new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
+		}
+
+		const preparedAddons: Array<{
+			addonId: string;
+			priceOverride: number | null;
+		}> = [];
+
+		if (input.addons && input.addons.length > 0) {
+			const addonIds = Array.from(
+				new Set(input.addons.map((a) => a.addonId.trim())),
+			);
+			if (addonIds.length !== input.addons.length) {
+				throw new InvalidMenuItemDataError(
+					messages.DUPLICATE_ADDON_IN_MENU_ITEM,
+				);
+			}
+			const existingAddons =
+				await this.addonRepository.findByIdsAndRestaurantId(
+					addonIds,
+					input.restaurantId,
+				);
+			if (existingAddons.length !== addonIds.length) {
+				throw new AddonNotFoundForRestaurantError(
+					messages.ADDON_NOT_FOUND_FOR_RESTAURANT,
+				);
+			}
+
+			input.addons.forEach((addon) => {
+				preparedAddons.push({
+					addonId: addon.addonId.trim(),
+					priceOverride:
+						addon.priceOverride !== undefined && addon.priceOverride !== null
+							? addon.priceOverride
+							: null,
+				});
+			});
+		}
+
+		const menuItemId = randomUUID();
+
+		const variantsToCreate: MenuItemVariant[] = [];
+		if (input.variants && input.variants.length > 0) {
+			const defaultCount = input.variants.filter((v) => v.isDefault).length;
+			if (defaultCount > 1) {
+				throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
+			}
+
+			input.variants.forEach((v, index) => {
+				const isDefault =
+					defaultCount === 0 ? index === 0 : (v.isDefault ?? false);
+				variantsToCreate.push(
+					MenuItemVariant.create({
+						menuItemId,
+						sku: v.sku,
+						name: v.name,
+						price: v.price,
+						isDefault,
+					}),
+				);
+			});
+		}
+
+		const imagesToCreate = (input.images || []).map((img, index) => ({
+			objectKey: img.objectKey.trim(),
+			displayOrder: img.displayOrder ?? index,
+		}));
+
+		let resolvedPrice = input.price;
+		if (resolvedPrice === undefined || resolvedPrice === null) {
+			if (input.variants && input.variants.length > 0) {
+				const defaultVariant =
+					input.variants.find((v) => v.isDefault) ?? input.variants[0];
+				resolvedPrice = defaultVariant.price;
+			}
+		}
+
+		if (resolvedPrice === undefined || resolvedPrice === null) {
+			throw new InvalidMenuItemDataError(messages.MENU_ITEM_PRICE_REQUIRED);
+		}
+
+		const menuItem = MenuItem.create({
+			id: menuItemId,
+			restaurantId: input.restaurantId,
+			categoryId: input.categoryId,
+			name: trimmedName,
+			description: input.description,
+			price: resolvedPrice,
+			preparationTime: input.preparationTime,
+			calories: input.calories,
+			isVegetarian: input.isVegetarian,
+			isFeatured: input.isFeatured,
+			isAvailable: input.isAvailable,
+		});
+
+		const aggregate = await this.menuItemRepository.createWithDetails({
+			menuItem,
+			images: imagesToCreate,
+			variants: variantsToCreate,
+			addons: preparedAddons,
+		});
+
+		return MenuItemMapper.toResponseDto(aggregate);
+	}
+}
