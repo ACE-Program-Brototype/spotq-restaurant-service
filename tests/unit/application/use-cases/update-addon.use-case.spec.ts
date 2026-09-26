@@ -197,4 +197,29 @@ describe("UpdateAddonUseCase", () => {
 		expect(result.name).toBe("Extra Cheese");
 		expect(mockAddonRepo.updateAddon).toHaveBeenCalledTimes(1);
 	});
+
+	it("should not query findByNameAndRestaurantId and throw InvalidAddonDataError when name is empty or whitespace", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+		} as Restaurant);
+
+		const existingAddon = Addon.create({
+			id: addonId,
+			restaurantId,
+			name: "Extra Cheese",
+			price: 50.0,
+		});
+		mockAddonRepo.findById.mockResolvedValueOnce(existingAddon);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				addonId,
+				name: "   ",
+			}),
+		).rejects.toThrow();
+
+		expect(mockAddonRepo.findByNameAndRestaurantId).not.toHaveBeenCalled();
+		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+	});
 });

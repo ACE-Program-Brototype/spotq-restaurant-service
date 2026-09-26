@@ -63,7 +63,7 @@ export class AddonController {
 			addonId,
 			name,
 			description,
-			price: price !== undefined ? Number(price) : undefined,
+			price: price !== undefined ? price : undefined,
 			imageKey,
 			isAvailable,
 		});

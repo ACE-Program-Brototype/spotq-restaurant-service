@@ -37,7 +37,10 @@ export class UpdateAddonUseCase implements IUpdateAddonUseCase {
 
 		if (input.name !== undefined) {
 			const trimmedName = input.name.trim();
-			if (trimmedName.toLowerCase() !== addon.name.toLowerCase()) {
+			if (
+				trimmedName.length > 0 &&
+				trimmedName.toLowerCase() !== addon.name.toLowerCase()
+			) {
 				const existingAddon =
 					await this.addonRepository.findByNameAndRestaurantId(
 						trimmedName,
