@@ -75,6 +75,18 @@ describe("CreateMenuItemUseCase", () => {
 		addons: [{ addonId, priceOverride: 40.0 }],
 	};
 
+	let mockCategoryRepo: {
+		findById: jest.Mock;
+	};
+	let mockAddonRepo: {
+		findByIdsAndRestaurantId: jest.Mock;
+	};
+	const mockCategory = {
+		id: categoryId,
+		restaurantId,
+		name: "Main Course",
+	};
+
 	beforeEach(() => {
 		mockRestaurantRepo = {
 			findById: jest.fn(),
@@ -92,18 +104,29 @@ describe("CreateMenuItemUseCase", () => {
 			createWithDetails: jest.fn(),
 			findById: jest.fn(),
 			findByNameAndRestaurantId: jest.fn(),
-			verifyCategoryBelongsToRestaurant: jest.fn(),
-			verifyAddonsBelongToRestaurant: jest.fn(),
 		};
 
-		useCase = new CreateMenuItemUseCase(mockRestaurantRepo, mockMenuItemRepo);
+		mockCategoryRepo = {
+			findById: jest.fn().mockResolvedValue(mockCategory),
+		};
+
+		mockAddonRepo = {
+			findByIdsAndRestaurantId: jest
+				.fn()
+				.mockResolvedValue([{ id: addonId, restaurantId }]),
+		};
+
+		useCase = new CreateMenuItemUseCase(
+			mockRestaurantRepo,
+			mockMenuItemRepo,
+			mockCategoryRepo as never,
+			mockAddonRepo as never,
+		);
 	});
 
 	it("should successfully create a menu item with variants and addons", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(true);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
-		mockMenuItemRepo.verifyAddonsBelongToRestaurant.mockResolvedValue(true);
 
 		const createdItem = MenuItem.create({
 			restaurantId,
@@ -176,7 +199,6 @@ describe("CreateMenuItemUseCase", () => {
 
 	it("should default first variant when none is marked as default", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(true);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
 
 		const createdItem = MenuItem.create({
@@ -232,7 +254,7 @@ describe("CreateMenuItemUseCase", () => {
 
 	it("should throw CategoryNotFoundError when category does not belong to restaurant", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(false);
+		mockCategoryRepo.findById.mockResolvedValue(null);
 
 		await expect(useCase.execute(validDto)).rejects.toThrow(
 			CategoryNotFoundError,
@@ -241,7 +263,6 @@ describe("CreateMenuItemUseCase", () => {
 
 	it("should throw MenuItemAlreadyExistsError when dish name already exists in restaurant", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(true);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(
 			MenuItem.create({
 				restaurantId,
@@ -258,9 +279,8 @@ describe("CreateMenuItemUseCase", () => {
 
 	it("should throw AddonNotFoundForRestaurantError when addons do not belong to restaurant", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(true);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
-		mockMenuItemRepo.verifyAddonsBelongToRestaurant.mockResolvedValue(false);
+		mockAddonRepo.findByIdsAndRestaurantId.mockResolvedValue([]);
 
 		await expect(useCase.execute(validDto)).rejects.toThrow(
 			AddonNotFoundForRestaurantError,
@@ -269,7 +289,6 @@ describe("CreateMenuItemUseCase", () => {
 
 	it("should throw InvalidVariantDataError when multiple variants are marked as default", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(true);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
 
 		const dtoWithTwoDefaults = {
@@ -288,7 +307,6 @@ describe("CreateMenuItemUseCase", () => {
 
 	it("should throw InvalidMenuItemDataError when duplicate addons are provided", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
-		mockMenuItemRepo.verifyCategoryBelongsToRestaurant.mockResolvedValue(true);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
 
 		const dtoWithDuplicateAddons = {

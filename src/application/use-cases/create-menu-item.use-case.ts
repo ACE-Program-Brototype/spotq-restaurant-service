@@ -3,6 +3,8 @@ import type {
 	CreateMenuItemInputDto,
 	MenuItemResponseDto,
 } from "@/application/dtos/menu-item/create-menu-item.dto.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
@@ -26,6 +28,10 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Repositories.MenuItemRepository)
 		private readonly menuItemRepository: IMenuItemRepository,
+		@inject(TYPES.Repositories.MenuCategoryRepository)
+		private readonly menuCategoryRepository: IMenuCategoryRepository,
+		@inject(TYPES.Repositories.AddonRepository)
+		private readonly addonRepository: IAddonRepository,
 	) {}
 
 	public async execute(
@@ -38,12 +44,10 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
-		const categoryExists =
-			await this.menuItemRepository.verifyCategoryBelongsToRestaurant(
-				input.categoryId,
-				input.restaurantId,
-			);
-		if (!categoryExists) {
+		const category = await this.menuCategoryRepository.findById(
+			input.categoryId,
+		);
+		if (!category || category.restaurantId !== input.restaurantId) {
 			throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
 		}
 
@@ -71,12 +75,12 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 					messages.DUPLICATE_ADDON_IN_MENU_ITEM,
 				);
 			}
-			const allBelong =
-				await this.menuItemRepository.verifyAddonsBelongToRestaurant(
+			const existingAddons =
+				await this.addonRepository.findByIdsAndRestaurantId(
 					addonIds,
 					input.restaurantId,
 				);
-			if (!allBelong) {
+			if (existingAddons.length !== addonIds.length) {
 				throw new AddonNotFoundForRestaurantError(
 					messages.ADDON_NOT_FOUND_FOR_RESTAURANT,
 				);

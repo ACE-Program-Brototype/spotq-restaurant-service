@@ -44,12 +44,4 @@ export interface IMenuItemRepository {
 		name: string,
 		restaurantId: string,
 	): Promise<MenuItem | null>;
-	verifyCategoryBelongsToRestaurant(
-		categoryId: string,
-		restaurantId: string,
-	): Promise<boolean>;
-	verifyAddonsBelongToRestaurant(
-		addonIds: string[],
-		restaurantId: string,
-	): Promise<boolean>;
 }

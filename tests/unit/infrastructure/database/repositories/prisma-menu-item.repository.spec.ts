@@ -91,38 +91,6 @@ describe("PrismaMenuItemRepository", () => {
 		expect(result).toBeNull();
 	});
 
-	it("should verify category belongs to restaurant", async () => {
-		mockPrisma.menuCategory.findFirst.mockResolvedValue({ id: "cat-1" });
-
-		const result = await repository.verifyCategoryBelongsToRestaurant(
-			"cat-1",
-			rawMenuItem.restaurantId,
-		);
-
-		expect(result).toBe(true);
-	});
-
-	it("should verify addons belong to restaurant", async () => {
-		mockPrisma.addon.count.mockResolvedValue(2);
-
-		const result = await repository.verifyAddonsBelongToRestaurant(
-			["addon-1", "addon-2"],
-			rawMenuItem.restaurantId,
-		);
-
-		expect(result).toBe(true);
-	});
-
-	it("should return false if some addons do not belong to restaurant", async () => {
-		mockPrisma.addon.count.mockResolvedValue(1);
-
-		const result = await repository.verifyAddonsBelongToRestaurant(
-			["addon-1", "addon-2"],
-			rawMenuItem.restaurantId,
-		);
-
-		expect(result).toBe(false);
-	});
 
 	it("should create menu item with details inside transaction", async () => {
 		const mockTx = {

@@ -101,46 +101,6 @@ export class PrismaMenuItemRepository
 		}
 	}
 
-	public async verifyCategoryBelongsToRestaurant(
-		categoryId: string,
-		restaurantId: string,
-	): Promise<boolean> {
-		try {
-			const category = await this.rawPrisma.menuCategory.findFirst({
-				where: {
-					id: categoryId,
-					restaurantId,
-				},
-			});
-			return category !== null;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
-	}
-
-	public async verifyAddonsBelongToRestaurant(
-		addonIds: string[],
-		restaurantId: string,
-	): Promise<boolean> {
-		if (addonIds.length === 0) {
-			return true;
-		}
-
-		try {
-			const count = await this.rawPrisma.addon.count({
-				where: {
-					id: { in: addonIds },
-					restaurantId,
-				},
-			});
-			return count === addonIds.length;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
-	}
-
 	public async createWithDetails(
 		params: CreateMenuItemRepositoryParams,
 	): Promise<MenuItemAggregate> {
