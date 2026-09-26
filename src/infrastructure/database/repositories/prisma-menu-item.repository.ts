@@ -151,56 +151,39 @@ export class PrismaMenuItemRepository
 					data: itemData,
 				});
 
-				const createdImagesRaw: Array<{
-					id: string;
-					menuItemId: string;
-					objectKey: string;
-					displayOrder: number;
-					createdAt: Date;
-				}> = [];
+				const createdImagesRaw = await Promise.all(
+					params.images.map((img) =>
+						tx.menuItemImage.create({
+							data: {
+								menuItemId: createdItemRaw.id,
+								objectKey: img.objectKey,
+								displayOrder: img.displayOrder,
+							},
+						}),
+					),
+				);
 
-				for (const img of params.images) {
-					const createdImg = await tx.menuItemImage.create({
-						data: {
-							menuItemId: createdItemRaw.id,
-							objectKey: img.objectKey,
-							displayOrder: img.displayOrder,
-						},
-					});
-					createdImagesRaw.push(createdImg);
-				}
+				const createdVariantsRaw = await Promise.all(
+					params.variants.map((variant) => {
+						variant.assignMenuItemId(createdItemRaw.id);
+						const variantData =
+							MenuItemVariantPersistenceMapper.toPersistence(variant);
+						return tx.menuItemVariant.create({
+							data: {
+								id: variantData.id,
+								menuItemId: createdItemRaw.id,
+								sku: variantData.sku,
+								name: variantData.name,
+								price: variantData.price,
+								isDefault: variantData.isDefault,
+								createdAt: variantData.createdAt,
+								updatedAt: variantData.updatedAt,
+							},
+						});
+					}),
+				);
 
-				const createdVariantsRaw: Array<{
-					id: string;
-					menuItemId: string;
-					sku: string | null;
-					name: string;
-					price: Prisma.Decimal;
-					isDefault: boolean;
-					createdAt: Date;
-					updatedAt: Date;
-				}> = [];
-
-				for (const variant of params.variants) {
-					variant.assignMenuItemId(createdItemRaw.id);
-					const variantData =
-						MenuItemVariantPersistenceMapper.toPersistence(variant);
-					const createdVar = await tx.menuItemVariant.create({
-						data: {
-							id: variantData.id,
-							menuItemId: createdItemRaw.id,
-							sku: variantData.sku,
-							name: variantData.name,
-							price: variantData.price,
-							isDefault: variantData.isDefault,
-							createdAt: variantData.createdAt,
-							updatedAt: variantData.updatedAt,
-						},
-					});
-					createdVariantsRaw.push(createdVar);
-				}
-
-				const createdAddonsRaw: Array<{
+				let createdAddonsRaw: Array<{
 					id: string;
 					menuItemId: string;
 					addonId: string;
@@ -210,34 +193,41 @@ export class PrismaMenuItemRepository
 					displayOrder: number;
 				}> = [];
 
-				for (const addonLink of params.addons) {
-					const addonRecord = await tx.addon.findUnique({
-						where: { id: addonLink.addonId },
+				if (params.addons.length > 0) {
+					const addonIds = params.addons.map((a) => a.addonId);
+					const addonRecords = await tx.addon.findMany({
+						where: { id: { in: addonIds } },
 					});
+					const addonMap = new Map(addonRecords.map((a) => [a.id, a]));
 
-					const createdJunction = await tx.menuItemAddon.create({
-						data: {
-							menuItemId: createdItemRaw.id,
-							addonId: addonLink.addonId,
-							priceOverride:
-								addonLink.priceOverride !== null
-									? new Prisma.Decimal(addonLink.priceOverride)
-									: null,
-						},
-					});
+					createdAddonsRaw = await Promise.all(
+						params.addons.map(async (addonLink) => {
+							const createdJunction = await tx.menuItemAddon.create({
+								data: {
+									menuItemId: createdItemRaw.id,
+									addonId: addonLink.addonId,
+									priceOverride:
+										addonLink.priceOverride !== null
+											? new Prisma.Decimal(addonLink.priceOverride)
+											: null,
+								},
+							});
 
-					createdAddonsRaw.push({
-						id: createdJunction.id,
-						menuItemId: createdItemRaw.id,
-						addonId: addonLink.addonId,
-						name: addonRecord?.name || "",
-						price: Number(addonRecord?.price || 0),
-						priceOverride:
-							createdJunction.priceOverride !== null
-								? Number(createdJunction.priceOverride)
-								: null,
-						displayOrder: addonLink.displayOrder,
-					});
+							const addonRecord = addonMap.get(addonLink.addonId);
+							return {
+								id: createdJunction.id,
+								menuItemId: createdItemRaw.id,
+								addonId: addonLink.addonId,
+								name: addonRecord?.name || "",
+								price: Number(addonRecord?.price || 0),
+								priceOverride:
+									createdJunction.priceOverride !== null
+										? Number(createdJunction.priceOverride)
+										: null,
+								displayOrder: addonLink.displayOrder,
+							};
+						}),
+					);
 				}
 
 				const domainItem = this.mapper.toDomain(createdItemRaw);

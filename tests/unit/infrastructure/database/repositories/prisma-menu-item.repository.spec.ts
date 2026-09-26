@@ -165,6 +165,13 @@ describe("PrismaMenuItemRepository", () => {
 					name: "Extra Raita",
 					price: new Prisma.Decimal(30.0),
 				}),
+				findMany: jest.fn().mockResolvedValue([
+					{
+						id: "addon-1",
+						name: "Extra Raita",
+						price: new Prisma.Decimal(30.0),
+					},
+				]),
 			},
 		};
 
