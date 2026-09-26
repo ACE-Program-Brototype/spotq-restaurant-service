@@ -289,6 +289,8 @@ export const messages = {
 		"Duplicate add-ons are not allowed for a menu item",
 	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",
 	MENU_ITEM_NAME_MAX_LENGTH: "Menu item name must not exceed 255 characters",
+	MENU_ITEM_DESCRIPTION_MAX_LENGTH:
+		"Menu item description must not exceed 1000 characters",
 	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",
 	MENU_ITEM_PRICE_NEGATIVE:
 		"Menu item price must be greater than or equal to 0",
@@ -297,6 +299,7 @@ export const messages = {
 	INVALID_VARIANT_DATA: "Invalid variant data",
 	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
 	VARIANT_NAME_REQUIRED: "Variant name is required",
+	VARIANT_MENU_ITEM_ID_REQUIRED: "Variant menu item ID is required",
 	VARIANT_PRICE_REQUIRED: "Variant price is required",
 	VARIANT_PRICE_NEGATIVE: "Variant price must be greater than or equal to 0",
 	PRICE_EXCEEDS_MAXIMUM: "Price exceeds maximum allowed value",

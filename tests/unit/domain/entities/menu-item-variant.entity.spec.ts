@@ -62,12 +62,31 @@ describe("MenuItemVariant Entity", () => {
 		).toThrow(InvalidVariantDataError);
 	});
 
+	it("should throw InvalidVariantDataError when menuItemId is empty", () => {
+		expect(() =>
+			MenuItemVariant.create({
+				...validProps,
+				menuItemId: "   ",
+			}),
+		).toThrow(InvalidVariantDataError);
+	});
+
+	it("should throw InvalidVariantDataError when price exceeds maximum boundary", () => {
+		expect(() =>
+			MenuItemVariant.create({
+				...validProps,
+				price: 100000000,
+			}),
+		).toThrow(InvalidVariantDataError);
+	});
+
 	it("should allow assigning menuItemId and updating default status", () => {
 		const variant = MenuItemVariant.create({
+			menuItemId: "item-123",
 			name: "Quarter Portion",
 			price: 120.0,
 		});
-		expect(variant.menuItemId).toBe("");
+		expect(variant.menuItemId).toBe("item-123");
 		expect(variant.isDefault).toBe(false);
 
 		variant.assignMenuItemId("item-456");

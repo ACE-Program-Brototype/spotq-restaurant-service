@@ -111,6 +111,24 @@ describe("MenuItem Entity", () => {
 		).toThrow(InvalidMenuItemDataError);
 	});
 
+	it("should throw InvalidMenuItemDataError when price exceeds maximum boundary", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				price: 100000000,
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
+
+	it("should throw InvalidMenuItemDataError when description exceeds 1000 characters", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				description: "a".repeat(1001),
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
+
 	it("should update availability status", () => {
 		const item = MenuItem.create(validProps);
 		expect(item.isAvailable).toBe(true);

@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { inject, injectable } from "inversify";
 import type {
 	CreateMenuItemInputDto,
@@ -97,6 +98,8 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 			});
 		}
 
+		const menuItemId = randomUUID();
+
 		const variantsToCreate: MenuItemVariant[] = [];
 		if (input.variants && input.variants.length > 0) {
 			const defaultCount = input.variants.filter((v) => v.isDefault).length;
@@ -109,6 +112,7 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 					defaultCount === 0 ? index === 0 : (v.isDefault ?? false);
 				variantsToCreate.push(
 					MenuItemVariant.create({
+						menuItemId,
 						sku: v.sku,
 						name: v.name,
 						price: v.price,
@@ -124,6 +128,7 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 		}));
 
 		const menuItem = MenuItem.create({
+			id: menuItemId,
 			restaurantId: input.restaurantId,
 			categoryId: input.categoryId,
 			name: trimmedName,

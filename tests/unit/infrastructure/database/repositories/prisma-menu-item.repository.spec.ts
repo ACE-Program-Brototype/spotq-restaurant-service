@@ -154,6 +154,7 @@ describe("PrismaMenuItemRepository", () => {
 		});
 
 		const domainVariant = MenuItemVariant.create({
+			menuItemId: domainItem.id,
 			name: "Full Portion",
 			price: 320.0,
 			isDefault: true,

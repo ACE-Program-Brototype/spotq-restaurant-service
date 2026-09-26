@@ -15,7 +15,7 @@ export interface MenuItemVariantProps {
 
 export interface CreateMenuItemVariantProps {
 	id?: string;
-	menuItemId?: string;
+	menuItemId: string;
 	sku?: string | null;
 	name: string;
 	price: number;
@@ -43,6 +43,11 @@ export class MenuItemVariant {
 	public static create(
 		createProps: CreateMenuItemVariantProps,
 	): MenuItemVariant {
+		const trimmedMenuItemId = createProps.menuItemId?.trim() || "";
+		if (!trimmedMenuItemId) {
+			throw new InvalidVariantDataError(messages.VARIANT_MENU_ITEM_ID_REQUIRED);
+		}
+
 		const trimmedName = createProps.name ? createProps.name.trim() : "";
 		if (!trimmedName) {
 			throw new InvalidVariantDataError(messages.VARIANT_NAME_REQUIRED);
@@ -60,6 +65,10 @@ export class MenuItemVariant {
 			throw new InvalidVariantDataError(messages.VARIANT_PRICE_NEGATIVE);
 		}
 
+		if (createProps.price > 99999999.99) {
+			throw new InvalidVariantDataError(messages.PRICE_EXCEEDS_MAXIMUM);
+		}
+
 		const trimmedSku = createProps.sku
 			? createProps.sku.trim().toUpperCase()
 			: null;
@@ -67,7 +76,7 @@ export class MenuItemVariant {
 		const now = new Date();
 		return new MenuItemVariant({
 			id: createProps.id || randomUUID(),
-			menuItemId: createProps.menuItemId || "",
+			menuItemId: trimmedMenuItemId,
 			sku: trimmedSku,
 			name: trimmedName,
 			price: createProps.price,

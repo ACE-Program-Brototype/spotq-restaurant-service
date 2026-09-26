@@ -81,6 +81,10 @@ export class MenuItem {
 			throw new InvalidMenuItemDataError(messages.MENU_ITEM_PRICE_NEGATIVE);
 		}
 
+		if (createProps.price > 99999999.99) {
+			throw new InvalidMenuItemDataError(messages.PRICE_EXCEEDS_MAXIMUM);
+		}
+
 		if (
 			createProps.preparationTime !== undefined &&
 			createProps.preparationTime !== null &&
@@ -99,7 +103,9 @@ export class MenuItem {
 
 		const trimmedDescription = createProps.description?.trim() || null;
 		if (trimmedDescription && trimmedDescription.length > 1000) {
-			throw new InvalidMenuItemDataError(messages.ADDON_DESCRIPTION_MAX_LENGTH);
+			throw new InvalidMenuItemDataError(
+				messages.MENU_ITEM_DESCRIPTION_MAX_LENGTH,
+			);
 		}
 
 		const now = new Date();
