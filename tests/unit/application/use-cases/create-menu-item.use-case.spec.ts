@@ -244,6 +244,66 @@ describe("CreateMenuItemUseCase", () => {
 		);
 	});
 
+	it("should resolve price from default variant when price is omitted", async () => {
+		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
+		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
+
+		const createdItem = MenuItem.create({
+			restaurantId,
+			categoryId,
+			name: "Paneer Tikka",
+			price: 300.0,
+		});
+
+		mockMenuItemRepo.createWithDetails.mockResolvedValue({
+			item: createdItem,
+			images: [],
+			variants: [
+				MenuItemVariant.reconstitute({
+					id: "var-1",
+					menuItemId: createdItem.id,
+					sku: null,
+					name: "Large",
+					price: 300.0,
+					isDefault: true,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				}),
+			],
+			addons: [],
+		});
+
+		const result = await useCase.execute({
+			restaurantId,
+			categoryId,
+			name: "Paneer Tikka",
+			variants: [
+				{ name: "Regular", price: 200.0, isDefault: false },
+				{ name: "Large", price: 300.0, isDefault: true },
+			],
+		});
+
+		expect(result.price).toBe(300.0);
+		expect(mockMenuItemRepo.createWithDetails).toHaveBeenCalledWith(
+			expect.objectContaining({
+				menuItem: expect.objectContaining({ price: 300.0 }),
+			}),
+		);
+	});
+
+	it("should throw InvalidMenuItemDataError when neither price nor variants are provided", async () => {
+		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
+		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				categoryId,
+				name: "Paneer Tikka",
+			}),
+		).rejects.toThrow(InvalidMenuItemDataError);
+	});
+
 	it("should throw RestaurantNotFoundError when restaurant does not exist", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(null);
 

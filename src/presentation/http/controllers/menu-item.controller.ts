@@ -86,21 +86,13 @@ export class MenuItemController {
 				}),
 			);
 
-			const defaultVariant =
-				mappedVariants.find((v: { isDefault: boolean; price: number }) => v.isDefault) ?? mappedVariants[0];
-			const resolvedPrice =
-				price !== undefined && price !== null
-					? Number(price)
-					: defaultVariant
-						? Number(defaultVariant.price)
-						: 0;
-
 			const result = await this.createMenuItemUseCase.execute({
 				restaurantId,
 				categoryId: resolvedCategoryId,
 				name,
 				description: description ?? null,
-				price: resolvedPrice,
+				price:
+					price !== undefined && price !== null ? Number(price) : undefined,
 				preparationTime:
 					preparationTime !== undefined
 						? preparationTime

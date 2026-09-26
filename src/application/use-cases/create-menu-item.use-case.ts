@@ -127,13 +127,26 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 			displayOrder: img.displayOrder ?? index,
 		}));
 
+		let resolvedPrice = input.price;
+		if (resolvedPrice === undefined || resolvedPrice === null) {
+			if (input.variants && input.variants.length > 0) {
+				const defaultVariant =
+					input.variants.find((v) => v.isDefault) ?? input.variants[0];
+				resolvedPrice = defaultVariant.price;
+			}
+		}
+
+		if (resolvedPrice === undefined || resolvedPrice === null) {
+			throw new InvalidMenuItemDataError(messages.MENU_ITEM_PRICE_REQUIRED);
+		}
+
 		const menuItem = MenuItem.create({
 			id: menuItemId,
 			restaurantId: input.restaurantId,
 			categoryId: input.categoryId,
 			name: trimmedName,
 			description: input.description,
-			price: input.price,
+			price: resolvedPrice,
 			preparationTime: input.preparationTime,
 			calories: input.calories,
 			isVegetarian: input.isVegetarian,
