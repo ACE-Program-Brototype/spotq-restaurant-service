@@ -2,8 +2,10 @@ import { ContainerModule } from "inversify";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
 import type { IListRestaurantAddonsUseCase } from "@/application/ports/use-cases/list-restaurant-addons.use-case.port.ts";
+import type { IUpdateAddonUseCase } from "@/application/ports/use-cases/update-addon.use-case.port.ts";
 import { CreateAddonUseCase } from "@/application/use-cases/create-addon.use-case.ts";
 import { ListRestaurantAddonsUseCase } from "@/application/use-cases/list-restaurant-addons.use-case.ts";
+import { UpdateAddonUseCase } from "@/application/use-cases/update-addon.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { PrismaAddonRepository } from "@/infrastructure/database/repositories/prisma-addon.repository.ts";
 import { AddonController } from "@/presentation/http/controllers/addon.controller.ts";
@@ -21,6 +23,10 @@ export const addonModule = new ContainerModule(({ bind }) => {
 
 	bind<IListRestaurantAddonsUseCase>(TYPES.UseCases.ListRestaurantAddonsUseCase)
 		.to(ListRestaurantAddonsUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateAddonUseCase>(TYPES.UseCases.UpdateAddonUseCase)
+		.to(UpdateAddonUseCase)
 		.inSingletonScope();
 
 	// Controller

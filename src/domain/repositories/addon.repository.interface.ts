@@ -12,4 +12,5 @@ export interface IAddonRepository {
 		ids: string[],
 		restaurantId: string,
 	): Promise<Addon[]>;
+	updateAddon(addon: Addon): Promise<Addon>;
 }

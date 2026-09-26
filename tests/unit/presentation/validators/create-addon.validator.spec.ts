@@ -81,6 +81,14 @@ describe("create-addon.validator", () => {
 			expect(result.success).toBe(false);
 		});
 
+		it("should fail when price exceeds max limit", () => {
+			const result = createAddonBodySchema.safeParse({
+				name: "Extra Cheese",
+				price: 100000000,
+			});
+			expect(result.success).toBe(false);
+		});
+
 		it("should fail when price is missing", () => {
 			const result = createAddonBodySchema.safeParse({
 				name: "Extra Cheese",

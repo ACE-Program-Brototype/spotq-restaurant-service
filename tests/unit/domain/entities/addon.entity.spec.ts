@@ -82,6 +82,15 @@ describe("Addon Entity", () => {
 		).toThrow(messages.ADDON_PRICE_NEGATIVE);
 	});
 
+	it("should throw InvalidAddonDataError when price exceeds max limit", () => {
+		expect(() =>
+			Addon.create({
+				...validProps,
+				price: 100000000,
+			}),
+		).toThrow(messages.ADDON_PRICE_MAX_EXCEEDED);
+	});
+
 	it("should throw InvalidAddonDataError when description exceeds 1000 chars", () => {
 		expect(() =>
 			Addon.create({
@@ -97,5 +106,96 @@ describe("Addon Entity", () => {
 
 		addon.updateAvailability(false);
 		expect(addon.isAvailable).toBe(false);
+	});
+
+	describe("update", () => {
+		it("should partially update fields and refresh updatedAt", () => {
+			const addon = Addon.create(validProps);
+			const initialUpdatedAt = addon.updatedAt;
+
+			addon.update({
+				name: "Updated Cheese",
+				description: "New melted cheese",
+				price: 75,
+				imageKey: "addons/cheese-v2.png",
+				isAvailable: false,
+			});
+
+			expect(addon.name).toBe("Updated Cheese");
+			expect(addon.description).toBe("New melted cheese");
+			expect(addon.price).toBe(75);
+			expect(addon.imageKey).toBe("addons/cheese-v2.png");
+			expect(addon.isAvailable).toBe(false);
+			expect(addon.updatedAt.getTime()).toBeGreaterThanOrEqual(
+				initialUpdatedAt.getTime(),
+			);
+		});
+
+		it("should allow updating nullable description and imageKey to null", () => {
+			const addon = Addon.create(validProps);
+			addon.update({ description: null, imageKey: null });
+
+			expect(addon.description).toBeNull();
+			expect(addon.imageKey).toBeNull();
+			expect(addon.name).toBe("Extra Cheese");
+		});
+
+		it("should trim name and description on update", () => {
+			const addon = Addon.create(validProps);
+			addon.update({
+				name: "  Trimmed Name  ",
+				description: "  Trimmed Description  ",
+				imageKey: "  trimmed/image.png  ",
+			});
+
+			expect(addon.name).toBe("Trimmed Name");
+			expect(addon.description).toBe("Trimmed Description");
+			expect(addon.imageKey).toBe("trimmed/image.png");
+		});
+
+		it("should throw InvalidAddonDataError when updating with empty name", () => {
+			const addon = Addon.create(validProps);
+			expect(() => addon.update({ name: "" })).toThrow(InvalidAddonDataError);
+			expect(() => addon.update({ name: "   " })).toThrow(
+				InvalidAddonDataError,
+			);
+		});
+
+		it("should throw InvalidAddonDataError when updating with name exceeding 255 chars", () => {
+			const addon = Addon.create(validProps);
+			expect(() => addon.update({ name: "a".repeat(256) })).toThrow(
+				InvalidAddonDataError,
+			);
+		});
+
+		it("should throw InvalidAddonDataError when updating with description exceeding 1000 chars", () => {
+			const addon = Addon.create(validProps);
+			expect(() => addon.update({ description: "a".repeat(1001) })).toThrow(
+				InvalidAddonDataError,
+			);
+		});
+
+		it("should throw InvalidAddonDataError when updating with negative price", () => {
+			const addon = Addon.create(validProps);
+			expect(() => addon.update({ price: -5 })).toThrow(InvalidAddonDataError);
+			expect(() => addon.update({ price: Number.NaN })).toThrow(
+				InvalidAddonDataError,
+			);
+		});
+
+		it("should throw InvalidAddonDataError when updating with price exceeding max limit", () => {
+			const addon = Addon.create(validProps);
+			expect(() => addon.update({ price: 100000000 })).toThrow(
+				messages.ADDON_PRICE_MAX_EXCEEDED,
+			);
+		});
+
+		it("should throw InvalidAddonDataError when updating with invalid isAvailable type", () => {
+			const addon = Addon.create(validProps);
+			// biome-ignore lint/suspicious/noExplicitAny: test runtime type check
+			expect(() => addon.update({ isAvailable: "invalid" as any })).toThrow(
+				InvalidAddonDataError,
+			);
+		});
 	});
 });

@@ -264,6 +264,7 @@ export const messages = {
 	ADDON_NAME_MAX_LENGTH: "Add-on name must not exceed 255 characters",
 	ADDON_PRICE_REQUIRED: "Price is required",
 	ADDON_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
+	ADDON_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
 	ADDON_DESCRIPTION_MAX_LENGTH:
 		"Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
@@ -304,6 +305,8 @@ export const messages = {
 	VARIANT_PRICE_REQUIRED: "Variant price is required",
 	VARIANT_PRICE_NEGATIVE: "Variant price must be greater than or equal to 0",
 	PRICE_EXCEEDS_MAXIMUM: "Price exceeds maximum allowed value",
+	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
+	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
 } as const;
 
 export type MessageKey = keyof typeof messages;
