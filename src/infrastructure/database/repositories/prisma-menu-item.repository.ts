@@ -7,8 +7,11 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
 import { TYPES } from "@/config/di/types.ts";
-import type { MenuItem } from "@/domain/entities/menu-item.entity.ts";
-import { MenuItemAlreadyExistsError } from "@/domain/errors/menu-item.errors.ts";
+import {
+	InvalidMenuItemDataError,
+	InvalidVariantDataError,
+	MenuItemAlreadyExistsError,
+} from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	CreateMenuItemRepositoryParams,
@@ -57,6 +60,9 @@ export class PrismaMenuItemRepository
 				throw new InvalidMenuItemDataError(
 					messages.DUPLICATE_ADDON_IN_MENU_ITEM,
 				);
+			}
+			if (target.includes("default") || target.includes("variant")) {
+				throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
 			}
 			throw new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
 		}

@@ -3,7 +3,10 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
-import { MenuItemAlreadyExistsError } from "@/domain/errors/menu-item.errors.ts";
+import {
+	InvalidVariantDataError,
+	MenuItemAlreadyExistsError,
+} from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { PrismaMenuItemRepository } from "@/infrastructure/database/repositories/prisma-menu-item.repository.ts";
 
@@ -191,6 +194,25 @@ describe("PrismaMenuItemRepository", () => {
 				rawMenuItem.restaurantId,
 			),
 		).rejects.toThrow(MenuItemAlreadyExistsError);
+	});
+
+	it("should map P2002 error with variant target to InvalidVariantDataError", async () => {
+		const p2002Error = new PrismaClientKnownRequestError(
+			"Unique constraint failed",
+			{
+				code: "P2002",
+				clientVersion: "6.0.0",
+				meta: { target: ["menu_item_variants_single_default_idx"] },
+			},
+		);
+		mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
+
+		await expect(
+			repository.findByNameAndRestaurantId(
+				"Existing",
+				rawMenuItem.restaurantId,
+			),
+		).rejects.toThrow(InvalidVariantDataError);
 	});
 
 	it("should map P2003 error to RestaurantNotFoundError", async () => {
