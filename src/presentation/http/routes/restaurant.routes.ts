@@ -216,11 +216,7 @@ restaurantRouter.get(
 );
 
 restaurantRouter.post(
-	[
-		RESTAURANT_ROUTES.MENU_ITEMS,
-		RESTAURANT_ROUTES.MENU_ITEMS_PREFIX,
-		RESTAURANT_ROUTES.MENU_ITEMS_FULL,
-	],
+	RESTAURANT_ROUTES.MENU_ITEMS,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createMenuItemParamsSchema),
 	validateRequestBody(createMenuItemBodySchema),
