@@ -1,4 +1,9 @@
 import { randomUUID } from "node:crypto";
+import {
+	ADDON_DESCRIPTION_MAX_LENGTH,
+	ADDON_NAME_MAX_LENGTH,
+	ADDON_PRICE_MAX,
+} from "@/domain/constants/addon.constants.ts";
 import { InvalidAddonDataError } from "@/domain/errors/addon.errors.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -57,7 +62,7 @@ export class Addon {
 			throw new InvalidAddonDataError(messages.ADDON_NAME_REQUIRED);
 		}
 
-		if (trimmedName.length > 255) {
+		if (trimmedName.length > ADDON_NAME_MAX_LENGTH) {
 			throw new InvalidAddonDataError(messages.ADDON_NAME_MAX_LENGTH);
 		}
 
@@ -76,12 +81,15 @@ export class Addon {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
 		}
 
-		if (createProps.price > 99999999.99) {
+		if (createProps.price > ADDON_PRICE_MAX) {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_MAX_EXCEEDED);
 		}
 
 		const trimmedDescription = createProps.description?.trim() || null;
-		if (trimmedDescription && trimmedDescription.length > 1000) {
+		if (
+			trimmedDescription &&
+			trimmedDescription.length > ADDON_DESCRIPTION_MAX_LENGTH
+		) {
 			throw new InvalidAddonDataError(messages.ADDON_DESCRIPTION_MAX_LENGTH);
 		}
 
@@ -121,7 +129,7 @@ export class Addon {
 			if (!trimmedName) {
 				throw new InvalidAddonDataError(messages.ADDON_NAME_REQUIRED);
 			}
-			if (trimmedName.length > 255) {
+			if (trimmedName.length > ADDON_NAME_MAX_LENGTH) {
 				throw new InvalidAddonDataError(messages.ADDON_NAME_MAX_LENGTH);
 			}
 			this.props.name = trimmedName;
@@ -129,7 +137,10 @@ export class Addon {
 
 		if (updateProps.description !== undefined) {
 			const trimmedDescription = updateProps.description?.trim() || null;
-			if (trimmedDescription && trimmedDescription.length > 1000) {
+			if (
+				trimmedDescription &&
+				trimmedDescription.length > ADDON_DESCRIPTION_MAX_LENGTH
+			) {
 				throw new InvalidAddonDataError(messages.ADDON_DESCRIPTION_MAX_LENGTH);
 			}
 			this.props.description = trimmedDescription;
@@ -143,7 +154,7 @@ export class Addon {
 			) {
 				throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
 			}
-			if (updateProps.price > 99999999.99) {
+			if (updateProps.price > ADDON_PRICE_MAX) {
 				throw new InvalidAddonDataError(messages.ADDON_PRICE_MAX_EXCEEDED);
 			}
 			this.props.price = updateProps.price;
