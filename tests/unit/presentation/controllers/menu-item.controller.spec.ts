@@ -10,7 +10,6 @@ describe("MenuItemController", () => {
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
-	let next: jest.Mock;
 
 	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 	const categoryId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
@@ -26,7 +25,6 @@ describe("MenuItemController", () => {
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
 		};
-		next = jest.fn();
 	});
 
 	describe("createMenuItem", () => {
@@ -114,7 +112,6 @@ describe("MenuItemController", () => {
 			await controller.createMenuItem(
 				req as Request,
 				res as Response,
-				next as never,
 			);
 
 			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
@@ -136,7 +133,7 @@ describe("MenuItemController", () => {
 			);
 		});
 
-		it("should pass error to next when use case throws", async () => {
+		it("should propagate error when use case throws", async () => {
 			req = {
 				params: { restaurantId },
 				body: {
@@ -149,13 +146,9 @@ describe("MenuItemController", () => {
 			const expectedError = new Error("Failed to create menu item");
 			createMenuItemUseCase.execute.mockRejectedValue(expectedError);
 
-			await controller.createMenuItem(
-				req as Request,
-				res as Response,
-				next as never,
-			);
-
-			expect(next).toHaveBeenCalledWith(expectedError);
+			await expect(
+				controller.createMenuItem(req as Request, res as Response),
+			).rejects.toThrow("Failed to create menu item");
 		});
 
 		it("should leave displayOrder undefined for images when omitted", async () => {
@@ -175,7 +168,6 @@ describe("MenuItemController", () => {
 			await controller.createMenuItem(
 				req as Request,
 				res as Response,
-				next as never,
 			);
 
 			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(

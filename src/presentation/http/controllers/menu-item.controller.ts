@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -13,12 +13,10 @@ export class MenuItemController {
 		private readonly createMenuItemUseCase: ICreateMenuItemUseCase,
 	) {}
 
-	public async createMenuItem(
+	public createMenuItem = async (
 		req: Request,
 		res: Response,
-		next: NextFunction,
-	): Promise<void> {
-		try {
+	): Promise<void> => {
 			const restaurantId = String(req.params.restaurantId);
 			const {
 				categoryId,
@@ -108,14 +106,11 @@ export class MenuItemController {
 				addons: mappedAddons,
 			});
 
-			sendSuccessResponse(
-				res,
-				result,
-				messages.MENU_ITEM_CREATED_SUCCESS,
-				HTTP_STATUS.CREATED,
-			);
-		} catch (error) {
-			next(error);
-		}
-	}
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_CREATED_SUCCESS,
+			HTTP_STATUS.CREATED,
+		);
+	};
 }
