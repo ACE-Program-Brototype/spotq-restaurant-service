@@ -254,6 +254,7 @@ export const messages = {
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	INVALID_CATEGORY_ID: "Invalid category ID",
+	CATEGORY_ID_REQUIRED: "Category ID is required",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 	ADDON_CREATED_SUCCESS: "Menu item add-on created successfully",
 	ADDON_ALREADY_EXISTS:

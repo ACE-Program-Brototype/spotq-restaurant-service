@@ -2,7 +2,9 @@ import { describe, expect, it } from "@jest/globals";
 import {
 	createMenuItemBodySchema,
 	createMenuItemParamsSchema,
+	createMenuItemVariantSchema,
 } from "@/presentation/http/validators/create-menu-item.validator.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("create-menu-item.validator", () => {
 	const validRestaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
@@ -194,6 +196,62 @@ describe("create-menu-item.validator", () => {
 				],
 			});
 			expect(result.success).toBe(false);
+		});
+
+		it("should fail with CATEGORY_ID_REQUIRED when categoryId and category_id are missing", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				name: "Chicken Dum Biryani",
+				price: 320.0,
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("categoryId"),
+				);
+				expect(error?.message).toBe(messages.CATEGORY_ID_REQUIRED);
+			}
+		});
+
+		it("should fail with MENU_ITEM_PRICE_REQUIRED when neither price nor variants are provided", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				categoryId: validCategoryId,
+				name: "Chicken Dum Biryani",
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("price"),
+				);
+				expect(error?.message).toBe(messages.MENU_ITEM_PRICE_REQUIRED);
+			}
+		});
+	});
+
+	describe("createMenuItemVariantSchema", () => {
+		it("should fail with VARIANT_NAME_REQUIRED when variant name is missing", () => {
+			const result = createMenuItemVariantSchema.safeParse({
+				price: 150.0,
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("name"),
+				);
+				expect(error?.message).toBe(messages.VARIANT_NAME_REQUIRED);
+			}
+		});
+
+		it("should fail with VARIANT_PRICE_REQUIRED when variant price is missing", () => {
+			const result = createMenuItemVariantSchema.safeParse({
+				name: "Half Portion",
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("price"),
+				);
+				expect(error?.message).toBe(messages.VARIANT_PRICE_REQUIRED);
+			}
 		});
 	});
 });

@@ -20,12 +20,12 @@ export const createMenuItemImageSchema = z
 export const createMenuItemVariantSchema = z.object({
 	sku: z.string().trim().max(100).optional().nullable(),
 	name: z
-		.string()
+		.string({ message: messages.VARIANT_NAME_REQUIRED })
 		.trim()
 		.min(1, { message: messages.VARIANT_NAME_REQUIRED })
 		.max(255, { message: messages.MENU_ITEM_NAME_MAX_LENGTH }),
 	price: z
-		.number()
+		.number({ message: messages.VARIANT_PRICE_REQUIRED })
 		.min(0, { message: messages.VARIANT_PRICE_NEGATIVE })
 		.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM }),
 	is_default: z.boolean().optional(),
@@ -56,10 +56,16 @@ export const createMenuItemAddonSchema = z
 
 export const createMenuItemBodySchema = z
 	.object({
-		category_id: z.string().uuid().optional(),
-		categoryId: z.string().uuid().optional(),
-		name: z
+		category_id: z
 			.string()
+			.uuid({ message: messages.INVALID_CATEGORY_ID })
+			.optional(),
+		categoryId: z
+			.string()
+			.uuid({ message: messages.INVALID_CATEGORY_ID })
+			.optional(),
+		name: z
+			.string({ message: messages.MENU_ITEM_NAME_REQUIRED })
 			.trim()
 			.min(1, { message: messages.MENU_ITEM_NAME_REQUIRED })
 			.max(255, { message: messages.MENU_ITEM_NAME_MAX_LENGTH }),
@@ -83,11 +89,18 @@ export const createMenuItemBodySchema = z
 		addons: z.array(createMenuItemAddonSchema).optional(),
 	})
 	.refine(
+		(data) => Boolean(data.categoryId || data.category_id),
+		{
+			message: messages.CATEGORY_ID_REQUIRED,
+			path: ["categoryId"],
+		},
+	)
+	.refine(
 		(data) =>
 			data.price !== undefined ||
 			(data.variants && data.variants.length > 0),
 		{
-			message: messages.MENU_ITEM_PRICE_NEGATIVE,
+			message: messages.MENU_ITEM_PRICE_REQUIRED,
 			path: ["price"],
 		},
 	)
