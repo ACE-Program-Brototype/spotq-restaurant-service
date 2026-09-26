@@ -75,8 +75,6 @@ export class MenuItemController {
 					addon_id?: string;
 					priceOverride?: number | null;
 					price_override?: number | null;
-					displayOrder?: number;
-					display_order?: number;
 				}) => ({
 					addonId: String(a.addonId ?? a.addon_id ?? "").trim(),
 					priceOverride:
@@ -85,7 +83,6 @@ export class MenuItemController {
 							: a.price_override !== undefined
 								? a.price_override
 								: null,
-					displayOrder: a.displayOrder ?? a.display_order,
 				}),
 			);
 

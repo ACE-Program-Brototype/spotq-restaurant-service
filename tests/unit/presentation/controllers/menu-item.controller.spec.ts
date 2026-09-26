@@ -59,7 +59,7 @@ describe("MenuItemController", () => {
 						},
 					],
 					addons: [
-						{ addonId: "addon-1", priceOverride: 40.0, displayOrder: 0 },
+						{ addonId: "addon-1", priceOverride: 40.0 },
 					],
 				},
 			};
@@ -158,7 +158,7 @@ describe("MenuItemController", () => {
 			expect(next).toHaveBeenCalledWith(expectedError);
 		});
 
-		it("should leave displayOrder undefined for images and addons when omitted", async () => {
+		it("should leave displayOrder undefined for images when omitted", async () => {
 			req = {
 				params: { restaurantId },
 				body: {
@@ -184,7 +184,6 @@ describe("MenuItemController", () => {
 					addons: [
 						expect.objectContaining({
 							addonId: "addon-1",
-							displayOrder: undefined,
 						}),
 					],
 				}),

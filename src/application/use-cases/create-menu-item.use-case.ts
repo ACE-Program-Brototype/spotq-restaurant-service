@@ -60,7 +60,6 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 		const preparedAddons: Array<{
 			addonId: string;
 			priceOverride: number | null;
-			displayOrder: number;
 		}> = [];
 
 		if (input.addons && input.addons.length > 0) {
@@ -83,14 +82,13 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 				);
 			}
 
-			input.addons.forEach((addon, index) => {
+			input.addons.forEach((addon) => {
 				preparedAddons.push({
 					addonId: addon.addonId.trim(),
 					priceOverride:
 						addon.priceOverride !== undefined && addon.priceOverride !== null
 							? addon.priceOverride
 							: null,
-					displayOrder: addon.displayOrder ?? index,
 				});
 			});
 		}
@@ -171,7 +169,6 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 				name: a.name,
 				price: a.price,
 				priceOverride: a.priceOverride,
-				displayOrder: a.displayOrder,
 			})),
 			createdAt: aggregate.item.createdAt.toISOString(),
 			updatedAt: aggregate.item.updatedAt.toISOString(),

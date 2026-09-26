@@ -13,7 +13,6 @@ export interface CreateMenuItemVariantInputDto {
 export interface CreateMenuItemAddonInputDto {
 	addonId: string;
 	priceOverride?: number | null;
-	displayOrder?: number;
 }
 
 export interface CreateMenuItemInputDto {
@@ -52,7 +51,6 @@ export interface MenuItemAddonResponseDto {
 	name: string;
 	price: number;
 	priceOverride: number | null;
-	displayOrder: number;
 }
 
 export interface MenuItemResponseDto {

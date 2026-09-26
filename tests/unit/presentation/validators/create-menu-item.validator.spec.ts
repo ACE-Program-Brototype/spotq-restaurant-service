@@ -62,7 +62,7 @@ describe("create-menu-item.validator", () => {
 					},
 				],
 				addons: [
-					{ addonId: validAddonId, priceOverride: 40.0, displayOrder: 0 },
+					{ addonId: validAddonId, priceOverride: 40.0 },
 				],
 			});
 			expect(result.success).toBe(true);

@@ -48,8 +48,6 @@ export const createMenuItemAddonSchema = z
 			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
 			.optional()
 			.nullable(),
-		display_order: z.number().int().min(0).optional(),
-		displayOrder: z.number().int().min(0).optional(),
 	})
 	.refine(
 		(data) => Boolean(data.addonId || data.addon_id),

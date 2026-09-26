@@ -72,7 +72,7 @@ describe("CreateMenuItemUseCase", () => {
 				isDefault: true,
 			},
 		],
-		addons: [{ addonId, priceOverride: 40.0, displayOrder: 0 }],
+		addons: [{ addonId, priceOverride: 40.0 }],
 	};
 
 	beforeEach(() => {
@@ -159,7 +159,6 @@ describe("CreateMenuItemUseCase", () => {
 					name: "Extra Raita",
 					price: 30.0,
 					priceOverride: 40.0,
-					displayOrder: 0,
 				},
 			],
 		});

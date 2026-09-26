@@ -156,7 +156,6 @@ describe("PrismaMenuItemRepository", () => {
 					menuItemId: "item-123",
 					addonId: "addon-1",
 					priceOverride: new Prisma.Decimal(40.0),
-					displayOrder: 0,
 				}),
 			},
 			addon: {
@@ -196,7 +195,7 @@ describe("PrismaMenuItemRepository", () => {
 			menuItem: domainItem,
 			images: [{ objectKey: "menu/biryani.png", displayOrder: 0 }],
 			variants: [domainVariant],
-			addons: [{ addonId: "addon-1", priceOverride: 40.0, displayOrder: 0 }],
+			addons: [{ addonId: "addon-1", priceOverride: 40.0 }],
 		});
 
 		expect(aggregate).toBeDefined();

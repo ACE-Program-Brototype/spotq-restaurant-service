@@ -190,7 +190,6 @@ export class PrismaMenuItemRepository
 					name: string;
 					price: number;
 					priceOverride: number | null;
-					displayOrder: number;
 				}> = [];
 
 				if (params.addons.length > 0) {
@@ -224,7 +223,6 @@ export class PrismaMenuItemRepository
 									createdJunction.priceOverride !== null
 										? Number(createdJunction.priceOverride)
 										: null,
-								displayOrder: addonLink.displayOrder,
 							};
 						}),
 					);

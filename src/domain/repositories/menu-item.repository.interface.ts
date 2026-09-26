@@ -16,7 +16,6 @@ export interface MenuItemAddonLinkData {
 	name: string;
 	price: number;
 	priceOverride: number | null;
-	displayOrder: number;
 }
 
 export interface MenuItemAggregate {
@@ -33,7 +32,6 @@ export interface CreateMenuItemRepositoryParams {
 	addons: Array<{
 		addonId: string;
 		priceOverride: number | null;
-		displayOrder: number;
 	}>;
 }
 
