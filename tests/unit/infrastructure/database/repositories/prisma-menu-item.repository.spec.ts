@@ -4,6 +4,8 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
 import {
+	AddonNotFoundForRestaurantError,
+	CategoryNotFoundError,
 	InvalidVariantDataError,
 	MenuItemAlreadyExistsError,
 } from "@/domain/errors/menu-item.errors.ts";
@@ -221,6 +223,7 @@ describe("PrismaMenuItemRepository", () => {
 			{
 				code: "P2003",
 				clientVersion: "6.0.0",
+				meta: { field_name: "restaurant_id" },
 			},
 		);
 		mockPrisma.menuItem.findFirst.mockRejectedValue(p2003Error);
@@ -228,5 +231,37 @@ describe("PrismaMenuItemRepository", () => {
 		await expect(
 			repository.findByNameAndRestaurantId("Item", "non-existent-restaurant"),
 		).rejects.toThrow(RestaurantNotFoundError);
+	});
+
+	it("should map P2003 error on category to CategoryNotFoundError", async () => {
+		const p2003Error = new PrismaClientKnownRequestError(
+			"Foreign key constraint failed on category_id",
+			{
+				code: "P2003",
+				clientVersion: "6.0.0",
+				meta: { field_name: "category_id" },
+			},
+		);
+		mockPrisma.menuItem.findFirst.mockRejectedValue(p2003Error);
+
+		await expect(
+			repository.findByNameAndRestaurantId("Item", rawMenuItem.restaurantId),
+		).rejects.toThrow(CategoryNotFoundError);
+	});
+
+	it("should map P2003 error on addon to AddonNotFoundForRestaurantError", async () => {
+		const p2003Error = new PrismaClientKnownRequestError(
+			"Foreign key constraint failed on addon_id",
+			{
+				code: "P2003",
+				clientVersion: "6.0.0",
+				meta: { field_name: "addon_id" },
+			},
+		);
+		mockPrisma.menuItem.findFirst.mockRejectedValue(p2003Error);
+
+		await expect(
+			repository.findByNameAndRestaurantId("Item", rawMenuItem.restaurantId),
+		).rejects.toThrow(AddonNotFoundForRestaurantError);
 	});
 });

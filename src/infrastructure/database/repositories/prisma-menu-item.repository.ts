@@ -8,6 +8,8 @@ import { inject, injectable } from "inversify";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
+	AddonNotFoundForRestaurantError,
+	CategoryNotFoundError,
 	InvalidMenuItemDataError,
 	InvalidVariantDataError,
 	MenuItemAlreadyExistsError,
@@ -70,6 +72,21 @@ export class PrismaMenuItemRepository
 			code === "P2003" ||
 			(error instanceof PrismaClientKnownRequestError && error.code === "P2003")
 		) {
+			const field = String(
+				(error as { meta?: { field_name?: string } })?.meta?.field_name || "",
+			).toLowerCase();
+			const message = String(
+				(error as { message?: string })?.message || "",
+			).toLowerCase();
+
+			if (field.includes("category") || message.includes("category")) {
+				throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+			}
+			if (field.includes("addon") || message.includes("addon")) {
+				throw new AddonNotFoundForRestaurantError(
+					messages.ADDON_NOT_FOUND_FOR_RESTAURANT,
+				);
+			}
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 	}
