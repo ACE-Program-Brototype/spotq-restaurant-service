@@ -1,4 +1,9 @@
 import { randomUUID } from "node:crypto";
+import {
+	ADDON_DESCRIPTION_MAX_LENGTH,
+	ADDON_NAME_MAX_LENGTH,
+	ADDON_PRICE_MAX,
+} from "@/domain/constants/addon.constants.ts";
 import { InvalidAddonDataError } from "@/domain/errors/addon.errors.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -36,6 +41,14 @@ export interface ReconstituteAddonProps {
 	updatedAt: Date;
 }
 
+export interface UpdateAddonProps {
+	name?: string;
+	description?: string | null;
+	price?: number;
+	imageKey?: string | null;
+	isAvailable?: boolean;
+}
+
 export class Addon {
 	private props: AddonProps;
 
@@ -49,7 +62,7 @@ export class Addon {
 			throw new InvalidAddonDataError(messages.ADDON_NAME_REQUIRED);
 		}
 
-		if (trimmedName.length > 255) {
+		if (trimmedName.length > ADDON_NAME_MAX_LENGTH) {
 			throw new InvalidAddonDataError(messages.ADDON_NAME_MAX_LENGTH);
 		}
 
@@ -61,12 +74,22 @@ export class Addon {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_REQUIRED);
 		}
 
-		if (createProps.price < 0 || Number.isNaN(createProps.price)) {
+		if (
+			createProps.price < 0 ||
+			Number.isNaN(createProps.price)
+		) {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
 		}
 
+		if (createProps.price > ADDON_PRICE_MAX) {
+			throw new InvalidAddonDataError(messages.ADDON_PRICE_MAX_EXCEEDED);
+		}
+
 		const trimmedDescription = createProps.description?.trim() || null;
-		if (trimmedDescription && trimmedDescription.length > 1000) {
+		if (
+			trimmedDescription &&
+			trimmedDescription.length > ADDON_DESCRIPTION_MAX_LENGTH
+		) {
 			throw new InvalidAddonDataError(messages.ADDON_DESCRIPTION_MAX_LENGTH);
 		}
 
@@ -98,6 +121,58 @@ export class Addon {
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
+	}
+
+	public update(updateProps: UpdateAddonProps): void {
+		if (updateProps.name !== undefined) {
+			const trimmedName = updateProps.name.trim();
+			if (!trimmedName) {
+				throw new InvalidAddonDataError(messages.ADDON_NAME_REQUIRED);
+			}
+			if (trimmedName.length > ADDON_NAME_MAX_LENGTH) {
+				throw new InvalidAddonDataError(messages.ADDON_NAME_MAX_LENGTH);
+			}
+			this.props.name = trimmedName;
+		}
+
+		if (updateProps.description !== undefined) {
+			const trimmedDescription = updateProps.description?.trim() || null;
+			if (
+				trimmedDescription &&
+				trimmedDescription.length > ADDON_DESCRIPTION_MAX_LENGTH
+			) {
+				throw new InvalidAddonDataError(messages.ADDON_DESCRIPTION_MAX_LENGTH);
+			}
+			this.props.description = trimmedDescription;
+		}
+
+		if (updateProps.price !== undefined) {
+			if (
+				typeof updateProps.price !== "number" ||
+				Number.isNaN(updateProps.price) ||
+				updateProps.price < 0
+			) {
+				throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
+			}
+			if (updateProps.price > ADDON_PRICE_MAX) {
+				throw new InvalidAddonDataError(messages.ADDON_PRICE_MAX_EXCEEDED);
+			}
+			this.props.price = updateProps.price;
+		}
+
+		if (updateProps.imageKey !== undefined) {
+			const trimmedImageKey = updateProps.imageKey?.trim() || null;
+			this.props.imageKey = trimmedImageKey;
+		}
+
+		if (updateProps.isAvailable !== undefined) {
+			if (typeof updateProps.isAvailable !== "boolean") {
+				throw new InvalidAddonDataError(messages.ADDON_IS_AVAILABLE_INVALID);
+			}
+			this.props.isAvailable = updateProps.isAvailable;
+		}
+
+		this.props.updatedAt = new Date();
 	}
 
 	public get id(): string {

@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+	ADDON_DESCRIPTION_MAX_LENGTH,
+	ADDON_NAME_MAX_LENGTH,
+	ADDON_PRICE_MAX,
+} from "@/domain/constants/addon.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 export const createAddonParamsSchema = z
@@ -13,14 +18,19 @@ export const createAddonBodySchema = z
 			.string()
 			.trim()
 			.min(1, { message: messages.ADDON_NAME_REQUIRED })
-			.max(255, { message: messages.ADDON_NAME_MAX_LENGTH }),
+			.max(ADDON_NAME_MAX_LENGTH, { message: messages.ADDON_NAME_MAX_LENGTH }),
 		description: z
 			.string()
 			.trim()
-			.max(1000, { message: messages.ADDON_DESCRIPTION_MAX_LENGTH })
+			.max(ADDON_DESCRIPTION_MAX_LENGTH, {
+				message: messages.ADDON_DESCRIPTION_MAX_LENGTH,
+			})
 			.optional()
 			.nullable(),
-		price: z.number().min(0, { message: messages.ADDON_PRICE_NEGATIVE }),
+		price: z
+			.number()
+			.min(0, { message: messages.ADDON_PRICE_NEGATIVE })
+			.max(ADDON_PRICE_MAX, { message: messages.ADDON_PRICE_MAX_EXCEEDED }),
 		imageKey: z.string().trim().max(500).optional().nullable(),
 		isAvailable: z.boolean().optional(),
 	})

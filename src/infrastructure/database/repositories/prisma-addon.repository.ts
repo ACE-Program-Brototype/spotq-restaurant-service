@@ -4,7 +4,10 @@ import { inject, injectable } from "inversify";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { Addon } from "@/domain/entities/addon.entity.ts";
-import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";
+import {
+	AddonAlreadyExistsError,
+	AddonNotFoundError,
+} from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { AddonPersistenceMapper } from "../mappers/addon.mapper.ts";
@@ -38,6 +41,12 @@ export class PrismaAddonRepository
 			(error instanceof PrismaClientKnownRequestError && error.code === "P2003")
 		) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+		if (
+			code === "P2025" ||
+			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
+		) {
+			throw new AddonNotFoundError(messages.ADDON_NOT_FOUND);
 		}
 	}
 
@@ -92,6 +101,26 @@ export class PrismaAddonRepository
 			const data = this.mapper.toPersistence(addon);
 			const created = await this.dbModel.create({ data });
 			return this.mapper.toDomain(created);
+		} catch (error) {
+			this.handlePrismaError(error, addon);
+			throw error;
+		}
+	}
+
+	public async updateAddon(addon: Addon): Promise<Addon> {
+		try {
+			const data = this.mapper.toPersistence(addon);
+			const updated = await this.dbModel.update({
+				where: { id: data.id },
+				data: {
+					name: data.name,
+					description: data.description,
+					price: data.price,
+					imageKey: data.imageKey,
+					isAvailable: data.isAvailable,
+				},
+			});
+			return this.mapper.toDomain(updated);
 		} catch (error) {
 			this.handlePrismaError(error, addon);
 			throw error;

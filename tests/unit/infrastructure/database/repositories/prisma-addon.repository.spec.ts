@@ -2,7 +2,10 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { Addon } from "@/domain/entities/addon.entity.ts";
-import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";
+import {
+	AddonAlreadyExistsError,
+	AddonNotFoundError,
+} from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { PrismaAddonRepository } from "@/infrastructure/database/repositories/prisma-addon.repository.ts";
 
@@ -13,6 +16,7 @@ describe("PrismaAddonRepository", () => {
 			findUnique: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 			findFirst: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 			findMany: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+			update: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 		};
 	};
 	let repository: PrismaAddonRepository;
@@ -37,6 +41,7 @@ describe("PrismaAddonRepository", () => {
 				findUnique: jest.fn(),
 				findFirst: jest.fn(),
 				findMany: jest.fn(),
+				update: jest.fn(),
 			},
 		};
 
@@ -150,6 +155,61 @@ describe("PrismaAddonRepository", () => {
 
 		await expect(repository.create(domainEntity)).rejects.toThrow(
 			RestaurantNotFoundError,
+		);
+	});
+
+	it("should update an addon and return domain entity", async () => {
+		const updatedRaw = {
+			...rawAddon,
+			name: "Updated Cheese",
+			price: new Prisma.Decimal(70.0),
+		};
+		mockPrisma.addon.update.mockResolvedValueOnce(updatedRaw);
+
+		const domainEntity = Addon.reconstitute({
+			id: rawAddon.id,
+			restaurantId: rawAddon.restaurantId,
+			name: "Updated Cheese",
+			description: rawAddon.description,
+			price: 70.0,
+			imageKey: rawAddon.imageKey,
+			isAvailable: true,
+			createdAt: rawAddon.createdAt,
+			updatedAt: new Date(),
+		});
+
+		const result = await repository.updateAddon(domainEntity);
+
+		expect(result).toBeInstanceOf(Addon);
+		expect(result.name).toBe("Updated Cheese");
+		expect(result.price).toBe(70.0);
+		expect(mockPrisma.addon.update).toHaveBeenCalledWith({
+			where: { id: rawAddon.id },
+			data: {
+				name: "Updated Cheese",
+				description: rawAddon.description,
+				price: new Prisma.Decimal(70.0),
+				imageKey: rawAddon.imageKey,
+				isAvailable: true,
+			},
+		});
+	});
+
+	it("should map P2025 error to AddonNotFoundError on update", async () => {
+		const p2025Error = new PrismaClientKnownRequestError("Record not found", {
+			code: "P2025",
+			clientVersion: "6.0.0",
+		});
+		mockPrisma.addon.update.mockRejectedValueOnce(p2025Error);
+
+		const domainEntity = Addon.create({
+			restaurantId: rawAddon.restaurantId,
+			name: rawAddon.name,
+			price: 50.0,
+		});
+
+		await expect(repository.updateAddon(domainEntity)).rejects.toThrow(
+			AddonNotFoundError,
 		);
 	});
 });
