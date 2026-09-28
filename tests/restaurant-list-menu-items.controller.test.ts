@@ -17,6 +17,14 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 describe("GET /:restaurantId/menu/items - Route Level & Query Transformation Suite", () => {
 	let mockRestaurantRepo: jest.Mocked<IRestaurantRepository>;
 	let mockMenuItemRepo: jest.Mocked<IMenuItemRepository>;
+	let mockStorageService: {
+		generatePresignedGetUrl: jest.Mock<
+			(...args: unknown[]) => Promise<unknown>
+		>;
+		generatePresignedUploadUrl: jest.Mock<
+			(...args: unknown[]) => Promise<unknown>
+		>;
+	};
 	let controller: MenuItemController;
 
 	const restaurantId = "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
@@ -42,9 +50,15 @@ describe("GET /:restaurantId/menu/items - Route Level & Query Transformation Sui
 			getRestaurantMenuStats: jest.fn(),
 		} as unknown as jest.Mocked<IMenuItemRepository>;
 
+		mockStorageService = {
+			generatePresignedGetUrl: jest.fn(),
+			generatePresignedUploadUrl: jest.fn(),
+		};
+
 		const useCase = new ListMenuItemsUseCase(
 			mockRestaurantRepo,
 			mockMenuItemRepo,
+			mockStorageService as never,
 		);
 		controller = new MenuItemController(useCase);
 	});
@@ -128,6 +142,92 @@ describe("GET /:restaurantId/menu/items - Route Level & Query Transformation Sui
 			sortBy: "preparationTime",
 			sortOrder: "asc",
 		});
+	});
+
+	it("should convert S3 storage key into a presigned downloadable thumbnail URL in the API response", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+		} as never);
+
+		mockMenuItemRepo.findManyWithFiltersAndStats.mockResolvedValueOnce({
+			items: [
+				{
+					id: "item-1",
+					restaurantId,
+					categoryId,
+					categoryName: "Main Course",
+					name: "Smoked Wagyu Burger",
+					price: 22.0,
+					isVegetarian: false,
+					isFeatured: true,
+					isAvailable: true,
+					image: "menu/bistro/wagyu-burger-1.jpg",
+					createdAt: new Date("2026-09-28T10:00:00.000Z"),
+					updatedAt: new Date("2026-09-28T10:00:00.000Z"),
+				},
+			],
+			total: 1,
+			stats: {
+				totalCategories: 1,
+				totalMenuItems: 1,
+				availableItems: 1,
+				outOfStockItems: 0,
+			},
+		});
+
+		mockStorageService.generatePresignedGetUrl.mockResolvedValueOnce({
+			downloadUrl:
+				"https://spotq-s3.amazonaws.com/menu/bistro/wagyu-burger-1.jpg?X-Amz-Signature=xyz",
+			expiresInSeconds: 900,
+		});
+
+		const req = {
+			method: "GET",
+			url: `/${restaurantId}/menu/items`,
+			headers: authHeaders,
+			params: { restaurantId },
+			query: {},
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {} as Record<string, unknown>,
+		};
+
+		restaurantOwnerAuthMiddleware(req as never, res as never, jest.fn());
+		await validateRequestParams(listMenuItemsParamsSchema)(
+			req as never,
+			res as never,
+			jest.fn(),
+		);
+		await validateRequestQuery(listMenuItemsQuerySchema)(
+			req as never,
+			res as never,
+			jest.fn(),
+		);
+		await controller.listMenuItems(req as never, res as never);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		expect(mockStorageService.generatePresignedGetUrl).toHaveBeenCalledWith({
+			key: "menu/bistro/wagyu-burger-1.jpg",
+		});
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: true,
+				data: expect.objectContaining({
+					items: [
+						expect.objectContaining({
+							id: "item-1",
+							image:
+								"https://spotq-s3.amazonaws.com/menu/bistro/wagyu-burger-1.jpg?X-Amz-Signature=xyz",
+						}),
+					],
+				}),
+			}),
+		);
 	});
 
 	it("should reject invalid query with 422 when minPrice > maxPrice", async () => {

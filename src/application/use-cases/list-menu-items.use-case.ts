@@ -1,10 +1,11 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 import type {
 	ListMenuItemsQueryDto,
 	PaginatedMenuItemsResponseDto,
 } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -25,6 +26,9 @@ export class ListMenuItemsUseCase implements IListMenuItemsUseCase {
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Repositories.MenuItemRepository)
 		private readonly menuItemRepository: IMenuItemRepository,
+		@inject(TYPES.Services.Storage)
+		@optional()
+		private readonly storageService?: IStorageService,
 	) {}
 
 	public async execute(
@@ -69,6 +73,38 @@ export class ListMenuItemsUseCase implements IListMenuItemsUseCase {
 				limit,
 			});
 
-		return MenuItemMapper.toPaginatedResponse(items, total, stats, page, limit);
+		const itemsWithPresignedUrls = await Promise.all(
+			items.map(async (item) => {
+				if (!item.image) {
+					return { ...item, image: null };
+				}
+				if (
+					item.image.startsWith("http://") ||
+					item.image.startsWith("https://")
+				) {
+					return item;
+				}
+				if (!this.storageService) {
+					return item;
+				}
+				try {
+					const { downloadUrl } =
+						await this.storageService.generatePresignedGetUrl({
+							key: item.image,
+						});
+					return { ...item, image: downloadUrl };
+				} catch {
+					return { ...item, image: null };
+				}
+			}),
+		);
+
+		return MenuItemMapper.toPaginatedResponse(
+			itemsWithPresignedUrls,
+			total,
+			stats,
+			page,
+			limit,
+		);
 	}
 }

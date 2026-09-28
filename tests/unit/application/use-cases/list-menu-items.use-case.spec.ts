@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import { ListMenuItemsUseCase } from "@/application/use-cases/list-menu-items.use-case.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
@@ -10,6 +11,7 @@ import type {
 describe("ListMenuItemsUseCase", () => {
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
 	let menuItemRepository: jest.Mocked<IMenuItemRepository>;
+	let storageService: jest.Mocked<IStorageService>;
 	let useCase: ListMenuItemsUseCase;
 
 	const mockRestaurantId = "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
@@ -49,9 +51,15 @@ describe("ListMenuItemsUseCase", () => {
 			findManyWithFiltersAndStats: jest.fn(),
 		} as unknown as jest.Mocked<IMenuItemRepository>;
 
+		storageService = {
+			generatePresignedGetUrl: jest.fn(),
+			generatePresignedUploadUrl: jest.fn(),
+		};
+
 		useCase = new ListMenuItemsUseCase(
 			restaurantRepository,
 			menuItemRepository,
+			storageService,
 		);
 	});
 
@@ -70,13 +78,18 @@ describe("ListMenuItemsUseCase", () => {
 		).not.toHaveBeenCalled();
 	});
 
-	it("should list menu items with filters and return formatted paginated response", async () => {
+	it("should list menu items with filters and return formatted paginated response with presigned thumbnail", async () => {
 		restaurantRepository.findById.mockResolvedValue({
 			id: mockRestaurantId,
 		} as unknown as Awaited<ReturnType<IRestaurantRepository["findById"]>>);
 		menuItemRepository.findManyWithFiltersAndStats.mockResolvedValue(
 			mockQueryResult,
 		);
+		storageService.generatePresignedGetUrl.mockResolvedValue({
+			downloadUrl:
+				"https://s3.amazonaws.com/spotq/menu/bruschetta.jpg?signed=1",
+			expiresInSeconds: 900,
+		});
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
@@ -105,6 +118,9 @@ describe("ListMenuItemsUseCase", () => {
 				limit: 10,
 			},
 		);
+		expect(storageService.generatePresignedGetUrl).toHaveBeenCalledWith({
+			key: "menu/bruschetta.jpg",
+		});
 
 		expect(result.stats.totalCategories).toBe(3);
 		expect(result.stats.totalMenuItems).toBe(15);
@@ -112,7 +128,65 @@ describe("ListMenuItemsUseCase", () => {
 		expect(result.stats.outOfStockItems).toBe(3);
 		expect(result.items).toHaveLength(1);
 		expect(result.items[0].name).toBe("Bruschetta");
+		expect(result.items[0].image).toBe(
+			"https://s3.amazonaws.com/spotq/menu/bruschetta.jpg?signed=1",
+		);
 		expect(result.pagination.total).toBe(1);
+	});
+
+	it("should preserve null image for items without image and handle presign errors gracefully", async () => {
+		restaurantRepository.findById.mockResolvedValue({
+			id: mockRestaurantId,
+		} as unknown as Awaited<ReturnType<IRestaurantRepository["findById"]>>);
+		menuItemRepository.findManyWithFiltersAndStats.mockResolvedValue({
+			items: [
+				{
+					id: "item-no-img",
+					restaurantId: mockRestaurantId,
+					categoryId: "cat-1",
+					categoryName: "Starters",
+					name: "Plain Water",
+					price: 1.0,
+					isVegetarian: true,
+					isFeatured: false,
+					isAvailable: true,
+					image: null,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				{
+					id: "item-err-img",
+					restaurantId: mockRestaurantId,
+					categoryId: "cat-1",
+					categoryName: "Starters",
+					name: "Failed Image Item",
+					price: 5.0,
+					isVegetarian: true,
+					isFeatured: false,
+					isAvailable: true,
+					image: "menu/failed.jpg",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+			],
+			total: 2,
+			stats: {
+				totalCategories: 1,
+				totalMenuItems: 2,
+				availableItems: 2,
+				outOfStockItems: 0,
+			},
+		});
+		storageService.generatePresignedGetUrl.mockRejectedValue(
+			new Error("S3 error"),
+		);
+
+		const result = await useCase.execute({
+			restaurantId: mockRestaurantId,
+		});
+
+		expect(result.items[0].image).toBeNull();
+		expect(result.items[1].image).toBeNull();
 	});
 
 	it("should map OUT_OF_STOCK status correctly and handle boundary limits", async () => {
@@ -122,6 +196,11 @@ describe("ListMenuItemsUseCase", () => {
 		menuItemRepository.findManyWithFiltersAndStats.mockResolvedValue(
 			mockQueryResult,
 		);
+		storageService.generatePresignedGetUrl.mockResolvedValue({
+			downloadUrl:
+				"https://s3.amazonaws.com/spotq/menu/bruschetta.jpg?signed=1",
+			expiresInSeconds: 900,
+		});
 
 		await useCase.execute({
 			restaurantId: mockRestaurantId,
