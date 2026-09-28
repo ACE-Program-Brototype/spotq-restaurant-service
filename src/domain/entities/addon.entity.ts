@@ -74,10 +74,7 @@ export class Addon {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_REQUIRED);
 		}
 
-		if (
-			createProps.price < 0 ||
-			Number.isNaN(createProps.price)
-		) {
+		if (createProps.price < 0 || Number.isNaN(createProps.price)) {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
 		}
 

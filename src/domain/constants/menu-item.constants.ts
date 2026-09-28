@@ -1,0 +1,23 @@
+export const MENU_ITEM_NAME_MAX_LENGTH = 255;
+export const MENU_ITEM_DESCRIPTION_MAX_LENGTH = 1000;
+export const MENU_ITEM_PRICE_MAX = 99999999.99;
+export const MENU_ITEM_PREPARATION_TIME_MAX = 1440; // Max 24 hours in minutes
+export const MENU_ITEM_CALORIES_MAX = 50000;
+
+export const DEFAULT_PAGE = 1;
+export const DEFAULT_LIMIT = 10;
+export const MAX_LIMIT = 100;
+export const DEFAULT_SORT_BY = "createdAt";
+export const DEFAULT_SORT_ORDER = "desc";
+
+export const ALLOWED_MENU_ITEM_SORT_FIELDS = [
+	"name",
+	"price",
+	"preparationTime",
+	"calories",
+	"isAvailable",
+	"createdAt",
+	"updatedAt",
+] as const;
+
+export type MenuItemSortField = (typeof ALLOWED_MENU_ITEM_SORT_FIELDS)[number];
