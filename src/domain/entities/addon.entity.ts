@@ -15,6 +15,7 @@ export interface AddonProps {
 	price: number;
 	imageKey: string | null;
 	isAvailable: boolean;
+	isDeleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -27,6 +28,7 @@ export interface CreateAddonProps {
 	price: number;
 	imageKey?: string | null;
 	isAvailable?: boolean;
+	isDeleted?: boolean;
 }
 
 export interface ReconstituteAddonProps {
@@ -37,6 +39,7 @@ export interface ReconstituteAddonProps {
 	price: number;
 	imageKey: string | null;
 	isAvailable: boolean;
+	isDeleted?: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -74,10 +77,7 @@ export class Addon {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_REQUIRED);
 		}
 
-		if (
-			createProps.price < 0 ||
-			Number.isNaN(createProps.price)
-		) {
+		if (createProps.price < 0 || Number.isNaN(createProps.price)) {
 			throw new InvalidAddonDataError(messages.ADDON_PRICE_NEGATIVE);
 		}
 
@@ -104,6 +104,7 @@ export class Addon {
 			price: createProps.price,
 			imageKey: trimmedImageKey,
 			isAvailable: createProps.isAvailable ?? true,
+			isDeleted: createProps.isDeleted ?? false,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -118,6 +119,7 @@ export class Addon {
 			price: reconstituteProps.price,
 			imageKey: reconstituteProps.imageKey,
 			isAvailable: reconstituteProps.isAvailable,
+			isDeleted: reconstituteProps.isDeleted ?? false,
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
@@ -203,6 +205,10 @@ export class Addon {
 		return this.props.isAvailable;
 	}
 
+	public get isDeleted(): boolean {
+		return this.props.isDeleted;
+	}
+
 	public get createdAt(): Date {
 		return this.props.createdAt;
 	}
@@ -213,6 +219,12 @@ export class Addon {
 
 	public updateAvailability(isAvailable: boolean): void {
 		this.props.isAvailable = isAvailable;
+		this.props.updatedAt = new Date();
+	}
+
+	public softDelete(): void {
+		this.props.isDeleted = true;
+		this.props.isAvailable = false;
 		this.props.updatedAt = new Date();
 	}
 }

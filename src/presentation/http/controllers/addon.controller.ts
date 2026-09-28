@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
+import type { IDeleteAddonUseCase } from "@/application/ports/use-cases/delete-addon.use-case.port.ts";
 import type { IListRestaurantAddonsUseCase } from "@/application/ports/use-cases/list-restaurant-addons.use-case.port.ts";
 import type { IUpdateAddonUseCase } from "@/application/ports/use-cases/update-addon.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -17,6 +18,8 @@ export class AddonController {
 		private readonly listRestaurantAddonsUseCase: IListRestaurantAddonsUseCase,
 		@inject(TYPES.UseCases.UpdateAddonUseCase)
 		private readonly updateAddonUseCase: IUpdateAddonUseCase,
+		@inject(TYPES.UseCases.DeleteAddonUseCase)
+		private readonly deleteAddonUseCase: IDeleteAddonUseCase,
 	) {}
 
 	public createAddon = async (req: Request, res: Response): Promise<void> => {
@@ -72,6 +75,23 @@ export class AddonController {
 			res,
 			result,
 			messages.ADDON_UPDATED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public deleteAddon = async (req: Request, res: Response): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const addonId = String(req.params.addonId);
+
+		await this.deleteAddonUseCase.execute({
+			restaurantId,
+			addonId,
+		});
+
+		sendSuccessResponse(
+			res,
+			null,
+			messages.ADDON_DELETED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

@@ -19,9 +19,15 @@ import {
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
 import {
+	createAddonBodySchema,
+	createAddonParamsSchema,
+	listAddonsParamsSchema,
+} from "../validators/create-addon.validator";
+import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
+import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -43,19 +49,14 @@ import {
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
 import {
+	updateAddonBodySchema,
+	updateAddonParamsSchema,
+} from "../validators/update-addon.validator";
+import {
 	updateMenuCategoryBodySchema,
 	updateMenuCategoryParamsSchema,
 } from "../validators/update-menu-category.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
-import {
-	createAddonBodySchema,
-	createAddonParamsSchema,
-	listAddonsParamsSchema,
-} from "../validators/create-addon.validator";
-import {
-	updateAddonBodySchema,
-	updateAddonParamsSchema,
-} from "../validators/update-addon.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -220,6 +221,13 @@ restaurantRouter.patch(
 	validateRequestParams(updateAddonParamsSchema),
 	validateRequestBody(updateAddonBodySchema),
 	addonController.updateAddon,
+);
+
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.RESTAURANT_ADDON_DELETE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteAddonParamsSchema),
+	addonController.deleteAddon,
 );
 
 restaurantRouter.post(

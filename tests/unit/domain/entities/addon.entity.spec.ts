@@ -198,4 +198,18 @@ describe("Addon Entity", () => {
 			);
 		});
 	});
+
+	describe("softDelete", () => {
+		it("should mark addon as deleted and unavailable", () => {
+			const addon = Addon.create(validProps);
+			expect(addon.isDeleted).toBe(false);
+			expect(addon.isAvailable).toBe(true);
+
+			addon.softDelete();
+
+			expect(addon.isDeleted).toBe(true);
+			expect(addon.isAvailable).toBe(false);
+			expect(addon.updatedAt).toBeInstanceOf(Date);
+		});
+	});
 });

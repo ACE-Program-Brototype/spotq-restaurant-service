@@ -280,6 +280,7 @@ export const messages = {
 		"Display order must be a non-negative integer",
 	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
+	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
 	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
 } as const;
 

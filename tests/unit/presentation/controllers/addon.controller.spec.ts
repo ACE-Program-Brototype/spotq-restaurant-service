@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
+import type { IDeleteAddonUseCase } from "@/application/ports/use-cases/delete-addon.use-case.port.ts";
 import type { IListRestaurantAddonsUseCase } from "@/application/ports/use-cases/list-restaurant-addons.use-case.port.ts";
 import type { IUpdateAddonUseCase } from "@/application/ports/use-cases/update-addon.use-case.port.ts";
 import { AddonController } from "@/presentation/http/controllers/addon.controller.ts";
@@ -11,6 +12,7 @@ describe("AddonController", () => {
 	let createAddonUseCase: jest.Mocked<ICreateAddonUseCase>;
 	let listRestaurantAddonsUseCase: jest.Mocked<IListRestaurantAddonsUseCase>;
 	let updateAddonUseCase: jest.Mocked<IUpdateAddonUseCase>;
+	let deleteAddonUseCase: jest.Mocked<IDeleteAddonUseCase>;
 	let controller: AddonController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -28,11 +30,15 @@ describe("AddonController", () => {
 		updateAddonUseCase = {
 			execute: jest.fn(),
 		};
+		deleteAddonUseCase = {
+			execute: jest.fn(),
+		};
 
 		controller = new AddonController(
 			createAddonUseCase,
 			listRestaurantAddonsUseCase,
 			updateAddonUseCase,
+			deleteAddonUseCase,
 		);
 
 		res = {
@@ -210,6 +216,43 @@ describe("AddonController", () => {
 
 			await expect(
 				controller.updateAddon(req as Request, res as Response),
+			).rejects.toThrow("Add-on not found");
+		});
+	});
+
+	describe("deleteAddon", () => {
+		it("should return 200 with success message on delete", async () => {
+			req = {
+				params: { restaurantId, addonId },
+			};
+			deleteAddonUseCase.execute.mockResolvedValue();
+
+			await controller.deleteAddon(req as Request, res as Response);
+
+			expect(deleteAddonUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				addonId,
+			});
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					statusCode: HTTP_STATUS.OK,
+					message: messages.ADDON_DELETED_SUCCESS,
+					data: null,
+				}),
+			);
+		});
+
+		it("should propagate error when delete use case throws", async () => {
+			req = {
+				params: { restaurantId, addonId },
+			};
+			const error = new Error("Add-on not found");
+			deleteAddonUseCase.execute.mockRejectedValue(error);
+
+			await expect(
+				controller.deleteAddon(req as Request, res as Response),
 			).rejects.toThrow("Add-on not found");
 		});
 	});
