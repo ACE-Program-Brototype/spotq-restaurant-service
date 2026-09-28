@@ -69,22 +69,42 @@ export const createMenuItemBodySchema = z
 			.trim()
 			.min(1, { message: messages.MENU_ITEM_NAME_REQUIRED })
 			.max(255, { message: messages.MENU_ITEM_NAME_MAX_LENGTH }),
-		description: z.string().trim().max(1000).optional().nullable(),
+		description: z
+			.string({ message: messages.MENU_ITEM_DESCRIPTION_REQUIRED })
+			.trim()
+			.min(1, { message: messages.MENU_ITEM_DESCRIPTION_REQUIRED })
+			.max(1000, { message: messages.MENU_ITEM_DESCRIPTION_MAX_LENGTH }),
 		price: z
 			.number()
 			.min(0, { message: messages.MENU_ITEM_PRICE_NEGATIVE })
 			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
 			.optional(),
-		preparation_time: z.number().int().min(0).optional().nullable(),
-		preparationTime: z.number().int().min(0).optional().nullable(),
+		preparation_time: z
+			.number({ message: messages.PREPARATION_TIME_REQUIRED })
+			.int()
+			.min(0, { message: messages.PREPARATION_TIME_NEGATIVE })
+			.optional(),
+		preparationTime: z
+			.number({ message: messages.PREPARATION_TIME_REQUIRED })
+			.int()
+			.min(0, { message: messages.PREPARATION_TIME_NEGATIVE })
+			.optional(),
 		calories: z.number().int().min(0).optional().nullable(),
-		is_vegetarian: z.boolean().optional(),
-		isVegetarian: z.boolean().optional(),
+		is_vegetarian: z
+			.boolean({ message: messages.IS_VEGETARIAN_REQUIRED })
+			.optional(),
+		isVegetarian: z
+			.boolean({ message: messages.IS_VEGETARIAN_REQUIRED })
+			.optional(),
 		is_featured: z.boolean().optional(),
 		isFeatured: z.boolean().optional(),
-		is_available: z.boolean().optional(),
-		isAvailable: z.boolean().optional(),
-		images: z.array(createMenuItemImageSchema).optional(),
+		is_available: z.boolean().optional().default(true),
+		isAvailable: z.boolean().optional().default(true),
+		images: z
+			.array(createMenuItemImageSchema, {
+				message: messages.MENU_ITEM_IMAGES_REQUIRED,
+			})
+			.min(1, { message: messages.MENU_ITEM_IMAGES_REQUIRED }),
 		variants: z.array(createMenuItemVariantSchema).optional(),
 		addons: z.array(createMenuItemAddonSchema).optional(),
 	})
@@ -93,6 +113,24 @@ export const createMenuItemBodySchema = z
 		{
 			message: messages.CATEGORY_ID_REQUIRED,
 			path: ["categoryId"],
+		},
+	)
+	.refine(
+		(data) =>
+			data.preparationTime !== undefined ||
+			data.preparation_time !== undefined,
+		{
+			message: messages.PREPARATION_TIME_REQUIRED,
+			path: ["preparationTime"],
+		},
+	)
+	.refine(
+		(data) =>
+			data.isVegetarian !== undefined ||
+			data.is_vegetarian !== undefined,
+		{
+			message: messages.IS_VEGETARIAN_REQUIRED,
+			path: ["isVegetarian"],
 		},
 	)
 	.refine(

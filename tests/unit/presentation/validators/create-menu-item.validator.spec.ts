@@ -27,28 +27,31 @@ describe("create-menu-item.validator", () => {
 		});
 	});
 
+	const validBaseBody = {
+		categoryId: validCategoryId,
+		name: "Chicken Dum Biryani",
+		description: "Slow-cooked aromatic basmati rice",
+		price: 320.0,
+		preparationTime: 25,
+		isVegetarian: false,
+		images: [{ objectKey: "menu/biryani.png", displayOrder: 0 }],
+	};
+
 	describe("createMenuItemBodySchema", () => {
-		it("should pass with minimal valid body", () => {
-			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-				price: 320.0,
-			});
+		it("should pass with minimal valid body and default isAvailable to true", () => {
+			const result = createMenuItemBodySchema.safeParse(validBaseBody);
 			expect(result.success).toBe(true);
+			if (result.success) {
+				expect(result.data.isAvailable).toBe(true);
+			}
 		});
 
 		it("should pass with full nested payload", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-				description: "Slow-cooked aromatic basmati rice",
-				price: 320.0,
-				preparationTime: 25,
+				...validBaseBody,
 				calories: 650,
-				isVegetarian: false,
 				isFeatured: true,
-				isAvailable: true,
-				images: [{ objectKey: "menu/biryani.png", displayOrder: 0 }],
+				isAvailable: false,
 				variants: [
 					{
 						sku: "BIRYANI-HALF",
@@ -68,12 +71,16 @@ describe("create-menu-item.validator", () => {
 				],
 			});
 			expect(result.success).toBe(true);
+			if (result.success) {
+				expect(result.data.isAvailable).toBe(false);
+			}
 		});
 
 		it("should support snake_case fields as well", () => {
 			const result = createMenuItemBodySchema.safeParse({
 				category_id: validCategoryId,
 				name: "Chicken Dum Biryani",
+				description: "Slow-cooked aromatic basmati rice",
 				price: 320.0,
 				preparation_time: 25,
 				is_vegetarian: false,
@@ -95,19 +102,93 @@ describe("create-menu-item.validator", () => {
 			expect(result.success).toBe(true);
 		});
 
+		it("should fail when description is missing", () => {
+			const { description, ...withoutDescription } = validBaseBody;
+			const result = createMenuItemBodySchema.safeParse(withoutDescription);
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("description"),
+				);
+				expect(error?.message).toBe(messages.MENU_ITEM_DESCRIPTION_REQUIRED);
+			}
+		});
+
+		it("should fail when description is empty string", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				...validBaseBody,
+				description: "   ",
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("description"),
+				);
+				expect(error?.message).toBe(messages.MENU_ITEM_DESCRIPTION_REQUIRED);
+			}
+		});
+
+		it("should fail when preparationTime and preparation_time are missing", () => {
+			const { preparationTime, ...withoutPrepTime } = validBaseBody;
+			const result = createMenuItemBodySchema.safeParse(withoutPrepTime);
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("preparationTime"),
+				);
+				expect(error?.message).toBe(messages.PREPARATION_TIME_REQUIRED);
+			}
+		});
+
+		it("should fail when isVegetarian and is_vegetarian are missing", () => {
+			const { isVegetarian, ...withoutVeg } = validBaseBody;
+			const result = createMenuItemBodySchema.safeParse(withoutVeg);
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("isVegetarian"),
+				);
+				expect(error?.message).toBe(messages.IS_VEGETARIAN_REQUIRED);
+			}
+		});
+
+		it("should fail when images is missing", () => {
+			const { images, ...withoutImages } = validBaseBody;
+			const result = createMenuItemBodySchema.safeParse(withoutImages);
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("images"),
+				);
+				expect(error?.message).toBe(messages.MENU_ITEM_IMAGES_REQUIRED);
+			}
+		});
+
+		it("should fail when images array is empty", () => {
+			const result = createMenuItemBodySchema.safeParse({
+				...validBaseBody,
+				images: [],
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const error = result.error.issues.find((e) =>
+					e.path.includes("images"),
+				);
+				expect(error?.message).toBe(messages.MENU_ITEM_IMAGES_REQUIRED);
+			}
+		});
+
 		it("should fail when name is empty", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
+				...validBaseBody,
 				name: "   ",
-				price: 320.0,
 			});
 			expect(result.success).toBe(false);
 		});
 
 		it("should fail when price is negative", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
+				...validBaseBody,
 				price: -10.0,
 			});
 			expect(result.success).toBe(false);
@@ -115,9 +196,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when variant price is negative", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-				price: 320.0,
+				...validBaseBody,
 				variants: [{ name: "Half", price: -5 }],
 			});
 			expect(result.success).toBe(false);
@@ -125,9 +204,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when addonId is not a valid UUID", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-				price: 320.0,
+				...validBaseBody,
 				addons: [{ addonId: "not-a-uuid" }],
 			});
 			expect(result.success).toBe(false);
@@ -135,9 +212,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when image has empty objectKey and object_key", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-				price: 320.0,
+				...validBaseBody,
 				images: [{}],
 			});
 			expect(result.success).toBe(false);
@@ -145,9 +220,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when addon has no addonId and no addon_id", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-				price: 320.0,
+				...validBaseBody,
 				addons: [{}],
 			});
 			expect(result.success).toBe(false);
@@ -155,9 +228,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when duplicate addon IDs are provided", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-				price: 320.0,
+				...validBaseBody,
 				addons: [
 					{ addonId: validAddonId },
 					{ addonId: validAddonId },
@@ -168,7 +239,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when price exceeds 99999999.99", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
+				...validBaseBody,
 				name: "Gold Leaf Steak",
 				price: 100000000,
 			});
@@ -177,8 +248,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when variant price exceeds 99999999.99", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Biryani",
+				...validBaseBody,
 				variants: [
 					{ name: "Family Pack", price: 100000000 },
 				],
@@ -188,9 +258,7 @@ describe("create-menu-item.validator", () => {
 
 		it("should fail when addon price_override exceeds 99999999.99", () => {
 			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Biryani",
-				price: 300,
+				...validBaseBody,
 				addons: [
 					{ addonId: validAddonId, priceOverride: 100000000 },
 				],
@@ -199,10 +267,8 @@ describe("create-menu-item.validator", () => {
 		});
 
 		it("should fail with CATEGORY_ID_REQUIRED when categoryId and category_id are missing", () => {
-			const result = createMenuItemBodySchema.safeParse({
-				name: "Chicken Dum Biryani",
-				price: 320.0,
-			});
+			const { categoryId, ...withoutCat } = validBaseBody;
+			const result = createMenuItemBodySchema.safeParse(withoutCat);
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				const error = result.error.issues.find((e) =>
@@ -213,10 +279,8 @@ describe("create-menu-item.validator", () => {
 		});
 
 		it("should fail with MENU_ITEM_PRICE_REQUIRED when neither price nor variants are provided", () => {
-			const result = createMenuItemBodySchema.safeParse({
-				categoryId: validCategoryId,
-				name: "Chicken Dum Biryani",
-			});
+			const { price, ...withoutPrice } = validBaseBody;
+			const result = createMenuItemBodySchema.safeParse(withoutPrice);
 			expect(result.success).toBe(false);
 			if (!result.success) {
 				const error = result.error.issues.find((e) =>

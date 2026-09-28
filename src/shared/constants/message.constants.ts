@@ -305,6 +305,10 @@ export const messages = {
 	VARIANT_PRICE_REQUIRED: "Variant price is required",
 	VARIANT_PRICE_NEGATIVE: "Variant price must be greater than or equal to 0",
 	PRICE_EXCEEDS_MAXIMUM: "Price exceeds maximum allowed value",
+	MENU_ITEM_DESCRIPTION_REQUIRED: "Menu item description is required",
+	PREPARATION_TIME_REQUIRED: "Preparation time is required",
+	MENU_ITEM_IMAGES_REQUIRED: "At least one image is required",
+	IS_VEGETARIAN_REQUIRED: "isVegetarian is required",
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
 	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
 } as const;

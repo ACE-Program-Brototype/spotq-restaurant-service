@@ -88,19 +88,25 @@ export class MenuItemController {
 				restaurantId,
 				categoryId: resolvedCategoryId,
 				name,
-				description: description ?? null,
+				description: String(description ?? "").trim(),
 				price:
 					price !== undefined && price !== null ? Number(price) : undefined,
 				preparationTime:
 					preparationTime !== undefined
-						? preparationTime
-						: preparation_time !== undefined
-							? preparation_time
-							: null,
+						? Number(preparationTime)
+						: Number(preparation_time),
 				calories: calories !== undefined ? calories : null,
-				isVegetarian: isVegetarian ?? is_vegetarian ?? false,
+				isVegetarian:
+					isVegetarian !== undefined
+						? Boolean(isVegetarian)
+						: Boolean(is_vegetarian),
 				isFeatured: isFeatured ?? is_featured ?? false,
-				isAvailable: isAvailable ?? is_available ?? true,
+				isAvailable:
+					isAvailable !== undefined
+						? Boolean(isAvailable)
+						: is_available !== undefined
+							? Boolean(is_available)
+							: true,
 				images: mappedImages,
 				variants: mappedVariants,
 				addons: mappedAddons,

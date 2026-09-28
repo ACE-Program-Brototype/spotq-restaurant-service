@@ -181,5 +181,64 @@ describe("MenuItemController", () => {
 				}),
 			);
 		});
+		it("should default isAvailable to true when omitted from body", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					description: "Delicious Dum Biryani",
+					price: 320.0,
+					preparationTime: 25,
+					isVegetarian: false,
+					images: [{ objectKey: "menu/biryani.png" }],
+				},
+			};
+
+			createMenuItemUseCase.execute.mockResolvedValue({} as never);
+
+			await controller.createMenuItem(
+				req as Request,
+				res as Response,
+			);
+
+			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					isAvailable: true,
+					description: "Delicious Dum Biryani",
+					preparationTime: 25,
+					isVegetarian: false,
+				}),
+			);
+		});
+
+		it("should honor isAvailable when set to false", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					description: "Delicious Dum Biryani",
+					price: 320.0,
+					preparationTime: 25,
+					isVegetarian: false,
+					isAvailable: false,
+					images: [{ objectKey: "menu/biryani.png" }],
+				},
+			};
+
+			createMenuItemUseCase.execute.mockResolvedValue({} as never);
+
+			await controller.createMenuItem(
+				req as Request,
+				res as Response,
+			);
+
+			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					isAvailable: false,
+				}),
+			);
+		});
 	});
 });

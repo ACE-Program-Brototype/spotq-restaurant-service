@@ -19,14 +19,14 @@ export interface CreateMenuItemInputDto {
 	restaurantId: string;
 	categoryId: string;
 	name: string;
-	description?: string | null;
+	description: string;
 	price?: number;
-	preparationTime?: number | null;
+	preparationTime: number;
 	calories?: number | null;
-	isVegetarian?: boolean;
+	isVegetarian: boolean;
 	isFeatured?: boolean;
 	isAvailable?: boolean;
-	images?: CreateMenuItemImageInputDto[];
+	images: CreateMenuItemImageInputDto[];
 	variants?: CreateMenuItemVariantInputDto[];
 	addons?: CreateMenuItemAddonInputDto[];
 }
