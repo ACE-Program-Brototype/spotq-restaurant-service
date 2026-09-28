@@ -16,7 +16,8 @@ import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 @injectable()
 export class PrismaAddonRepository
 	extends PrismaBaseRepository<Addon, PrismaAddon, PrismaClient["addon"]>
-	implements IAddonRepository {
+	implements IAddonRepository
+{
 	constructor(
 		@inject(TYPES.PrismaClient)
 		prisma: PrismaClient,
