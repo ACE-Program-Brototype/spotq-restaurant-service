@@ -240,6 +240,7 @@ export const messages = {
 		"Cannot use an avatar belonging to another staff member",
 	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
 		"Verification status retrieved successfully",
+	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
 	RESTAURANT_PROFILE_FETCH_SUCCESS: "Restaurant profile retrieved successfully",
 	RESTAURANT_PROFILE_UPDATED_SUCCESS: "Restaurant profile updated successfully",
 	NAME_MIN_LENGTH: "Name must be at least 2 characters",
@@ -280,7 +281,9 @@ export const messages = {
 		"Display order must be a non-negative integer",
 	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
+	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
 	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
+	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
 } as const;
 
 export type MessageKey = keyof typeof messages;

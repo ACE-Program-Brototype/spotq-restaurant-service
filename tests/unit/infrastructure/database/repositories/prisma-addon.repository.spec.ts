@@ -30,6 +30,7 @@ describe("PrismaAddonRepository", () => {
 		price: new Prisma.Decimal(50.0),
 		imageKey: "addons/cheese.png",
 		isAvailable: true,
+		isDeleted: false,
 		createdAt: now,
 		updatedAt: now,
 	};
@@ -102,11 +103,12 @@ describe("PrismaAddonRepository", () => {
 					equals: "extra cheese",
 					mode: "insensitive",
 				},
+				isDeleted: false,
 			},
 		});
 	});
 
-	it("should find all addons by restaurantId", async () => {
+	it("should find all non-deleted addons by restaurantId", async () => {
 		mockPrisma.addon.findMany.mockResolvedValue([rawAddon]);
 
 		const results = await repository.findByRestaurantId(rawAddon.restaurantId);
@@ -114,7 +116,10 @@ describe("PrismaAddonRepository", () => {
 		expect(results).toHaveLength(1);
 		expect(results[0]).toBeInstanceOf(Addon);
 		expect(mockPrisma.addon.findMany).toHaveBeenCalledWith({
-			where: { restaurantId: rawAddon.restaurantId },
+			where: {
+				restaurantId: rawAddon.restaurantId,
+				isDeleted: false,
+			},
 			orderBy: { name: "asc" },
 		});
 	});
@@ -174,6 +179,7 @@ describe("PrismaAddonRepository", () => {
 			price: 70.0,
 			imageKey: rawAddon.imageKey,
 			isAvailable: true,
+			isDeleted: false,
 			createdAt: rawAddon.createdAt,
 			updatedAt: new Date(),
 		});
@@ -191,6 +197,7 @@ describe("PrismaAddonRepository", () => {
 				price: new Prisma.Decimal(70.0),
 				imageKey: rawAddon.imageKey,
 				isAvailable: true,
+				isDeleted: false,
 			},
 		});
 	});

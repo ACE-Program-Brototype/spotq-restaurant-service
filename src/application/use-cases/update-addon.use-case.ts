@@ -31,7 +31,11 @@ export class UpdateAddonUseCase implements IUpdateAddonUseCase {
 		}
 
 		const addon = await this.addonRepository.findById(input.addonId);
-		if (!addon || addon.restaurantId !== input.restaurantId) {
+		if (
+			!addon ||
+			addon.restaurantId !== input.restaurantId ||
+			addon.isDeleted
+		) {
 			throw new AddonNotFoundError(messages.ADDON_NOT_FOUND);
 		}
 
