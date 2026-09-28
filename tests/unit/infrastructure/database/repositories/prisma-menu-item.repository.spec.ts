@@ -3,6 +3,7 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { MenuItemNotFoundError } from "@/domain/errors/menu-item.errors.ts";
+import { CategoryNotFoundError } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { PrismaMenuItemRepository } from "@/infrastructure/database/repositories/prisma-menu-item.repository.ts";
 
@@ -167,7 +168,7 @@ describe("PrismaMenuItemRepository", () => {
 	});
 
 	describe("handlePrismaError", () => {
-		it("should translate P2003 error to RestaurantNotFoundError", async () => {
+		it("should translate P2003 error to RestaurantNotFoundError by default", async () => {
 			const p2003Error = new PrismaClientKnownRequestError(
 				"Foreign key constraint",
 				{
@@ -180,6 +181,22 @@ describe("PrismaMenuItemRepository", () => {
 			await expect(
 				repository.findByNameAndRestaurantId(restaurantId, "Burger"),
 			).rejects.toThrow(RestaurantNotFoundError);
+		});
+
+		it("should translate P2003 error for category foreign key to CategoryNotFoundError", async () => {
+			const p2003CategoryError = new PrismaClientKnownRequestError(
+				"Foreign key constraint failed on the field: categoryId",
+				{
+					code: "P2003",
+					clientVersion: "6.0.0",
+					meta: { field_name: "menu_items_category_id_fkey" },
+				},
+			);
+			mockPrisma.menuItem.findFirst.mockRejectedValue(p2003CategoryError);
+
+			await expect(
+				repository.findByNameAndRestaurantId(restaurantId, "Burger"),
+			).rejects.toThrow(CategoryNotFoundError);
 		});
 
 		it("should translate P2025 error to MenuItemNotFoundError", async () => {

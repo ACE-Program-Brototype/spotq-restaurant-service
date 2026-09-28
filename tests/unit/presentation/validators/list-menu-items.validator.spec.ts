@@ -3,6 +3,7 @@ import {
 	listMenuItemsParamsSchema,
 	listMenuItemsQuerySchema,
 } from "@/presentation/http/validators/list-menu-items.validator.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("ListMenuItemsValidator", () => {
 	const validRestaurantId = "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
@@ -142,6 +143,28 @@ describe("ListMenuItemsValidator", () => {
 			if (result.success) {
 				expect(result.data.isVegetarian).toBeUndefined();
 				expect(result.data.isFeatured).toBeUndefined();
+			}
+		});
+
+		it("should reject invalid categoryId and category_id UUIDs with custom error message", () => {
+			const res1 = listMenuItemsQuerySchema.safeParse({
+				categoryId: "not-a-uuid",
+			});
+			expect(res1.success).toBe(false);
+			if (!res1.success) {
+				expect(res1.error.issues[0].message).toBe(
+					messages.INVALID_CATEGORY_ID,
+				);
+			}
+
+			const res2 = listMenuItemsQuerySchema.safeParse({
+				category_id: "not-a-uuid",
+			});
+			expect(res2.success).toBe(false);
+			if (!res2.success) {
+				expect(res2.error.issues[0].message).toBe(
+					messages.INVALID_CATEGORY_ID,
+				);
 			}
 		});
 	});

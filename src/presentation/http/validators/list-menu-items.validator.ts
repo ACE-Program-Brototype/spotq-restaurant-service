@@ -1,4 +1,13 @@
 import { z } from "zod";
+import {
+	ALLOWED_MENU_ITEM_SORT_FIELDS,
+	DEFAULT_SORT_BY,
+	DEFAULT_SORT_ORDER,
+	MENU_ITEM_QUERY_SORT_FIELDS,
+	MENU_ITEM_SORT_ALIASES,
+	type MenuItemQuerySortField,
+	type MenuItemSortField,
+} from "@/domain/constants/menu-item.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 export const MENU_ITEM_STATUSES = [
@@ -10,41 +19,20 @@ export const MENU_ITEM_STATUSES = [
 	"out_of_stock",
 ] as const;
 
-export const MENU_ITEM_SORT_FIELDS = [
-	"name",
-	"price",
-	"preparationTime",
-	"preparation_time",
-	"calories",
-	"isAvailable",
-	"is_available",
-	"createdAt",
-	"created_at",
-	"updatedAt",
-	"updated_at",
-] as const;
+export const MENU_ITEM_SORT_FIELDS = MENU_ITEM_QUERY_SORT_FIELDS;
 
 export const PRISMA_MENU_ITEM_SORT_MAP: Record<
-	(typeof MENU_ITEM_SORT_FIELDS)[number],
-	| "name"
-	| "price"
-	| "preparationTime"
-	| "calories"
-	| "isAvailable"
-	| "createdAt"
-	| "updatedAt"
+	MenuItemQuerySortField,
+	MenuItemSortField
 > = {
-	name: "name",
-	price: "price",
-	preparationTime: "preparationTime",
-	preparation_time: "preparationTime",
-	calories: "calories",
-	isAvailable: "isAvailable",
-	is_available: "isAvailable",
-	createdAt: "createdAt",
-	created_at: "createdAt",
-	updatedAt: "updatedAt",
-	updated_at: "updatedAt",
+	...ALLOWED_MENU_ITEM_SORT_FIELDS.reduce(
+		(acc, field) => {
+			acc[field] = field;
+			return acc;
+		},
+		{} as Record<MenuItemSortField, MenuItemSortField>,
+	),
+	...MENU_ITEM_SORT_ALIASES,
 };
 
 export const listMenuItemsParamsSchema = z
@@ -90,10 +78,19 @@ export const listMenuItemsQuerySchema = z
 			.trim()
 			.transform((val) => (val === "" ? undefined : val))
 			.optional(),
-		categoryId: z.preprocess(parseOptionalString, z.string().uuid().optional()),
+		categoryId: z.preprocess(
+			parseOptionalString,
+			z
+				.string()
+				.uuid({ message: messages.INVALID_CATEGORY_ID })
+				.optional(),
+		),
 		category_id: z.preprocess(
 			parseOptionalString,
-			z.string().uuid().optional(),
+			z
+				.string()
+				.uuid({ message: messages.INVALID_CATEGORY_ID })
+				.optional(),
 		),
 		status: z
 			.preprocess((val) => {
@@ -170,9 +167,10 @@ export const listMenuItemsQuerySchema = z
 		const rawSortBy = data.sortBy ?? data.sort_by;
 		const mappedSortBy = rawSortBy
 			? PRISMA_MENU_ITEM_SORT_MAP[rawSortBy]
-			: "createdAt";
+			: DEFAULT_SORT_BY;
 
-		const rawSortOrder = data.sortOrder ?? data.sort_order ?? "desc";
+		const rawSortOrder =
+			data.sortOrder ?? data.sort_order ?? DEFAULT_SORT_ORDER;
 
 		return {
 			page: data.page,

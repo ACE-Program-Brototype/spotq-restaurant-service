@@ -21,3 +21,24 @@ export const ALLOWED_MENU_ITEM_SORT_FIELDS = [
 ] as const;
 
 export type MenuItemSortField = (typeof ALLOWED_MENU_ITEM_SORT_FIELDS)[number];
+
+export const MENU_ITEM_SORT_ALIASES = {
+	preparation_time: "preparationTime",
+	is_available: "isAvailable",
+	created_at: "createdAt",
+	updated_at: "updatedAt",
+} as const;
+
+export type MenuItemSortAlias = keyof typeof MENU_ITEM_SORT_ALIASES;
+
+export const MENU_ITEM_QUERY_SORT_FIELDS = [
+	...ALLOWED_MENU_ITEM_SORT_FIELDS,
+	"preparation_time",
+	"is_available",
+	"created_at",
+	"updated_at",
+] as const;
+
+export type MenuItemQuerySortField =
+	(typeof MENU_ITEM_QUERY_SORT_FIELDS)[number];
+

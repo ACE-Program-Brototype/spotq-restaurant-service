@@ -17,6 +17,7 @@ import {
 } from "@/domain/constants/menu-item.constants.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuItemRepository } from "@/domain/repositories/menu-item.repository.interface.ts";
+import { logger } from "@/infrastructure/observability/logger.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -93,7 +94,15 @@ export class ListMenuItemsUseCase implements IListMenuItemsUseCase {
 							key: item.image,
 						});
 					return { ...item, image: downloadUrl };
-				} catch {
+				} catch (error) {
+					logger.warn(
+						{
+							err: error,
+							menuItemId: item.id,
+							imageKey: item.image,
+						},
+						`Failed to generate presigned download URL for menu item ${item.id}`,
+					);
 					return { ...item, image: null };
 				}
 			}),

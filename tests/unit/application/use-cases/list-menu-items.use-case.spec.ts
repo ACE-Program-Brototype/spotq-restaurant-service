@@ -7,6 +7,7 @@ import type {
 	IMenuItemRepository,
 	MenuItemQueryResult,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
+import { logger } from "@/infrastructure/observability/logger.ts";
 
 describe("ListMenuItemsUseCase", () => {
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
@@ -181,12 +182,26 @@ describe("ListMenuItemsUseCase", () => {
 			new Error("S3 error"),
 		);
 
+		const warnSpy = jest
+			.spyOn(logger, "warn")
+			.mockImplementation(() => logger);
+
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,
 		});
 
 		expect(result.items[0].image).toBeNull();
 		expect(result.items[1].image).toBeNull();
+		expect(warnSpy).toHaveBeenCalledWith(
+			expect.objectContaining({
+				menuItemId: "item-err-img",
+				imageKey: "menu/failed.jpg",
+			}),
+			expect.stringContaining(
+				"Failed to generate presigned download URL for menu item item-err-img",
+			),
+		);
+		warnSpy.mockRestore();
 	});
 
 	it("should map OUT_OF_STOCK status correctly and handle boundary limits", async () => {

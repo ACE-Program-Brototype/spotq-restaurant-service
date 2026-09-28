@@ -6,8 +6,15 @@ import {
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
+import {
+	ALLOWED_MENU_ITEM_SORT_FIELDS,
+	DEFAULT_SORT_BY,
+	DEFAULT_SORT_ORDER,
+	type MenuItemSortField,
+} from "@/domain/constants/menu-item.constants.ts";
 import type { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { MenuItemNotFoundError } from "@/domain/errors/menu-item.errors.ts";
+import { CategoryNotFoundError } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	IMenuItemRepository,
@@ -41,16 +48,42 @@ export class PrismaMenuItemRepository
 		_context?: unknown,
 	): void {
 		const code = (error as { code?: string })?.code;
-		if (
+		const isP2003 =
 			code === "P2003" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2003")
-		) {
+			(error instanceof PrismaClientKnownRequestError && error.code === "P2003");
+
+		if (isP2003) {
+			const meta = (
+				error as {
+					meta?: {
+						field_name?: string;
+						target?: string | string[];
+						modelName?: string;
+					};
+				}
+			)?.meta;
+
+			const targetInfo = [
+				meta?.field_name,
+				Array.isArray(meta?.target) ? meta.target.join(" ") : meta?.target,
+				error instanceof Error ? error.message : "",
+			]
+				.filter(Boolean)
+				.join(" ")
+				.toLowerCase();
+
+			if (targetInfo.includes("category")) {
+				throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+			}
+
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
-		if (
+
+		const isP2025 =
 			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
-		) {
+			(error instanceof PrismaClientKnownRequestError && error.code === "P2025");
+
+		if (isP2025) {
 			throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
 		}
 	}
@@ -166,19 +199,13 @@ export class PrismaMenuItemRepository
 			}
 
 			// Define ordering
-			const validSortFields = [
-				"name",
-				"price",
-				"preparationTime",
-				"calories",
-				"isAvailable",
-				"createdAt",
-				"updatedAt",
-			];
-			const safeSortBy = validSortFields.includes(sortBy)
-				? sortBy
-				: "createdAt";
-			const safeSortOrder = sortOrder === "asc" ? "asc" : "desc";
+			const safeSortBy: MenuItemSortField = (
+				ALLOWED_MENU_ITEM_SORT_FIELDS as readonly string[]
+			).includes(sortBy)
+				? (sortBy as MenuItemSortField)
+				: DEFAULT_SORT_BY;
+			const safeSortOrder =
+				sortOrder === "asc" ? "asc" : DEFAULT_SORT_ORDER;
 			const orderBy: Prisma.MenuItemOrderByWithRelationInput = {
 				[safeSortBy]: safeSortOrder,
 			};
