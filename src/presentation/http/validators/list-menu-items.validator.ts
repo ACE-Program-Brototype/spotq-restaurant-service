@@ -162,7 +162,7 @@ export const listMenuItemsQuerySchema = z
 			return true;
 		},
 		{
-			message: "minPrice cannot be greater than maxPrice",
+			message: messages.MIN_PRICE_CANNOT_BE_GREATER_THAN_MAX_PRICE,
 			path: ["minPrice"],
 		},
 	)

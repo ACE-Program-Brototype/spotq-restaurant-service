@@ -1,7 +1,7 @@
 export const MENU_ITEM_NAME_MAX_LENGTH = 255;
 export const MENU_ITEM_DESCRIPTION_MAX_LENGTH = 1000;
 export const MENU_ITEM_PRICE_MAX = 99999999.99;
-export const MENU_ITEM_PREPARATION_TIME_MAX = 1440; // Max 24 hours in minutes
+export const MENU_ITEM_PREPARATION_TIME_MAX = 1440;
 export const MENU_ITEM_CALORIES_MAX = 50000;
 
 export const DEFAULT_PAGE = 1;

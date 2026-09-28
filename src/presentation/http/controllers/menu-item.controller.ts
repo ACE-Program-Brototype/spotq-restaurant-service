@@ -28,7 +28,7 @@ export class MenuItemController {
 			restaurantUser?.restaurantId ||
 			req.userId ||
 			"";
-		// validated and transformed query is attached via validation middleware into res.locals.query
+		
 		const validatedQuery =
 			(res.locals?.query as ListMenuItemsQuery) ??
 			(req.query as unknown as ListMenuItemsQuery) ??

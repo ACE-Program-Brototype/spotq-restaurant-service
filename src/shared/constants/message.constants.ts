@@ -293,6 +293,8 @@ export const messages = {
 	MENU_ITEM_PREPARATION_TIME_INVALID:
 		"Preparation time must be a positive number of minutes",
 	MENU_ITEM_CALORIES_INVALID: "Calories must be a positive number",
+	MIN_PRICE_CANNOT_BE_GREATER_THAN_MAX_PRICE:
+		"minPrice cannot be greater than maxPrice",
 } as const;
 
 export type MessageKey = keyof typeof messages;
