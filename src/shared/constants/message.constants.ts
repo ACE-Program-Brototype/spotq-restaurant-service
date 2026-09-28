@@ -283,6 +283,20 @@ export const messages = {
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
 	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
 	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
+	MENU_ITEMS_FETCHED_SUCCESS: "Menu items retrieved successfully",
+	MENU_ITEM_NOT_FOUND: "Menu item not found",
+	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",
+	MENU_ITEM_NAME_MAX_LENGTH: "Menu item name must not exceed 255 characters",
+	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",
+	MENU_ITEM_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
+	MENU_ITEM_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
+	MENU_ITEM_DESCRIPTION_MAX_LENGTH:
+		"Menu item description must not exceed 1000 characters",
+	MENU_ITEM_PREPARATION_TIME_INVALID:
+		"Preparation time must be a positive number of minutes",
+	MENU_ITEM_CALORIES_INVALID: "Calories must be a positive number",
+	MIN_PRICE_CANNOT_BE_GREATER_THAN_MAX_PRICE:
+		"minPrice cannot be greater than maxPrice",
 	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
 } as const;
 

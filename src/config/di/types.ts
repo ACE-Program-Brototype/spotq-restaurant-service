@@ -111,6 +111,7 @@ export const TYPES = {
 		DeleteAddonUseCase: Symbol.for("DeleteAddonUseCase"),
 		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
 		UpdateMenuCategoryUseCase: Symbol.for("UpdateMenuCategoryUseCase"),
+		ListMenuItemsUseCase: Symbol.for("ListMenuItemsUseCase"),
 	},
 
 	Controller: {
@@ -120,6 +121,7 @@ export const TYPES = {
 		StorageController: Symbol.for("StorageController"),
 		AddonController: Symbol.for("AddonController"),
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
+		MenuItemController: Symbol.for("MenuItemController"),
 	},
 
 	Database: {
@@ -130,6 +132,7 @@ export const TYPES = {
 		RestaurantRepository: Symbol.for("RestaurantRepository"),
 		AddonRepository: Symbol.for("AddonRepository"),
 		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
+		MenuItemRepository: Symbol.for("MenuItemRepository"),
 	},
 
 	Redis: {

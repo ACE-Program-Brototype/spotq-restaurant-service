@@ -2,6 +2,7 @@ import type { AddonController } from "@/presentation/http/controllers/addon.cont
 import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
 import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
 import type { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller";
+import type { MenuItemController } from "@/presentation/http/controllers/menu-item.controller";
 import type { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import type { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
 import type { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
@@ -12,6 +13,10 @@ import { TYPES } from "./types";
 
 export const menuCategoryController = container.get<MenuCategoryController>(
 	TYPES.Controller.MenuCategoryController,
+);
+
+export const menuItemController = container.get<MenuItemController>(
+	TYPES.Controller.MenuItemController,
 );
 
 export const restaurantAuthController = container.get<RestaurantAuthController>(
