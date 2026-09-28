@@ -120,7 +120,7 @@ describe("MenuItem Entity", () => {
 		).toThrow(InvalidMenuItemDataError);
 	});
 
-	it("should throw InvalidMenuItemDataError when description exceeds 1000 characters", () => {
+	it("should throw InvalidMenuItemDataError when description exceeds maximum length", () => {
 		expect(() =>
 			MenuItem.create({
 				...validProps,
@@ -134,6 +134,30 @@ describe("MenuItem Entity", () => {
 		expect(item.isAvailable).toBe(true);
 
 		item.updateAvailability(false);
+		expect(item.isAvailable).toBe(false);
+	});
+
+	it("should validate and update fields in update method", () => {
+		const item = MenuItem.create(validProps);
+
+		item.update({
+			name: "Updated Biryani",
+			price: 350.0,
+			description: "Updated description",
+			preparationTime: 35,
+			calories: 700,
+			isVegetarian: true,
+			isFeatured: false,
+			isAvailable: false,
+		});
+
+		expect(item.name).toBe("Updated Biryani");
+		expect(item.price).toBe(350.0);
+		expect(item.description).toBe("Updated description");
+		expect(item.preparationTime).toBe(35);
+		expect(item.calories).toBe(700);
+		expect(item.isVegetarian).toBe(true);
+		expect(item.isFeatured).toBe(false);
 		expect(item.isAvailable).toBe(false);
 	});
 });

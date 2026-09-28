@@ -112,6 +112,7 @@ export const TYPES = {
 		DeleteAddonUseCase: Symbol.for("DeleteAddonUseCase"),
 		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
 		UpdateMenuCategoryUseCase: Symbol.for("UpdateMenuCategoryUseCase"),
+		ListMenuItemsUseCase: Symbol.for("ListMenuItemsUseCase"),
 	},
 
 	Controller: {
@@ -131,8 +132,8 @@ export const TYPES = {
 	Repositories: {
 		RestaurantRepository: Symbol.for("RestaurantRepository"),
 		AddonRepository: Symbol.for("AddonRepository"),
-		MenuItemRepository: Symbol.for("MenuItemRepository"),
 		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
+		MenuItemRepository: Symbol.for("MenuItemRepository"),
 	},
 
 	Redis: {

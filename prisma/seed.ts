@@ -291,6 +291,552 @@ async function main() {
 		);
 	}
 
+	// 4. Seed Menu Categories
+	console.log("\n📑 Seeding Menu Categories...");
+	const sampleCategories = [
+		// Grand Bistro Categories
+		{
+			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c01",
+			restaurantId: bistroId,
+			name: "Starters & Appetizers",
+			description: "Crispy and fresh small plates to kickstart your meal",
+			displayOrder: 0,
+			isActive: true,
+		},
+		{
+			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c02",
+			restaurantId: bistroId,
+			name: "Main Course",
+			description: "Chef-curated gourmet entrees and signature dishes",
+			displayOrder: 1,
+			isActive: true,
+		},
+		{
+			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c03",
+			restaurantId: bistroId,
+			name: "Desserts",
+			description: "Decadent handcrafted sweets and confections",
+			displayOrder: 2,
+			isActive: true,
+		},
+		{
+			id: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c04",
+			restaurantId: bistroId,
+			name: "Beverages & Mocktails",
+			description: "Refreshing artisanal drinks and signature refreshments",
+			displayOrder: 3,
+			isActive: true,
+		},
+		// Spice Lounge Categories
+		{
+			id: "b2eebc99-9c0b-4ef8-bb6d-6bb9bd380c01",
+			restaurantId: spiceLoungeId,
+			name: "Tandoori Starters",
+			description: "Clay-oven smoked and spiced delicacies",
+			displayOrder: 0,
+			isActive: true,
+		},
+		{
+			id: "b2eebc99-9c0b-4ef8-bb6d-6bb9bd380c02",
+			restaurantId: spiceLoungeId,
+			name: "Curries & Breads",
+			description: "Aromatic regional gravies and fresh tandoor breads",
+			displayOrder: 1,
+			isActive: true,
+		},
+		{
+			id: "b2eebc99-9c0b-4ef8-bb6d-6bb9bd380c03",
+			restaurantId: spiceLoungeId,
+			name: "Biryani Specials",
+			description: "Slow-cooked dum biryanis with fragrant long-grain basmati",
+			displayOrder: 2,
+			isActive: true,
+		},
+	];
+
+	for (const cat of sampleCategories) {
+		const seededCat = await prisma.menuCategory.upsert({
+			where: { id: cat.id },
+			update: {
+				name: cat.name,
+				description: cat.description,
+				displayOrder: cat.displayOrder,
+				isActive: cat.isActive,
+			},
+			create: cat,
+		});
+		console.log(
+			`   📂 Category: ${seededCat.name.padEnd(24)} | Rest: ${seededCat.restaurantId.slice(-6)}`,
+		);
+	}
+
+	// 5. Seed Addons
+	console.log("\n🧀 Seeding Addons...");
+	const sampleAddons = [
+		{
+			id: "e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			restaurantId: bistroId,
+			name: "Extra Truffle Dip",
+			description: "House-made black truffle aioli",
+			price: 2.5,
+			imageKey: "addons/bistro/truffle-dip.jpg",
+			isAvailable: true,
+		},
+		{
+			id: "e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+			restaurantId: bistroId,
+			name: "Aged Cheddar Slice",
+			description: "Melted sharp aged cheddar",
+			price: 1.5,
+			imageKey: "addons/bistro/aged-cheddar.jpg",
+			isAvailable: true,
+		},
+		{
+			id: "e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
+			restaurantId: bistroId,
+			name: "Crispy Bacon Strip",
+			description: "Hardwood smoked bacon",
+			price: 3.0,
+			imageKey: "addons/bistro/bacon.jpg",
+			isAvailable: true,
+		},
+		{
+			id: "e2eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+			restaurantId: spiceLoungeId,
+			name: "Extra Boondi Raita",
+			description: "Cooling spiced yogurt",
+			price: 1.0,
+			imageKey: "addons/spice/raita.jpg",
+			isAvailable: true,
+		},
+		{
+			id: "e2eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+			restaurantId: spiceLoungeId,
+			name: "Fresh Mint Chutney",
+			description: "Tangy coriander and mint dip",
+			price: 0.5,
+			imageKey: "addons/spice/mint-chutney.jpg",
+			isAvailable: true,
+		},
+	];
+
+	for (const addon of sampleAddons) {
+		const seededAddon = await prisma.addon.upsert({
+			where: { id: addon.id },
+			update: {
+				name: addon.name,
+				description: addon.description,
+				price: addon.price,
+				imageKey: addon.imageKey,
+				isAvailable: addon.isAvailable,
+			},
+			create: addon,
+		});
+		console.log(
+			`   ✨ Addon: ${seededAddon.name.padEnd(20)} | $${Number(seededAddon.price).toFixed(2)} | Rest: ${seededAddon.restaurantId.slice(-6)}`,
+		);
+	}
+
+	// 6. Seed Menu Items
+	console.log("\n🍔 Seeding Menu Items...");
+	const sampleMenuItems = [
+		// Grand Bistro Items
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380001",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c02", // Main Course
+			name: "Smoked Wagyu Burger",
+			description:
+				"Brioche bun, prime wagyu patty, caramelized onions, smoked gouda, and truffle mayonnaise",
+			price: 22.0,
+			preparationTime: 15,
+			calories: 850,
+			isVegetarian: false,
+			isFeatured: true,
+			isAvailable: true,
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+					objectKey: "menu/bistro/wagyu-burger-1.jpg",
+					displayOrder: 0,
+				},
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+					objectKey: "menu/bistro/wagyu-burger-2.jpg",
+					displayOrder: 1,
+				},
+			],
+			variants: [
+				{
+					id: "21eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+					name: "Single Patty",
+					price: 22.0,
+					sku: "WAGYU-SGL",
+					isDefault: true,
+				},
+				{
+					id: "21eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+					name: "Double Patty",
+					price: 28.5,
+					sku: "WAGYU-DBL",
+					isDefault: false,
+				},
+			],
+			addons: [
+				"e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+				"e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+				"e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
+			],
+		},
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380002",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c02", // Main Course
+			name: "Truffle Mushroom Tagliatelle",
+			description:
+				"Handcrafted egg pasta tossed in wild forest mushrooms, parmigiano reggiano, and black truffle oil",
+			price: 18.5,
+			preparationTime: 20,
+			calories: 680,
+			isVegetarian: true,
+			isFeatured: true,
+			isAvailable: true,
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
+					objectKey: "menu/bistro/tagliatelle.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: ["e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01"],
+		},
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380003",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c01", // Starters
+			name: "Crispy Calamari Fritti",
+			description:
+				"Golden flash-fried squid rings served with lemon herb caper emulsion and spicy marinara",
+			price: 12.0,
+			preparationTime: 12,
+			calories: 420,
+			isVegetarian: false,
+			isFeatured: false,
+			isAvailable: true,
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a04",
+					objectKey: "menu/bistro/calamari.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380004",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c01", // Starters
+			name: "Artisan Garlic Sourdough",
+			description:
+				"Toasted naturally fermented sourdough brushed with roasted confit garlic and herb butter",
+			price: 6.5,
+			preparationTime: 10,
+			calories: 310,
+			isVegetarian: true,
+			isFeatured: false,
+			isAvailable: false, // Out of stock
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a05",
+					objectKey: "menu/bistro/garlic-bread.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: ["e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02"],
+		},
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380005",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c02", // Main Course
+			name: "Classic Neapolitan Margherita",
+			description:
+				"San Marzano tomato base, fresh buffalo mozzarella, fragrant sweet basil, and extra virgin olive oil",
+			price: 15.0,
+			preparationTime: 18,
+			calories: 720,
+			isVegetarian: true,
+			isFeatured: true,
+			isAvailable: true,
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a06",
+					objectKey: "menu/bistro/margherita.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [
+				{
+					id: "21eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
+					name: '10" Medium',
+					price: 15.0,
+					sku: "PIZZA-MARG-10",
+					isDefault: true,
+				},
+				{
+					id: "21eebc99-9c0b-4ef8-bb6d-6bb9bd380a04",
+					name: '14" Large',
+					price: 21.0,
+					sku: "PIZZA-MARG-14",
+					isDefault: false,
+				},
+			],
+			addons: [
+				"e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+				"e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+			],
+		},
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380006",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c03", // Desserts
+			name: "Espresso Tiramisu Classico",
+			description:
+				"Layers of Savoiardi ladyfingers soaked in dark roast espresso and velvety mascarpone cream",
+			price: 9.0,
+			preparationTime: 5,
+			calories: 450,
+			isVegetarian: true,
+			isFeatured: false,
+			isAvailable: true,
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a07",
+					objectKey: "menu/bistro/tiramisu.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380007",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c04", // Beverages
+			name: "Wild Berry Sparkler",
+			description:
+				"Muddled seasonal berries, mint, lime, and sparkling water infused with elderflower cordial",
+			price: 7.5,
+			preparationTime: 5,
+			calories: 180,
+			isVegetarian: true,
+			isFeatured: false,
+			isAvailable: true,
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a08",
+					objectKey: "menu/bistro/berry-sparkler.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+		{
+			id: "f1eebc99-9c0b-4ef8-bb6d-6bb9bd380008",
+			restaurantId: bistroId,
+			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c03", // Desserts
+			name: "Molten Valrhona Lava Cake",
+			description:
+				"Warm chocolate cake with an oozing liquid ganache core, served with bourbon vanilla bean gelato",
+			price: 10.5,
+			preparationTime: 15,
+			calories: 590,
+			isVegetarian: true,
+			isFeatured: true,
+			isAvailable: false, // Out of stock
+			images: [
+				{
+					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a09",
+					objectKey: "menu/bistro/lava-cake.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+
+		// Spice Lounge Items
+		{
+			id: "f2eebc99-9c0b-4ef8-bb6d-6bb9bd380001",
+			restaurantId: spiceLoungeId,
+			categoryId: "b2eebc99-9c0b-4ef8-bb6d-6bb9bd380c03", // Biryani Specials
+			name: "Hyderabadi Dum Gosht Biryani",
+			description:
+				"Tender goat meat cooked in copper handi with aged basmati rice, caramelized onions, and saffron milk",
+			price: 19.5,
+			preparationTime: 25,
+			calories: 780,
+			isVegetarian: false,
+			isFeatured: true,
+			isAvailable: true,
+			images: [
+				{
+					id: "12eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+					objectKey: "menu/spice/gosht-biryani.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [
+				{
+					id: "22eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+					name: "Regular Portion",
+					price: 19.5,
+					sku: "BIRYANI-REG",
+					isDefault: true,
+				},
+				{
+					id: "22eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+					name: "Jumbo Family Pack",
+					price: 42.0,
+					sku: "BIRYANI-JMB",
+					isDefault: false,
+				},
+			],
+			addons: [
+				"e2eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+				"e2eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+			],
+		},
+		{
+			id: "f2eebc99-9c0b-4ef8-bb6d-6bb9bd380002",
+			restaurantId: spiceLoungeId,
+			categoryId: "b2eebc99-9c0b-4ef8-bb6d-6bb9bd380c01", // Tandoori Starters
+			name: "Malai Paneer Tikka",
+			description:
+				"Fresh cottage cheese cubes marinated in rich cashew cream, green cardamom, and char-grilled in clay tandoor",
+			price: 13.5,
+			preparationTime: 15,
+			calories: 520,
+			isVegetarian: true,
+			isFeatured: true,
+			isAvailable: true,
+			images: [
+				{
+					id: "12eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
+					objectKey: "menu/spice/paneer-tikka.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: ["e2eebc99-9c0b-4ef8-bb6d-6bb9bd380a02"],
+		},
+		{
+			id: "f2eebc99-9c0b-4ef8-bb6d-6bb9bd380003",
+			restaurantId: spiceLoungeId,
+			categoryId: "b2eebc99-9c0b-4ef8-bb6d-6bb9bd380c02", // Curries & Breads
+			name: "Tandoori Butter Garlic Naan",
+			description:
+				"Leavened flatbread baked on tandoor walls, topped with crushed roasted garlic, cilantro, and pure butter",
+			price: 4.5,
+			preparationTime: 8,
+			calories: 280,
+			isVegetarian: true,
+			isFeatured: false,
+			isAvailable: false, // Out of stock
+			images: [
+				{
+					id: "12eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
+					objectKey: "menu/spice/garlic-naan.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+	];
+
+	for (const item of sampleMenuItems) {
+		const { images, variants, addons, ...itemData } = item;
+		const seededItem = await prisma.menuItem.upsert({
+			where: { id: itemData.id },
+			update: {
+				name: itemData.name,
+				description: itemData.description,
+				price: itemData.price,
+				preparationTime: itemData.preparationTime,
+				calories: itemData.calories,
+				isVegetarian: itemData.isVegetarian,
+				isFeatured: itemData.isFeatured,
+				isAvailable: itemData.isAvailable,
+				categoryId: itemData.categoryId,
+			},
+			create: itemData,
+		});
+
+		// Upsert images
+		for (const img of images) {
+			await prisma.menuItemImage.upsert({
+				where: { id: img.id },
+				update: {
+					objectKey: img.objectKey,
+					displayOrder: img.displayOrder,
+				},
+				create: {
+					id: img.id,
+					menuItemId: seededItem.id,
+					objectKey: img.objectKey,
+					displayOrder: img.displayOrder,
+				},
+			});
+		}
+
+		// Upsert variants
+		for (const variant of variants) {
+			await prisma.menuItemVariant.upsert({
+				where: { id: variant.id },
+				update: {
+					name: variant.name,
+					price: variant.price,
+					sku: variant.sku,
+					isDefault: variant.isDefault,
+				},
+				create: {
+					id: variant.id,
+					menuItemId: seededItem.id,
+					name: variant.name,
+					price: variant.price,
+					sku: variant.sku,
+					isDefault: variant.isDefault,
+				},
+			});
+		}
+
+		// Upsert addons junction
+		for (const addonId of addons) {
+			await prisma.menuItemAddon.upsert({
+				where: {
+					menuItemId_addonId: {
+						menuItemId: seededItem.id,
+						addonId,
+					},
+				},
+				update: {},
+				create: {
+					menuItemId: seededItem.id,
+					addonId,
+				},
+			});
+		}
+
+		const statusIcon = seededItem.isAvailable ? "🟢" : "🔴";
+		console.log(
+			`   🍽️ ${statusIcon} ${seededItem.name.padEnd(30)} | $${Number(seededItem.price).toFixed(2).padStart(5)} | Prep: ${String(seededItem.preparationTime).padStart(2)}m | Cal: ${String(seededItem.calories).padStart(3)} | Rest: ${seededItem.restaurantId.slice(-6)}`,
+		);
+	}
+
 	console.log("\n🎉 Seeding completed successfully!");
 	console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 	console.log("🔑 Available Staff Login Test Accounts:");

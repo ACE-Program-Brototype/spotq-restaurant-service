@@ -8,16 +8,28 @@ import { inject, injectable } from "inversify";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
+	ALLOWED_MENU_ITEM_SORT_FIELDS,
+	DEFAULT_SORT_BY,
+	DEFAULT_SORT_ORDER,
+	type MenuItemSortField,
+} from "@/domain/constants/menu-item.constants.ts";
+import type { MenuItem } from "@/domain/entities/menu-item.entity.ts";
+import {
 	AddonNotFoundForRestaurantError,
 	CategoryNotFoundError,
 	InvalidMenuItemDataError,
 	InvalidVariantDataError,
 	MenuItemAlreadyExistsError,
+	MenuItemNotFoundError,
 } from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	CreateMenuItemRepositoryParams,
 	MenuItemAggregate,
+	MenuItemQueryFilterParams,
+	MenuItemQueryResult,
+	MenuItemWithRelations,
+	RestaurantMenuStats,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
@@ -35,14 +47,11 @@ export class PrismaMenuItemRepository
 	>
 	implements IMenuItemRepository
 {
-	private readonly rawPrisma: PrismaClient;
-
 	constructor(
 		@inject(TYPES.PrismaClient)
-		prisma: PrismaClient,
+		private readonly prismaClient: PrismaClient,
 	) {
-		super(prisma.menuItem, MenuItemPersistenceMapper);
-		this.rawPrisma = prisma;
+		super(prismaClient.menuItem, MenuItemPersistenceMapper);
 	}
 
 	protected override handlePrismaError(
@@ -51,6 +60,7 @@ export class PrismaMenuItemRepository
 	): void {
 		const code = (error as { code?: string })?.code;
 		const meta = (error as { meta?: { target?: string[] | string } })?.meta;
+
 		if (
 			code === "P2002" ||
 			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
@@ -68,6 +78,7 @@ export class PrismaMenuItemRepository
 			}
 			throw new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
 		}
+
 		if (
 			code === "P2003" ||
 			(error instanceof PrismaClientKnownRequestError && error.code === "P2003")
@@ -89,13 +100,32 @@ export class PrismaMenuItemRepository
 			}
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
+
+		if (
+			code === "P2025" ||
+			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
+		) {
+			throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
+		}
 	}
 
 	public async findByNameAndRestaurantId(
-		name: string,
-		restaurantId: string,
+		nameOrRestaurantId: string,
+		restaurantIdOrName: string,
 	): Promise<MenuItem | null> {
 		try {
+			const uuidRegex =
+				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+			let restaurantId = nameOrRestaurantId;
+			let name = restaurantIdOrName;
+			if (
+				uuidRegex.test(restaurantIdOrName) &&
+				!uuidRegex.test(nameOrRestaurantId)
+			) {
+				restaurantId = restaurantIdOrName;
+				name = nameOrRestaurantId;
+			}
+
 			const record = await this.dbModel.findFirst({
 				where: {
 					restaurantId,
@@ -124,11 +154,43 @@ export class PrismaMenuItemRepository
 		}
 	}
 
+	public async getRestaurantMenuStats(
+		restaurantId: string,
+	): Promise<RestaurantMenuStats> {
+		try {
+			const [totalCategories, totalMenuItems, availableItems, outOfStockItems] =
+				await Promise.all([
+					this.prismaClient.menuCategory.count({
+						where: { restaurantId },
+					}),
+					this.prismaClient.menuItem.count({
+						where: { restaurantId },
+					}),
+					this.prismaClient.menuItem.count({
+						where: { restaurantId, isAvailable: true },
+					}),
+					this.prismaClient.menuItem.count({
+						where: { restaurantId, isAvailable: false },
+					}),
+				]);
+
+			return {
+				totalCategories,
+				totalMenuItems,
+				availableItems,
+				outOfStockItems,
+			};
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
 	public async createWithDetails(
 		params: CreateMenuItemRepositoryParams,
 	): Promise<MenuItemAggregate> {
 		try {
-			return await this.rawPrisma.$transaction(async (tx) => {
+			return await this.prismaClient.$transaction(async (tx) => {
 				const itemData = this.mapper.toPersistence(params.menuItem);
 				const createdItemRaw = await tx.menuItem.create({
 					data: itemData,
@@ -225,6 +287,131 @@ export class PrismaMenuItemRepository
 			});
 		} catch (error) {
 			this.handlePrismaError(error, params);
+			throw error;
+		}
+	}
+
+	public async findManyWithFiltersAndStats(
+		params: MenuItemQueryFilterParams,
+	): Promise<MenuItemQueryResult> {
+		try {
+			const {
+				restaurantId,
+				categoryId,
+				search,
+				isAvailable,
+				isVegetarian,
+				isFeatured,
+				minPrice,
+				maxPrice,
+				sortBy = "createdAt",
+				sortOrder = "desc",
+				page = 1,
+				limit = 10,
+			} = params;
+
+			const where: Prisma.MenuItemWhereInput = {
+				restaurantId,
+			};
+
+			if (categoryId) {
+				where.categoryId = categoryId;
+			}
+
+			if (typeof isAvailable === "boolean") {
+				where.isAvailable = isAvailable;
+			}
+
+			if (typeof isVegetarian === "boolean") {
+				where.isVegetarian = isVegetarian;
+			}
+
+			if (typeof isFeatured === "boolean") {
+				where.isFeatured = isFeatured;
+			}
+
+			if (minPrice !== undefined || maxPrice !== undefined) {
+				where.price = {};
+				if (minPrice !== undefined) {
+					where.price.gte = new Prisma.Decimal(minPrice);
+				}
+				if (maxPrice !== undefined) {
+					where.price.lte = new Prisma.Decimal(maxPrice);
+				}
+			}
+
+			if (search && search.trim().length > 0) {
+				const trimmedSearch = search.trim();
+				where.OR = [
+					{ name: { contains: trimmedSearch, mode: "insensitive" } },
+					{ description: { contains: trimmedSearch, mode: "insensitive" } },
+				];
+			}
+
+			const safeSortBy: MenuItemSortField = (
+				ALLOWED_MENU_ITEM_SORT_FIELDS as readonly string[]
+			).includes(sortBy)
+				? (sortBy as MenuItemSortField)
+				: DEFAULT_SORT_BY;
+			const safeSortOrder =
+				sortOrder === "asc" ? "asc" : DEFAULT_SORT_ORDER;
+			const orderBy: Prisma.MenuItemOrderByWithRelationInput = {
+				[safeSortBy]: safeSortOrder,
+			};
+
+			const skip = (page - 1) * limit;
+
+			const [records, filteredTotal, stats] = await Promise.all([
+				this.prismaClient.menuItem.findMany({
+					where,
+					include: {
+						category: {
+							select: {
+								name: true,
+							},
+						},
+						images: {
+							orderBy: {
+								displayOrder: "asc",
+							},
+							take: 1,
+						},
+					},
+					orderBy,
+					skip,
+					take: limit,
+				}),
+				this.prismaClient.menuItem.count({ where }),
+				this.getRestaurantMenuStats(restaurantId),
+			]);
+
+			const items: MenuItemWithRelations[] = records.map((record) => {
+				const primaryImage =
+					record.images.length > 0 ? record.images[0].objectKey : null;
+
+				return {
+					id: record.id,
+					restaurantId: record.restaurantId,
+					categoryId: record.categoryId,
+					categoryName: record.category?.name ?? "",
+					name: record.name,
+					price: Number(record.price),
+					isVegetarian: record.isVegetarian,
+					isFeatured: record.isFeatured,
+					isAvailable: record.isAvailable,
+					image: primaryImage,
+					createdAt: record.createdAt,
+					updatedAt: record.updatedAt,
+				};
+			});
+
+			return {
+				items,
+				total: filteredTotal,
+				stats,
+			};
+		} catch (error) {
+			this.handlePrismaError(error);
 			throw error;
 		}
 	}

@@ -2,6 +2,8 @@ import { DOMAIN_ERROR_CODES } from "@/domain/constants/error-code.constants.ts";
 import { DomainError } from "@/domain/errors/domain.error.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
+export class MenuItemError extends DomainError {}
+
 export class MenuItemAlreadyExistsError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.MENU_ITEM_ALREADY_EXISTS;
 

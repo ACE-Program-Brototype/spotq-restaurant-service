@@ -34,6 +34,10 @@ import {
 	createMenuItemParamsSchema,
 } from "../validators/create-menu-item.validator";
 import {
+	listMenuItemsParamsSchema,
+	listMenuItemsQuerySchema,
+} from "../validators/list-menu-items.validator";
+import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
@@ -257,4 +261,12 @@ restaurantRouter.patch(
 	validateRequestParams(updateMenuCategoryParamsSchema),
 	validateRequestBody(updateMenuCategoryBodySchema),
 	menuCategoryController.updateCategory,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.MENU_ITEMS,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listMenuItemsParamsSchema),
+	validateRequestQuery(listMenuItemsQuerySchema),
+	menuItemController.listMenuItems,
 );

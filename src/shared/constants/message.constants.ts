@@ -296,6 +296,7 @@ export const messages = {
 	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",
 	MENU_ITEM_PRICE_NEGATIVE:
 		"Menu item price must be greater than or equal to 0",
+	MENU_ITEM_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
 	PREPARATION_TIME_NEGATIVE: "Preparation time cannot be negative",
 	CALORIES_NEGATIVE: "Calories cannot be negative",
 	INVALID_VARIANT_DATA: "Invalid variant data",
@@ -312,6 +313,12 @@ export const messages = {
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
 	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
 	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
+	MENU_ITEMS_FETCHED_SUCCESS: "Menu items retrieved successfully",
+	MENU_ITEM_PREPARATION_TIME_INVALID:
+		"Preparation time must be a positive number of minutes",
+	MENU_ITEM_CALORIES_INVALID: "Calories must be a positive number",
+	MIN_PRICE_CANNOT_BE_GREATER_THAN_MAX_PRICE:
+		"minPrice cannot be greater than maxPrice",
 	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
 } as const;
 

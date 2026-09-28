@@ -15,6 +15,10 @@ export const menuCategoryController = container.get<MenuCategoryController>(
 	TYPES.Controller.MenuCategoryController,
 );
 
+export const menuItemController = container.get<MenuItemController>(
+	TYPES.Controller.MenuItemController,
+);
+
 export const restaurantAuthController = container.get<RestaurantAuthController>(
 	TYPES.Controller.RestaurantAuthController,
 );
@@ -48,9 +52,5 @@ export const adminRestaurantController =
 
 export const addonController = container.get<AddonController>(
 	TYPES.Controller.AddonController,
-);
-
-export const menuItemController = container.get<MenuItemController>(
-	TYPES.Controller.MenuItemController,
 );
 

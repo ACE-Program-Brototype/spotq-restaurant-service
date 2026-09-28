@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
+import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("MenuItemController", () => {
 	let createMenuItemUseCase: jest.Mocked<ICreateMenuItemUseCase>;
+	let listMenuItemsUseCase: jest.Mocked<IListMenuItemsUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -19,7 +22,14 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
-		controller = new MenuItemController(createMenuItemUseCase);
+		listMenuItemsUseCase = {
+			execute: jest.fn(),
+		};
+
+		controller = new MenuItemController(
+			createMenuItemUseCase,
+			listMenuItemsUseCase,
+		);
 
 		res = {
 			status: jest.fn().mockReturnThis() as never,
@@ -181,6 +191,7 @@ describe("MenuItemController", () => {
 				}),
 			);
 		});
+
 		it("should default isAvailable to true when omitted from body", async () => {
 			req = {
 				params: { restaurantId },
@@ -239,6 +250,140 @@ describe("MenuItemController", () => {
 					isAvailable: false,
 				}),
 			);
+		});
+	});
+
+	describe("listMenuItems", () => {
+		it("should successfully list menu items and return 200", async () => {
+			const expectedResponse: PaginatedMenuItemsResponseDto = {
+				stats: {
+					totalCategories: 2,
+					totalMenuItems: 5,
+					availableItems: 4,
+					outOfStockItems: 1,
+				},
+				items: [],
+				pagination: {
+					page: 1,
+					limit: 10,
+					total: 0,
+					totalPages: 0,
+					hasNextPage: false,
+					hasPrevPage: false,
+				},
+			};
+
+			listMenuItemsUseCase.execute.mockResolvedValueOnce(expectedResponse);
+
+			const listReq = {
+				params: { restaurantId },
+				query: {
+					page: "1",
+					limit: "10",
+					search: "burger",
+					category_id: categoryId,
+					status: "available",
+					min_price: "10",
+					max_price: "50",
+					is_vegetarian: "true",
+					is_featured: "false",
+					sort_by: "price",
+					sort_order: "asc",
+				},
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const listRes = {
+				status: statusMock,
+				json: jsonMock,
+				locals: {},
+			} as unknown as Response;
+
+			await controller.listMenuItems(listReq, listRes);
+
+			expect(listMenuItemsUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				page: "1",
+				limit: "10",
+				search: "burger",
+				categoryId,
+				status: "available",
+				minPrice: "10",
+				maxPrice: "50",
+				isVegetarian: "true",
+				isFeatured: "false",
+				sortBy: "price",
+				sortOrder: "asc",
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_ITEMS_FETCHED_SUCCESS,
+					statusCode: HTTP_STATUS.OK,
+					data: expectedResponse,
+				}),
+			);
+		});
+
+		it("should read validated query from res.locals.query when present", async () => {
+			listMenuItemsUseCase.execute.mockResolvedValueOnce({
+				stats: {
+					totalCategories: 1,
+					totalMenuItems: 0,
+					availableItems: 0,
+					outOfStockItems: 0,
+				},
+				items: [],
+				pagination: {
+					page: 2,
+					limit: 20,
+					total: 0,
+					totalPages: 0,
+					hasNextPage: false,
+					hasPrevPage: true,
+				},
+			});
+
+			const listReq = {
+				params: { restaurantId },
+				query: { sort_by: "price", is_vegetarian: "true" },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const listRes = {
+				status: statusMock,
+				json: jsonMock,
+				locals: {
+					query: {
+						page: 2,
+						limit: 20,
+						sortBy: "price",
+						sortOrder: "asc",
+						isVegetarian: true,
+					},
+				},
+			} as unknown as Response;
+
+			await controller.listMenuItems(listReq, listRes);
+
+			expect(listMenuItemsUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				page: 2,
+				limit: 20,
+				search: undefined,
+				categoryId: undefined,
+				status: undefined,
+				minPrice: undefined,
+				maxPrice: undefined,
+				isVegetarian: true,
+				isFeatured: undefined,
+				sortBy: "price",
+				sortOrder: "asc",
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		});
 	});
 });
