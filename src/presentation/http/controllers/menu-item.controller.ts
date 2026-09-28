@@ -6,6 +6,10 @@ import type { ListMenuItemsQuery } from "@/presentation/http/validators/list-men
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import type {
+	AuthenticatedRestaurant,
+	AuthenticatedUser,
+} from "@/types/express.d.ts";
 
 @injectable()
 export class MenuItemController {
@@ -15,9 +19,13 @@ export class MenuItemController {
 	) {}
 
 	public listMenuItems = async (req: Request, res: Response): Promise<void> => {
+		const restaurantUser = req.user as
+			| AuthenticatedRestaurant
+			| AuthenticatedUser
+			| undefined;
 		const restaurantId =
 			(req.params?.restaurantId as string) ||
-			req.user?.restaurantId ||
+			restaurantUser?.restaurantId ||
 			req.userId ||
 			"";
 		// validated and transformed query is attached via validation middleware into res.locals.query
