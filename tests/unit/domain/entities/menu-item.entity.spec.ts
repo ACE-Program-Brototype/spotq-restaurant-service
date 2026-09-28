@@ -3,30 +3,29 @@ import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { InvalidMenuItemDataError } from "@/domain/errors/menu-item.errors.ts";
 
 describe("MenuItem Entity", () => {
-	const validRestaurantId = "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
-	const validCategoryId = "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c01";
+	const validProps = {
+		restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+		categoryId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22",
+		name: "Chicken Dum Biryani",
+		description: "Aromatic slow-cooked basmati rice",
+		price: 320.0,
+		preparationTime: 25,
+		calories: 650,
+		isVegetarian: false,
+		isFeatured: true,
+	};
 
-	it("should create a MenuItem entity successfully", () => {
-		const item = MenuItem.create({
-			restaurantId: validRestaurantId,
-			categoryId: validCategoryId,
-			name: "Gourmet Truffle Burger",
-			description: "Delicious freshly ground burger with truffle mayo",
-			price: 24.5,
-			preparationTime: 15,
-			calories: 750,
-			isVegetarian: false,
-			isFeatured: true,
-			isAvailable: true,
-		});
+	it("should create a valid MenuItem with defaults", () => {
+		const item = MenuItem.create(validProps);
 
 		expect(item.id).toBeDefined();
-		expect(item.restaurantId).toBe(validRestaurantId);
-		expect(item.categoryId).toBe(validCategoryId);
-		expect(item.name).toBe("Gourmet Truffle Burger");
-		expect(item.price).toBe(24.5);
-		expect(item.preparationTime).toBe(15);
-		expect(item.calories).toBe(750);
+		expect(item.restaurantId).toBe(validProps.restaurantId);
+		expect(item.categoryId).toBe(validProps.categoryId);
+		expect(item.name).toBe("Chicken Dum Biryani");
+		expect(item.description).toBe("Aromatic slow-cooked basmati rice");
+		expect(item.price).toBe(320.0);
+		expect(item.preparationTime).toBe(25);
+		expect(item.calories).toBe(650);
 		expect(item.isVegetarian).toBe(false);
 		expect(item.isFeatured).toBe(true);
 		expect(item.isAvailable).toBe(true);
@@ -34,113 +33,131 @@ describe("MenuItem Entity", () => {
 		expect(item.updatedAt).toBeInstanceOf(Date);
 	});
 
-	it("should throw InvalidMenuItemDataError if name is empty", () => {
+	it("should reconstitute a MenuItem properly", () => {
+		const pastDate = new Date("2026-01-01T00:00:00Z");
+		const item = MenuItem.reconstitute({
+			id: "item-123",
+			restaurantId: validProps.restaurantId,
+			categoryId: validProps.categoryId,
+			name: "Mutton Biryani",
+			description: "Spiced mutton biryani",
+			price: 450.0,
+			preparationTime: 30,
+			calories: 800,
+			isVegetarian: false,
+			isFeatured: true,
+			isAvailable: false,
+			createdAt: pastDate,
+			updatedAt: pastDate,
+		});
+
+		expect(item.id).toBe("item-123");
+		expect(item.name).toBe("Mutton Biryani");
+		expect(item.price).toBe(450.0);
+		expect(item.isAvailable).toBe(false);
+	});
+
+	it("should throw InvalidMenuItemDataError when name is empty", () => {
 		expect(() =>
 			MenuItem.create({
-				restaurantId: validRestaurantId,
-				categoryId: validCategoryId,
+				...validProps,
 				name: "   ",
-				price: 10,
 			}),
 		).toThrow(InvalidMenuItemDataError);
 	});
 
-	it("should throw InvalidMenuItemDataError if price is negative", () => {
+	it("should throw InvalidMenuItemDataError when price is negative", () => {
 		expect(() =>
 			MenuItem.create({
-				restaurantId: validRestaurantId,
-				categoryId: validCategoryId,
-				name: "Burger",
-				price: -5,
+				...validProps,
+				price: -10,
 			}),
 		).toThrow(InvalidMenuItemDataError);
 	});
 
-	it("should update properties and availability correctly", () => {
-		const item = MenuItem.create({
-			restaurantId: validRestaurantId,
-			categoryId: validCategoryId,
-			name: "Burger",
-			price: 15,
-		});
+	it("should throw InvalidMenuItemDataError when restaurantId is missing", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				restaurantId: "",
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
 
-		item.update({
-			name: "Updated Burger",
-			price: 18,
-		});
+	it("should throw InvalidMenuItemDataError when categoryId is missing", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				categoryId: "",
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
 
-		expect(item.name).toBe("Updated Burger");
-		expect(item.price).toBe(18);
+	it("should throw InvalidMenuItemDataError when preparationTime is negative", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				preparationTime: -5,
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
+
+	it("should throw InvalidMenuItemDataError when calories is negative", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				calories: -100,
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
+
+	it("should throw InvalidMenuItemDataError when price exceeds maximum boundary", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				price: 100000000,
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
+
+	it("should throw InvalidMenuItemDataError when description exceeds maximum length", () => {
+		expect(() =>
+			MenuItem.create({
+				...validProps,
+				description: "a".repeat(1001),
+			}),
+		).toThrow(InvalidMenuItemDataError);
+	});
+
+	it("should update availability status", () => {
+		const item = MenuItem.create(validProps);
+		expect(item.isAvailable).toBe(true);
 
 		item.updateAvailability(false);
 		expect(item.isAvailable).toBe(false);
 	});
 
-	it("should throw InvalidMenuItemDataError if restaurantId or categoryId is missing", () => {
-		expect(() =>
-			MenuItem.create({
-				restaurantId: "",
-				categoryId: validCategoryId,
-				name: "Burger",
-				price: 10,
-			}),
-		).toThrow(InvalidMenuItemDataError);
-
-		expect(() =>
-			MenuItem.create({
-				restaurantId: validRestaurantId,
-				categoryId: "",
-				name: "Burger",
-				price: 10,
-			}),
-		).toThrow(InvalidMenuItemDataError);
-	});
-
-	it("should throw InvalidMenuItemDataError if prep time or calories are out of bounds", () => {
-		expect(() =>
-			MenuItem.create({
-				restaurantId: validRestaurantId,
-				categoryId: validCategoryId,
-				name: "Burger",
-				price: 10,
-				preparationTime: -1,
-			}),
-		).toThrow(InvalidMenuItemDataError);
-
-		expect(() =>
-			MenuItem.create({
-				restaurantId: validRestaurantId,
-				categoryId: validCategoryId,
-				name: "Burger",
-				price: 10,
-				calories: -10,
-			}),
-		).toThrow(InvalidMenuItemDataError);
-	});
-
-	it("should validate and update all fields in update method", () => {
-		const item = MenuItem.create({
-			restaurantId: validRestaurantId,
-			categoryId: validCategoryId,
-			name: "Burger",
-			price: 15,
-		});
+	it("should validate and update fields in update method", () => {
+		const item = MenuItem.create(validProps);
 
 		item.update({
-			categoryId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c02",
+			name: "Updated Biryani",
+			price: 350.0,
 			description: "Updated description",
-			preparationTime: 25,
-			calories: 500,
+			preparationTime: 35,
+			calories: 700,
 			isVegetarian: true,
-			isFeatured: true,
-			isAvailable: true,
+			isFeatured: false,
+			isAvailable: false,
 		});
 
-		expect(item.categoryId).toBe("b1eebc99-9c0b-4ef8-bb6d-6bb9bd380c02");
+		expect(item.name).toBe("Updated Biryani");
+		expect(item.price).toBe(350.0);
 		expect(item.description).toBe("Updated description");
-		expect(item.preparationTime).toBe(25);
-		expect(item.calories).toBe(500);
+		expect(item.preparationTime).toBe(35);
+		expect(item.calories).toBe(700);
 		expect(item.isVegetarian).toBe(true);
-		expect(item.isFeatured).toBe(true);
+		expect(item.isFeatured).toBe(false);
+		expect(item.isAvailable).toBe(false);
 	});
 });

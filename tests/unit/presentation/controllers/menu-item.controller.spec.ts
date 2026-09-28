@@ -1,103 +1,318 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
-import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
+import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
+import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("MenuItemController", () => {
+	let createMenuItemUseCase: jest.Mocked<ICreateMenuItemUseCase>;
+	let listMenuItemsUseCase: jest.Mocked<IListMenuItemsUseCase>;
 	let controller: MenuItemController;
-	let mockListUseCase: jest.Mocked<IListMenuItemsUseCase>;
+	let req: Partial<Request>;
+	let res: Partial<Response>;
 
 	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+	const categoryId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
 
 	beforeEach(() => {
-		jest.clearAllMocks();
-
-		mockListUseCase = {
+		createMenuItemUseCase = {
 			execute: jest.fn(),
 		};
 
-		controller = new MenuItemController(mockListUseCase);
+		listMenuItemsUseCase = {
+			execute: jest.fn(),
+		};
+
+		controller = new MenuItemController(
+			createMenuItemUseCase,
+			listMenuItemsUseCase,
+		);
+
+		res = {
+			status: jest.fn().mockReturnThis() as never,
+			json: jest.fn().mockReturnThis() as never,
+		};
+	});
+
+	describe("createMenuItem", () => {
+		it("should return 201 with created menu item data on success", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					description: "Delicious Dum Biryani",
+					price: 320.0,
+					preparationTime: 25,
+					calories: 650,
+					isVegetarian: false,
+					isFeatured: true,
+					isAvailable: true,
+					images: [{ objectKey: "menu/biryani.png", displayOrder: 0 }],
+					variants: [
+						{
+							sku: "BIRYANI-HALF",
+							name: "Half Portion",
+							price: 200.0,
+							isDefault: false,
+						},
+						{
+							sku: "BIRYANI-FULL",
+							name: "Full Portion",
+							price: 320.0,
+							isDefault: true,
+						},
+					],
+					addons: [
+						{ addonId: "addon-1", priceOverride: 40.0 },
+					],
+				},
+			};
+
+			const mockResult = {
+				id: "item-123",
+				restaurantId,
+				categoryId,
+				name: "Chicken Dum Biryani",
+				description: "Delicious Dum Biryani",
+				price: 320.0,
+				preparationTime: 25,
+				calories: 650,
+				isVegetarian: false,
+				isFeatured: true,
+				isAvailable: true,
+				images: [
+					{ id: "img-1", objectKey: "menu/biryani.png", displayOrder: 0 },
+				],
+				variants: [
+					{
+						id: "var-1",
+						sku: "BIRYANI-HALF",
+						name: "Half Portion",
+						price: 200.0,
+						isDefault: false,
+					},
+					{
+						id: "var-2",
+						sku: "BIRYANI-FULL",
+						name: "Full Portion",
+						price: 320.0,
+						isDefault: true,
+					},
+				],
+				addons: [
+					{
+						id: "junc-1",
+						addonId: "addon-1",
+						name: "Raita",
+						price: 30.0,
+						priceOverride: 40.0,
+						displayOrder: 0,
+					},
+				],
+				createdAt: "2026-09-24T10:00:00.000Z",
+				updatedAt: "2026-09-24T10:00:00.000Z",
+			};
+
+			createMenuItemUseCase.execute.mockResolvedValue(mockResult);
+
+			await controller.createMenuItem(
+				req as Request,
+				res as Response,
+			);
+
+			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					restaurantId,
+					categoryId,
+					name: "Chicken Dum Biryani",
+					price: 320.0,
+				}),
+			);
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.CREATED);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					statusCode: HTTP_STATUS.CREATED,
+					message: messages.MENU_ITEM_CREATED_SUCCESS,
+					data: mockResult,
+				}),
+			);
+		});
+
+		it("should propagate error when use case throws", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					price: 320.0,
+				},
+			};
+
+			const expectedError = new Error("Failed to create menu item");
+			createMenuItemUseCase.execute.mockRejectedValue(expectedError);
+
+			await expect(
+				controller.createMenuItem(req as Request, res as Response),
+			).rejects.toThrow("Failed to create menu item");
+		});
+
+		it("should leave displayOrder undefined for images when omitted", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					price: 320.0,
+					images: [{ objectKey: "menu/biryani.png" }],
+					addons: [{ addonId: "addon-1" }],
+				},
+			};
+
+			createMenuItemUseCase.execute.mockResolvedValue({} as never);
+
+			await controller.createMenuItem(
+				req as Request,
+				res as Response,
+			);
+
+			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					images: [{ objectKey: "menu/biryani.png", displayOrder: undefined }],
+					addons: [
+						expect.objectContaining({
+							addonId: "addon-1",
+						}),
+					],
+				}),
+			);
+		});
+
+		it("should default isAvailable to true when omitted from body", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					description: "Delicious Dum Biryani",
+					price: 320.0,
+					preparationTime: 25,
+					isVegetarian: false,
+					images: [{ objectKey: "menu/biryani.png" }],
+				},
+			};
+
+			createMenuItemUseCase.execute.mockResolvedValue({} as never);
+
+			await controller.createMenuItem(
+				req as Request,
+				res as Response,
+			);
+
+			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					isAvailable: true,
+					description: "Delicious Dum Biryani",
+					preparationTime: 25,
+					isVegetarian: false,
+				}),
+			);
+		});
+
+		it("should honor isAvailable when set to false", async () => {
+			req = {
+				params: { restaurantId },
+				body: {
+					categoryId,
+					name: "Chicken Dum Biryani",
+					description: "Delicious Dum Biryani",
+					price: 320.0,
+					preparationTime: 25,
+					isVegetarian: false,
+					isAvailable: false,
+					images: [{ objectKey: "menu/biryani.png" }],
+				},
+			};
+
+			createMenuItemUseCase.execute.mockResolvedValue({} as never);
+
+			await controller.createMenuItem(
+				req as Request,
+				res as Response,
+			);
+
+			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					isAvailable: false,
+				}),
+			);
+		});
 	});
 
 	describe("listMenuItems", () => {
-		it("should list menu items and return 200 OK with formatted response", async () => {
+		it("should successfully list menu items and return 200", async () => {
 			const expectedResponse: PaginatedMenuItemsResponseDto = {
 				stats: {
-					totalCategories: 3,
-					totalMenuItems: 8,
-					availableItems: 6,
-					outOfStockItems: 2,
+					totalCategories: 2,
+					totalMenuItems: 5,
+					availableItems: 4,
+					outOfStockItems: 1,
 				},
-				items: [
-					{
-						id: "item-1",
-						restaurantId,
-						categoryId: "cat-1",
-						categoryName: "Main Course",
-						name: "Wagyu Burger",
-						price: 22.0,
-						isVegetarian: false,
-						isFeatured: true,
-						isAvailable: true,
-						image: "menu/burger.jpg",
-						createdAt: "2026-09-28T10:00:00.000Z",
-						updatedAt: "2026-09-28T10:00:00.000Z",
-					},
-				],
+				items: [],
 				pagination: {
 					page: 1,
 					limit: 10,
-					total: 8,
-					totalPages: 1,
+					total: 0,
+					totalPages: 0,
 					hasNextPage: false,
 					hasPrevPage: false,
 				},
 			};
 
-			mockListUseCase.execute.mockResolvedValueOnce(expectedResponse);
+			listMenuItemsUseCase.execute.mockResolvedValueOnce(expectedResponse);
 
-			const req = {
-				params: {
-					restaurantId,
-				},
-				user: {
-					restaurantId,
-					userId: restaurantId,
-					email: "owner@spotq.com",
-					role: "restaurant_owner",
-				},
+			const listReq = {
+				params: { restaurantId },
 				query: {
-					page: 1,
-					limit: 10,
-					search: "Wagyu",
-					sortBy: "price",
-					sortOrder: "asc",
+					page: "1",
+					limit: "10",
+					search: "burger",
+					category_id: categoryId,
+					status: "available",
+					min_price: "10",
+					max_price: "50",
+					is_vegetarian: "true",
+					is_featured: "false",
+					sort_by: "price",
+					sort_order: "asc",
 				},
 			} as unknown as Request;
 
 			const jsonMock = jest.fn();
 			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
-			const res = {
+			const listRes = {
 				status: statusMock,
 				json: jsonMock,
+				locals: {},
 			} as unknown as Response;
 
-			await controller.listMenuItems(req, res);
+			await controller.listMenuItems(listReq, listRes);
 
-			expect(mockListUseCase.execute).toHaveBeenCalledWith({
+			expect(listMenuItemsUseCase.execute).toHaveBeenCalledWith({
 				restaurantId,
-				page: 1,
-				limit: 10,
-				search: "Wagyu",
-				categoryId: undefined,
-				status: undefined,
-				minPrice: undefined,
-				maxPrice: undefined,
-				isVegetarian: undefined,
-				isFeatured: undefined,
+				page: "1",
+				limit: "10",
+				search: "burger",
+				categoryId,
+				status: "available",
+				minPrice: "10",
+				maxPrice: "50",
+				isVegetarian: "true",
+				isFeatured: "false",
 				sortBy: "price",
 				sortOrder: "asc",
 			});
@@ -113,7 +328,7 @@ describe("MenuItemController", () => {
 		});
 
 		it("should read validated query from res.locals.query when present", async () => {
-			mockListUseCase.execute.mockResolvedValueOnce({
+			listMenuItemsUseCase.execute.mockResolvedValueOnce({
 				stats: {
 					totalCategories: 1,
 					totalMenuItems: 0,
@@ -131,14 +346,14 @@ describe("MenuItemController", () => {
 				},
 			});
 
-			const req = {
+			const listReq = {
 				params: { restaurantId },
 				query: { sort_by: "price", is_vegetarian: "true" },
 			} as unknown as Request;
 
 			const jsonMock = jest.fn();
 			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
-			const res = {
+			const listRes = {
 				status: statusMock,
 				json: jsonMock,
 				locals: {
@@ -152,9 +367,9 @@ describe("MenuItemController", () => {
 				},
 			} as unknown as Response;
 
-			await controller.listMenuItems(req, res);
+			await controller.listMenuItems(listReq, listRes);
 
-			expect(mockListUseCase.execute).toHaveBeenCalledWith({
+			expect(listMenuItemsUseCase.execute).toHaveBeenCalledWith({
 				restaurantId,
 				page: 2,
 				limit: 20,

@@ -1,5 +1,10 @@
-import { Prisma, type MenuItem as PrismaMenuItem } from "@prisma/client";
+import {
+	Prisma,
+	type MenuItem as PrismaMenuItem,
+	type MenuItemVariant as PrismaMenuItemVariant,
+} from "@prisma/client";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
+import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
 import type { IEntityMapper } from "../repositories/prisma-base.repository.ts";
 
 export const MenuItemPersistenceMapper: IEntityMapper<
@@ -37,6 +42,37 @@ export const MenuItemPersistenceMapper: IEntityMapper<
 			isVegetarian: entity.isVegetarian,
 			isFeatured: entity.isFeatured,
 			isAvailable: entity.isAvailable,
+			createdAt: entity.createdAt,
+			updatedAt: entity.updatedAt,
+		};
+	},
+};
+
+export const MenuItemVariantPersistenceMapper: IEntityMapper<
+	MenuItemVariant,
+	PrismaMenuItemVariant
+> = {
+	toDomain(raw: PrismaMenuItemVariant): MenuItemVariant {
+		return MenuItemVariant.reconstitute({
+			id: raw.id,
+			menuItemId: raw.menuItemId,
+			sku: raw.sku,
+			name: raw.name,
+			price: Number(raw.price),
+			isDefault: raw.isDefault,
+			createdAt: raw.createdAt,
+			updatedAt: raw.updatedAt,
+		});
+	},
+
+	toPersistence(entity: MenuItemVariant): PrismaMenuItemVariant {
+		return {
+			id: entity.id,
+			menuItemId: entity.menuItemId,
+			sku: entity.sku,
+			name: entity.name,
+			price: new Prisma.Decimal(entity.price),
+			isDefault: entity.isDefault,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		};

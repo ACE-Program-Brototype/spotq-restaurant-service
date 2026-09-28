@@ -1,5 +1,40 @@
 import type { MenuItem } from "@/domain/entities/menu-item.entity.ts";
+import type { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
 import type { IBaseRepository } from "@/domain/repositories/base.repository.interface.ts";
+
+export interface MenuItemImageData {
+	id: string;
+	menuItemId: string;
+	objectKey: string;
+	displayOrder: number;
+	createdAt: Date;
+}
+
+export interface MenuItemAddonLinkData {
+	id: string;
+	menuItemId: string;
+	addonId: string;
+	name: string;
+	price: number;
+	priceOverride: number | null;
+}
+
+export interface MenuItemAggregate {
+	item: MenuItem;
+	images: MenuItemImageData[];
+	variants: MenuItemVariant[];
+	addons: MenuItemAddonLinkData[];
+}
+
+export interface CreateMenuItemRepositoryParams {
+	menuItem: MenuItem;
+	images: Array<{ objectKey: string; displayOrder: number }>;
+	variants: MenuItemVariant[];
+	addons: Array<{
+		addonId: string;
+		priceOverride: number | null;
+	}>;
+}
 
 export interface MenuItemQueryFilterParams {
 	restaurantId: string;
@@ -45,9 +80,13 @@ export interface MenuItemQueryResult {
 }
 
 export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
+	createWithDetails(
+		params: CreateMenuItemRepositoryParams,
+	): Promise<MenuItemAggregate>;
+	findById(id: string): Promise<MenuItem | null>;
 	findByNameAndRestaurantId(
-		restaurantId: string,
-		name: string,
+		nameOrRestaurantId: string,
+		restaurantIdOrName: string,
 	): Promise<MenuItem | null>;
 	findManyWithFiltersAndStats(
 		params: MenuItemQueryFilterParams,

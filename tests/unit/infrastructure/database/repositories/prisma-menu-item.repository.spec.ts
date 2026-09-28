@@ -2,8 +2,14 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
-import { MenuItemNotFoundError } from "@/domain/errors/menu-item.errors.ts";
-import { CategoryNotFoundError } from "@/domain/errors/menu-category.errors.ts";
+import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
+import {
+	AddonNotFoundForRestaurantError,
+	CategoryNotFoundError,
+	InvalidVariantDataError,
+	MenuItemAlreadyExistsError,
+	MenuItemNotFoundError,
+} from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { PrismaMenuItemRepository } from "@/infrastructure/database/repositories/prisma-menu-item.repository.ts";
 
@@ -18,8 +24,14 @@ describe("PrismaMenuItemRepository", () => {
 			update: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 		};
 		menuCategory: {
+			findFirst: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 			count: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 		};
+		addon: {
+			count: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+			findMany: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
+		};
+		$transaction: jest.Mock<(...args: unknown[]) => Promise<unknown>>;
 	};
 	let repository: PrismaMenuItemRepository;
 
@@ -68,8 +80,14 @@ describe("PrismaMenuItemRepository", () => {
 				update: jest.fn(),
 			},
 			menuCategory: {
+				findFirst: jest.fn(),
 				count: jest.fn(),
 			},
+			addon: {
+				count: jest.fn(),
+				findMany: jest.fn(),
+			},
+			$transaction: jest.fn(),
 		};
 
 		repository = new PrismaMenuItemRepository(
@@ -111,13 +129,110 @@ describe("PrismaMenuItemRepository", () => {
 		});
 	});
 
+	describe("findById", () => {
+		it("should find menu item by id", async () => {
+			mockPrisma.menuItem.findUnique.mockResolvedValue(rawMenuItem);
+
+			const result = await repository.findById("item-123");
+
+			expect(result).toBeDefined();
+			expect(result?.id).toBe(rawMenuItem.id);
+		});
+
+		it("should return null if menu item not found", async () => {
+			mockPrisma.menuItem.findUnique.mockResolvedValue(null);
+
+			const result = await repository.findById("non-existent");
+			expect(result).toBeNull();
+		});
+	});
+
+	describe("createWithDetails", () => {
+		it("should create menu item with details inside transaction", async () => {
+			const mockTx = {
+				menuItem: {
+					create: jest.fn().mockResolvedValue(rawMenuItem),
+				},
+				menuItemImage: {
+					create: jest.fn().mockResolvedValue({
+						id: "img-1",
+						menuItemId: rawMenuItem.id,
+						objectKey: "menu/biryani.png",
+						displayOrder: 0,
+						createdAt: now,
+					}),
+				},
+				menuItemVariant: {
+					create: jest.fn().mockResolvedValue({
+						id: "var-1",
+						menuItemId: rawMenuItem.id,
+						sku: "BIRYANI-FULL",
+						name: "Full Portion",
+						price: new Prisma.Decimal(320.0),
+						isDefault: true,
+						createdAt: now,
+						updatedAt: now,
+					}),
+				},
+				menuItemAddon: {
+					create: jest.fn().mockResolvedValue({
+						id: "junc-1",
+						menuItemId: rawMenuItem.id,
+						addonId: "addon-1",
+						priceOverride: new Prisma.Decimal(40.0),
+					}),
+				},
+				addon: {
+					findMany: jest.fn().mockResolvedValue([
+						{
+							id: "addon-1",
+							name: "Extra Raita",
+							price: new Prisma.Decimal(30.0),
+						},
+					]),
+				},
+			};
+
+			mockPrisma.$transaction.mockImplementation(async (callback: unknown) => {
+				return (callback as (tx: unknown) => Promise<unknown>)(mockTx);
+			});
+
+			const domainItem = MenuItem.create({
+				restaurantId: rawMenuItem.restaurantId,
+				categoryId: rawMenuItem.categoryId,
+				name: rawMenuItem.name,
+				price: 320.0,
+			});
+
+			const domainVariant = MenuItemVariant.create({
+				menuItemId: domainItem.id,
+				name: "Full Portion",
+				price: 320.0,
+				isDefault: true,
+			});
+
+			const aggregate = await repository.createWithDetails({
+				menuItem: domainItem,
+				images: [{ objectKey: "menu/biryani.png", displayOrder: 0 }],
+				variants: [domainVariant],
+				addons: [{ addonId: "addon-1", priceOverride: 40.0 }],
+			});
+
+			expect(aggregate).toBeDefined();
+			expect(aggregate.item.id).toBe(rawMenuItem.id);
+			expect(aggregate.images).toHaveLength(1);
+			expect(aggregate.variants).toHaveLength(1);
+			expect(aggregate.addons).toHaveLength(1);
+		});
+	});
+
 	describe("getRestaurantMenuStats", () => {
 		it("should return restaurant menu KPI counts", async () => {
 			mockPrisma.menuCategory.count.mockResolvedValue(4);
 			mockPrisma.menuItem.count
-				.mockResolvedValueOnce(12) // total
-				.mockResolvedValueOnce(10) // available
-				.mockResolvedValueOnce(2); // out of stock
+				.mockResolvedValueOnce(12)
+				.mockResolvedValueOnce(10)
+				.mockResolvedValueOnce(2);
 
 			const stats = await repository.getRestaurantMenuStats(restaurantId);
 
@@ -134,11 +249,11 @@ describe("PrismaMenuItemRepository", () => {
 				rawMenuItemWithRelations,
 			]);
 			mockPrisma.menuItem.count
-				.mockResolvedValueOnce(1) // filtered count
-				.mockResolvedValueOnce(10) // total stats count
-				.mockResolvedValueOnce(8) // available stats count
-				.mockResolvedValueOnce(2); // out of stock stats count
-			mockPrisma.menuCategory.count.mockResolvedValue(3); // total categories
+				.mockResolvedValueOnce(1)
+				.mockResolvedValueOnce(10)
+				.mockResolvedValueOnce(8)
+				.mockResolvedValueOnce(2);
+			mockPrisma.menuCategory.count.mockResolvedValue(3);
 
 			const result = await repository.findManyWithFiltersAndStats({
 				restaurantId,
@@ -168,7 +283,44 @@ describe("PrismaMenuItemRepository", () => {
 	});
 
 	describe("handlePrismaError", () => {
-		it("should translate P2003 error to RestaurantNotFoundError by default", async () => {
+		it("should map P2002 error to MenuItemAlreadyExistsError", async () => {
+			const p2002Error = new PrismaClientKnownRequestError(
+				"Unique constraint failed",
+				{
+					code: "P2002",
+					clientVersion: "6.0.0",
+				},
+			);
+			mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
+
+			await expect(
+				repository.findByNameAndRestaurantId(
+					restaurantId,
+					"Existing",
+				),
+			).rejects.toThrow(MenuItemAlreadyExistsError);
+		});
+
+		it("should map P2002 error with variant target to InvalidVariantDataError", async () => {
+			const p2002Error = new PrismaClientKnownRequestError(
+				"Unique constraint failed",
+				{
+					code: "P2002",
+					clientVersion: "6.0.0",
+					meta: { target: ["menu_item_variants_single_default_idx"] },
+				},
+			);
+			mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
+
+			await expect(
+				repository.findByNameAndRestaurantId(
+					restaurantId,
+					"Existing",
+				),
+			).rejects.toThrow(InvalidVariantDataError);
+		});
+
+		it("should map P2003 error to RestaurantNotFoundError by default", async () => {
 			const p2003Error = new PrismaClientKnownRequestError(
 				"Foreign key constraint",
 				{
@@ -183,7 +335,7 @@ describe("PrismaMenuItemRepository", () => {
 			).rejects.toThrow(RestaurantNotFoundError);
 		});
 
-		it("should translate P2003 error for category foreign key to CategoryNotFoundError", async () => {
+		it("should map P2003 error for category foreign key to CategoryNotFoundError", async () => {
 			const p2003CategoryError = new PrismaClientKnownRequestError(
 				"Foreign key constraint failed on the field: categoryId",
 				{
@@ -199,7 +351,23 @@ describe("PrismaMenuItemRepository", () => {
 			).rejects.toThrow(CategoryNotFoundError);
 		});
 
-		it("should translate P2025 error to MenuItemNotFoundError", async () => {
+		it("should map P2003 error on addon to AddonNotFoundForRestaurantError", async () => {
+			const p2003Error = new PrismaClientKnownRequestError(
+				"Foreign key constraint failed on addon_id",
+				{
+					code: "P2003",
+					clientVersion: "6.0.0",
+					meta: { field_name: "addon_id" },
+				},
+			);
+			mockPrisma.menuItem.findFirst.mockRejectedValue(p2003Error);
+
+			await expect(
+				repository.findByNameAndRestaurantId(restaurantId, "Item"),
+			).rejects.toThrow(AddonNotFoundForRestaurantError);
+		});
+
+		it("should map P2025 error to MenuItemNotFoundError", async () => {
 			const p2025Error = new PrismaClientKnownRequestError("Not found", {
 				code: "P2025",
 				clientVersion: "6.0.0",

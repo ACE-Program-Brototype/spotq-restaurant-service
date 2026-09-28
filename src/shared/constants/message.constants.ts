@@ -198,6 +198,7 @@ export const messages = {
 		"If this email is eligible for registration, a verification code will be sent.",
 	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
 	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
+	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
 	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
 	RESTAURANT_APPROVED_SUCCESS: "Restaurant application approved successfully.",
 	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
@@ -240,7 +241,6 @@ export const messages = {
 		"Cannot use an avatar belonging to another staff member",
 	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
 		"Verification status retrieved successfully",
-	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
 	RESTAURANT_PROFILE_FETCH_SUCCESS: "Restaurant profile retrieved successfully",
 	RESTAURANT_PROFILE_UPDATED_SUCCESS: "Restaurant profile updated successfully",
 	NAME_MIN_LENGTH: "Name must be at least 2 characters",
@@ -254,6 +254,7 @@ export const messages = {
 	INVALID_STAFF_ID: "Invalid staff ID",
 	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
 	INVALID_CATEGORY_ID: "Invalid category ID",
+	CATEGORY_ID_REQUIRED: "Category ID is required",
 	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
 	ADDON_CREATED_SUCCESS: "Menu item add-on created successfully",
 	ADDON_ALREADY_EXISTS:
@@ -280,18 +281,39 @@ export const messages = {
 	CATEGORY_DISPLAY_ORDER_INVALID:
 		"Display order must be a non-negative integer",
 	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
+	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
+	MENU_ITEM_ALREADY_EXISTS:
+		"A menu item with this name already exists for this restaurant",
+	MENU_ITEM_NOT_FOUND: "Menu item not found",
+	ADDON_NOT_FOUND_FOR_RESTAURANT:
+		"One or more selected add-ons do not belong to this restaurant",
+	DUPLICATE_ADDON_IN_MENU_ITEM:
+		"Duplicate add-ons are not allowed for a menu item",
+	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",
+	MENU_ITEM_NAME_MAX_LENGTH: "Menu item name must not exceed 255 characters",
+	MENU_ITEM_DESCRIPTION_MAX_LENGTH:
+		"Menu item description must not exceed 1000 characters",
+	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",
+	MENU_ITEM_PRICE_NEGATIVE:
+		"Menu item price must be greater than or equal to 0",
+	MENU_ITEM_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
+	PREPARATION_TIME_NEGATIVE: "Preparation time cannot be negative",
+	CALORIES_NEGATIVE: "Calories cannot be negative",
+	INVALID_VARIANT_DATA: "Invalid variant data",
+	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
+	VARIANT_NAME_REQUIRED: "Variant name is required",
+	VARIANT_MENU_ITEM_ID_REQUIRED: "Variant menu item ID is required",
+	VARIANT_PRICE_REQUIRED: "Variant price is required",
+	VARIANT_PRICE_NEGATIVE: "Variant price must be greater than or equal to 0",
+	PRICE_EXCEEDS_MAXIMUM: "Price exceeds maximum allowed value",
+	MENU_ITEM_DESCRIPTION_REQUIRED: "Menu item description is required",
+	PREPARATION_TIME_REQUIRED: "Preparation time is required",
+	MENU_ITEM_IMAGES_REQUIRED: "At least one image is required",
+	IS_VEGETARIAN_REQUIRED: "isVegetarian is required",
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
 	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
 	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
 	MENU_ITEMS_FETCHED_SUCCESS: "Menu items retrieved successfully",
-	MENU_ITEM_NOT_FOUND: "Menu item not found",
-	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",
-	MENU_ITEM_NAME_MAX_LENGTH: "Menu item name must not exceed 255 characters",
-	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",
-	MENU_ITEM_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
-	MENU_ITEM_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
-	MENU_ITEM_DESCRIPTION_MAX_LENGTH:
-		"Menu item description must not exceed 1000 characters",
 	MENU_ITEM_PREPARATION_TIME_INVALID:
 		"Preparation time must be a positive number of minutes",
 	MENU_ITEM_CALORIES_INVALID: "Calories must be a positive number",
