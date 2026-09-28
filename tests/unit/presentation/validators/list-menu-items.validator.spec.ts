@@ -87,5 +87,35 @@ describe("ListMenuItemsValidator", () => {
 				expect(result.data.status).toBe("OUT_OF_STOCK");
 			}
 		});
+
+		it("should treat empty string prices as undefined instead of coercing to zero", () => {
+			const result = listMenuItemsQuerySchema.safeParse({
+				min_price: "",
+				max_price: "  ",
+				page: "",
+				limit: "",
+				sort_by: "",
+			});
+			expect(result.success).toBe(true);
+			if (result.success) {
+				expect(result.data.minPrice).toBeUndefined();
+				expect(result.data.maxPrice).toBeUndefined();
+				expect(result.data.page).toBe(1);
+				expect(result.data.limit).toBe(10);
+				expect(result.data.sortBy).toBe("createdAt");
+			}
+		});
+
+		it("should preserve zero when explicitly passed as '0'", () => {
+			const result = listMenuItemsQuerySchema.safeParse({
+				min_price: "0",
+				max_price: "0",
+			});
+			expect(result.success).toBe(true);
+			if (result.success) {
+				expect(result.data.minPrice).toBe(0);
+				expect(result.data.maxPrice).toBe(0);
+			}
+		});
 	});
 });

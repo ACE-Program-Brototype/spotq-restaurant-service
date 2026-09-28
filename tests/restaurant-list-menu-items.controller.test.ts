@@ -257,4 +257,62 @@ describe("GET /:restaurantId/menu/items - Route Level & Query Transformation Sui
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
 		expect(nextQuery).not.toHaveBeenCalled();
 	});
+
+	it("should treat empty string maxPrice as absent and not cap search at zero", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+		} as never);
+
+		mockMenuItemRepo.findManyWithFiltersAndStats.mockResolvedValueOnce({
+			items: [],
+			total: 0,
+			stats: {
+				totalCategories: 1,
+				totalMenuItems: 0,
+				availableItems: 0,
+				outOfStockItems: 0,
+			},
+		});
+
+		const req = {
+			method: "GET",
+			url: `/${restaurantId}/menu/items`,
+			headers: authHeaders,
+			params: { restaurantId },
+			query: {
+				max_price: "",
+				min_price: "",
+			},
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {} as Record<string, unknown>,
+		};
+
+		restaurantOwnerAuthMiddleware(req as never, res as never, jest.fn());
+		await validateRequestParams(listMenuItemsParamsSchema)(
+			req as never,
+			res as never,
+			jest.fn(),
+		);
+		await validateRequestQuery(listMenuItemsQuerySchema)(
+			req as never,
+			res as never,
+			jest.fn(),
+		);
+		await controller.listMenuItems(req as never, res as never);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		expect(mockMenuItemRepo.findManyWithFiltersAndStats).toHaveBeenCalledWith(
+			expect.objectContaining({
+				restaurantId,
+				minPrice: undefined,
+				maxPrice: undefined,
+			}),
+		);
+	});
 });

@@ -53,6 +53,15 @@ export const listMenuItemsParamsSchema = z
 	})
 	.strict();
 
+function parseOptionalString(val: unknown): unknown {
+	if (val === undefined || val === null) return undefined;
+	if (typeof val === "string") {
+		const trimmed = val.trim();
+		return trimmed === "" ? undefined : trimmed;
+	}
+	return val;
+}
+
 function parseBooleanFilter(val: unknown): boolean | undefined {
 	if (val === undefined || val === null || val === "") return undefined;
 	if (typeof val === "string") {
@@ -66,15 +75,24 @@ function parseBooleanFilter(val: unknown): boolean | undefined {
 
 export const listMenuItemsQuerySchema = z
 	.object({
-		page: z.coerce.number().int().min(1).default(1),
-		limit: z.coerce.number().int().min(1).max(100).default(10),
+		page: z.preprocess(
+			parseOptionalString,
+			z.coerce.number().int().min(1).default(1),
+		),
+		limit: z.preprocess(
+			parseOptionalString,
+			z.coerce.number().int().min(1).max(100).default(10),
+		),
 		search: z
 			.string()
 			.trim()
 			.transform((val) => (val === "" ? undefined : val))
 			.optional(),
-		categoryId: z.string().uuid().optional(),
-		category_id: z.string().uuid().optional(),
+		categoryId: z.preprocess(parseOptionalString, z.string().uuid().optional()),
+		category_id: z.preprocess(
+			parseOptionalString,
+			z.string().uuid().optional(),
+		),
 		status: z
 			.preprocess((val) => {
 				if (val === undefined || val === null || val === "") return undefined;
@@ -85,25 +103,49 @@ export const listMenuItemsQuerySchema = z
 				return val;
 			}, z.enum(["ALL", "AVAILABLE", "OUT_OF_STOCK"]).optional())
 			.optional(),
-		minPrice: z.coerce.number().min(0).optional(),
-		min_price: z.coerce.number().min(0).optional(),
-		maxPrice: z.coerce.number().min(0).optional(),
-		max_price: z.coerce.number().min(0).optional(),
+		minPrice: z.preprocess(
+			parseOptionalString,
+			z.coerce.number().min(0).optional(),
+		),
+		min_price: z.preprocess(
+			parseOptionalString,
+			z.coerce.number().min(0).optional(),
+		),
+		maxPrice: z.preprocess(
+			parseOptionalString,
+			z.coerce.number().min(0).optional(),
+		),
+		max_price: z.preprocess(
+			parseOptionalString,
+			z.coerce.number().min(0).optional(),
+		),
 		isVegetarian: z.preprocess(parseBooleanFilter, z.boolean().optional()),
 		is_vegetarian: z.preprocess(parseBooleanFilter, z.boolean().optional()),
 		isFeatured: z.preprocess(parseBooleanFilter, z.boolean().optional()),
 		is_featured: z.preprocess(parseBooleanFilter, z.boolean().optional()),
-		sortBy: z.enum(MENU_ITEM_SORT_FIELDS).optional(),
-		sort_by: z.enum(MENU_ITEM_SORT_FIELDS).optional(),
+		sortBy: z.preprocess(
+			parseOptionalString,
+			z.enum(MENU_ITEM_SORT_FIELDS).optional(),
+		),
+		sort_by: z.preprocess(
+			parseOptionalString,
+			z.enum(MENU_ITEM_SORT_FIELDS).optional(),
+		),
 		sortOrder: z
 			.preprocess((val) => {
-				if (typeof val === "string") return val.trim().toLowerCase();
+				if (typeof val === "string") {
+					const trimmed = val.trim().toLowerCase();
+					return trimmed === "" ? undefined : trimmed;
+				}
 				return val;
 			}, z.enum(["asc", "desc"]).optional())
 			.optional(),
 		sort_order: z
 			.preprocess((val) => {
-				if (typeof val === "string") return val.trim().toLowerCase();
+				if (typeof val === "string") {
+					const trimmed = val.trim().toLowerCase();
+					return trimmed === "" ? undefined : trimmed;
+				}
 				return val;
 			}, z.enum(["asc", "desc"]).optional())
 			.optional(),
