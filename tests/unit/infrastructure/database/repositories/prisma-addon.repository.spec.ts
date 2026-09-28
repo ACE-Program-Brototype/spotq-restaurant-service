@@ -190,16 +190,14 @@ describe("PrismaAddonRepository", () => {
 		expect(result.name).toBe("Updated Cheese");
 		expect(result.price).toBe(70.0);
 		expect(mockPrisma.addon.update).toHaveBeenCalledWith({
-			where: {
-				id: rawAddon.id,
-				isDeleted: false,
-			},
+			where: { id: rawAddon.id },
 			data: {
 				name: "Updated Cheese",
 				description: rawAddon.description,
 				price: new Prisma.Decimal(70.0),
 				imageKey: rawAddon.imageKey,
 				isAvailable: true,
+				isDeleted: false,
 			},
 		});
 	});
@@ -218,43 +216,6 @@ describe("PrismaAddonRepository", () => {
 		});
 
 		await expect(repository.updateAddon(domainEntity)).rejects.toThrow(
-			AddonNotFoundError,
-		);
-	});
-
-	it("should soft delete an addon and return domain entity", async () => {
-		const deletedRaw = {
-			...rawAddon,
-			isDeleted: true,
-			isAvailable: false,
-		};
-		mockPrisma.addon.update.mockResolvedValueOnce(deletedRaw);
-
-		const result = await repository.softDelete(rawAddon.id);
-
-		expect(result).toBeInstanceOf(Addon);
-		expect(result.isDeleted).toBe(true);
-		expect(result.isAvailable).toBe(false);
-		expect(mockPrisma.addon.update).toHaveBeenCalledWith({
-			where: {
-				id: rawAddon.id,
-				isDeleted: false,
-			},
-			data: {
-				isDeleted: true,
-				isAvailable: false,
-			},
-		});
-	});
-
-	it("should map P2025 error to AddonNotFoundError on softDelete", async () => {
-		const p2025Error = new PrismaClientKnownRequestError("Record not found", {
-			code: "P2025",
-			clientVersion: "6.0.0",
-		});
-		mockPrisma.addon.update.mockRejectedValueOnce(p2025Error);
-
-		await expect(repository.softDelete("non-existent-id")).rejects.toThrow(
 			AddonNotFoundError,
 		);
 	});

@@ -45,6 +45,6 @@ export class DeleteAddonUseCase implements IDeleteAddonUseCase {
 
 		addon.softDelete();
 
-		await this.addonRepository.softDelete(addon.id);
+		await this.addonRepository.updateAddon(addon);
 	}
 }

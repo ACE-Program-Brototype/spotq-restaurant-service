@@ -114,40 +114,19 @@ export class PrismaAddonRepository
 		try {
 			const data = this.mapper.toPersistence(addon);
 			const updated = await this.dbModel.update({
-				where: {
-					id: data.id,
-					isDeleted: false,
-				},
+				where: { id: data.id },
 				data: {
 					name: data.name,
 					description: data.description,
 					price: data.price,
 					imageKey: data.imageKey,
 					isAvailable: data.isAvailable,
+					isDeleted: data.isDeleted,
 				},
 			});
 			return this.mapper.toDomain(updated);
 		} catch (error) {
 			this.handlePrismaError(error, addon);
-			throw error;
-		}
-	}
-
-	public async softDelete(id: string): Promise<Addon> {
-		try {
-			const updated = await this.dbModel.update({
-				where: {
-					id,
-					isDeleted: false,
-				},
-				data: {
-					isDeleted: true,
-					isAvailable: false,
-				},
-			});
-			return this.mapper.toDomain(updated);
-		} catch (error) {
-			this.handlePrismaError(error, { id });
 			throw error;
 		}
 	}
