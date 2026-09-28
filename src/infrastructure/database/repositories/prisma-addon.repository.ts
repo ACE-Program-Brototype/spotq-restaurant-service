@@ -1,7 +1,6 @@
-import type { PrismaClient, Addon as PrismaAddon } from "@prisma/client";
+import type { Addon as PrismaAddon, PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
-import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { Addon } from "@/domain/entities/addon.entity.ts";
 import {
@@ -9,6 +8,7 @@ import {
 	AddonNotFoundError,
 } from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { AddonPersistenceMapper } from "../mappers/addon.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
