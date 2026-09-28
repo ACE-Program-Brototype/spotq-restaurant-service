@@ -129,12 +129,10 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 		}));
 
 		let resolvedPrice = input.price;
-		if (resolvedPrice === undefined || resolvedPrice === null) {
-			if (input.variants && input.variants.length > 0) {
-				const defaultVariant =
-					input.variants.find((v) => v.isDefault) ?? input.variants[0];
-				resolvedPrice = defaultVariant.price;
-			}
+		if (variantsToCreate.length > 0) {
+			const defaultVariant =
+				variantsToCreate.find((v) => v.isDefault) ?? variantsToCreate[0];
+			resolvedPrice = defaultVariant.price;
 		}
 
 		if (resolvedPrice === undefined || resolvedPrice === null) {

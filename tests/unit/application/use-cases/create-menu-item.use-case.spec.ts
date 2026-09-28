@@ -291,6 +291,54 @@ describe("CreateMenuItemUseCase", () => {
 		);
 	});
 
+	it("should sync menu item price with default variant price even if a conflicting root price was passed", async () => {
+		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
+		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
+
+		const createdItem = MenuItem.create({
+			restaurantId,
+			categoryId,
+			name: "Paneer Tikka",
+			price: 300.0,
+		});
+
+		mockMenuItemRepo.createWithDetails.mockResolvedValue({
+			item: createdItem,
+			images: [],
+			variants: [
+				MenuItemVariant.reconstitute({
+					id: "var-1",
+					menuItemId: createdItem.id,
+					sku: null,
+					name: "Large",
+					price: 300.0,
+					isDefault: true,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				}),
+			],
+			addons: [],
+		});
+
+		const result = await useCase.execute({
+			restaurantId,
+			categoryId,
+			name: "Paneer Tikka",
+			price: 999.0,
+			variants: [
+				{ name: "Regular", price: 200.0, isDefault: false },
+				{ name: "Large", price: 300.0, isDefault: true },
+			],
+		});
+
+		expect(result.price).toBe(300.0);
+		expect(mockMenuItemRepo.createWithDetails).toHaveBeenCalledWith(
+			expect.objectContaining({
+				menuItem: expect.objectContaining({ price: 300.0 }),
+			}),
+		);
+	});
+
 	it("should throw InvalidMenuItemDataError when neither price nor variants are provided", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(null);
