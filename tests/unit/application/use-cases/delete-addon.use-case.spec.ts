@@ -37,6 +37,7 @@ describe("DeleteAddonUseCase", () => {
 			findByRestaurantId: jest.fn(),
 			create: jest.fn(),
 			updateAddon: jest.fn(),
+			softDelete: jest.fn(),
 		} as unknown as jest.Mocked<IAddonRepository>;
 
 		useCase = new DeleteAddonUseCase(mockRestaurantRepo, mockAddonRepo);
@@ -56,8 +57,8 @@ describe("DeleteAddonUseCase", () => {
 		});
 		mockAddonRepo.findById.mockResolvedValueOnce(existingAddon);
 
-		mockAddonRepo.updateAddon.mockImplementationOnce(
-			async (entity: Addon) => entity,
+		mockAddonRepo.softDelete.mockImplementationOnce(
+			async () => existingAddon,
 		);
 
 		await useCase.execute({
@@ -66,7 +67,8 @@ describe("DeleteAddonUseCase", () => {
 		});
 
 		expect(mockAddonRepo.findById).toHaveBeenCalledWith(addonId);
-		expect(mockAddonRepo.updateAddon).toHaveBeenCalledTimes(1);
+		expect(mockAddonRepo.softDelete).toHaveBeenCalledTimes(1);
+		expect(mockAddonRepo.softDelete).toHaveBeenCalledWith(addonId);
 		expect(existingAddon.isDeleted).toBe(true);
 		expect(existingAddon.isAvailable).toBe(false);
 	});
@@ -82,7 +84,7 @@ describe("DeleteAddonUseCase", () => {
 		).rejects.toThrow(RestaurantNotFoundError);
 
 		expect(mockAddonRepo.findById).not.toHaveBeenCalled();
-		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+		expect(mockAddonRepo.softDelete).not.toHaveBeenCalled();
 	});
 
 	it("should throw AddonNotFoundError when addon does not exist", async () => {
@@ -98,7 +100,7 @@ describe("DeleteAddonUseCase", () => {
 			}),
 		).rejects.toThrow(AddonNotFoundError);
 
-		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+		expect(mockAddonRepo.softDelete).not.toHaveBeenCalled();
 	});
 
 	it("should throw AddonNotFoundError when addon belongs to another restaurant", async () => {
@@ -121,7 +123,7 @@ describe("DeleteAddonUseCase", () => {
 			}),
 		).rejects.toThrow(AddonNotFoundError);
 
-		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+		expect(mockAddonRepo.softDelete).not.toHaveBeenCalled();
 	});
 
 	it("should throw AddonNotFoundError when addon is already deleted", async () => {
@@ -150,6 +152,6 @@ describe("DeleteAddonUseCase", () => {
 			}),
 		).rejects.toThrow(AddonNotFoundError);
 
-		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+		expect(mockAddonRepo.softDelete).not.toHaveBeenCalled();
 	});
 });

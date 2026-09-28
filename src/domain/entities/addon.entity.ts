@@ -126,6 +126,10 @@ export class Addon {
 	}
 
 	public update(updateProps: UpdateAddonProps): void {
+		if (this.props.isDeleted) {
+			throw new InvalidAddonDataError(messages.CANNOT_MODIFY_DELETED_ADDON);
+		}
+
 		if (updateProps.name !== undefined) {
 			const trimmedName = updateProps.name.trim();
 			if (!trimmedName) {
@@ -218,11 +222,17 @@ export class Addon {
 	}
 
 	public updateAvailability(isAvailable: boolean): void {
+		if (this.props.isDeleted) {
+			throw new InvalidAddonDataError(messages.CANNOT_MODIFY_DELETED_ADDON);
+		}
 		this.props.isAvailable = isAvailable;
 		this.props.updatedAt = new Date();
 	}
 
 	public softDelete(): void {
+		if (this.props.isDeleted) {
+			return;
+		}
 		this.props.isDeleted = true;
 		this.props.isAvailable = false;
 		this.props.updatedAt = new Date();

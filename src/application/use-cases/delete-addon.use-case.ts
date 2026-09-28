@@ -24,7 +24,7 @@ export class DeleteAddonUseCase implements IDeleteAddonUseCase {
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Repositories.AddonRepository)
 		private readonly addonRepository: IAddonRepository,
-	) {}
+	) { }
 
 	public async execute(input: DeleteAddonInputDto): Promise<void> {
 		const restaurant = await this.restaurantRepository.findById(
@@ -45,6 +45,6 @@ export class DeleteAddonUseCase implements IDeleteAddonUseCase {
 
 		addon.softDelete();
 
-		await this.addonRepository.updateAddon(addon);
+		await this.addonRepository.softDelete(addon.id);
 	}
 }

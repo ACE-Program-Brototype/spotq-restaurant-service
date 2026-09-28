@@ -282,6 +282,7 @@ export const messages = {
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
 	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
 	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
+	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
 } as const;
 
 export type MessageKey = keyof typeof messages;

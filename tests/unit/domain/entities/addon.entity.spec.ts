@@ -197,6 +197,38 @@ describe("Addon Entity", () => {
 				InvalidAddonDataError,
 			);
 		});
+
+		it("should throw InvalidAddonDataError when updating a soft-deleted addon", () => {
+			const addon = Addon.create(validProps);
+			addon.softDelete();
+			expect(() => addon.update({ name: "Updated Name" })).toThrow(
+				InvalidAddonDataError,
+			);
+			expect(() => addon.update({ name: "Updated Name" })).toThrow(
+				messages.CANNOT_MODIFY_DELETED_ADDON,
+			);
+		});
+	});
+
+	describe("updateAvailability", () => {
+		it("should update availability status", () => {
+			const addon = Addon.create(validProps);
+			addon.updateAvailability(false);
+			expect(addon.isAvailable).toBe(false);
+			addon.updateAvailability(true);
+			expect(addon.isAvailable).toBe(true);
+		});
+
+		it("should throw InvalidAddonDataError when updating availability on a soft-deleted addon", () => {
+			const addon = Addon.create(validProps);
+			addon.softDelete();
+			expect(() => addon.updateAvailability(true)).toThrow(
+				InvalidAddonDataError,
+			);
+			expect(() => addon.updateAvailability(true)).toThrow(
+				messages.CANNOT_MODIFY_DELETED_ADDON,
+			);
+		});
 	});
 
 	describe("softDelete", () => {
@@ -210,6 +242,17 @@ describe("Addon Entity", () => {
 			expect(addon.isDeleted).toBe(true);
 			expect(addon.isAvailable).toBe(false);
 			expect(addon.updatedAt).toBeInstanceOf(Date);
+		});
+
+		it("should be idempotent when called multiple times on an already deleted addon", () => {
+			const addon = Addon.create(validProps);
+			addon.softDelete();
+			const firstUpdatedAt = addon.updatedAt;
+
+			addon.softDelete();
+			expect(addon.isDeleted).toBe(true);
+			expect(addon.isAvailable).toBe(false);
+			expect(addon.updatedAt).toEqual(firstUpdatedAt);
 		});
 	});
 });
