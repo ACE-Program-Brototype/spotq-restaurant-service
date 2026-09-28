@@ -2,6 +2,7 @@ import express from "express";
 import {
 	addonController,
 	menuCategoryController,
+	menuItemController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
 	restaurantStatusController,
@@ -19,9 +20,18 @@ import {
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
 import {
+	createAddonBodySchema,
+	createAddonParamsSchema,
+	listAddonsParamsSchema,
+} from "../validators/create-addon.validator";
+import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
+import {
+	listMenuItemsParamsSchema,
+	listMenuItemsQuerySchema,
+} from "../validators/list-menu-items.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -43,19 +53,14 @@ import {
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
 import {
+	updateAddonBodySchema,
+	updateAddonParamsSchema,
+} from "../validators/update-addon.validator";
+import {
 	updateMenuCategoryBodySchema,
 	updateMenuCategoryParamsSchema,
 } from "../validators/update-menu-category.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
-import {
-	createAddonBodySchema,
-	createAddonParamsSchema,
-	listAddonsParamsSchema,
-} from "../validators/create-addon.validator";
-import {
-	updateAddonBodySchema,
-	updateAddonParamsSchema,
-} from "../validators/update-addon.validator";
 
 export const restaurantRouter = express.Router();
 
@@ -236,4 +241,12 @@ restaurantRouter.patch(
 	validateRequestParams(updateMenuCategoryParamsSchema),
 	validateRequestBody(updateMenuCategoryBodySchema),
 	menuCategoryController.updateCategory,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.MENU_ITEMS,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listMenuItemsParamsSchema),
+	validateRequestQuery(listMenuItemsQuerySchema),
+	menuItemController.listMenuItems,
 );
