@@ -66,9 +66,7 @@ describe("create-menu-item.validator", () => {
 						isDefault: true,
 					},
 				],
-				addons: [
-					{ addonId: validAddonId, priceOverride: 40.0 },
-				],
+				addons: [{ addonId: validAddonId, priceOverride: 40.0 }],
 			});
 			expect(result.success).toBe(true);
 			if (result.success) {
@@ -229,10 +227,7 @@ describe("create-menu-item.validator", () => {
 		it("should fail when duplicate addon IDs are provided", () => {
 			const result = createMenuItemBodySchema.safeParse({
 				...validBaseBody,
-				addons: [
-					{ addonId: validAddonId },
-					{ addonId: validAddonId },
-				],
+				addons: [{ addonId: validAddonId }, { addonId: validAddonId }],
 			});
 			expect(result.success).toBe(false);
 		});
@@ -249,9 +244,7 @@ describe("create-menu-item.validator", () => {
 		it("should fail when variant price exceeds 99999999.99", () => {
 			const result = createMenuItemBodySchema.safeParse({
 				...validBaseBody,
-				variants: [
-					{ name: "Family Pack", price: 100000000 },
-				],
+				variants: [{ name: "Family Pack", price: 100000000 }],
 			});
 			expect(result.success).toBe(false);
 		});
@@ -259,9 +252,7 @@ describe("create-menu-item.validator", () => {
 		it("should fail when addon price_override exceeds 99999999.99", () => {
 			const result = createMenuItemBodySchema.safeParse({
 				...validBaseBody,
-				addons: [
-					{ addonId: validAddonId, priceOverride: 100000000 },
-				],
+				addons: [{ addonId: validAddonId, priceOverride: 100000000 }],
 			});
 			expect(result.success).toBe(false);
 		});
@@ -283,9 +274,7 @@ describe("create-menu-item.validator", () => {
 			const result = createMenuItemBodySchema.safeParse(withoutPrice);
 			expect(result.success).toBe(false);
 			if (!result.success) {
-				const error = result.error.issues.find((e) =>
-					e.path.includes("price"),
-				);
+				const error = result.error.issues.find((e) => e.path.includes("price"));
 				expect(error?.message).toBe(messages.MENU_ITEM_PRICE_REQUIRED);
 			}
 		});
@@ -298,9 +287,7 @@ describe("create-menu-item.validator", () => {
 			});
 			expect(result.success).toBe(false);
 			if (!result.success) {
-				const error = result.error.issues.find((e) =>
-					e.path.includes("name"),
-				);
+				const error = result.error.issues.find((e) => e.path.includes("name"));
 				expect(error?.message).toBe(messages.VARIANT_NAME_REQUIRED);
 			}
 		});
@@ -311,9 +298,7 @@ describe("create-menu-item.validator", () => {
 			});
 			expect(result.success).toBe(false);
 			if (!result.success) {
-				const error = result.error.issues.find((e) =>
-					e.path.includes("price"),
-				);
+				const error = result.error.issues.find((e) => e.path.includes("price"));
 				expect(error?.message).toBe(messages.VARIANT_PRICE_REQUIRED);
 			}
 		});

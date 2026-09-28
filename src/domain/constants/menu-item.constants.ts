@@ -7,8 +7,11 @@ export const MENU_ITEM_CALORIES_MAX = 50000;
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 10;
 export const MAX_LIMIT = 100;
+export const SORT_ORDERS = ["asc", "desc"] as const;
+export type SortOrder = (typeof SORT_ORDERS)[number];
+
 export const DEFAULT_SORT_BY = "createdAt";
-export const DEFAULT_SORT_ORDER = "desc";
+export const DEFAULT_SORT_ORDER: SortOrder = "desc";
 
 export const ALLOWED_MENU_ITEM_SORT_FIELDS = [
 	"name",
@@ -41,4 +44,3 @@ export const MENU_ITEM_QUERY_SORT_FIELDS = [
 
 export type MenuItemQuerySortField =
 	(typeof MENU_ITEM_QUERY_SORT_FIELDS)[number];
-
