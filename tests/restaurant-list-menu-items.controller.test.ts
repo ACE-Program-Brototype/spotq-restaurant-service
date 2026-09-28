@@ -315,4 +315,31 @@ describe("GET /:restaurantId/menu/items - Route Level & Query Transformation Sui
 			}),
 		);
 	});
+
+	it("should reject unrecognized nonempty boolean values with 422 instead of silently dropping", async () => {
+		const req = {
+			method: "GET",
+			url: `/${restaurantId}/menu/items`,
+			headers: authHeaders,
+			params: { restaurantId },
+			query: {
+				is_vegetarian: "invalid_boolean",
+			},
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const queryMiddleware = validateRequestQuery(listMenuItemsQuerySchema);
+		const nextQuery = jest.fn();
+		await queryMiddleware(req as never, res as never, nextQuery);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
+		expect(nextQuery).not.toHaveBeenCalled();
+	});
 });

@@ -62,15 +62,17 @@ function parseOptionalString(val: unknown): unknown {
 	return val;
 }
 
-function parseBooleanFilter(val: unknown): boolean | undefined {
-	if (val === undefined || val === null || val === "") return undefined;
+function parseBooleanFilter(val: unknown): unknown {
+	if (val === undefined || val === null) return undefined;
 	if (typeof val === "string") {
-		const lower = val.trim().toLowerCase();
+		const trimmed = val.trim();
+		if (trimmed === "") return undefined;
+		const lower = trimmed.toLowerCase();
 		if (lower === "true" || lower === "1") return true;
 		if (lower === "false" || lower === "0") return false;
+		return trimmed;
 	}
-	if (typeof val === "boolean") return val;
-	return undefined;
+	return val;
 }
 
 export const listMenuItemsQuerySchema = z

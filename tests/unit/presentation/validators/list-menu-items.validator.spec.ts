@@ -117,5 +117,32 @@ describe("ListMenuItemsValidator", () => {
 				expect(result.data.maxPrice).toBe(0);
 			}
 		});
+
+		it("should reject unrecognized nonempty boolean values for vegetarian and featured filters", () => {
+			expect(
+				listMenuItemsQuerySchema.safeParse({ isVegetarian: "invalid" }).success,
+			).toBe(false);
+			expect(
+				listMenuItemsQuerySchema.safeParse({ is_vegetarian: "yes" }).success,
+			).toBe(false);
+			expect(
+				listMenuItemsQuerySchema.safeParse({ isFeatured: "maybe" }).success,
+			).toBe(false);
+			expect(
+				listMenuItemsQuerySchema.safeParse({ is_featured: "foo" }).success,
+			).toBe(false);
+		});
+
+		it("should treat empty string boolean values as undefined", () => {
+			const result = listMenuItemsQuerySchema.safeParse({
+				isVegetarian: "",
+				is_featured: "  ",
+			});
+			expect(result.success).toBe(true);
+			if (result.success) {
+				expect(result.data.isVegetarian).toBeUndefined();
+				expect(result.data.isFeatured).toBeUndefined();
+			}
+		});
 	});
 });
