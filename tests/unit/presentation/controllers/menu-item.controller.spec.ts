@@ -111,5 +111,64 @@ describe("MenuItemController", () => {
 				}),
 			);
 		});
+
+		it("should read validated query from res.locals.query when present", async () => {
+			mockListUseCase.execute.mockResolvedValueOnce({
+				stats: {
+					totalCategories: 1,
+					totalMenuItems: 0,
+					availableItems: 0,
+					outOfStockItems: 0,
+				},
+				items: [],
+				pagination: {
+					page: 2,
+					limit: 20,
+					total: 0,
+					totalPages: 0,
+					hasNextPage: false,
+					hasPrevPage: true,
+				},
+			});
+
+			const req = {
+				params: { restaurantId },
+				query: { sort_by: "price", is_vegetarian: "true" },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const res = {
+				status: statusMock,
+				json: jsonMock,
+				locals: {
+					query: {
+						page: 2,
+						limit: 20,
+						sortBy: "price",
+						sortOrder: "asc",
+						isVegetarian: true,
+					},
+				},
+			} as unknown as Response;
+
+			await controller.listMenuItems(req, res);
+
+			expect(mockListUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				page: 2,
+				limit: 20,
+				search: undefined,
+				categoryId: undefined,
+				status: undefined,
+				minPrice: undefined,
+				maxPrice: undefined,
+				isVegetarian: true,
+				isFeatured: undefined,
+				sortBy: "price",
+				sortOrder: "asc",
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		});
 	});
 });
