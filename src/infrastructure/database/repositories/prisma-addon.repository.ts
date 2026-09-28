@@ -62,6 +62,7 @@ export class PrismaAddonRepository
 						equals: name,
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
@@ -86,7 +87,10 @@ export class PrismaAddonRepository
 	public async findByRestaurantId(restaurantId: string): Promise<Addon[]> {
 		try {
 			const records = await this.dbModel.findMany({
-				where: { restaurantId },
+				where: {
+					restaurantId,
+					isDeleted: false,
+				},
 				orderBy: { name: "asc" },
 			});
 			return records.map((r) => this.mapper.toDomain(r));
@@ -118,6 +122,7 @@ export class PrismaAddonRepository
 					price: data.price,
 					imageKey: data.imageKey,
 					isAvailable: data.isAvailable,
+					isDeleted: data.isDeleted,
 				},
 			});
 			return this.mapper.toDomain(updated);

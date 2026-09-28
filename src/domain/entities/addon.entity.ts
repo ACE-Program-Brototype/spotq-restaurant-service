@@ -15,6 +15,7 @@ export interface AddonProps {
 	price: number;
 	imageKey: string | null;
 	isAvailable: boolean;
+	isDeleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -27,6 +28,7 @@ export interface CreateAddonProps {
 	price: number;
 	imageKey?: string | null;
 	isAvailable?: boolean;
+	isDeleted?: boolean;
 }
 
 export interface ReconstituteAddonProps {
@@ -37,6 +39,7 @@ export interface ReconstituteAddonProps {
 	price: number;
 	imageKey: string | null;
 	isAvailable: boolean;
+	isDeleted?: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -101,6 +104,7 @@ export class Addon {
 			price: createProps.price,
 			imageKey: trimmedImageKey,
 			isAvailable: createProps.isAvailable ?? true,
+			isDeleted: createProps.isDeleted ?? false,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -115,12 +119,17 @@ export class Addon {
 			price: reconstituteProps.price,
 			imageKey: reconstituteProps.imageKey,
 			isAvailable: reconstituteProps.isAvailable,
+			isDeleted: reconstituteProps.isDeleted ?? false,
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
 	}
 
 	public update(updateProps: UpdateAddonProps): void {
+		if (this.props.isDeleted) {
+			throw new InvalidAddonDataError(messages.CANNOT_MODIFY_DELETED_ADDON);
+		}
+
 		if (updateProps.name !== undefined) {
 			const trimmedName = updateProps.name.trim();
 			if (!trimmedName) {
@@ -200,6 +209,10 @@ export class Addon {
 		return this.props.isAvailable;
 	}
 
+	public get isDeleted(): boolean {
+		return this.props.isDeleted;
+	}
+
 	public get createdAt(): Date {
 		return this.props.createdAt;
 	}
@@ -209,7 +222,19 @@ export class Addon {
 	}
 
 	public updateAvailability(isAvailable: boolean): void {
+		if (this.props.isDeleted) {
+			throw new InvalidAddonDataError(messages.CANNOT_MODIFY_DELETED_ADDON);
+		}
 		this.props.isAvailable = isAvailable;
+		this.props.updatedAt = new Date();
+	}
+
+	public softDelete(): void {
+		if (this.props.isDeleted) {
+			return;
+		}
+		this.props.isDeleted = true;
+		this.props.isAvailable = false;
 		this.props.updatedAt = new Date();
 	}
 }

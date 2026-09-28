@@ -28,6 +28,7 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
+import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import {
 	listMenuItemsParamsSchema,
 	listMenuItemsQuerySchema,
@@ -225,6 +226,13 @@ restaurantRouter.patch(
 	validateRequestParams(updateAddonParamsSchema),
 	validateRequestBody(updateAddonBodySchema),
 	addonController.updateAddon,
+);
+
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.RESTAURANT_ADDON_DELETE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteAddonParamsSchema),
+	addonController.deleteAddon,
 );
 
 restaurantRouter.post(
