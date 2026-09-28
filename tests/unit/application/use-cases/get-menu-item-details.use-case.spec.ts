@@ -31,6 +31,15 @@ describe("GetMenuItemDetailsUseCase", () => {
 		);
 	});
 
+	const mockActiveRestaurant = {
+		id: restaurantId,
+		isBlocked: false,
+		statusVO: {
+			isActive: () => true,
+			isApproved: () => true,
+		},
+	};
+
 	it("should throw RestaurantNotFoundError when restaurant does not exist", async () => {
 		mockRestaurantRepo.findById.mockResolvedValueOnce(null);
 
@@ -42,10 +51,38 @@ describe("GetMenuItemDetailsUseCase", () => {
 		expect(mockMenuItemRepo.findByIdAndRestaurantId).not.toHaveBeenCalled();
 	});
 
-	it("should throw MenuItemNotFoundError when menu item is not found", async () => {
+	it("should throw RestaurantNotFoundError when restaurant is blocked", async () => {
 		mockRestaurantRepo.findById.mockResolvedValueOnce({
 			id: restaurantId,
+			isBlocked: true,
+			statusVO: {
+				isActive: () => true,
+				isApproved: () => true,
+			},
 		} as never);
+
+		await expect(useCase.execute({ restaurantId, menuItemId })).rejects.toThrow(
+			RestaurantNotFoundError,
+		);
+	});
+
+	it("should throw RestaurantNotFoundError when restaurant is neither active nor approved", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+			isBlocked: false,
+			statusVO: {
+				isActive: () => false,
+				isApproved: () => false,
+			},
+		} as never);
+
+		await expect(useCase.execute({ restaurantId, menuItemId })).rejects.toThrow(
+			RestaurantNotFoundError,
+		);
+	});
+
+	it("should throw MenuItemNotFoundError when menu item is not found", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce(mockActiveRestaurant as never);
 		mockMenuItemRepo.findByIdAndRestaurantId.mockResolvedValueOnce(null);
 
 		await expect(useCase.execute({ restaurantId, menuItemId })).rejects.toThrow(
@@ -55,6 +92,25 @@ describe("GetMenuItemDetailsUseCase", () => {
 		expect(mockMenuItemRepo.findByIdAndRestaurantId).toHaveBeenCalledWith(
 			menuItemId,
 			restaurantId,
+		);
+	});
+
+	it("should throw MenuItemNotFoundError when category is inactive", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce(mockActiveRestaurant as never);
+		mockMenuItemRepo.findByIdAndRestaurantId.mockResolvedValueOnce({
+			item: {} as never,
+			category: {
+				id: "cat-1",
+				name: "Burgers",
+				isActive: false,
+			},
+			images: [],
+			variants: [],
+			addons: [],
+		} as never);
+
+		await expect(useCase.execute({ restaurantId, menuItemId })).rejects.toThrow(
+			MenuItemNotFoundError,
 		);
 	});
 
@@ -121,9 +177,9 @@ describe("GetMenuItemDetailsUseCase", () => {
 			],
 		};
 
-		mockRestaurantRepo.findById.mockResolvedValueOnce({
-			id: restaurantId,
-		} as never);
+		mockRestaurantRepo.findById.mockResolvedValueOnce(
+			mockActiveRestaurant as never,
+		);
 		mockMenuItemRepo.findByIdAndRestaurantId.mockResolvedValueOnce(aggregate);
 
 		const result = await useCase.execute({ restaurantId, menuItemId });

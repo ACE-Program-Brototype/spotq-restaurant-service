@@ -83,6 +83,11 @@ describe("GET /:restaurantId/menu/items/:menuItemId - Route Level & Acceptance C
 
 		mockRestaurantRepo.findById.mockResolvedValueOnce({
 			id: restaurantId,
+			isBlocked: false,
+			statusVO: {
+				isActive: () => true,
+				isApproved: () => true,
+			},
 		} as never);
 
 		mockMenuItemRepo.findByIdAndRestaurantId.mockResolvedValueOnce({

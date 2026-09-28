@@ -27,7 +27,11 @@ export class GetMenuItemDetailsUseCase implements IGetMenuItemDetailsUseCase {
 		const restaurant = await this.restaurantRepository.findById(
 			input.restaurantId,
 		);
-		if (!restaurant) {
+		if (
+			!restaurant ||
+			restaurant.isBlocked ||
+			(!restaurant.statusVO.isActive() && !restaurant.statusVO.isApproved())
+		) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
@@ -35,7 +39,7 @@ export class GetMenuItemDetailsUseCase implements IGetMenuItemDetailsUseCase {
 			input.menuItemId,
 			input.restaurantId,
 		);
-		if (!aggregate) {
+		if (!aggregate || (aggregate.category && !aggregate.category.isActive)) {
 			throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
 		}
 
