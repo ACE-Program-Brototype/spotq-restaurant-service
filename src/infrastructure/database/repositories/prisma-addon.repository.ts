@@ -1,7 +1,6 @@
-import type { PrismaClient, Addon as PrismaAddon } from "@prisma/client";
+import type { Addon as PrismaAddon, PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
-import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { Addon } from "@/domain/entities/addon.entity.ts";
 import {
@@ -9,6 +8,7 @@ import {
 	AddonNotFoundError,
 } from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { AddonPersistenceMapper } from "../mappers/addon.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
@@ -62,6 +62,7 @@ export class PrismaAddonRepository
 						equals: name,
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
@@ -86,7 +87,10 @@ export class PrismaAddonRepository
 	public async findByRestaurantId(restaurantId: string): Promise<Addon[]> {
 		try {
 			const records = await this.dbModel.findMany({
-				where: { restaurantId },
+				where: {
+					restaurantId,
+					isDeleted: false,
+				},
 				orderBy: { name: "asc" },
 			});
 			return records.map((r) => this.mapper.toDomain(r));
@@ -137,6 +141,7 @@ export class PrismaAddonRepository
 					price: data.price,
 					imageKey: data.imageKey,
 					isAvailable: data.isAvailable,
+					isDeleted: data.isDeleted,
 				},
 			});
 			return this.mapper.toDomain(updated);

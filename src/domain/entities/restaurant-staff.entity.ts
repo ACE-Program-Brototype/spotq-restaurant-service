@@ -1,3 +1,4 @@
+import { Staff } from "@/domain/entities/staff.entity.ts";
 import { InvalidStaffDataError } from "@/domain/errors/staff.errors.ts";
 import {
 	type StaffRole,
@@ -8,7 +9,6 @@ import {
 	StaffStatusVO,
 } from "@/domain/value-objects/staff-status.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { Staff } from "@/domain/entities/staff.entity.ts";
 
 export interface RestaurantStaffProps {
 	id: string;

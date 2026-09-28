@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import { CreateAddonUseCase } from "@/application/use-cases/create-addon.use-case.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 
 describe("CreateAddonUseCase", () => {
-	let restaurantRepository: jest.Mocked<Partial<IRestaurantRepository>>;
-	let addonRepository: jest.Mocked<Partial<IAddonRepository>>;
+	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
+	let addonRepository: jest.Mocked<IAddonRepository>;
 	let useCase: CreateAddonUseCase;
 
 	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
@@ -16,15 +16,15 @@ describe("CreateAddonUseCase", () => {
 	beforeEach(() => {
 		restaurantRepository = {
 			findById: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 		addonRepository = {
 			findByNameAndRestaurantId: jest.fn(),
 			create: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IAddonRepository>;
 
 		useCase = new CreateAddonUseCase(
-			restaurantRepository as IRestaurantRepository,
-			addonRepository as IAddonRepository,
+			restaurantRepository,
+			addonRepository,
 		);
 	});
 

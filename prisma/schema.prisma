@@ -361,6 +361,7 @@ model Addon {
   price        Decimal @db.Decimal(10, 2)
   imageKey     String? @map("image_key") @db.VarChar(500)
   isAvailable  Boolean @default(true) @map("is_available")
+  isDeleted    Boolean @default(false) @map("is_deleted")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -368,7 +369,7 @@ model Addon {
   restaurant Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   menuItems  MenuItemAddon[]
 
-  @@unique([restaurantId, name])
+  @@index([restaurantId, name])
   @@index([restaurantId])
   @@map("addons")
 }

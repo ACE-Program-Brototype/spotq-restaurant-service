@@ -2,7 +2,6 @@ import { TYPES } from "@di/types.ts";
 import type {
 	Prisma,
 	PrismaClient,
-	RestaurantStaff as PrismaRestaurantStaff,
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
@@ -27,7 +26,7 @@ import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 export class PrismaRestaurantStaffRepository
 	extends PrismaBaseRepository<
 		RestaurantStaff,
-		PrismaRestaurantStaff,
+		PrismaRestaurantStaffWithRelations,
 		PrismaClient["restaurantStaff"]
 	>
 	implements IRestaurantStaffRepository
@@ -37,11 +36,6 @@ export class PrismaRestaurantStaffRepository
 		private readonly prismaClient: PrismaClient,
 	) {
 		super(prismaClient.restaurantStaff, StaffPersistenceMapper);
-	}
-
-	// biome-ignore lint/suspicious/noExplicitAny: Internal delegate to support schema bridge
-	private get delegate(): any {
-		return this.dbModel;
 	}
 
 	private get isLegacyMock(): boolean {
@@ -340,7 +334,7 @@ export class PrismaRestaurantStaffRepository
 						await this.prismaClient.$transaction(async (tx) => {
 							await tx.restaurantStaff.upsert({
 								where: { id: entity.id },
-								create: fullCreateData as Prisma.RestaurantStaffCreateInput,
+								create: fullCreateData as unknown as Prisma.RestaurantStaffCreateInput,
 								update: fullUpdateData as Prisma.RestaurantStaffUpdateInput,
 							});
 							await tx.staff.update({

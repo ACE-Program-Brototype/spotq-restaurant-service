@@ -12,6 +12,7 @@ export const AddonPersistenceMapper: IEntityMapper<Addon, PrismaAddon> = {
 			price: Number(raw.price),
 			imageKey: raw.imageKey,
 			isAvailable: raw.isAvailable,
+			isDeleted: raw.isDeleted,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt,
 		});
@@ -26,6 +27,7 @@ export const AddonPersistenceMapper: IEntityMapper<Addon, PrismaAddon> = {
 			price: new Prisma.Decimal(entity.price),
 			imageKey: entity.imageKey,
 			isAvailable: entity.isAvailable,
+			isDeleted: entity.isDeleted,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		};

@@ -109,6 +109,7 @@ export const TYPES = {
 		ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
 		CreateMenuItemUseCase: Symbol.for("CreateMenuItemUseCase"),
 		UpdateAddonUseCase: Symbol.for("UpdateAddonUseCase"),
+		DeleteAddonUseCase: Symbol.for("DeleteAddonUseCase"),
 		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
 		UpdateMenuCategoryUseCase: Symbol.for("UpdateMenuCategoryUseCase"),
 	},
