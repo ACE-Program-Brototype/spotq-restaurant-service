@@ -69,6 +69,7 @@ export class PrismaMenuCategoryRepository
 						equals: name,
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
@@ -81,7 +82,7 @@ export class PrismaMenuCategoryRepository
 	public async getNextDisplayOrder(restaurantId: string): Promise<number> {
 		try {
 			const last = await this.dbModel.findFirst({
-				where: { restaurantId },
+				where: { restaurantId, isDeleted: false },
 				orderBy: { displayOrder: "desc" },
 				select: { displayOrder: true },
 			});
@@ -99,6 +100,7 @@ export class PrismaMenuCategoryRepository
 				await tx.menuCategory.updateMany({
 					where: {
 						restaurantId: data.restaurantId,
+						isDeleted: false,
 						displayOrder: {
 							gte: data.displayOrder,
 						},
@@ -136,6 +138,7 @@ export class PrismaMenuCategoryRepository
 						await tx.menuCategory.updateMany({
 							where: {
 								restaurantId,
+								isDeleted: false,
 								id: { not: id },
 								displayOrder: {
 									gte: displayOrder,
@@ -152,6 +155,7 @@ export class PrismaMenuCategoryRepository
 						await tx.menuCategory.updateMany({
 							where: {
 								restaurantId,
+								isDeleted: false,
 								id: { not: id },
 								displayOrder: {
 									gt: previousDisplayOrder,
@@ -173,6 +177,7 @@ export class PrismaMenuCategoryRepository
 							description: data.description,
 							displayOrder: data.displayOrder,
 							isActive: data.isActive,
+							isDeleted: data.isDeleted,
 							updatedAt: data.updatedAt,
 						},
 					});
@@ -187,12 +192,27 @@ export class PrismaMenuCategoryRepository
 					description: data.description,
 					displayOrder: data.displayOrder,
 					isActive: data.isActive,
+					isDeleted: data.isDeleted,
 					updatedAt: data.updatedAt,
 				},
 			});
 			return this.mapper.toDomain(updated);
 		} catch (error) {
 			this.handlePrismaError(error, category);
+			throw error;
+		}
+	}
+
+	public async hasMenuItems(categoryId: string): Promise<boolean> {
+		try {
+			const count = await this.prismaClient.menuItem.count({
+				where: {
+					categoryId,
+				},
+			});
+			return count > 0;
+		} catch (error) {
+			this.handlePrismaError(error);
 			throw error;
 		}
 	}

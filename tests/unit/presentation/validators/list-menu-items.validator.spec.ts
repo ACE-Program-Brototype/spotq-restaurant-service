@@ -152,9 +152,7 @@ describe("ListMenuItemsValidator", () => {
 			});
 			expect(res1.success).toBe(false);
 			if (!res1.success) {
-				expect(res1.error.issues[0].message).toBe(
-					messages.INVALID_CATEGORY_ID,
-				);
+				expect(res1.error.issues[0].message).toBe(messages.INVALID_CATEGORY_ID);
 			}
 
 			const res2 = listMenuItemsQuerySchema.safeParse({
@@ -162,9 +160,7 @@ describe("ListMenuItemsValidator", () => {
 			});
 			expect(res2.success).toBe(false);
 			if (!res2.success) {
-				expect(res2.error.issues[0].message).toBe(
-					messages.INVALID_CATEGORY_ID,
-				);
+				expect(res2.error.issues[0].message).toBe(messages.INVALID_CATEGORY_ID);
 			}
 		});
 	});

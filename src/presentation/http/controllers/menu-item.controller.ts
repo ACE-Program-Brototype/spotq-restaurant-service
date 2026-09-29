@@ -104,8 +104,7 @@ export class MenuItemController {
 			categoryId: resolvedCategoryId,
 			name,
 			description: String(description ?? "").trim(),
-			price:
-				price !== undefined && price !== null ? Number(price) : undefined,
+			price: price !== undefined && price !== null ? Number(price) : undefined,
 			preparationTime:
 				preparationTime !== undefined
 					? Number(preparationTime)

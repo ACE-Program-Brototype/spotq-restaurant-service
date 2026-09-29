@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
+import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
-import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -66,9 +66,7 @@ describe("MenuItemController", () => {
 							isDefault: true,
 						},
 					],
-					addons: [
-						{ addonId: "addon-1", priceOverride: 40.0 },
-					],
+					addons: [{ addonId: "addon-1", priceOverride: 40.0 }],
 				},
 			};
 
@@ -119,10 +117,7 @@ describe("MenuItemController", () => {
 
 			createMenuItemUseCase.execute.mockResolvedValue(mockResult);
 
-			await controller.createMenuItem(
-				req as Request,
-				res as Response,
-			);
+			await controller.createMenuItem(req as Request, res as Response);
 
 			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -175,10 +170,7 @@ describe("MenuItemController", () => {
 
 			createMenuItemUseCase.execute.mockResolvedValue({} as never);
 
-			await controller.createMenuItem(
-				req as Request,
-				res as Response,
-			);
+			await controller.createMenuItem(req as Request, res as Response);
 
 			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -208,10 +200,7 @@ describe("MenuItemController", () => {
 
 			createMenuItemUseCase.execute.mockResolvedValue({} as never);
 
-			await controller.createMenuItem(
-				req as Request,
-				res as Response,
-			);
+			await controller.createMenuItem(req as Request, res as Response);
 
 			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -240,10 +229,7 @@ describe("MenuItemController", () => {
 
 			createMenuItemUseCase.execute.mockResolvedValue({} as never);
 
-			await controller.createMenuItem(
-				req as Request,
-				res as Response,
-			);
+			await controller.createMenuItem(req as Request, res as Response);
 
 			expect(createMenuItemUseCase.execute).toHaveBeenCalledWith(
 				expect.objectContaining({

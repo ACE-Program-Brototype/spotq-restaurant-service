@@ -80,17 +80,11 @@ export const listMenuItemsQuerySchema = z
 			.optional(),
 		categoryId: z.preprocess(
 			parseOptionalString,
-			z
-				.string()
-				.uuid({ message: messages.INVALID_CATEGORY_ID })
-				.optional(),
+			z.string().uuid({ message: messages.INVALID_CATEGORY_ID }).optional(),
 		),
 		category_id: z.preprocess(
 			parseOptionalString,
-			z
-				.string()
-				.uuid({ message: messages.INVALID_CATEGORY_ID })
-				.optional(),
+			z.string().uuid({ message: messages.INVALID_CATEGORY_ID }).optional(),
 		),
 		status: z
 			.preprocess((val) => {

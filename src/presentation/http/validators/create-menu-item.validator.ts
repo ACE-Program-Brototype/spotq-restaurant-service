@@ -13,7 +13,11 @@ export const createMenuItemImageSchema = z
 		displayOrder: z.number().int().min(0).optional(),
 	})
 	.refine(
-		(data) => Boolean((data.objectKey && data.objectKey.trim().length > 0) || (data.object_key && data.object_key.trim().length > 0)),
+		(data) =>
+			Boolean(
+				(data.objectKey && data.objectKey.trim().length > 0) ||
+					(data.object_key && data.object_key.trim().length > 0),
+			),
 		{ message: messages.STORAGE_KEY_REQUIRED },
 	);
 
@@ -49,10 +53,9 @@ export const createMenuItemAddonSchema = z
 			.optional()
 			.nullable(),
 	})
-	.refine(
-		(data) => Boolean(data.addonId || data.addon_id),
-		{ message: messages.INVALID_ADDON_ID },
-	);
+	.refine((data) => Boolean(data.addonId || data.addon_id), {
+		message: messages.INVALID_ADDON_ID,
+	});
 
 export const createMenuItemBodySchema = z
 	.object({
@@ -108,17 +111,13 @@ export const createMenuItemBodySchema = z
 		variants: z.array(createMenuItemVariantSchema).optional(),
 		addons: z.array(createMenuItemAddonSchema).optional(),
 	})
-	.refine(
-		(data) => Boolean(data.categoryId || data.category_id),
-		{
-			message: messages.CATEGORY_ID_REQUIRED,
-			path: ["categoryId"],
-		},
-	)
+	.refine((data) => Boolean(data.categoryId || data.category_id), {
+		message: messages.CATEGORY_ID_REQUIRED,
+		path: ["categoryId"],
+	})
 	.refine(
 		(data) =>
-			data.preparationTime !== undefined ||
-			data.preparation_time !== undefined,
+			data.preparationTime !== undefined || data.preparation_time !== undefined,
 		{
 			message: messages.PREPARATION_TIME_REQUIRED,
 			path: ["preparationTime"],
@@ -126,8 +125,7 @@ export const createMenuItemBodySchema = z
 	)
 	.refine(
 		(data) =>
-			data.isVegetarian !== undefined ||
-			data.is_vegetarian !== undefined,
+			data.isVegetarian !== undefined || data.is_vegetarian !== undefined,
 		{
 			message: messages.IS_VEGETARIAN_REQUIRED,
 			path: ["isVegetarian"],
@@ -135,8 +133,7 @@ export const createMenuItemBodySchema = z
 	)
 	.refine(
 		(data) =>
-			data.price !== undefined ||
-			(data.variants && data.variants.length > 0),
+			data.price !== undefined || (data.variants && data.variants.length > 0),
 		{
 			message: messages.MENU_ITEM_PRICE_REQUIRED,
 			path: ["price"],
@@ -158,4 +155,3 @@ export const createMenuItemBodySchema = z
 
 export type CreateMenuItemParams = z.infer<typeof createMenuItemParamsSchema>;
 export type CreateMenuItemBody = z.infer<typeof createMenuItemBodySchema>;
-

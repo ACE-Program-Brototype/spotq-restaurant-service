@@ -22,10 +22,7 @@ describe("CreateAddonUseCase", () => {
 			create: jest.fn(),
 		} as unknown as jest.Mocked<IAddonRepository>;
 
-		useCase = new CreateAddonUseCase(
-			restaurantRepository,
-			addonRepository,
-		);
+		useCase = new CreateAddonUseCase(restaurantRepository, addonRepository);
 	});
 
 	it("should create an addon successfully", () => {

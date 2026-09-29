@@ -271,6 +271,7 @@ export const messages = {
 	INVALID_ADDON_ID: "Invalid add-on ID",
 	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
 	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
+	MENU_CATEGORY_DELETED_SUCCESS: "Menu category deleted successfully",
 	CATEGORY_ALREADY_EXISTS:
 		"A category with this name already exists for this restaurant",
 	CATEGORY_NAME_REQUIRED: "Category name is required",
@@ -278,9 +279,11 @@ export const messages = {
 	CATEGORY_DESCRIPTION_MAX_LENGTH:
 		"Category description must not exceed 1000 characters",
 	CATEGORY_NOT_FOUND: "Category not found",
+	CATEGORY_HAS_MENU_ITEMS: "Cannot delete a category that contains menu items",
 	CATEGORY_DISPLAY_ORDER_INVALID:
 		"Display order must be a non-negative integer",
 	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
+	CANNOT_MODIFY_DELETED_CATEGORY: "Cannot modify a deleted category",
 	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",

@@ -294,10 +294,7 @@ describe("PrismaMenuItemRepository", () => {
 			mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
 
 			await expect(
-				repository.findByNameAndRestaurantId(
-					restaurantId,
-					"Existing",
-				),
+				repository.findByNameAndRestaurantId(restaurantId, "Existing"),
 			).rejects.toThrow(MenuItemAlreadyExistsError);
 		});
 
@@ -313,10 +310,7 @@ describe("PrismaMenuItemRepository", () => {
 			mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
 
 			await expect(
-				repository.findByNameAndRestaurantId(
-					restaurantId,
-					"Existing",
-				),
+				repository.findByNameAndRestaurantId(restaurantId, "Existing"),
 			).rejects.toThrow(InvalidVariantDataError);
 		});
 

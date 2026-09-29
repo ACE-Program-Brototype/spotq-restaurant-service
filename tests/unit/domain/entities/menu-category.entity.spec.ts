@@ -216,5 +216,46 @@ describe("MenuCategory Entity", () => {
 				);
 			}
 		});
+
+		it("should throw InvalidCategoryDataError when updating an already deleted category", () => {
+			const category = MenuCategory.create(validProps);
+			category.softDelete();
+
+			expect(() => category.update({ name: "New Name" })).toThrow(
+				InvalidCategoryDataError,
+			);
+			try {
+				category.update({ name: "New Name" });
+			} catch (err) {
+				expect((err as InvalidCategoryDataError).message).toBe(
+					messages.CANNOT_MODIFY_DELETED_CATEGORY,
+				);
+			}
+		});
+	});
+
+	describe("softDelete()", () => {
+		it("should mark category as isDeleted: true and isActive: false", () => {
+			const category = MenuCategory.create(validProps);
+			expect(category.isDeleted).toBe(false);
+			expect(category.isActive).toBe(true);
+
+			category.softDelete();
+
+			expect(category.isDeleted).toBe(true);
+			expect(category.isActive).toBe(false);
+		});
+
+		it("should be idempotent when softDelete is called multiple times", () => {
+			const category = MenuCategory.create(validProps);
+			category.softDelete();
+			const updatedAt = category.updatedAt;
+
+			category.softDelete();
+
+			expect(category.isDeleted).toBe(true);
+			expect(category.isActive).toBe(false);
+			expect(category.updatedAt).toEqual(updatedAt);
+		});
 	});
 });

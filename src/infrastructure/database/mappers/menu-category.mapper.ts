@@ -14,6 +14,7 @@ export const MenuCategoryPersistenceMapper: IEntityMapper<
 			description: raw.description,
 			displayOrder: raw.displayOrder,
 			isActive: raw.isActive,
+			isDeleted: raw.isDeleted,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt,
 		});
@@ -27,6 +28,7 @@ export const MenuCategoryPersistenceMapper: IEntityMapper<
 			description: entity.description,
 			displayOrder: entity.displayOrder,
 			isActive: entity.isActive,
+			isDeleted: entity.isDeleted,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		};

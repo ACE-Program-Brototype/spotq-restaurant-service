@@ -353,8 +353,7 @@ export class PrismaMenuItemRepository
 			).includes(sortBy)
 				? (sortBy as MenuItemSortField)
 				: DEFAULT_SORT_BY;
-			const safeSortOrder =
-				sortOrder === "asc" ? "asc" : DEFAULT_SORT_ORDER;
+			const safeSortOrder = sortOrder === "asc" ? "asc" : DEFAULT_SORT_ORDER;
 			const orderBy: Prisma.MenuItemOrderByWithRelationInput = {
 				[safeSortBy]: safeSortOrder,
 			};

@@ -41,4 +41,3 @@ export const MENU_ITEM_QUERY_SORT_FIELDS = [
 
 export type MenuItemQuerySortField =
 	(typeof MENU_ITEM_QUERY_SORT_FIELDS)[number];
-
