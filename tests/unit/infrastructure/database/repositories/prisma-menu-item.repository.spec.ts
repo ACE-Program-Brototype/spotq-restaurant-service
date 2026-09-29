@@ -452,6 +452,11 @@ describe("PrismaMenuItemRepository", () => {
 						],
 					},
 					addons: {
+						where: {
+							addon: {
+								isDeleted: false,
+							},
+						},
 						include: {
 							addon: true,
 						},

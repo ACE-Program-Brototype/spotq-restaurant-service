@@ -205,7 +205,8 @@ describe("GetMenuItemDetailsUseCase", () => {
 		expect(result.variants[0].isAvailable).toBe(true);
 		expect(result.addons).toHaveLength(1);
 		expect(result.addons[0].name).toBe("Extra Bacon");
-		expect(result.addons[0].price).toBe(3.0);
+		expect(result.addons[0].price).toBe(3.5);
+		expect(result.addons[0].priceOverride).toBe(3.0);
 		expect(result.addons[0].imageKey).toBe("addons/bacon.png");
 	});
 });

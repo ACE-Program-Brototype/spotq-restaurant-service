@@ -164,7 +164,7 @@ describe("MenuItemMapper", () => {
 		expect(response.pagination.hasPrevPage).toBe(true);
 	});
 
-	it("should map MenuItemDetailsAggregate to MenuItemDetailsResponseDto with presigned URLs", () => {
+	it("should map MenuItemDetailsAggregate to MenuItemDetailsResponseDto with object keys", () => {
 		const now = new Date();
 		const item = MenuItem.reconstitute({
 			id: "item-123",
@@ -270,7 +270,7 @@ describe("MenuItemMapper", () => {
 					addonId: "addon-1",
 					name: "Extra Raita",
 					description: "Cool cucumber yogurt",
-					price: 40.0,
+					price: 30.0,
 					priceOverride: 40.0,
 					imageKey: "addons/raita.png",
 					isAvailable: true,

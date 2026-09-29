@@ -200,7 +200,7 @@ describe("GET /:restaurantId/menu/items/:menuItemId - Route Level & Acceptance C
 							id: "addon-link-1",
 							addonId: "addon-1",
 							name: "Extra Bacon",
-							price: 3.0,
+							price: 2.5,
 							priceOverride: 3.0,
 							imageKey: "addons/bacon.jpg",
 							isAvailable: true,
