@@ -28,11 +28,12 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
-import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import {
 	createMenuItemBodySchema,
 	createMenuItemParamsSchema,
 } from "../validators/create-menu-item.validator";
+import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
+import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
 import {
 	listMenuItemsParamsSchema,
 	listMenuItemsQuerySchema,
@@ -269,4 +270,10 @@ restaurantRouter.get(
 	validateRequestParams(listMenuItemsParamsSchema),
 	validateRequestQuery(listMenuItemsQuerySchema),
 	menuItemController.listMenuItems,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.MENU_ITEM_DETAIL,
+	validateRequestParams(getMenuItemDetailsParamsSchema),
+	menuItemController.getMenuItemDetails,
 );

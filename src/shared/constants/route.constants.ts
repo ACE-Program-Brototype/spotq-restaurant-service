@@ -29,6 +29,7 @@ export const RESTAURANT_ROUTES = {
 	MENU_CATEGORIES: "/:restaurantId/menu/categories",
 	MENU_CATEGORY_UPDATE: "/:restaurantId/menu/categories/:categoryId",
 	MENU_ITEMS: "/:restaurantId/menu/items",
+	MENU_ITEM_DETAIL: "/:restaurantId/menu/items/:menuItemId",
 } as const;
 
 export const STAFF_ROUTES = {

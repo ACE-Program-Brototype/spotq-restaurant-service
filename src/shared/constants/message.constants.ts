@@ -269,6 +269,7 @@ export const messages = {
 		"Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
 	INVALID_ADDON_ID: "Invalid add-on ID",
+	INVALID_MENU_ITEM_ID: "Invalid menu item ID",
 	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
 	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
 	CATEGORY_ALREADY_EXISTS:
@@ -320,6 +321,7 @@ export const messages = {
 	MIN_PRICE_CANNOT_BE_GREATER_THAN_MAX_PRICE:
 		"minPrice cannot be greater than maxPrice",
 	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
+	MENU_ITEM_DETAILS_FETCHED_SUCCESS: "Menu item details retrieved successfully",
 } as const;
 
 export type MessageKey = keyof typeof messages;

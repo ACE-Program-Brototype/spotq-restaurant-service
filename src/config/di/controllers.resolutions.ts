@@ -53,4 +53,3 @@ export const adminRestaurantController =
 export const addonController = container.get<AddonController>(
 	TYPES.Controller.AddonController,
 );
-
