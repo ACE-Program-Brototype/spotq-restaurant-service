@@ -19,7 +19,7 @@ export abstract class PrismaBaseRepository<
 	) {}
 
 	// biome-ignore lint/suspicious/noExplicitAny: Internal bridge for generic base calls
-	private get delegate(): any {
+	protected get delegate(): any {
 		return this.dbModel;
 	}
 

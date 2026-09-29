@@ -10,4 +10,8 @@ export interface IMenuCategoryRepository
 	findByRestaurantId(restaurantId: string): Promise<MenuCategory[]>;
 	getNextDisplayOrder(restaurantId: string): Promise<number>;
 	create(category: MenuCategory): Promise<MenuCategory>;
+	updateCategory(
+		category: MenuCategory,
+		previousDisplayOrder?: number,
+	): Promise<MenuCategory>;
 }

@@ -90,7 +90,9 @@ export class LoginStaffUseCase implements ILoginStaffUseCase {
 			: [];
 
 		const restaurantResults = await Promise.all(
-			memberships.map((m) => this.restaurantRepository.findById(m.restaurantId)),
+			memberships.map((m) =>
+				this.restaurantRepository.findById(m.restaurantId),
+			),
 		);
 
 		const validMemberships: typeof memberships = [];

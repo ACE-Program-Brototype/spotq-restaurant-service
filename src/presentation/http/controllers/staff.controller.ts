@@ -447,6 +447,7 @@ export class StaffController {
 
 		const profile = await this.getStaffProfileUseCase.execute({
 			staffId,
+			restaurantId: authUser?.restaurantId,
 		});
 
 		sendSuccessResponse(

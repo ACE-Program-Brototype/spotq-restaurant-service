@@ -585,6 +585,7 @@ describe("StaffController", () => {
 
 			expect(getStaffProfileUseCase.execute).toHaveBeenCalledWith({
 				staffId: "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
+				restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 			});
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalledWith(

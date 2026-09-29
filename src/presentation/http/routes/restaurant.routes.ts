@@ -1,6 +1,8 @@
 import express from "express";
 import {
+	addonController,
 	menuCategoryController,
+	menuItemController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
 	restaurantStatusController,
@@ -18,10 +20,24 @@ import {
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
 import {
+	createAddonBodySchema,
+	createAddonParamsSchema,
+	listAddonsParamsSchema,
+} from "../validators/create-addon.validator";
+import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
 import { listMenuCategoriesParamSchema } from "../validators/admin/list-menu-categories.validator";
+import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
+import {
+	createMenuItemBodySchema,
+	createMenuItemParamsSchema,
+} from "../validators/create-menu-item.validator";
+import {
+	listMenuItemsParamsSchema,
+	listMenuItemsQuerySchema,
+} from "../validators/list-menu-items.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -42,6 +58,14 @@ import {
 	updateStaffStatusParamsSchema,
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
+import {
+	updateAddonBodySchema,
+	updateAddonParamsSchema,
+} from "../validators/update-addon.validator";
+import {
+	updateMenuCategoryBodySchema,
+	updateMenuCategoryParamsSchema,
+} from "../validators/update-menu-category.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -187,16 +211,70 @@ restaurantRouter.delete(
 );
 
 restaurantRouter.post(
+	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(createAddonParamsSchema),
+	validateRequestBody(createAddonBodySchema),
+	addonController.createAddon,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listAddonsParamsSchema),
+	addonController.listAddons,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.RESTAURANT_ADDON_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateAddonParamsSchema),
+	validateRequestBody(updateAddonBodySchema),
+	addonController.updateAddon,
+);
+
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.RESTAURANT_ADDON_DELETE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteAddonParamsSchema),
+	addonController.deleteAddon,
+);
+
+restaurantRouter.post(
+	RESTAURANT_ROUTES.MENU_ITEMS,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(createMenuItemParamsSchema),
+	validateRequestBody(createMenuItemBodySchema),
+	menuItemController.createMenuItem.bind(menuItemController),
+);
+
+restaurantRouter.post(
 	RESTAURANT_ROUTES.MENU_CATEGORIES,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(createMenuCategoryParamsSchema),
 	validateRequestBody(createMenuCategoryBodySchema),
-	menuCategoryController.createCategory.bind(menuCategoryController),
+	menuCategoryController.createCategory,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_CATEGORY_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateMenuCategoryParamsSchema),
+	validateRequestBody(updateMenuCategoryBodySchema),
+	menuCategoryController.updateCategory,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.MENU_ITEMS,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listMenuItemsParamsSchema),
+	validateRequestQuery(listMenuItemsQuerySchema),
+	menuItemController.listMenuItems,
 );
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.MENU_CATEGORIES,
 	restaurantAuthMiddleware,
 	validateRequestParams(listMenuCategoriesParamSchema),
-	menuCategoryController.listRestaurantCategories.bind(menuCategoryController),
+	menuCategoryController.listRestaurantCategories,
 );
