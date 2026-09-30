@@ -69,27 +69,18 @@ export class MenuCategoryController {
 	public listRestaurantCategories = async (
 		req: Request,
 		res: Response,
-		next?: (err: unknown) => void,
-	): Promise<Response | undefined> => {
-		try {
-			const restaurantId = String(req.params.restaurantId);
-			const result =
-				await this.listRestaurantMenuCategoriesUseCase.execute({
-					restaurantId,
-				});
+	): Promise<Response> => {
+		const restaurantId = String(req.params.restaurantId);
+		const result =
+			await this.listRestaurantMenuCategoriesUseCase.execute({
+				restaurantId,
+			});
 
-			return sendSuccessResponse(
-				res,
-				result,
-				messages.MENU_CATEGORIES_FETCHED_SUCCESS,
-				HTTP_STATUS.OK,
-			);
-		} catch (error) {
-			if (typeof next === "function") {
-				next(error);
-				return;
-			}
-			throw error;
-		}
+		return sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_CATEGORIES_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
 	};
 }

@@ -162,15 +162,11 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			useCase,
 		);
 
-		const next = (error: unknown) => {
+		try {
+			await controller.listRestaurantCategories(req as never, res as never);
+		} catch (error) {
 			errorHandler(error as never, req as never, res as never, jest.fn());
-		};
-
-		await controller.listRestaurantCategories(
-			req as never,
-			res as never,
-			next,
-		);
+		}
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -226,7 +222,6 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			json: jsonMock,
 			locals: {},
 		};
-		const next = jest.fn();
 
 		const useCase = new ListRestaurantMenuCategoriesUseCase(
 			mockRestaurantRepo as never,
@@ -238,11 +233,7 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			useCase,
 		);
 
-		await controller.listRestaurantCategories(
-			req as never,
-			res as never,
-			next,
-		);
+		await controller.listRestaurantCategories(req as never, res as never);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		expect(jsonMock).toHaveBeenCalledWith({
@@ -269,7 +260,6 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 				],
 			},
 		});
-		expect(next).not.toHaveBeenCalled();
 	});
 
 	it("should return 200 OK with empty categories array when restaurant has zero configured categories", async () => {
@@ -290,7 +280,6 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			json: jsonMock,
 			locals: {},
 		};
-		const next = jest.fn();
 
 		const useCase = new ListRestaurantMenuCategoriesUseCase(
 			mockRestaurantRepo as never,
@@ -302,11 +291,7 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			useCase,
 		);
 
-		await controller.listRestaurantCategories(
-			req as never,
-			res as never,
-			next,
-		);
+		await controller.listRestaurantCategories(req as never, res as never);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		expect(jsonMock).toHaveBeenCalledWith({
@@ -318,6 +303,5 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 				categories: [],
 			},
 		});
-		expect(next).not.toHaveBeenCalled();
 	});
 });
