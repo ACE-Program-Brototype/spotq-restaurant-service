@@ -102,7 +102,7 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it("should return 400 BAD REQUEST when restaurantId param is not a valid UUID", async () => {
+	it("should return 422 UNPROCESSABLE ENTITY when restaurantId param is not a valid UUID", async () => {
 		const req = {
 			params: { restaurantId: "invalid-uuid-format" },
 		};
@@ -116,18 +116,15 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 		};
 		const next = jest.fn();
 
-		const middleware = validateRequestParams(
-			listMenuCategoriesParamSchema,
-			HTTP_STATUS.BAD_REQUEST,
-		);
+		const middleware = validateRequestParams(listMenuCategoriesParamSchema);
 		await middleware(req as never, res as never, next);
 
-		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.BAD_REQUEST);
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
 		expect(jsonMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: false,
 				code: "VALIDATION_ERROR",
-				statusCode: HTTP_STATUS.BAD_REQUEST,
+				statusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 				error: expect.arrayContaining([
 					expect.objectContaining({
 						field: "restaurantId",

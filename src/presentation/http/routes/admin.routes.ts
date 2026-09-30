@@ -30,7 +30,6 @@ import {
 } from "@/presentation/http/validators/admin/reject-restaurant.validator.ts";
 import { unblockRestaurantParamSchema } from "@/presentation/http/validators/admin/unblock-restaurant.validator.ts";
 import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/admin/list-menu-categories.validator.ts";
-import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { ADMIN_ROUTES } from "@/shared/constants/route.constants.ts";
 
 export const adminRouter = express.Router();
@@ -106,7 +105,7 @@ adminRouter.patch(
 adminRouter.get(
 	ADMIN_ROUTES.RESTAURANT_MENU_CATEGORIES,
 	adminAuthMiddleware,
-	validateRequestParams(listMenuCategoriesParamSchema, HTTP_STATUS.BAD_REQUEST),
+	validateRequestParams(listMenuCategoriesParamSchema),
 	menuCategoryController.listRestaurantCategories.bind(menuCategoryController),
 );
 

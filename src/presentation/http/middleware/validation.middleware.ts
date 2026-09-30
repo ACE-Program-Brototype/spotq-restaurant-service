@@ -109,10 +109,7 @@ export function validateRequestQuery(
 	};
 }
 
-export function validateRequestParams(
-	schema: ZodType,
-	errorStatusCode: HttpStatusCode = HTTP_STATUS.UNPROCESSABLE_ENTITY,
-) {
+export function validateRequestParams(schema: ZodType) {
 	return async (
 		req: Request,
 		res: Response,
@@ -131,12 +128,12 @@ export function validateRequestParams(
 				}));
 
 				res
-					.status(errorStatusCode)
+					.status(HTTP_STATUS.UNPROCESSABLE_ENTITY)
 					.json(
 						ApiResponse.error(
 							messages.VALIDATION_ERROR,
 							"VALIDATION_ERROR",
-							errorStatusCode,
+							HTTP_STATUS.UNPROCESSABLE_ENTITY,
 							formattedErrors,
 						),
 					);
