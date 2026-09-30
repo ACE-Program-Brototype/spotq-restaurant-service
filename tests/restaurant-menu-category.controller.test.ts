@@ -732,3 +732,444 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 		);
 	});
 });
+
+describe("DELETE /restaurants/:restaurantId/menu/categories/:categoryId - Integration & Controller Suite", () => {
+	let mockRestaurantRepo: {
+		findById: jest.Mock;
+	};
+	let mockMenuCategoryRepo: {
+		findById: jest.Mock;
+		updateCategory: jest.Mock;
+		hasMenuItems: jest.Mock;
+	};
+
+	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+	const categoryId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+	const authHeaders = {
+		"x-user-id": "user-owner-1",
+		"x-restaurant-id": restaurantId,
+		"x-user-role": "restaurant_owner",
+		"x-user-email": "owner@spotq.com",
+	};
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+
+		mockRestaurantRepo = {
+			findById: jest.fn(),
+		};
+
+		mockMenuCategoryRepo = {
+			findById: jest.fn(),
+			updateCategory: jest.fn(),
+			hasMenuItems: jest.fn(),
+		};
+	});
+
+	it("should return 401 UNAUTHORIZED when no authentication identity header is provided", async () => {
+		const req = {
+			method: "DELETE",
+			url: `/${restaurantId}/menu/categories/${categoryId}`,
+			params: { restaurantId, categoryId },
+			headers: {},
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const next = jest.fn();
+
+		const { restaurantOwnerAuthMiddleware } = await import(
+			"@/presentation/http/middleware/restaurant-owner.auth.middleware.ts"
+		);
+
+		restaurantOwnerAuthMiddleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "UNAUTHORIZED",
+				statusCode: HTTP_STATUS.UNAUTHORIZED,
+			}),
+		);
+	});
+
+	it("should return 403 FORBIDDEN when user attempts cross-restaurant deletion", async () => {
+		const req = {
+			method: "DELETE",
+			url: `/${restaurantId}/menu/categories/${categoryId}`,
+			headers: {
+				...authHeaders,
+				"x-restaurant-id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22", // different restaurant
+			},
+			params: { restaurantId, categoryId },
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const next = jest.fn();
+
+		const { restaurantOwnerAuthMiddleware } = await import(
+			"@/presentation/http/middleware/restaurant-owner.auth.middleware.ts"
+		);
+
+		restaurantOwnerAuthMiddleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				message: messages.RESTAURANT_ACCESS_FORBIDDEN,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+			}),
+		);
+	});
+
+	it("should return 422 UNPROCESSABLE ENTITY when categoryId param is not a valid UUID", async () => {
+		const req = {
+			params: { restaurantId, categoryId: "not-a-valid-uuid" },
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+		const next = jest.fn();
+
+		const { validateRequestParams } = await import(
+			"@/presentation/http/middleware/validation.middleware.ts"
+		);
+		const { deleteMenuCategoryParamsSchema } = await import(
+			"@/presentation/http/validators/delete-menu-category.validator.ts"
+		);
+
+		const middleware = validateRequestParams(deleteMenuCategoryParamsSchema);
+		await middleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("should return 404 NOT FOUND when target restaurant does not exist", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce(null);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { DeleteMenuCategoryUseCase } = await import(
+			"@/application/use-cases/delete-menu-category.use-case.ts"
+		);
+		const useCase = new DeleteMenuCategoryUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.deleteCategory(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: ERROR_CODES.RESTAURANT_NOT_FOUND,
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 404 NOT FOUND when category does not exist", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(null);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { DeleteMenuCategoryUseCase } = await import(
+			"@/application/use-cases/delete-menu-category.use-case.ts"
+		);
+		const useCase = new DeleteMenuCategoryUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.deleteCategory(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "CATEGORY_NOT_FOUND",
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 404 NOT FOUND when category belongs to another restaurant", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const foreignCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId: "c3eebc99-9c0b-4ef8-bb6d-6bb9bd380a99",
+			name: "Foreign Specials",
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(foreignCategory);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { DeleteMenuCategoryUseCase } = await import(
+			"@/application/use-cases/delete-menu-category.use-case.ts"
+		);
+		const useCase = new DeleteMenuCategoryUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.deleteCategory(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "CATEGORY_NOT_FOUND",
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 404 NOT FOUND when category is already soft-deleted", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const deletedCategory = MenuCategory.reconstitute({
+			id: categoryId,
+			restaurantId,
+			name: "Deleted Category",
+			description: null,
+			displayOrder: 0,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(deletedCategory);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { DeleteMenuCategoryUseCase } = await import(
+			"@/application/use-cases/delete-menu-category.use-case.ts"
+		);
+		const useCase = new DeleteMenuCategoryUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.deleteCategory(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "CATEGORY_NOT_FOUND",
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 409 CONFLICT when category has assigned menu items", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const existingCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId,
+			name: "Starters",
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
+		mockMenuCategoryRepo.hasMenuItems.mockResolvedValueOnce(true);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { DeleteMenuCategoryUseCase } = await import(
+			"@/application/use-cases/delete-menu-category.use-case.ts"
+		);
+		const useCase = new DeleteMenuCategoryUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.deleteCategory(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.CONFLICT);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "CATEGORY_HAS_MENU_ITEMS",
+				message: messages.CATEGORY_HAS_MENU_ITEMS,
+				statusCode: HTTP_STATUS.CONFLICT,
+			}),
+		);
+	});
+
+	it("should return 200 OK with success message when category is successfully deleted", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const existingCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId,
+			name: "Seasonal Drinks",
+			displayOrder: 3,
+			isActive: true,
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
+		mockMenuCategoryRepo.hasMenuItems.mockResolvedValueOnce(false);
+		mockMenuCategoryRepo.updateCategory.mockImplementationOnce(
+			async (entity: MenuCategory) => entity,
+		);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const { DeleteMenuCategoryUseCase } = await import(
+			"@/application/use-cases/delete-menu-category.use-case.ts"
+		);
+		const useCase = new DeleteMenuCategoryUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		await controller.deleteCategory(req as never, res as never);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: true,
+				message: messages.MENU_CATEGORY_DELETED_SUCCESS,
+				statusCode: HTTP_STATUS.OK,
+				data: null,
+			}),
+		);
+		expect(existingCategory.isDeleted).toBe(true);
+		expect(existingCategory.isActive).toBe(false);
+	});
+});

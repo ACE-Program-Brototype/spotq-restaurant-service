@@ -35,7 +35,11 @@ export class UpdateMenuCategoryUseCase implements IUpdateMenuCategoryUseCase {
 		const category = await this.menuCategoryRepository.findById(
 			input.categoryId,
 		);
-		if (!category || category.restaurantId !== input.restaurantId) {
+		if (
+			!category ||
+			category.restaurantId !== input.restaurantId ||
+			category.isDeleted
+		) {
 			throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
 		}
 

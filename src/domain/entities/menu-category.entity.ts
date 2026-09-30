@@ -9,6 +9,7 @@ export interface MenuCategoryProps {
 	description: string | null;
 	displayOrder: number;
 	isActive: boolean;
+	isDeleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -20,6 +21,7 @@ export interface CreateMenuCategoryProps {
 	description?: string | null;
 	displayOrder?: number;
 	isActive?: boolean;
+	isDeleted?: boolean;
 }
 
 export interface ReconstituteMenuCategoryProps {
@@ -29,6 +31,7 @@ export interface ReconstituteMenuCategoryProps {
 	description: string | null;
 	displayOrder: number;
 	isActive: boolean;
+	isDeleted?: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -76,6 +79,7 @@ export class MenuCategory {
 			description: trimmedDescription,
 			displayOrder: createProps.displayOrder ?? 0,
 			isActive: createProps.isActive ?? true,
+			isDeleted: createProps.isDeleted ?? false,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -91,12 +95,19 @@ export class MenuCategory {
 			description: reconstituteProps.description,
 			displayOrder: reconstituteProps.displayOrder,
 			isActive: reconstituteProps.isActive,
+			isDeleted: reconstituteProps.isDeleted ?? false,
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
 	}
 
 	public update(updateProps: UpdateMenuCategoryProps): void {
+		if (this.props.isDeleted) {
+			throw new InvalidCategoryDataError(
+				messages.CANNOT_MODIFY_DELETED_CATEGORY,
+			);
+		}
+
 		if (updateProps.name !== undefined) {
 			const trimmedName = updateProps.name.trim();
 			if (!trimmedName) {
@@ -165,11 +176,24 @@ export class MenuCategory {
 		return this.props.isActive;
 	}
 
+	public get isDeleted(): boolean {
+		return this.props.isDeleted;
+	}
+
 	public get createdAt(): Date {
 		return this.props.createdAt;
 	}
 
 	public get updatedAt(): Date {
 		return this.props.updatedAt;
+	}
+
+	public softDelete(): void {
+		if (this.props.isDeleted) {
+			return;
+		}
+		this.props.isDeleted = true;
+		this.props.isActive = false;
+		this.props.updatedAt = new Date();
 	}
 }
