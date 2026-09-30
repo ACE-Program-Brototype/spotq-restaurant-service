@@ -134,6 +134,7 @@ export class PrismaMenuItemRepository
 						equals: name,
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
@@ -164,6 +165,7 @@ export class PrismaMenuItemRepository
 				where: {
 					id: menuItemId,
 					restaurantId,
+					isDeleted: false,
 				},
 				include: {
 					category: true,
@@ -259,13 +261,13 @@ export class PrismaMenuItemRepository
 						where: { restaurantId, isDeleted: false },
 					}),
 					this.prismaClient.menuItem.count({
-						where: { restaurantId },
+						where: { restaurantId, isDeleted: false },
 					}),
 					this.prismaClient.menuItem.count({
-						where: { restaurantId, isAvailable: true },
+						where: { restaurantId, isDeleted: false, isAvailable: true },
 					}),
 					this.prismaClient.menuItem.count({
-						where: { restaurantId, isAvailable: false },
+						where: { restaurantId, isDeleted: false, isAvailable: false },
 					}),
 				]);
 
@@ -277,6 +279,32 @@ export class PrismaMenuItemRepository
 			};
 		} catch (error) {
 			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
+	public async updateMenuItem(item: MenuItem): Promise<MenuItem> {
+		try {
+			const data = this.mapper.toPersistence(item);
+			const updated = await this.dbModel.update({
+				where: { id: data.id },
+				data: {
+					categoryId: data.categoryId,
+					name: data.name,
+					description: data.description,
+					price: data.price,
+					preparationTime: data.preparationTime,
+					calories: data.calories,
+					isVegetarian: data.isVegetarian,
+					isFeatured: data.isFeatured,
+					isAvailable: data.isAvailable,
+					isDeleted: data.isDeleted,
+					updatedAt: data.updatedAt,
+				},
+			});
+			return this.mapper.toDomain(updated);
+		} catch (error) {
+			this.handlePrismaError(error, item);
 			throw error;
 		}
 	}
@@ -407,6 +435,7 @@ export class PrismaMenuItemRepository
 
 			const where: Prisma.MenuItemWhereInput = {
 				restaurantId,
+				isDeleted: false,
 			};
 
 			if (categoryId) {
