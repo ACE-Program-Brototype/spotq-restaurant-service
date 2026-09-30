@@ -106,7 +106,7 @@ adminRouter.get(
 	ADMIN_ROUTES.RESTAURANT_MENU_CATEGORIES,
 	adminAuthMiddleware,
 	validateRequestParams(listMenuCategoriesParamSchema),
-	menuCategoryController.listRestaurantCategories.bind(menuCategoryController),
+	menuCategoryController.listRestaurantCategories,
 );
 
 export default adminRouter;
