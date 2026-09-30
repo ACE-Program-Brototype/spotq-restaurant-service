@@ -39,7 +39,11 @@ export class GetMenuItemDetailsUseCase implements IGetMenuItemDetailsUseCase {
 			input.menuItemId,
 			input.restaurantId,
 		);
-		if (!aggregate || (aggregate.category && !aggregate.category.isActive)) {
+		if (
+			!aggregate ||
+			aggregate.item.isDeleted ||
+			(aggregate.category && !aggregate.category.isActive)
+		) {
 			throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
 		}
 
