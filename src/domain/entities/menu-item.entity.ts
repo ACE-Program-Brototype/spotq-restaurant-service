@@ -21,6 +21,7 @@ export interface MenuItemProps {
 	isVegetarian: boolean;
 	isFeatured: boolean;
 	isAvailable: boolean;
+	isDeleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -37,6 +38,7 @@ export interface CreateMenuItemProps {
 	isVegetarian?: boolean;
 	isFeatured?: boolean;
 	isAvailable?: boolean;
+	isDeleted?: boolean;
 }
 
 export interface ReconstituteMenuItemProps {
@@ -51,6 +53,7 @@ export interface ReconstituteMenuItemProps {
 	isVegetarian: boolean;
 	isFeatured: boolean;
 	isAvailable: boolean;
+	isDeleted: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -150,6 +153,7 @@ export class MenuItem {
 			isVegetarian: createProps.isVegetarian ?? false,
 			isFeatured: createProps.isFeatured ?? false,
 			isAvailable: createProps.isAvailable ?? true,
+			isDeleted: createProps.isDeleted ?? false,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -170,12 +174,19 @@ export class MenuItem {
 			isVegetarian: reconstituteProps.isVegetarian,
 			isFeatured: reconstituteProps.isFeatured,
 			isAvailable: reconstituteProps.isAvailable,
+			isDeleted: reconstituteProps.isDeleted ?? false,
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
 	}
 
 	public update(updateProps: UpdateMenuItemProps): void {
+		if (this.props.isDeleted) {
+			throw new InvalidMenuItemDataError(
+				messages.CANNOT_MODIFY_DELETED_MENU_ITEM,
+			);
+		}
+
 		if (updateProps.name !== undefined) {
 			const trimmedName = updateProps.name.trim();
 			if (!trimmedName) {
@@ -264,7 +275,22 @@ export class MenuItem {
 	}
 
 	public updateAvailability(isAvailable: boolean): void {
+		if (this.props.isDeleted) {
+			throw new InvalidMenuItemDataError(
+				messages.CANNOT_MODIFY_DELETED_MENU_ITEM,
+			);
+		}
 		this.props.isAvailable = isAvailable;
+		this.props.updatedAt = new Date();
+	}
+
+	public softDelete(): void {
+		if (this.props.isDeleted) {
+			throw new InvalidMenuItemDataError(
+				messages.CANNOT_MODIFY_DELETED_MENU_ITEM,
+			);
+		}
+		this.props.isDeleted = true;
 		this.props.updatedAt = new Date();
 	}
 
@@ -310,6 +336,10 @@ export class MenuItem {
 
 	public get isAvailable(): boolean {
 		return this.props.isAvailable;
+	}
+
+	public get isDeleted(): boolean {
+		return this.props.isDeleted;
 	}
 
 	public get createdAt(): Date {
