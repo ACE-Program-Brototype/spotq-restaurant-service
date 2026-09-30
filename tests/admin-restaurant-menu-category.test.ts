@@ -159,7 +159,11 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
 
 		const next = (error: unknown) => {
 			errorHandler(error as never, req as never, res as never, jest.fn());
@@ -231,7 +235,11 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
 
 		await controller.listRestaurantCategories(
 			req as never,
@@ -291,7 +299,11 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			useCase,
+		);
 
 		await controller.listRestaurantCategories(
 			req as never,

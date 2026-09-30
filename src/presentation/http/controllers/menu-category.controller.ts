@@ -3,7 +3,6 @@ import { inject, injectable } from "inversify";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
-import { ListRestaurantMenuCategoriesUseCase } from "@/application/use-cases/list-restaurant-menu-categories.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -11,40 +10,14 @@ import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 
 @injectable()
 export class MenuCategoryController {
-	private readonly createMenuCategoryUseCase!: ICreateMenuCategoryUseCase;
-	private readonly updateMenuCategoryUseCase!: IUpdateMenuCategoryUseCase;
-	private readonly listRestaurantMenuCategoriesUseCase!: IListRestaurantMenuCategoriesUseCase;
-
 	constructor(
 		@inject(TYPES.UseCases.CreateMenuCategoryUseCase)
-		createUseCaseOrAny: ICreateMenuCategoryUseCase,
+		private readonly createMenuCategoryUseCase: ICreateMenuCategoryUseCase,
 		@inject(TYPES.UseCases.UpdateMenuCategoryUseCase)
-		updateOrListUseCase?:
-			| IUpdateMenuCategoryUseCase
-			| IListRestaurantMenuCategoriesUseCase,
+		private readonly updateMenuCategoryUseCase: IUpdateMenuCategoryUseCase,
 		@inject(TYPES.UseCases.ListRestaurantMenuCategoriesUseCase)
-		listUseCase?: IListRestaurantMenuCategoriesUseCase,
-	) {
-		if (listUseCase) {
-			this.createMenuCategoryUseCase = createUseCaseOrAny;
-			this.updateMenuCategoryUseCase =
-				updateOrListUseCase as IUpdateMenuCategoryUseCase;
-			this.listRestaurantMenuCategoriesUseCase = listUseCase;
-		} else {
-			this.createMenuCategoryUseCase = createUseCaseOrAny;
-			if (
-				updateOrListUseCase instanceof ListRestaurantMenuCategoriesUseCase ||
-				updateOrListUseCase?.constructor?.name ===
-					"ListRestaurantMenuCategoriesUseCase"
-			) {
-				this.listRestaurantMenuCategoriesUseCase =
-					updateOrListUseCase as IListRestaurantMenuCategoriesUseCase;
-			} else if (updateOrListUseCase) {
-				this.updateMenuCategoryUseCase =
-					updateOrListUseCase as IUpdateMenuCategoryUseCase;
-			}
-		}
-	}
+		private readonly listRestaurantMenuCategoriesUseCase: IListRestaurantMenuCategoriesUseCase,
+	) {}
 
 	public createCategory = async (
 		req: Request,
