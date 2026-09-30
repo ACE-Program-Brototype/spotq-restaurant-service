@@ -227,4 +227,30 @@ describe("UpdateMenuCategoryUseCase", () => {
 			3,
 		);
 	});
+
+	it("should throw CategoryNotFoundError when category is soft-deleted", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+		} as Restaurant);
+
+		const softDeletedCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId,
+			name: "Starters",
+			isDeleted: true,
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(
+			softDeletedCategory,
+		);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				categoryId,
+				name: "New Name",
+			}),
+		).rejects.toThrow(CategoryNotFoundError);
+
+		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
+	});
 });

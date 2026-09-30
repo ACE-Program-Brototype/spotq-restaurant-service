@@ -236,6 +236,9 @@ describe("PrismaMenuItemRepository", () => {
 
 			const stats = await repository.getRestaurantMenuStats(restaurantId);
 
+			expect(mockPrisma.menuCategory.count).toHaveBeenCalledWith({
+				where: { restaurantId, isDeleted: false },
+			});
 			expect(stats.totalCategories).toBe(4);
 			expect(stats.totalMenuItems).toBe(12);
 			expect(stats.availableItems).toBe(10);

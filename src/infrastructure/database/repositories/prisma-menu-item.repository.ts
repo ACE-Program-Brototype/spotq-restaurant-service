@@ -161,7 +161,7 @@ export class PrismaMenuItemRepository
 			const [totalCategories, totalMenuItems, availableItems, outOfStockItems] =
 				await Promise.all([
 					this.prismaClient.menuCategory.count({
-						where: { restaurantId },
+						where: { restaurantId, isDeleted: false },
 					}),
 					this.prismaClient.menuItem.count({
 						where: { restaurantId },

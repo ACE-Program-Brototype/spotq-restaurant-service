@@ -8,6 +8,7 @@ import { TYPES } from "@/config/di/types.ts";
 import type { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import {
 	CategoryAlreadyExistsError,
+	CategoryHasMenuItemsError,
 	CategoryNotFoundError,
 } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
@@ -182,6 +183,39 @@ export class PrismaMenuCategoryRepository
 						},
 					});
 				});
+				return this.mapper.toDomain(updated);
+			}
+
+			if (data.isDeleted) {
+				const result = await this.prismaClient.menuCategory.updateMany({
+					where: {
+						id,
+						menuItems: { none: {} },
+					},
+					data: {
+						name: data.name,
+						description: data.description,
+						displayOrder: data.displayOrder,
+						isActive: data.isActive,
+						isDeleted: data.isDeleted,
+						updatedAt: data.updatedAt,
+					},
+				});
+
+				if (result.count === 0) {
+					const hasItems = await this.hasMenuItems(id);
+					if (hasItems) {
+						throw new CategoryHasMenuItemsError(
+							messages.CATEGORY_HAS_MENU_ITEMS,
+						);
+					}
+					throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+				}
+
+				const updated = await this.dbModel.findUnique({ where: { id } });
+				if (!updated) {
+					throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+				}
 				return this.mapper.toDomain(updated);
 			}
 

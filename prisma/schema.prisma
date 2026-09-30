@@ -288,7 +288,7 @@ model MenuCategory {
 
   menuItems MenuItem[]
 
-  @@unique([restaurantId, name])
+  @@index([restaurantId, name])
   @@index([restaurantId, displayOrder])
   @@map("menu_categories")
 }

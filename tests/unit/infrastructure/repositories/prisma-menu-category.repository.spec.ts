@@ -3,6 +3,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import {
 	CategoryAlreadyExistsError,
+	CategoryHasMenuItemsError,
 	CategoryNotFoundError,
 } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
@@ -435,13 +436,90 @@ describe("PrismaMenuCategoryRepository", () => {
 		});
 	});
 
-	it("should return false when category has no menu items", async () => {
+	it("should atomically soft delete category when no menu items exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 1 });
+		mockPrisma.menuCategory.findUnique.mockResolvedValueOnce({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const result = await repository.updateCategory(category);
+
+		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				id: "cat-1",
+				menuItems: { none: {} },
+			},
+			data: expect.objectContaining({
+				isDeleted: true,
+				isActive: false,
+			}),
+		});
+		expect(result.isDeleted).toBe(true);
+	});
+
+	it("should throw CategoryHasMenuItemsError when atomic soft delete fails because items exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 0 });
+		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
+			count: jest.fn().mockResolvedValueOnce(2),
+		};
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryHasMenuItemsError,
+		);
+	});
+
+	it("should throw CategoryNotFoundError when atomic soft delete fails because category does not exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-non-existent",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 0 });
 		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
 			count: jest.fn().mockResolvedValueOnce(0),
 		};
 
-		const result = await repository.hasMenuItems("cat-empty");
-
-		expect(result).toBe(false);
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryNotFoundError,
+		);
 	});
 });
