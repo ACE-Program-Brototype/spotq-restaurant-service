@@ -239,9 +239,7 @@ describe("UpdateMenuCategoryUseCase", () => {
 			name: "Starters",
 			isDeleted: true,
 		});
-		mockMenuCategoryRepo.findById.mockResolvedValueOnce(
-			softDeletedCategory,
-		);
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(softDeletedCategory);
 
 		await expect(
 			useCase.execute({

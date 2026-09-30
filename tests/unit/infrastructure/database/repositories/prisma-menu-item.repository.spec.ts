@@ -113,6 +113,7 @@ describe("PrismaMenuItemRepository", () => {
 						equals: "wagyu burger",
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 		});
@@ -151,8 +152,9 @@ describe("PrismaMenuItemRepository", () => {
 		it("should create menu item with details inside transaction", async () => {
 			const mockTx = {
 				menuItem: {
-					create:
-						jest.fn<() => Promise<unknown>>().mockResolvedValue(rawMenuItem),
+					create: jest
+						.fn<() => Promise<unknown>>()
+						.mockResolvedValue(rawMenuItem),
 				},
 				menuItemImage: {
 					create: jest.fn<() => Promise<unknown>>().mockResolvedValue({
@@ -439,6 +441,7 @@ describe("PrismaMenuItemRepository", () => {
 				where: {
 					id: rawMenuItem.id,
 					restaurantId,
+					isDeleted: false,
 				},
 				include: {
 					category: true,
@@ -489,6 +492,42 @@ describe("PrismaMenuItemRepository", () => {
 			);
 
 			expect(result).toBeNull();
+		});
+	});
+
+	describe("updateMenuItem", () => {
+		it("should update a menu item successfully", async () => {
+			const item = MenuItem.reconstitute({
+				id: rawMenuItem.id,
+				restaurantId: rawMenuItem.restaurantId,
+				categoryId: rawMenuItem.categoryId,
+				name: rawMenuItem.name,
+				description: rawMenuItem.description,
+				price: Number(rawMenuItem.price),
+				preparationTime: rawMenuItem.preparationTime,
+				calories: rawMenuItem.calories,
+				isVegetarian: rawMenuItem.isVegetarian,
+				isFeatured: rawMenuItem.isFeatured,
+				isAvailable: rawMenuItem.isAvailable,
+				isDeleted: true,
+				createdAt: rawMenuItem.createdAt,
+				updatedAt: new Date(),
+			});
+
+			mockPrisma.menuItem.update.mockResolvedValueOnce({
+				...rawMenuItem,
+				isDeleted: true,
+			});
+
+			const result = await repository.updateMenuItem(item);
+
+			expect(result.isDeleted).toBe(true);
+			expect(mockPrisma.menuItem.update).toHaveBeenCalledWith({
+				where: { id: rawMenuItem.id },
+				data: expect.objectContaining({
+					isDeleted: true,
+				}),
+			});
 		});
 	});
 });
