@@ -26,6 +26,7 @@ import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	CreateMenuItemRepositoryParams,
 	MenuItemAggregate,
+	MenuItemDetailsAggregate,
 	MenuItemQueryFilterParams,
 	MenuItemQueryResult,
 	MenuItemWithRelations,
@@ -148,6 +149,100 @@ export class PrismaMenuItemRepository
 				where: { id },
 			});
 			return record ? this.mapper.toDomain(record) : null;
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
+	public async findByIdAndRestaurantId(
+		menuItemId: string,
+		restaurantId: string,
+	): Promise<MenuItemDetailsAggregate | null> {
+		try {
+			const record = await this.prismaClient.menuItem.findFirst({
+				where: {
+					id: menuItemId,
+					restaurantId,
+				},
+				include: {
+					category: true,
+					images: {
+						orderBy: {
+							displayOrder: "asc",
+						},
+					},
+					variants: {
+						orderBy: [
+							{ isDefault: "desc" },
+							{ price: "asc" },
+							{ createdAt: "asc" },
+						],
+					},
+					addons: {
+						where: {
+							addon: {
+								isDeleted: false,
+							},
+						},
+						include: {
+							addon: true,
+						},
+						orderBy: {
+							createdAt: "asc",
+						},
+					},
+				},
+			});
+
+			if (!record) {
+				return null;
+			}
+
+			const domainItem = this.mapper.toDomain(record);
+			const domainVariants = record.variants.map((v) =>
+				MenuItemVariantPersistenceMapper.toDomain(v),
+			);
+			const domainImages = record.images.map((img) => ({
+				id: img.id,
+				menuItemId: img.menuItemId,
+				objectKey: img.objectKey,
+				displayOrder: img.displayOrder,
+				createdAt: img.createdAt,
+			}));
+
+			const domainCategory = record.category
+				? {
+						id: record.category.id,
+						name: record.category.name,
+						description: record.category.description,
+						isActive: record.category.isActive,
+					}
+				: null;
+
+			const domainAddons = record.addons
+				.filter((a) => a.addon && !a.addon.isDeleted)
+				.map((a) => ({
+					id: a.id,
+					menuItemId: a.menuItemId,
+					addonId: a.addonId,
+					name: a.addon.name,
+					description: a.addon.description,
+					price: Number(a.addon.price),
+					priceOverride:
+						a.priceOverride !== null ? Number(a.priceOverride) : null,
+					imageKey: a.addon.imageKey,
+					isAvailable: a.addon.isAvailable,
+					isDeleted: a.addon.isDeleted,
+				}));
+
+			return {
+				item: domainItem,
+				category: domainCategory,
+				images: domainImages,
+				variants: domainVariants,
+				addons: domainAddons,
+			};
 		} catch (error) {
 			this.handlePrismaError(error);
 			throw error;

@@ -1,32 +1,28 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import type { MenuItemStatusFilter } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
+import type {
+	MenuItemSortField,
+	SortOrder,
+} from "@/domain/constants/menu-item.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 
 @injectable()
 export class MenuItemController {
-	private readonly createMenuItemUseCase!: ICreateMenuItemUseCase;
-	private readonly listMenuItemsUseCase!: IListMenuItemsUseCase;
-
 	constructor(
 		@inject(TYPES.UseCases.CreateMenuItemUseCase)
-		createOrListUseCase: ICreateMenuItemUseCase,
+		private readonly createMenuItemUseCase: ICreateMenuItemUseCase,
 		@inject(TYPES.UseCases.ListMenuItemsUseCase)
-		listUseCase?: IListMenuItemsUseCase,
-	) {
-		if (listUseCase) {
-			this.createMenuItemUseCase = createOrListUseCase;
-			this.listMenuItemsUseCase = listUseCase;
-		} else {
-			this.createMenuItemUseCase = createOrListUseCase;
-			this.listMenuItemsUseCase =
-				createOrListUseCase as unknown as IListMenuItemsUseCase;
-		}
-	}
+		private readonly listMenuItemsUseCase: IListMenuItemsUseCase,
+		@inject(TYPES.UseCases.GetMenuItemDetailsUseCase)
+		private readonly getMenuItemDetailsUseCase: IGetMenuItemDetailsUseCase,
+	) {}
 
 	public createMenuItem = async (
 		req: Request,
@@ -137,43 +133,54 @@ export class MenuItemController {
 	public listMenuItems = async (req: Request, res: Response): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 
-		const validatedQuery =
-			(res.locals?.query as Record<string, unknown> | undefined) ??
-			(req.query as Record<string, unknown> | undefined) ??
-			{};
+		const validatedQuery = (res.locals?.query ?? req.query) as
+			| Record<string, unknown>
+			| undefined;
+
+		const pageVal = validatedQuery?.page;
+		const limitVal = validatedQuery?.limit;
+		const minPriceVal = validatedQuery?.minPrice ?? validatedQuery?.min_price;
+		const maxPriceVal = validatedQuery?.maxPrice ?? validatedQuery?.max_price;
+		const isVegetarianVal =
+			validatedQuery?.isVegetarian ?? validatedQuery?.is_vegetarian;
+		const isFeaturedVal =
+			validatedQuery?.isFeatured ?? validatedQuery?.is_featured;
+
+		const parseBool = (val: unknown): boolean | undefined => {
+			if (typeof val === "boolean") return val;
+			if (val === "true") return true;
+			if (val === "false") return false;
+			return undefined;
+		};
 
 		const result = await this.listMenuItemsUseCase.execute({
 			restaurantId,
-			page: (validatedQuery.page ?? "1") as string,
-			limit: (validatedQuery.limit ?? "10") as string,
-			search: validatedQuery.search as string | undefined,
-			categoryId: (validatedQuery.categoryId ?? validatedQuery.category_id) as
+			page:
+				typeof pageVal === "number"
+					? pageVal
+					: pageVal !== undefined
+						? Number(pageVal)
+						: 1,
+			limit:
+				typeof limitVal === "number"
+					? limitVal
+					: limitVal !== undefined
+						? Number(limitVal)
+						: 10,
+			search: validatedQuery?.search as string | undefined,
+			categoryId: (validatedQuery?.categoryId ?? validatedQuery?.category_id) as
 				| string
 				| undefined,
-			status: validatedQuery.status as
-				| "all"
-				| "available"
-				| "unavailable"
+			status: validatedQuery?.status as MenuItemStatusFilter | undefined,
+			minPrice: minPriceVal !== undefined ? Number(minPriceVal) : undefined,
+			maxPrice: maxPriceVal !== undefined ? Number(maxPriceVal) : undefined,
+			isVegetarian: parseBool(isVegetarianVal),
+			isFeatured: parseBool(isFeaturedVal),
+			sortBy: (validatedQuery?.sortBy ?? validatedQuery?.sort_by) as
+				| MenuItemSortField
 				| undefined,
-			minPrice: (validatedQuery.minPrice ?? validatedQuery.min_price) as
-				| string
-				| undefined,
-			maxPrice: (validatedQuery.maxPrice ?? validatedQuery.max_price) as
-				| string
-				| undefined,
-			isVegetarian: (validatedQuery.isVegetarian ??
-				validatedQuery.is_vegetarian) as string | undefined,
-			isFeatured: (validatedQuery.isFeatured ?? validatedQuery.is_featured) as
-				| string
-				| undefined,
-			sortBy: (validatedQuery.sortBy ?? validatedQuery.sort_by) as
-				| "name"
-				| "price"
-				| "createdAt"
-				| undefined,
-			sortOrder: (validatedQuery.sortOrder ?? validatedQuery.sort_order) as
-				| "asc"
-				| "desc"
+			sortOrder: (validatedQuery?.sortOrder ?? validatedQuery?.sort_order) as
+				| SortOrder
 				| undefined,
 		});
 
@@ -181,6 +188,26 @@ export class MenuItemController {
 			res,
 			result,
 			messages.MENU_ITEMS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public getMenuItemDetails = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId ?? req.params.id);
+
+		const result = await this.getMenuItemDetailsUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -10,6 +11,7 @@ import { messages } from "@/shared/constants/message.constants.ts";
 describe("MenuItemController", () => {
 	let createMenuItemUseCase: jest.Mocked<ICreateMenuItemUseCase>;
 	let listMenuItemsUseCase: jest.Mocked<IListMenuItemsUseCase>;
+	let getMenuItemDetailsUseCase: jest.Mocked<IGetMenuItemDetailsUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -26,9 +28,14 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
+		getMenuItemDetailsUseCase = {
+			execute: jest.fn(),
+		};
+
 		controller = new MenuItemController(
 			createMenuItemUseCase,
 			listMenuItemsUseCase,
+			getMenuItemDetailsUseCase,
 		);
 
 		res = {
@@ -290,15 +297,15 @@ describe("MenuItemController", () => {
 
 			expect(listMenuItemsUseCase.execute).toHaveBeenCalledWith({
 				restaurantId,
-				page: "1",
-				limit: "10",
+				page: 1,
+				limit: 10,
 				search: "burger",
 				categoryId,
 				status: "available",
-				minPrice: "10",
-				maxPrice: "50",
-				isVegetarian: "true",
-				isFeatured: "false",
+				minPrice: 10,
+				maxPrice: 50,
+				isVegetarian: true,
+				isFeatured: false,
 				sortBy: "price",
 				sortOrder: "asc",
 			});
@@ -370,6 +377,66 @@ describe("MenuItemController", () => {
 				sortOrder: "asc",
 			});
 			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		});
+	});
+
+	describe("getMenuItemDetails", () => {
+		it("should return 200 with menu item details data on success", async () => {
+			const menuItemId = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+			const mockDetailsDto = {
+				id: menuItemId,
+				restaurantId,
+				categoryId,
+				categoryName: "Burgers",
+				category: {
+					id: categoryId,
+					name: "Burgers",
+					description: null,
+				},
+				name: "Classic Cheeseburger",
+				description: "With cheddar and pickles",
+				price: 12.99,
+				preparationTime: 15,
+				calories: 500,
+				isVegetarian: false,
+				isFeatured: false,
+				isAvailable: true,
+				images: [],
+				variants: [],
+				addons: [],
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			};
+
+			getMenuItemDetailsUseCase.execute.mockResolvedValueOnce(
+				mockDetailsDto as never,
+			);
+
+			const detailReq = {
+				params: { restaurantId, menuItemId },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const detailRes = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.getMenuItemDetails(detailReq, detailRes);
+
+			expect(getMenuItemDetailsUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				menuItemId,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+					data: mockDetailsDto,
+				}),
+			);
 		});
 	});
 });
