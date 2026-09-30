@@ -3,7 +3,7 @@ import type {
 	ListMenuCategoriesInputDto,
 	ListMenuCategoriesResponseDto,
 } from "@/application/dtos/menu/list-menu-categories.dto.ts";
-import type { IMenuCategoryRepositoryPort } from "@/application/ports/repositories/menu-category.repository.port.ts";
+import type { IMenuCategoryRepository } from "@/application/ports/repositories/menu-category.repository.port.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -18,7 +18,7 @@ export class ListRestaurantMenuCategoriesUseCase
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Repositories.MenuCategoryRepository)
-		private readonly menuCategoryRepository: IMenuCategoryRepositoryPort,
+		private readonly menuCategoryRepository: IMenuCategoryRepository,
 	) {}
 
 	public async execute(
