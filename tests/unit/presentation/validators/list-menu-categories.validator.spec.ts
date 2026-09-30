@@ -1,4 +1,4 @@
-import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/admin/list-menu-categories.validator.ts";
+import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/list-menu-categories.validator.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("ListMenuCategoriesValidator", () => {

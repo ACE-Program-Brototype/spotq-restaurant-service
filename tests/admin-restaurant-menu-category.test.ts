@@ -5,7 +5,7 @@ import { MenuCategoryController } from "@/presentation/http/controllers/menu-cat
 import { adminAuthMiddleware } from "@/presentation/http/middleware/admin.auth.middleware.ts";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";
 import { validateRequestParams } from "@/presentation/http/middleware/validation.middleware.ts";
-import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/admin/list-menu-categories.validator.ts";
+import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/list-menu-categories.validator.ts";
 import { ERROR_CODES } from "@/shared/constants/error-code.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";

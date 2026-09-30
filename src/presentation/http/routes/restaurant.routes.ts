@@ -28,7 +28,7 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
-import { listMenuCategoriesParamSchema } from "../validators/admin/list-menu-categories.validator";
+import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import {
 	createMenuItemBodySchema,
