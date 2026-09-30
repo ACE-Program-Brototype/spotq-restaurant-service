@@ -454,6 +454,7 @@ async function main() {
 			isVegetarian: false,
 			isFeatured: true,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
@@ -501,6 +502,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: true,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
@@ -524,6 +526,7 @@ async function main() {
 			isVegetarian: false,
 			isFeatured: false,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a04",
@@ -547,6 +550,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: false,
 			isAvailable: false, // Out of stock
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a05",
@@ -570,6 +574,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: true,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a06",
@@ -611,6 +616,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: false,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a07",
@@ -634,6 +640,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: false,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a08",
@@ -657,6 +664,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: true,
 			isAvailable: false, // Out of stock
+			isDeleted: false,
 			images: [
 				{
 					id: "11eebc99-9c0b-4ef8-bb6d-6bb9bd380a09",
@@ -682,6 +690,7 @@ async function main() {
 			isVegetarian: false,
 			isFeatured: true,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "12eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
@@ -723,6 +732,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: true,
 			isAvailable: true,
+			isDeleted: false,
 			images: [
 				{
 					id: "12eebc99-9c0b-4ef8-bb6d-6bb9bd380a02",
@@ -746,6 +756,7 @@ async function main() {
 			isVegetarian: true,
 			isFeatured: false,
 			isAvailable: false, // Out of stock
+			isDeleted: false,
 			images: [
 				{
 					id: "12eebc99-9c0b-4ef8-bb6d-6bb9bd380a03",
@@ -771,9 +782,13 @@ async function main() {
 				isVegetarian: itemData.isVegetarian,
 				isFeatured: itemData.isFeatured,
 				isAvailable: itemData.isAvailable,
+				isDeleted: itemData.isDeleted ?? false,
 				categoryId: itemData.categoryId,
 			},
-			create: itemData,
+			create: {
+				...itemData,
+				isDeleted: itemData.isDeleted ?? false,
+			},
 		});
 
 		// Upsert images
@@ -831,7 +846,11 @@ async function main() {
 			});
 		}
 
-		const statusIcon = seededItem.isAvailable ? "🟢" : "🔴";
+		const statusIcon = seededItem.isDeleted
+			? "🗑️"
+			: seededItem.isAvailable
+				? "🟢"
+				: "🔴";
 		console.log(
 			`   🍽️ ${statusIcon} ${seededItem.name.padEnd(30)} | $${Number(seededItem.price).toFixed(2).padStart(5)} | Prep: ${String(seededItem.preparationTime).padStart(2)}m | Cal: ${String(seededItem.calories).padStart(3)} | Rest: ${seededItem.restaurantId.slice(-6)}`,
 		);
