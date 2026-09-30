@@ -274,7 +274,8 @@ restaurantRouter.get(
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.MENU_CATEGORIES,
-	restaurantAuthMiddleware,
+	restaurantOwnerAuthMiddleware,
 	validateRequestParams(listMenuCategoriesParamSchema),
 	menuCategoryController.listRestaurantCategories,
 );
+
