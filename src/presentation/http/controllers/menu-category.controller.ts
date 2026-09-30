@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
+import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -15,6 +16,8 @@ export class MenuCategoryController {
 		private readonly createMenuCategoryUseCase: ICreateMenuCategoryUseCase,
 		@inject(TYPES.UseCases.UpdateMenuCategoryUseCase)
 		private readonly updateMenuCategoryUseCase: IUpdateMenuCategoryUseCase,
+		@inject(TYPES.UseCases.DeleteMenuCategoryUseCase)
+		private readonly deleteMenuCategoryUseCase: IDeleteMenuCategoryUseCase,
 		@inject(TYPES.UseCases.ListRestaurantMenuCategoriesUseCase)
 		private readonly listRestaurantMenuCategoriesUseCase: IListRestaurantMenuCategoriesUseCase,
 	) {}
@@ -62,6 +65,26 @@ export class MenuCategoryController {
 			res,
 			result,
 			messages.MENU_CATEGORY_UPDATED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public deleteCategory = async (
+		req: Request,
+		res: Response,
+	): Promise<Response> => {
+		const restaurantId = String(req.params.restaurantId);
+		const categoryId = String(req.params.categoryId);
+
+		await this.deleteMenuCategoryUseCase.execute({
+			restaurantId,
+			categoryId,
+		});
+
+		return sendSuccessResponse(
+			res,
+			null,
+			messages.MENU_CATEGORY_DELETED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

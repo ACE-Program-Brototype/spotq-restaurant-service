@@ -369,6 +369,18 @@ describe("CreateMenuItemUseCase", () => {
 		);
 	});
 
+	it("should throw CategoryNotFoundError when category is soft-deleted", async () => {
+		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
+		mockCategoryRepo.findById.mockResolvedValue({
+			...mockCategory,
+			isDeleted: true,
+		});
+
+		await expect(useCase.execute(validDto)).rejects.toThrow(
+			CategoryNotFoundError,
+		);
+	});
+
 	it("should throw MenuItemAlreadyExistsError when dish name already exists in restaurant", async () => {
 		mockRestaurantRepo.findById.mockResolvedValue(mockRestaurant);
 		mockMenuItemRepo.findByNameAndRestaurantId.mockResolvedValue(

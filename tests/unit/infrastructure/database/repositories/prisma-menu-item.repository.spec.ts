@@ -151,10 +151,11 @@ describe("PrismaMenuItemRepository", () => {
 		it("should create menu item with details inside transaction", async () => {
 			const mockTx = {
 				menuItem: {
-					create: jest.fn().mockResolvedValue(rawMenuItem),
+					create:
+						jest.fn<() => Promise<unknown>>().mockResolvedValue(rawMenuItem),
 				},
 				menuItemImage: {
-					create: jest.fn().mockResolvedValue({
+					create: jest.fn<() => Promise<unknown>>().mockResolvedValue({
 						id: "img-1",
 						menuItemId: rawMenuItem.id,
 						objectKey: "menu/biryani.png",
@@ -163,7 +164,7 @@ describe("PrismaMenuItemRepository", () => {
 					}),
 				},
 				menuItemVariant: {
-					create: jest.fn().mockResolvedValue({
+					create: jest.fn<() => Promise<unknown>>().mockResolvedValue({
 						id: "var-1",
 						menuItemId: rawMenuItem.id,
 						sku: "BIRYANI-FULL",
@@ -175,7 +176,7 @@ describe("PrismaMenuItemRepository", () => {
 					}),
 				},
 				menuItemAddon: {
-					create: jest.fn().mockResolvedValue({
+					create: jest.fn<() => Promise<unknown>>().mockResolvedValue({
 						id: "junc-1",
 						menuItemId: rawMenuItem.id,
 						addonId: "addon-1",
@@ -183,7 +184,7 @@ describe("PrismaMenuItemRepository", () => {
 					}),
 				},
 				addon: {
-					findMany: jest.fn().mockResolvedValue([
+					findMany: jest.fn<() => Promise<unknown>>().mockResolvedValue([
 						{
 							id: "addon-1",
 							name: "Extra Raita",
@@ -236,6 +237,9 @@ describe("PrismaMenuItemRepository", () => {
 
 			const stats = await repository.getRestaurantMenuStats(restaurantId);
 
+			expect(mockPrisma.menuCategory.count).toHaveBeenCalledWith({
+				where: { restaurantId, isDeleted: false },
+			});
 			expect(stats.totalCategories).toBe(4);
 			expect(stats.totalMenuItems).toBe(12);
 			expect(stats.availableItems).toBe(10);
@@ -294,10 +298,7 @@ describe("PrismaMenuItemRepository", () => {
 			mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
 
 			await expect(
-				repository.findByNameAndRestaurantId(
-					restaurantId,
-					"Existing",
-				),
+				repository.findByNameAndRestaurantId(restaurantId, "Existing"),
 			).rejects.toThrow(MenuItemAlreadyExistsError);
 		});
 
@@ -313,10 +314,7 @@ describe("PrismaMenuItemRepository", () => {
 			mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
 
 			await expect(
-				repository.findByNameAndRestaurantId(
-					restaurantId,
-					"Existing",
-				),
+				repository.findByNameAndRestaurantId(restaurantId, "Existing"),
 			).rejects.toThrow(InvalidVariantDataError);
 		});
 
@@ -377,6 +375,120 @@ describe("PrismaMenuItemRepository", () => {
 			await expect(
 				repository.findByNameAndRestaurantId(restaurantId, "Burger"),
 			).rejects.toThrow(MenuItemNotFoundError);
+		});
+	});
+
+	describe("findByIdAndRestaurantId", () => {
+		it("should return MenuItemDetailsAggregate when record exists", async () => {
+			const mockFullRecord = {
+				...rawMenuItem,
+				category: {
+					id: categoryId,
+					name: "Burgers",
+					description: "Juicy burgers",
+					isActive: true,
+				},
+				images: [
+					{
+						id: "img-1",
+						menuItemId: rawMenuItem.id,
+						objectKey: "menu/burger.png",
+						displayOrder: 0,
+						createdAt: now,
+					},
+				],
+				variants: [
+					{
+						id: "var-1",
+						menuItemId: rawMenuItem.id,
+						sku: "BURGER-REG",
+						name: "Regular",
+						price: new Prisma.Decimal(12.5),
+						isDefault: true,
+						createdAt: now,
+						updatedAt: now,
+					},
+				],
+				addons: [
+					{
+						id: "addon-link-1",
+						menuItemId: rawMenuItem.id,
+						addonId: "addon-1",
+						priceOverride: new Prisma.Decimal(2.5),
+						addon: {
+							id: "addon-1",
+							name: "Extra Cheddar",
+							description: "Sharp cheddar",
+							price: new Prisma.Decimal(2.0),
+							imageKey: "addons/cheese.png",
+							isAvailable: true,
+							isDeleted: false,
+						},
+					},
+				],
+			};
+
+			mockPrisma.menuItem.findFirst.mockResolvedValueOnce(mockFullRecord);
+
+			const result = await repository.findByIdAndRestaurantId(
+				rawMenuItem.id,
+				restaurantId,
+			);
+
+			expect(mockPrisma.menuItem.findFirst).toHaveBeenCalledWith({
+				where: {
+					id: rawMenuItem.id,
+					restaurantId,
+				},
+				include: {
+					category: true,
+					images: {
+						orderBy: {
+							displayOrder: "asc",
+						},
+					},
+					variants: {
+						orderBy: [
+							{ isDefault: "desc" },
+							{ price: "asc" },
+							{ createdAt: "asc" },
+						],
+					},
+					addons: {
+						where: {
+							addon: {
+								isDeleted: false,
+							},
+						},
+						include: {
+							addon: true,
+						},
+						orderBy: {
+							createdAt: "asc",
+						},
+					},
+				},
+			});
+
+			expect(result).not.toBeNull();
+			expect(result?.item.id).toBe(rawMenuItem.id);
+			expect(result?.category?.name).toBe("Burgers");
+			expect(result?.images).toHaveLength(1);
+			expect(result?.variants).toHaveLength(1);
+			expect(result?.addons).toHaveLength(1);
+			expect(result?.addons[0].price).toBe(2.0);
+			expect(result?.addons[0].priceOverride).toBe(2.5);
+		});
+
+		it("should return null when record does not exist", async () => {
+			mockPrisma.menuItem.findFirst.mockResolvedValueOnce(null);
+
+			const result = await repository.findByIdAndRestaurantId(
+				"non-existent",
+				restaurantId,
+			);
+
+			expect(result).toBeNull();
 		});
 	});
 });

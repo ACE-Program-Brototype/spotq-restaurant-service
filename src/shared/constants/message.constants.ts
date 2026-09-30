@@ -269,9 +269,11 @@ export const messages = {
 		"Add-on description must not exceed 1000 characters",
 	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
 	INVALID_ADDON_ID: "Invalid add-on ID",
+	INVALID_MENU_ITEM_ID: "Invalid menu item ID",
 	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
 	MENU_CATEGORIES_FETCHED_SUCCESS: "Menu categories retrieved successfully",
 	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
+	MENU_CATEGORY_DELETED_SUCCESS: "Menu category deleted successfully",
 	CATEGORY_ALREADY_EXISTS:
 		"A category with this name already exists for this restaurant",
 	CATEGORY_NAME_REQUIRED: "Category name is required",
@@ -279,9 +281,11 @@ export const messages = {
 	CATEGORY_DESCRIPTION_MAX_LENGTH:
 		"Category description must not exceed 1000 characters",
 	CATEGORY_NOT_FOUND: "Category not found",
+	CATEGORY_HAS_MENU_ITEMS: "Cannot delete a category that contains menu items",
 	CATEGORY_DISPLAY_ORDER_INVALID:
 		"Display order must be a non-negative integer",
 	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
+	CANNOT_MODIFY_DELETED_CATEGORY: "Cannot modify a deleted category",
 	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",
@@ -321,6 +325,7 @@ export const messages = {
 	MIN_PRICE_CANNOT_BE_GREATER_THAN_MAX_PRICE:
 		"minPrice cannot be greater than maxPrice",
 	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
+	MENU_ITEM_DETAILS_FETCHED_SUCCESS: "Menu item details retrieved successfully",
 } as const;
 
 export type MessageKey = keyof typeof messages;

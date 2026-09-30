@@ -35,6 +35,7 @@ describe("MenuCategoryController", () => {
 		controller = new MenuCategoryController(
 			mockCreateUseCase,
 			mockUpdateUseCase,
+			{} as never,
 			mockListUseCase,
 		);
 	});

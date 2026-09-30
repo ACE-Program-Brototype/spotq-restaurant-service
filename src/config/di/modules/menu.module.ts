@@ -1,11 +1,15 @@
 import { ContainerModule } from "inversify";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
+import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
 import { CreateMenuItemUseCase } from "@/application/use-cases/create-menu-item.use-case.ts";
+import { DeleteMenuCategoryUseCase } from "@/application/use-cases/delete-menu-category.use-case.ts";
+import { GetMenuItemDetailsUseCase } from "@/application/use-cases/get-menu-item-details.use-case.ts";
 import { ListMenuItemsUseCase } from "@/application/use-cases/list-menu-items.use-case.ts";
 import { ListRestaurantMenuCategoriesUseCase } from "@/application/use-cases/list-restaurant-menu-categories.use-case.ts";
 import { UpdateMenuCategoryUseCase } from "@/application/use-cases/update-menu-category.use-case.ts";
@@ -36,6 +40,10 @@ export const menuModule = new ContainerModule(({ bind }) => {
 		.to(ListRestaurantMenuCategoriesUseCase)
 		.inSingletonScope();
 
+	bind<IDeleteMenuCategoryUseCase>(TYPES.UseCases.DeleteMenuCategoryUseCase)
+		.to(DeleteMenuCategoryUseCase)
+		.inSingletonScope();
+
 	bind<IMenuItemRepository>(TYPES.Repositories.MenuItemRepository)
 		.to(PrismaMenuItemRepository)
 		.inSingletonScope();
@@ -46,6 +54,10 @@ export const menuModule = new ContainerModule(({ bind }) => {
 
 	bind<IListMenuItemsUseCase>(TYPES.UseCases.ListMenuItemsUseCase)
 		.to(ListMenuItemsUseCase)
+		.inSingletonScope();
+
+	bind<IGetMenuItemDetailsUseCase>(TYPES.UseCases.GetMenuItemDetailsUseCase)
+		.to(GetMenuItemDetailsUseCase)
 		.inSingletonScope();
 
 	bind(TYPES.Controller.MenuCategoryController)

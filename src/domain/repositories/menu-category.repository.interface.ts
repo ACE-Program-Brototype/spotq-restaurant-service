@@ -14,4 +14,5 @@ export interface IMenuCategoryRepository
 		category: MenuCategory,
 		previousDisplayOrder?: number,
 	): Promise<MenuCategory>;
+	hasMenuItems(categoryId: string): Promise<boolean>;
 }

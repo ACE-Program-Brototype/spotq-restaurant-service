@@ -79,11 +79,43 @@ export interface MenuItemQueryResult {
 	stats: RestaurantMenuStats;
 }
 
+export interface MenuItemDetailsCategoryData {
+	id: string;
+	name: string;
+	description: string | null;
+	isActive: boolean;
+}
+
+export interface MenuItemDetailsAddonData {
+	id: string;
+	menuItemId: string;
+	addonId: string;
+	name: string;
+	description: string | null;
+	price: number;
+	priceOverride: number | null;
+	imageKey: string | null;
+	isAvailable: boolean;
+	isDeleted: boolean;
+}
+
+export interface MenuItemDetailsAggregate {
+	item: MenuItem;
+	category: MenuItemDetailsCategoryData | null;
+	images: MenuItemImageData[];
+	variants: MenuItemVariant[];
+	addons: MenuItemDetailsAddonData[];
+}
+
 export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
 	createWithDetails(
 		params: CreateMenuItemRepositoryParams,
 	): Promise<MenuItemAggregate>;
 	findById(id: string): Promise<MenuItem | null>;
+	findByIdAndRestaurantId(
+		menuItemId: string,
+		restaurantId: string,
+	): Promise<MenuItemDetailsAggregate | null>;
 	findByNameAndRestaurantId(
 		nameOrRestaurantId: string,
 		restaurantIdOrName: string,

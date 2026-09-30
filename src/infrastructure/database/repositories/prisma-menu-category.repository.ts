@@ -8,6 +8,7 @@ import { TYPES } from "@/config/di/types.ts";
 import type { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import {
 	CategoryAlreadyExistsError,
+	CategoryHasMenuItemsError,
 	CategoryNotFoundError,
 } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
@@ -69,6 +70,7 @@ export class PrismaMenuCategoryRepository
 						equals: name,
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
@@ -83,7 +85,7 @@ export class PrismaMenuCategoryRepository
 	): Promise<MenuCategory[]> {
 		try {
 			const records = await this.dbModel.findMany({
-				where: { restaurantId },
+				where: { restaurantId, isDeleted: false },
 				orderBy: { displayOrder: "asc" },
 			});
 			return records.map((record) => this.mapper.toDomain(record));
@@ -96,7 +98,7 @@ export class PrismaMenuCategoryRepository
 	public async getNextDisplayOrder(restaurantId: string): Promise<number> {
 		try {
 			const last = await this.dbModel.findFirst({
-				where: { restaurantId },
+				where: { restaurantId, isDeleted: false },
 				orderBy: { displayOrder: "desc" },
 				select: { displayOrder: true },
 			});
@@ -114,6 +116,7 @@ export class PrismaMenuCategoryRepository
 				await tx.menuCategory.updateMany({
 					where: {
 						restaurantId: data.restaurantId,
+						isDeleted: false,
 						displayOrder: {
 							gte: data.displayOrder,
 						},
@@ -151,6 +154,7 @@ export class PrismaMenuCategoryRepository
 						await tx.menuCategory.updateMany({
 							where: {
 								restaurantId,
+								isDeleted: false,
 								id: { not: id },
 								displayOrder: {
 									gte: displayOrder,
@@ -167,6 +171,7 @@ export class PrismaMenuCategoryRepository
 						await tx.menuCategory.updateMany({
 							where: {
 								restaurantId,
+								isDeleted: false,
 								id: { not: id },
 								displayOrder: {
 									gt: previousDisplayOrder,
@@ -195,6 +200,40 @@ export class PrismaMenuCategoryRepository
 				return this.mapper.toDomain(updated);
 			}
 
+			if (data.isDeleted) {
+				const result = await this.prismaClient.menuCategory.updateMany({
+					where: {
+						id,
+						isDeleted: false,
+						menuItems: { none: {} },
+					},
+					data: {
+						name: data.name,
+						description: data.description,
+						displayOrder: data.displayOrder,
+						isActive: data.isActive,
+						isDeleted: data.isDeleted,
+						updatedAt: data.updatedAt,
+					},
+				});
+
+				if (result.count === 0) {
+					const hasItems = await this.hasMenuItems(id);
+					if (hasItems) {
+						throw new CategoryHasMenuItemsError(
+							messages.CATEGORY_HAS_MENU_ITEMS,
+						);
+					}
+					throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+				}
+
+				const updated = await this.dbModel.findUnique({ where: { id } });
+				if (!updated) {
+					throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+				}
+				return this.mapper.toDomain(updated);
+			}
+
 			const updated = await this.dbModel.update({
 				where: { id },
 				data: {
@@ -208,6 +247,20 @@ export class PrismaMenuCategoryRepository
 			return this.mapper.toDomain(updated);
 		} catch (error) {
 			this.handlePrismaError(error, category);
+			throw error;
+		}
+	}
+
+	public async hasMenuItems(categoryId: string): Promise<boolean> {
+		try {
+			const count = await this.prismaClient.menuItem.count({
+				where: {
+					categoryId,
+				},
+			});
+			return count > 0;
+		} catch (error) {
+			this.handlePrismaError(error);
 			throw error;
 		}
 	}

@@ -1,8 +1,5 @@
 import { TYPES } from "@di/types.ts";
-import type {
-	Prisma,
-	PrismaClient,
-} from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
@@ -334,7 +331,8 @@ export class PrismaRestaurantStaffRepository
 						await this.prismaClient.$transaction(async (tx) => {
 							await tx.restaurantStaff.upsert({
 								where: { id: entity.id },
-								create: fullCreateData as unknown as Prisma.RestaurantStaffCreateInput,
+								create:
+									fullCreateData as unknown as Prisma.RestaurantStaffCreateInput,
 								update: fullUpdateData as Prisma.RestaurantStaffUpdateInput,
 							});
 							await tx.staff.update({

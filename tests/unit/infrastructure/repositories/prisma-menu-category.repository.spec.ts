@@ -3,6 +3,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import {
 	CategoryAlreadyExistsError,
+	CategoryHasMenuItemsError,
 	CategoryNotFoundError,
 } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
@@ -59,6 +60,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			description: "Cold drinks",
 			displayOrder: 1,
 			isActive: true,
+			isDeleted: false,
 			createdAt: new Date("2026-09-23T10:00:00Z"),
 			updatedAt: new Date("2026-09-23T10:00:00Z"),
 		};
@@ -80,6 +82,7 @@ describe("PrismaMenuCategoryRepository", () => {
 					equals: "Beverages",
 					mode: "insensitive",
 				},
+				isDeleted: false,
 			},
 		});
 	});
@@ -131,7 +134,7 @@ describe("PrismaMenuCategoryRepository", () => {
 		expect(result[1].id).toBe("cat-2");
 		expect(result[1].displayOrder).toBe(1);
 		expect(mockPrisma.menuCategory.findMany).toHaveBeenCalledWith({
-			where: { restaurantId },
+			where: { restaurantId, isDeleted: false },
 			orderBy: { displayOrder: "asc" },
 		});
 	});
@@ -143,7 +146,7 @@ describe("PrismaMenuCategoryRepository", () => {
 
 		expect(result).toEqual([]);
 		expect(mockPrisma.menuCategory.findMany).toHaveBeenCalledWith({
-			where: { restaurantId },
+			where: { restaurantId, isDeleted: false },
 			orderBy: { displayOrder: "asc" },
 		});
 	});
@@ -157,7 +160,7 @@ describe("PrismaMenuCategoryRepository", () => {
 
 		expect(nextOrder).toBe(5);
 		expect(mockPrisma.menuCategory.findFirst).toHaveBeenCalledWith({
-			where: { restaurantId },
+			where: { restaurantId, isDeleted: false },
 			orderBy: { displayOrder: "desc" },
 			select: { displayOrder: true },
 		});
@@ -186,6 +189,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			description: category.description,
 			displayOrder: category.displayOrder,
 			isActive: category.isActive,
+			isDeleted: false,
 			createdAt: category.createdAt,
 			updatedAt: category.updatedAt,
 		};
@@ -214,6 +218,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			description: category.description,
 			displayOrder: category.displayOrder,
 			isActive: category.isActive,
+			isDeleted: false,
 			createdAt: category.createdAt,
 			updatedAt: category.updatedAt,
 		});
@@ -224,6 +229,7 @@ describe("PrismaMenuCategoryRepository", () => {
 		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
 			where: {
 				restaurantId,
+				isDeleted: false,
 				displayOrder: {
 					gte: 2,
 				},
@@ -315,6 +321,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			description: "Updated description",
 			displayOrder: 2,
 			isActive: true,
+			isDeleted: false,
 			createdAt: new Date("2026-09-23T10:00:00Z"),
 			updatedAt: new Date("2026-09-24T10:00:00Z"),
 		});
@@ -326,6 +333,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			description: "Updated description",
 			displayOrder: 2,
 			isActive: true,
+			isDeleted: false,
 			createdAt: new Date("2026-09-23T10:00:00Z"),
 			updatedAt: new Date("2026-09-24T10:00:00Z"),
 		});
@@ -353,6 +361,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			description: "Updated description",
 			displayOrder: 1, // moved from 3 to 1
 			isActive: true,
+			isDeleted: false,
 			createdAt: new Date("2026-09-23T10:00:00Z"),
 			updatedAt: new Date("2026-09-24T10:00:00Z"),
 		});
@@ -367,6 +376,7 @@ describe("PrismaMenuCategoryRepository", () => {
 					description: "Updated description",
 					displayOrder: 1,
 					isActive: true,
+					isDeleted: false,
 					createdAt: new Date("2026-09-23T10:00:00Z"),
 					updatedAt: new Date("2026-09-24T10:00:00Z"),
 				}),
@@ -385,6 +395,7 @@ describe("PrismaMenuCategoryRepository", () => {
 		expect(txMock.menuCategory.updateMany).toHaveBeenCalledWith({
 			where: {
 				restaurantId,
+				isDeleted: false,
 				id: { not: "cat-1" },
 				displayOrder: {
 					gte: 1,
@@ -413,6 +424,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			description: "Updated description",
 			displayOrder: 4, // moved from 1 to 4
 			isActive: true,
+			isDeleted: false,
 			createdAt: new Date("2026-09-23T10:00:00Z"),
 			updatedAt: new Date("2026-09-24T10:00:00Z"),
 		});
@@ -427,6 +439,7 @@ describe("PrismaMenuCategoryRepository", () => {
 					description: "Updated description",
 					displayOrder: 4,
 					isActive: true,
+					isDeleted: false,
 					createdAt: new Date("2026-09-23T10:00:00Z"),
 					updatedAt: new Date("2026-09-24T10:00:00Z"),
 				}),
@@ -445,6 +458,7 @@ describe("PrismaMenuCategoryRepository", () => {
 		expect(txMock.menuCategory.updateMany).toHaveBeenCalledWith({
 			where: {
 				restaurantId,
+				isDeleted: false,
 				id: { not: "cat-1" },
 				displayOrder: {
 					gt: 1,
@@ -457,5 +471,109 @@ describe("PrismaMenuCategoryRepository", () => {
 				},
 			},
 		});
+	});
+
+	it("should return true when category has menu items", async () => {
+		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
+			count: jest.fn().mockResolvedValueOnce(3),
+		};
+
+		const result = await repository.hasMenuItems("cat-1");
+
+		expect(result).toBe(true);
+		expect(
+			(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem
+				.count,
+		).toHaveBeenCalledWith({
+			where: { categoryId: "cat-1" },
+		});
+	});
+
+	it("should atomically soft delete category when no menu items exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 1 });
+		mockPrisma.menuCategory.findUnique.mockResolvedValueOnce({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const result = await repository.updateCategory(category);
+
+		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				id: "cat-1",
+				isDeleted: false,
+				menuItems: { none: {} },
+			},
+			data: expect.objectContaining({
+				isDeleted: true,
+				isActive: false,
+			}),
+		});
+		expect(result.isDeleted).toBe(true);
+	});
+
+	it("should throw CategoryHasMenuItemsError when atomic soft delete fails because items exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 0 });
+		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
+			count: jest.fn().mockResolvedValueOnce(2),
+		};
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryHasMenuItemsError,
+		);
+	});
+
+	it("should throw CategoryNotFoundError when atomic soft delete fails because category does not exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-non-existent",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 0 });
+		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
+			count: jest.fn().mockResolvedValueOnce(0),
+		};
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryNotFoundError,
+		);
 	});
 });

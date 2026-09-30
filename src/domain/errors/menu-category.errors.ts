@@ -12,3 +12,7 @@ export class InvalidCategoryDataError extends DomainError {
 export class CategoryNotFoundError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.CATEGORY_NOT_FOUND;
 }
+
+export class CategoryHasMenuItemsError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.CATEGORY_HAS_MENU_ITEMS;
+}

@@ -182,9 +182,7 @@ describe("ListMenuItemsUseCase", () => {
 			new Error("S3 error"),
 		);
 
-		const warnSpy = jest
-			.spyOn(logger, "warn")
-			.mockImplementation(() => logger);
+		const warnSpy = jest.spyOn(logger, "warn").mockImplementation(() => logger);
 
 		const result = await useCase.execute({
 			restaurantId: mockRestaurantId,

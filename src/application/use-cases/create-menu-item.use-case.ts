@@ -1,12 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { inject, injectable } from "inversify";
-import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type {
 	CreateMenuItemInputDto,
 	MenuItemResponseDto,
 } from "@/application/dtos/menu-item/create-menu-item.dto.ts";
-import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
-import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
+import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
@@ -21,6 +19,8 @@ import {
 	MenuItemAlreadyExistsError,
 } from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -49,7 +49,11 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 		const category = await this.menuCategoryRepository.findById(
 			input.categoryId,
 		);
-		if (!category || category.restaurantId !== input.restaurantId) {
+		if (
+			!category ||
+			category.restaurantId !== input.restaurantId ||
+			category.isDeleted
+		) {
 			throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
 		}
 
