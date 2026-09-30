@@ -294,7 +294,6 @@ describe("PrismaMenuCategoryRepository", () => {
 				description: "Updated description",
 				displayOrder: 2,
 				isActive: true,
-				isDeleted: false,
 			}),
 		});
 	});
@@ -358,7 +357,6 @@ describe("PrismaMenuCategoryRepository", () => {
 			where: { id: "cat-1" },
 			data: expect.objectContaining({
 				displayOrder: 1,
-				isDeleted: false,
 			}),
 		});
 	});
@@ -467,6 +465,7 @@ describe("PrismaMenuCategoryRepository", () => {
 		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
 			where: {
 				id: "cat-1",
+				isDeleted: false,
 				menuItems: { none: {} },
 			},
 			data: expect.objectContaining({

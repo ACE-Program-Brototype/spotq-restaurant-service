@@ -178,7 +178,6 @@ export class PrismaMenuCategoryRepository
 							description: data.description,
 							displayOrder: data.displayOrder,
 							isActive: data.isActive,
-							isDeleted: data.isDeleted,
 							updatedAt: data.updatedAt,
 						},
 					});
@@ -190,6 +189,7 @@ export class PrismaMenuCategoryRepository
 				const result = await this.prismaClient.menuCategory.updateMany({
 					where: {
 						id,
+						isDeleted: false,
 						menuItems: { none: {} },
 					},
 					data: {
@@ -226,7 +226,6 @@ export class PrismaMenuCategoryRepository
 					description: data.description,
 					displayOrder: data.displayOrder,
 					isActive: data.isActive,
-					isDeleted: data.isDeleted,
 					updatedAt: data.updatedAt,
 				},
 			});
