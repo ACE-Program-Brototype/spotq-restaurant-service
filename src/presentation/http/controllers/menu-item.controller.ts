@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { MenuItemStatusFilter } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
 import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -22,6 +23,8 @@ export class MenuItemController {
 		private readonly listMenuItemsUseCase: IListMenuItemsUseCase,
 		@inject(TYPES.UseCases.GetMenuItemDetailsUseCase)
 		private readonly getMenuItemDetailsUseCase: IGetMenuItemDetailsUseCase,
+		@inject(TYPES.UseCases.DeleteMenuItemUseCase)
+		private readonly deleteMenuItemUseCase: IDeleteMenuItemUseCase,
 	) {}
 
 	public createMenuItem = async (
@@ -208,6 +211,26 @@ export class MenuItemController {
 			res,
 			result,
 			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public deleteMenuItem = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId ?? req.params.id);
+
+		await this.deleteMenuItemUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
+
+		sendSuccessResponse(
+			res,
+			null,
+			messages.MENU_ITEM_DELETED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};
