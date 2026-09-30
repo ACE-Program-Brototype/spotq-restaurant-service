@@ -194,7 +194,11 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController(useCase, {} as never);
+		const controller = new MenuCategoryController(
+			useCase,
+			{} as never,
+			{} as never,
+		);
 
 		try {
 			await controller.createCategory(req as never, res as never);
@@ -241,7 +245,11 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController(useCase, {} as never);
+		const controller = new MenuCategoryController(
+			useCase,
+			{} as never,
+			{} as never,
+		);
 
 		try {
 			await controller.createCategory(req as never, res as never);
@@ -289,7 +297,11 @@ describe("POST /restaurants/:restaurantId/menu/categories - Integration & Contro
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController(useCase, {} as never);
+		const controller = new MenuCategoryController(
+			useCase,
+			{} as never,
+			{} as never,
+		);
 
 		await controller.createCategory(req as never, res as never);
 
@@ -503,7 +515,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			useCase,
+			{} as never,
+		);
 
 		try {
 			await controller.updateCategory(req as never, res as never);
@@ -546,7 +562,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			useCase,
+			{} as never,
+		);
 
 		try {
 			await controller.updateCategory(req as never, res as never);
@@ -594,7 +614,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			useCase,
+			{} as never,
+		);
 
 		try {
 			await controller.updateCategory(req as never, res as never);
@@ -651,7 +675,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			useCase,
+			{} as never,
+		);
 
 		try {
 			await controller.updateCategory(req as never, res as never);
@@ -710,7 +738,11 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId - Integra
 			mockRestaurantRepo as never,
 			mockMenuCategoryRepo as never,
 		);
-		const controller = new MenuCategoryController({} as never, useCase);
+		const controller = new MenuCategoryController(
+			{} as never,
+			useCase,
+			{} as never,
+		);
 
 		await controller.updateCategory(req as never, res as never);
 

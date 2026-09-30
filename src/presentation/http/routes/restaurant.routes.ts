@@ -28,6 +28,7 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
+import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	createMenuItemBodySchema,
 	createMenuItemParamsSchema,
@@ -278,6 +279,13 @@ restaurantRouter.get(
 	validateRequestParams(listMenuItemsParamsSchema),
 	validateRequestQuery(listMenuItemsQuerySchema),
 	menuItemController.listMenuItems,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.MENU_CATEGORIES,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamSchema),
+	menuCategoryController.listRestaurantCategories,
 );
 
 restaurantRouter.get(
