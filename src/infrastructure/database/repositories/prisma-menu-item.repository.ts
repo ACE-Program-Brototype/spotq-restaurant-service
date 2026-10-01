@@ -46,8 +46,7 @@ export class PrismaMenuItemRepository
 		PrismaMenuItem,
 		PrismaClient["menuItem"]
 	>
-	implements IMenuItemRepository
-{
+	implements IMenuItemRepository {
 	constructor(
 		@inject(TYPES.PrismaClient)
 		private readonly prismaClient: PrismaClient,
@@ -213,11 +212,11 @@ export class PrismaMenuItemRepository
 
 			const domainCategory = record.category
 				? {
-						id: record.category.id,
-						name: record.category.name,
-						description: record.category.description,
-						isActive: record.category.isActive,
-					}
+					id: record.category.id,
+					name: record.category.name,
+					description: record.category.description,
+					isActive: record.category.isActive,
+				}
 				: null;
 
 			const domainAddons = record.addons
@@ -261,21 +260,21 @@ export class PrismaMenuItemRepository
 					this.prismaClient.menuItem.count({
 						where: {
 							restaurantId,
-							category: { isDeleted: false, isActive: true },
+							category: { isDeleted: false },
 						},
 					}),
 					this.prismaClient.menuItem.count({
 						where: {
 							restaurantId,
 							isAvailable: true,
-							category: { isDeleted: false, isActive: true },
+							category: { isDeleted: false },
 						},
 					}),
 					this.prismaClient.menuItem.count({
 						where: {
 							restaurantId,
 							isAvailable: false,
-							category: { isDeleted: false, isActive: true },
+							category: { isDeleted: false },
 						},
 					}),
 				]);
@@ -419,8 +418,10 @@ export class PrismaMenuItemRepository
 			const where: Prisma.MenuItemWhereInput = {
 				restaurantId,
 				category: {
-					isActive: params.categoryIsActive ?? true,
 					isDeleted: false,
+					...(typeof params.categoryIsActive === "boolean" && {
+						isActive: params.categoryIsActive,
+					}),
 				},
 			};
 

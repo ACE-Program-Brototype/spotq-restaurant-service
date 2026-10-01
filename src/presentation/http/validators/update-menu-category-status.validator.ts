@@ -11,7 +11,7 @@ export const updateMenuCategoryStatusParamsSchema = z
 export const updateMenuCategoryStatusBodySchema = z
 	.object({
 		isActive: z.boolean({
-			error: messages.CATEGORY_IS_ACTIVE_INVALID,
+			message: messages.CATEGORY_IS_ACTIVE_INVALID,
 		}),
 	})
 	.strict();

@@ -280,7 +280,6 @@ describe("PrismaMenuItemRepository", () => {
 						restaurantId,
 						categoryId,
 						category: {
-							isActive: true,
 							isDeleted: false,
 						},
 					}),
@@ -297,7 +296,7 @@ describe("PrismaMenuItemRepository", () => {
 			expect(result.stats.outOfStockItems).toBe(2);
 		});
 
-		it("should exclude items belonging to deactivated categories by default", async () => {
+		it("should filter by category isActive when categoryIsActive is boolean", async () => {
 			mockPrisma.menuItem.findMany.mockResolvedValue([]);
 			mockPrisma.menuItem.count
 				.mockResolvedValueOnce(0)
@@ -308,6 +307,7 @@ describe("PrismaMenuItemRepository", () => {
 
 			await repository.findManyWithFiltersAndStats({
 				restaurantId,
+				categoryIsActive: true,
 			});
 
 			expect(mockPrisma.menuItem.findMany).toHaveBeenCalledWith(
