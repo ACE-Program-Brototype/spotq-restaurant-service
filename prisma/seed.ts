@@ -10,7 +10,7 @@ import bcrypt from "bcrypt";
 const prisma = new PrismaClient();
 
 async function main() {
-	console.log("🌱 Starting SpotQ Restaurants and Staff Seeding...\n");
+	console.log("[SEED] Starting SpotQ Restaurants and Staff Seeding...\n");
 
 	const defaultPassword = process.env.SAMPLE_STAFF_PASSWORD || "Password@123";
 	const saltRounds = 10;
@@ -65,7 +65,7 @@ async function main() {
 		});
 
 		console.log(
-			`🏢 Seeded Restaurant: ${seededRest.restaurantName} (ID: ${seededRest.id})`,
+			`[RESTAURANT] Seeded: ${seededRest.restaurantName} (ID: ${seededRest.id})`,
 		);
 	}
 
@@ -73,7 +73,7 @@ async function main() {
 	const spiceLoungeId = sampleRestaurants[1].id;
 
 	// 2. Seed Global Staff Identities
-	console.log("\n👤 Seeding Global Staff Identities...");
+	console.log("\n[STAFF] Seeding Global Staff Identities...");
 	const globalStaffList = [
 		// Multi-restaurant staff account
 		{
@@ -147,12 +147,12 @@ async function main() {
 		});
 
 		console.log(
-			`   👤 Global Staff: ${seededGlobal.fullname.padEnd(16)} | ${seededGlobal.email.padEnd(26)} (ID: ${seededGlobal.id})`,
+			`   [GLOBAL_STAFF] ${seededGlobal.fullname.padEnd(16)} | ${seededGlobal.email.padEnd(26)} (ID: ${seededGlobal.id})`,
 		);
 	}
 
 	// 3. Seed RestaurantStaff Memberships
-	console.log("\n👥 Seeding RestaurantStaff Memberships...");
+	console.log("\n[MEMBERSHIPS] Seeding RestaurantStaff Memberships...");
 	const sampleMemberships = [
 		// --- MULTI-RESTAURANT STAFF: Alex Multi is member of BOTH restaurants ---
 		{
@@ -287,12 +287,12 @@ async function main() {
 		});
 
 		console.log(
-			`   ✅ ${membership.fullname?.padEnd(16)} | ${membership.email?.padEnd(26)} | Rest: ${upserted.restaurantId.slice(-6)} | Role: ${upserted.role.padEnd(8)} | Status: ${upserted.status}`,
+			`   [MEMBER] ${membership.fullname?.padEnd(16)} | ${membership.email?.padEnd(26)} | Rest: ${upserted.restaurantId.slice(-6)} | Role: ${upserted.role.padEnd(8)} | Status: ${upserted.status}`,
 		);
 	}
 
 	// 4. Seed Menu Categories
-	console.log("\n📑 Seeding Menu Categories...");
+	console.log("\n[CATEGORIES] Seeding Menu Categories...");
 	const sampleCategories = [
 		// Grand Bistro Categories
 		{
@@ -366,12 +366,12 @@ async function main() {
 			create: cat,
 		});
 		console.log(
-			`   📂 Category: ${seededCat.name.padEnd(24)} | Rest: ${seededCat.restaurantId.slice(-6)}`,
+			`   [CATEGORY] ${seededCat.name.padEnd(24)} | Rest: ${seededCat.restaurantId.slice(-6)}`,
 		);
 	}
 
 	// 5. Seed Addons
-	console.log("\n🧀 Seeding Addons...");
+	console.log("\n[ADDONS] Seeding Addons...");
 	const sampleAddons = [
 		{
 			id: "e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a01",
@@ -433,12 +433,12 @@ async function main() {
 			create: addon,
 		});
 		console.log(
-			`   ✨ Addon: ${seededAddon.name.padEnd(20)} | $${Number(seededAddon.price).toFixed(2)} | Rest: ${seededAddon.restaurantId.slice(-6)}`,
+			`   [ADDON] ${seededAddon.name.padEnd(20)} | $${Number(seededAddon.price).toFixed(2)} | Rest: ${seededAddon.restaurantId.slice(-6)}`,
 		);
 	}
 
 	// 6. Seed Menu Items
-	console.log("\n🍔 Seeding Menu Items...");
+	console.log("\n[MENU_ITEMS] Seeding Menu Items...");
 	const sampleMenuItems = [
 		// Grand Bistro Items
 		{
@@ -845,19 +845,19 @@ async function main() {
 			});
 		}
 
-		const statusIcon = seededItem.isDeleted
-			? "🗑️"
+		const statusTag = seededItem.isDeleted
+			? "[DELETED]"
 			: seededItem.isAvailable
-				? "🟢"
-				: "🔴";
+				? "[AVAILABLE]"
+				: "[OUT_OF_STOCK]";
 		console.log(
-			`   🍽️ ${statusIcon} ${seededItem.name.padEnd(30)} | $${Number(seededItem.price).toFixed(2).padStart(5)} | Prep: ${String(seededItem.preparationTime).padStart(2)}m | Cal: ${String(seededItem.calories).padStart(3)} | Rest: ${seededItem.restaurantId.slice(-6)}`,
+			`   ${statusTag.padEnd(14)} ${seededItem.name.padEnd(30)} | $${Number(seededItem.price).toFixed(2).padStart(5)} | Prep: ${String(seededItem.preparationTime).padStart(2)}m | Cal: ${String(seededItem.calories).padStart(3)} | Rest: ${seededItem.restaurantId.slice(-6)}`,
 		);
 	}
 
-	console.log("\n🎉 Seeding completed successfully!");
+	console.log("\n[SUCCESS] Seeding completed successfully!");
 	console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-	console.log("🔑 Available Staff Login Test Accounts:");
+	console.log("[AUTH] Available Staff Login Test Accounts:");
 	console.log(
 		"   • multistaff@spotq.com     (Password: " +
 			defaultPassword +
@@ -888,7 +888,7 @@ async function main() {
 
 main()
 	.catch((error) => {
-		console.error("❌ Seeding failed:", error);
+		console.error("[ERROR] Seeding failed:", error);
 		process.exit(1);
 	})
 	.finally(async () => {
