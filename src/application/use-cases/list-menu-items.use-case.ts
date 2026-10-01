@@ -30,7 +30,7 @@ export class ListMenuItemsUseCase implements IListMenuItemsUseCase {
 		@inject(TYPES.Services.Storage)
 		@optional()
 		private readonly storageService?: IStorageService,
-	) { }
+	) {}
 
 	public async execute(
 		dto: ListMenuItemsQueryDto,

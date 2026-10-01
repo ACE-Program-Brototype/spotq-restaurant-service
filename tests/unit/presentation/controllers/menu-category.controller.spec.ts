@@ -222,7 +222,7 @@ describe("MenuCategoryController", () => {
 			expect(jsonMock).toHaveBeenCalledWith(
 				expect.objectContaining({
 					success: true,
-					message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+					message: messages.MENU_CATEGORY_STATUS_UPDATED_SUCCESS,
 					statusCode: HTTP_STATUS.OK,
 					data: expectedResponse,
 				}),

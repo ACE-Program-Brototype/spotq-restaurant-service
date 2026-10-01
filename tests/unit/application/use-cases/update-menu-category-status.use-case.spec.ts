@@ -3,7 +3,10 @@ import { UpdateMenuCategoryStatusUseCase } from "@/application/use-cases/update-
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { CategoryNotFoundError } from "@/domain/errors/menu-category.errors.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 
 describe("UpdateMenuCategoryStatusUseCase", () => {
@@ -147,6 +150,24 @@ describe("UpdateMenuCategoryStatusUseCase", () => {
 				isActive: false,
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
+
+		expect(mockMenuCategoryRepo.findById).not.toHaveBeenCalled();
+		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
+	});
+
+	it("should throw RestaurantAccountBlockedError when restaurant is blocked", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+			isBlocked: true,
+		} as Restaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				categoryId,
+				isActive: false,
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
 
 		expect(mockMenuCategoryRepo.findById).not.toHaveBeenCalled();
 		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();

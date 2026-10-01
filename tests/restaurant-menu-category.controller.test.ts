@@ -1656,7 +1656,7 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId/status - 
 		expect(jsonMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: true,
-				message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+				message: messages.MENU_CATEGORY_STATUS_UPDATED_SUCCESS,
 				statusCode: HTTP_STATUS.OK,
 				data: expect.objectContaining({
 					id: categoryId,
@@ -1721,7 +1721,7 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId/status - 
 		expect(jsonMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: true,
-				message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+				message: messages.MENU_CATEGORY_STATUS_UPDATED_SUCCESS,
 				statusCode: HTTP_STATUS.OK,
 				data: expect.objectContaining({
 					id: categoryId,
@@ -1780,7 +1780,7 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId/status - 
 		expect(jsonMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: true,
-				message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+				message: messages.MENU_CATEGORY_STATUS_UPDATED_SUCCESS,
 				statusCode: HTTP_STATUS.OK,
 				data: expect.objectContaining({
 					id: categoryId,
@@ -1791,6 +1791,56 @@ describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId/status - 
 			}),
 		);
 		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
+	});
+
+	it("should return 403 FORBIDDEN when restaurant is blocked", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+			isBlocked: true,
+		});
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: true },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.updateCategoryStatus(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "RESTAURANT_ACCOUNT_BLOCKED",
+				statusCode: HTTP_STATUS.FORBIDDEN,
+			}),
+		);
 	});
 });
 

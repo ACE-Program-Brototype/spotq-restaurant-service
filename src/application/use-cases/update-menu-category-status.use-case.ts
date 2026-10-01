@@ -6,7 +6,10 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import type { IUpdateMenuCategoryStatusUseCase } from "@/application/ports/use-cases/update-menu-category-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { CategoryNotFoundError } from "@/domain/errors/menu-category.errors.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -29,6 +32,12 @@ export class UpdateMenuCategoryStatusUseCase
 		);
 		if (!restaurant) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError(
+				messages.RESTAURANT_ACCOUNT_BLOCKED,
+			);
 		}
 
 		const category = await this.menuCategoryRepository.findById(

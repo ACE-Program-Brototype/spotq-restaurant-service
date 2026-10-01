@@ -25,7 +25,7 @@ export class MenuCategoryController {
 	public createCategory = async (
 		req: Request,
 		res: Response,
-	): Promise<Response> => {
+	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const { name, description, displayOrder } = req.body;
 
@@ -36,7 +36,7 @@ export class MenuCategoryController {
 			displayOrder,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
 			messages.MENU_CATEGORY_CREATED_SUCCESS,
@@ -47,7 +47,7 @@ export class MenuCategoryController {
 	public updateCategory = async (
 		req: Request,
 		res: Response,
-	): Promise<Response> => {
+	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const categoryId = String(req.params.categoryId);
 		const { name, description, displayOrder, isActive } = req.body;
@@ -61,7 +61,7 @@ export class MenuCategoryController {
 			isActive,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
 			messages.MENU_CATEGORY_UPDATED_SUCCESS,
@@ -72,7 +72,7 @@ export class MenuCategoryController {
 	public updateCategoryStatus = async (
 		req: Request,
 		res: Response,
-	): Promise<Response> => {
+	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const categoryId = String(req.params.categoryId);
 		const { isActive } = req.body;
@@ -83,10 +83,10 @@ export class MenuCategoryController {
 			isActive,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
-			messages.MENU_CATEGORY_UPDATED_SUCCESS,
+			messages.MENU_CATEGORY_STATUS_UPDATED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};
@@ -94,7 +94,7 @@ export class MenuCategoryController {
 	public deleteCategory = async (
 		req: Request,
 		res: Response,
-	): Promise<Response> => {
+	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const categoryId = String(req.params.categoryId);
 
@@ -103,7 +103,7 @@ export class MenuCategoryController {
 			categoryId,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			null,
 			messages.MENU_CATEGORY_DELETED_SUCCESS,

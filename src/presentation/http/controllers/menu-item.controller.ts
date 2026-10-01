@@ -22,7 +22,7 @@ export class MenuItemController {
 		private readonly listMenuItemsUseCase: IListMenuItemsUseCase,
 		@inject(TYPES.UseCases.GetMenuItemDetailsUseCase)
 		private readonly getMenuItemDetailsUseCase: IGetMenuItemDetailsUseCase,
-	) { }
+	) {}
 
 	public createMenuItem = async (
 		req: Request,

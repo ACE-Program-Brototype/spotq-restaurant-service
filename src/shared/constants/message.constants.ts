@@ -272,6 +272,8 @@ export const messages = {
 	INVALID_MENU_ITEM_ID: "Invalid menu item ID",
 	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
 	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
+	MENU_CATEGORY_STATUS_UPDATED_SUCCESS:
+		"Menu category status updated successfully",
 	MENU_CATEGORY_DELETED_SUCCESS: "Menu category deleted successfully",
 	CATEGORY_ALREADY_EXISTS:
 		"A category with this name already exists for this restaurant",
