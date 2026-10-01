@@ -164,7 +164,7 @@ describe("MenuItemMapper", () => {
 		expect(response.pagination.hasPrevPage).toBe(true);
 	});
 
-	it("should map MenuItemDetailsAggregate to MenuItemDetailsResponseDto with object keys", () => {
+	it("should map MenuItemDetailsAggregate to RestaurantOwnerMenuItemDetailsResponseDto with object keys", () => {
 		const now = new Date();
 		const item = MenuItem.reconstitute({
 			id: "item-123",
@@ -227,7 +227,8 @@ describe("MenuItemMapper", () => {
 			],
 		};
 
-		const dto = MenuItemMapper.toDetailsResponseDto(detailsAggregate);
+		const dto =
+			MenuItemMapper.toRestaurantOwnerDetailsResponseDto(detailsAggregate);
 
 		expect(dto).toEqual({
 			id: "item-123",
@@ -279,5 +280,42 @@ describe("MenuItemMapper", () => {
 			createdAt: now.toISOString(),
 			updatedAt: now.toISOString(),
 		});
+	});
+
+	it("should map MenuItemDetailsAggregate to CustomerMenuItemDetailsResponseDto with object keys", () => {
+		const now = new Date();
+		const item = MenuItem.reconstitute({
+			id: "item-123",
+			restaurantId: "rest-123",
+			categoryId: "cat-123",
+			name: "Chicken Biryani",
+			description: "Classic dum biryani",
+			price: 320.0,
+			preparationTime: 25,
+			calories: 600,
+			isVegetarian: false,
+			isFeatured: true,
+			isAvailable: true,
+			createdAt: now,
+			updatedAt: now,
+		});
+
+		const detailsAggregate = {
+			item,
+			category: null,
+			images: [],
+			variants: [],
+			addons: [],
+		};
+
+		const dto = MenuItemMapper.toCustomerDetailsResponseDto(detailsAggregate);
+
+		expect(dto.category).toBeNull();
+		expect(dto.categoryName).toBe("");
+		expect(dto.name).toBe("Chicken Biryani");
+		expect(dto.isFeatured).toBe(true);
+		expect("createdAt" in dto).toBe(false);
+		expect("updatedAt" in dto).toBe(false);
+		expect("isAvailable" in dto).toBe(false);
 	});
 });

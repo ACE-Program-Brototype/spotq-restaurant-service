@@ -31,6 +31,7 @@ export const RESTAURANT_ROUTES = {
 	MENU_CATEGORY_DELETE: "/:restaurantId/menu/categories/:categoryId",
 	MENU_ITEMS: "/:restaurantId/menu/items",
 	MENU_ITEM_DETAIL: "/:restaurantId/menu/items/:menuItemId",
+	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
 } as const;
 
 export const STAFF_ROUTES = {

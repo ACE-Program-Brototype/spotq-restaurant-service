@@ -117,7 +117,12 @@ export const TYPES = {
 			"ListRestaurantMenuCategoriesUseCase",
 		),
 		ListMenuItemsUseCase: Symbol.for("ListMenuItemsUseCase"),
-		GetMenuItemDetailsUseCase: Symbol.for("GetMenuItemDetailsUseCase"),
+		GetRestaurantOwnerMenuItemDetailsUseCase: Symbol.for(
+			"GetRestaurantOwnerMenuItemDetailsUseCase",
+		),
+		GetCustomerMenuItemDetailsUseCase: Symbol.for(
+			"GetCustomerMenuItemDetailsUseCase",
+		),
 	},
 
 	Controller: {
