@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import type { MenuCategoryResponseDto } from "@/application/dtos/menu/create-menu-category.dto.ts";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
+import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
+import type { IUpdateMenuCategoryStatusUseCase } from "@/application/ports/use-cases/update-menu-category-status.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -10,6 +12,8 @@ describe("MenuCategoryController", () => {
 	let controller: MenuCategoryController;
 	let mockCreateUseCase: jest.Mocked<ICreateMenuCategoryUseCase>;
 	let mockUpdateUseCase: jest.Mocked<IUpdateMenuCategoryUseCase>;
+	let mockDeleteUseCase: jest.Mocked<IDeleteMenuCategoryUseCase>;
+	let mockUpdateStatusUseCase: jest.Mocked<IUpdateMenuCategoryStatusUseCase>;
 
 	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 	const categoryId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
@@ -25,9 +29,19 @@ describe("MenuCategoryController", () => {
 			execute: jest.fn(),
 		};
 
+		mockDeleteUseCase = {
+			execute: jest.fn(),
+		};
+
+		mockUpdateStatusUseCase = {
+			execute: jest.fn(),
+		};
+
 		controller = new MenuCategoryController(
 			mockCreateUseCase,
 			mockUpdateUseCase,
+			mockDeleteUseCase,
+			mockUpdateStatusUseCase,
 		);
 	});
 
@@ -163,6 +177,70 @@ describe("MenuCategoryController", () => {
 			const res = {} as Response;
 
 			await expect(controller.updateCategory(req, res)).rejects.toThrow(
+				testError,
+			);
+		});
+	});
+
+	describe("updateCategoryStatus", () => {
+		it("should update category status and return 200 OK with success payload", async () => {
+			const expectedResponse: MenuCategoryResponseDto = {
+				id: categoryId,
+				restaurantId,
+				name: "Main Course",
+				description: "Main dishes",
+				displayOrder: 1,
+				isActive: false,
+				createdAt: "2026-09-23T10:00:00.000Z",
+				updatedAt: "2026-09-24T10:00:00.000Z",
+			};
+
+			mockUpdateStatusUseCase.execute.mockResolvedValueOnce(expectedResponse);
+
+			const req = {
+				params: { restaurantId, categoryId },
+				body: {
+					isActive: false,
+				},
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const res = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.updateCategoryStatus(req, res);
+
+			expect(mockUpdateStatusUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				categoryId,
+				isActive: false,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+					statusCode: HTTP_STATUS.OK,
+					data: expectedResponse,
+				}),
+			);
+		});
+
+		it("should reject with error when update status use case throws an exception", async () => {
+			const testError = new Error("Database failure");
+			mockUpdateStatusUseCase.execute.mockRejectedValueOnce(testError);
+
+			const req = {
+				params: { restaurantId, categoryId },
+				body: { isActive: true },
+			} as unknown as Request;
+
+			const res = {} as Response;
+
+			await expect(controller.updateCategoryStatus(req, res)).rejects.toThrow(
 				testError,
 			);
 		});

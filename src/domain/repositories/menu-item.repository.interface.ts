@@ -39,6 +39,7 @@ export interface CreateMenuItemRepositoryParams {
 export interface MenuItemQueryFilterParams {
 	restaurantId: string;
 	categoryId?: string;
+	categoryIsActive?: boolean;
 	search?: string;
 	isAvailable?: boolean;
 	isVegetarian?: boolean;

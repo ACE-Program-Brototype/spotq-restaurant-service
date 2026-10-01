@@ -1173,3 +1173,624 @@ describe("DELETE /restaurants/:restaurantId/menu/categories/:categoryId - Integr
 		expect(existingCategory.isActive).toBe(false);
 	});
 });
+
+describe("PATCH /restaurants/:restaurantId/menu/categories/:categoryId/status - Integration & Controller Suite", () => {
+	let mockRestaurantRepo: {
+		findById: jest.Mock;
+	};
+	let mockMenuCategoryRepo: {
+		findById: jest.Mock;
+		updateCategory: jest.Mock;
+	};
+
+	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+	const categoryId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
+	const authHeaders = {
+		"x-user-id": "user-owner-1",
+		"x-restaurant-id": restaurantId,
+		"x-user-role": "restaurant_owner",
+		"x-user-email": "owner@spotq.com",
+	};
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+
+		mockRestaurantRepo = {
+			findById: jest.fn(),
+		};
+
+		mockMenuCategoryRepo = {
+			findById: jest.fn(),
+			updateCategory: jest.fn(),
+		};
+	});
+
+	it("should return 401 UNAUTHORIZED when no authentication identity header is provided", async () => {
+		const req = {
+			method: "PATCH",
+			url: `/${restaurantId}/menu/categories/${categoryId}/status`,
+			headers: { "content-type": "application/json" },
+			params: { restaurantId, categoryId },
+			body: { isActive: false },
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const next = jest.fn();
+
+		const { restaurantOwnerAuthMiddleware } = await import(
+			"@/presentation/http/middleware/restaurant-owner.auth.middleware.ts"
+		);
+
+		restaurantOwnerAuthMiddleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "UNAUTHORIZED",
+				statusCode: HTTP_STATUS.UNAUTHORIZED,
+			}),
+		);
+	});
+
+	it("should return 403 FORBIDDEN when user attempts cross-restaurant status update", async () => {
+		const req = {
+			method: "PATCH",
+			url: `/${restaurantId}/menu/categories/${categoryId}/status`,
+			headers: {
+				...authHeaders,
+				"x-restaurant-id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22", // different restaurant
+			},
+			params: { restaurantId, categoryId },
+			body: { isActive: false },
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const next = jest.fn();
+
+		const { restaurantOwnerAuthMiddleware } = await import(
+			"@/presentation/http/middleware/restaurant-owner.auth.middleware.ts"
+		);
+
+		restaurantOwnerAuthMiddleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				message: messages.RESTAURANT_ACCESS_FORBIDDEN,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+			}),
+		);
+	});
+
+	it("should return 422 UNPROCESSABLE ENTITY when restaurantId param is not a valid UUID", async () => {
+		const req = {
+			params: { restaurantId: "not-a-valid-uuid", categoryId },
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+		const next = jest.fn();
+
+		const { validateRequestParams } = await import(
+			"@/presentation/http/middleware/validation.middleware.ts"
+		);
+		const { updateMenuCategoryStatusParamsSchema } = await import(
+			"@/presentation/http/validators/update-menu-category-status.validator.ts"
+		);
+
+		const middleware = validateRequestParams(
+			updateMenuCategoryStatusParamsSchema,
+		);
+		await middleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("should return 422 UNPROCESSABLE ENTITY when categoryId param is not a valid UUID", async () => {
+		const req = {
+			params: { restaurantId, categoryId: "not-a-valid-uuid" },
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+		const next = jest.fn();
+
+		const { validateRequestParams } = await import(
+			"@/presentation/http/middleware/validation.middleware.ts"
+		);
+		const { updateMenuCategoryStatusParamsSchema } = await import(
+			"@/presentation/http/validators/update-menu-category-status.validator.ts"
+		);
+
+		const middleware = validateRequestParams(
+			updateMenuCategoryStatusParamsSchema,
+		);
+		await middleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("should return 422 UNPROCESSABLE ENTITY when isActive is missing from body", async () => {
+		const req = {
+			body: {},
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+		};
+		const next = jest.fn();
+
+		const { validateRequestBody } = await import(
+			"@/presentation/http/middleware/validation.middleware.ts"
+		);
+		const { updateMenuCategoryStatusBodySchema } = await import(
+			"@/presentation/http/validators/update-menu-category-status.validator.ts"
+		);
+
+		const middleware = validateRequestBody(updateMenuCategoryStatusBodySchema);
+		await middleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: ERROR_CODES.VALIDATION_ERROR,
+				statusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+			}),
+		);
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("should return 422 UNPROCESSABLE ENTITY when isActive is not a boolean", async () => {
+		const req = {
+			body: { isActive: "not-a-boolean" },
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+		};
+		const next = jest.fn();
+
+		const { validateRequestBody } = await import(
+			"@/presentation/http/middleware/validation.middleware.ts"
+		);
+		const { updateMenuCategoryStatusBodySchema } = await import(
+			"@/presentation/http/validators/update-menu-category-status.validator.ts"
+		);
+
+		const middleware = validateRequestBody(updateMenuCategoryStatusBodySchema);
+		await middleware(req as never, res as never, next);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNPROCESSABLE_ENTITY);
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("should return 404 NOT FOUND when target restaurant does not exist", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce(null);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: false },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.updateCategoryStatus(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: ERROR_CODES.RESTAURANT_NOT_FOUND,
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 404 NOT FOUND when category does not exist", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(null);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: false },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.updateCategoryStatus(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "CATEGORY_NOT_FOUND",
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 404 NOT FOUND when category belongs to another restaurant (data isolation)", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const otherCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId: "other-restaurant-id",
+			name: "Breakfast",
+			isActive: true,
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(otherCategory);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: false },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.updateCategoryStatus(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "CATEGORY_NOT_FOUND",
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 404 NOT FOUND when category is soft-deleted", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const deletedCategory = MenuCategory.reconstitute({
+			id: categoryId,
+			restaurantId,
+			name: "Breakfast",
+			description: null,
+			displayOrder: 0,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(deletedCategory);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: true },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: { requestId: "req-1", correlationId: "corr-1" },
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		try {
+			await controller.updateCategoryStatus(req as never, res as never);
+		} catch (error) {
+			errorHandler(error as never, req as never, res as never, jest.fn());
+		}
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.NOT_FOUND);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				code: "CATEGORY_NOT_FOUND",
+				statusCode: HTTP_STATUS.NOT_FOUND,
+			}),
+		);
+	});
+
+	it("should return 200 OK and successfully deactivate category", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const currentCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId,
+			name: "Breakfast",
+			description: "Morning dishes",
+			displayOrder: 1,
+			isActive: true,
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(currentCategory);
+		mockMenuCategoryRepo.updateCategory.mockImplementationOnce(
+			async (entity: MenuCategory) => entity,
+		);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: false },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		await controller.updateCategoryStatus(req as never, res as never);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: true,
+				message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+				statusCode: HTTP_STATUS.OK,
+				data: expect.objectContaining({
+					id: categoryId,
+					restaurantId,
+					name: "Breakfast",
+					isActive: false,
+				}),
+			}),
+		);
+		expect(mockMenuCategoryRepo.updateCategory).toHaveBeenCalledTimes(1);
+	});
+
+	it("should return 200 OK and successfully activate category", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const currentCategory = MenuCategory.reconstitute({
+			id: categoryId,
+			restaurantId,
+			name: "Breakfast",
+			description: "Morning dishes",
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(currentCategory);
+		mockMenuCategoryRepo.updateCategory.mockImplementationOnce(
+			async (entity: MenuCategory) => entity,
+		);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: true },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		await controller.updateCategoryStatus(req as never, res as never);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: true,
+				message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+				statusCode: HTTP_STATUS.OK,
+				data: expect.objectContaining({
+					id: categoryId,
+					restaurantId,
+					name: "Breakfast",
+					isActive: true,
+				}),
+			}),
+		);
+		expect(mockMenuCategoryRepo.updateCategory).toHaveBeenCalledTimes(1);
+	});
+
+	it("should return 200 OK and be idempotent without calling DB write when status is already matching", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId });
+		const currentCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId,
+			name: "Breakfast",
+			description: "Morning dishes",
+			displayOrder: 1,
+			isActive: true,
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(currentCategory);
+
+		const req = {
+			params: { restaurantId, categoryId },
+			body: { isActive: true },
+			user: authHeaders,
+		};
+
+		const jsonMock = jest.fn();
+		const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+		const res = {
+			status: statusMock,
+			json: jsonMock,
+			locals: {},
+		};
+
+		const { UpdateMenuCategoryStatusUseCase } = await import(
+			"@/application/use-cases/update-menu-category-status.use-case.ts"
+		);
+		const useCase = new UpdateMenuCategoryStatusUseCase(
+			mockRestaurantRepo as never,
+			mockMenuCategoryRepo as never,
+		);
+		const controller = new MenuCategoryController(
+			{} as never,
+			{} as never,
+			{} as never,
+			useCase,
+		);
+
+		await controller.updateCategoryStatus(req as never, res as never);
+
+		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		expect(jsonMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: true,
+				message: messages.MENU_CATEGORY_UPDATED_SUCCESS,
+				statusCode: HTTP_STATUS.OK,
+				data: expect.objectContaining({
+					id: categoryId,
+					restaurantId,
+					name: "Breakfast",
+					isActive: true,
+				}),
+			}),
+		);
+		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
+	});
+});
+

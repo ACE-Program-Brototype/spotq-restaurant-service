@@ -4,12 +4,14 @@ import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/creat
 import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
 import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
+import type { IUpdateMenuCategoryStatusUseCase } from "@/application/ports/use-cases/update-menu-category-status.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
 import { CreateMenuItemUseCase } from "@/application/use-cases/create-menu-item.use-case.ts";
 import { DeleteMenuCategoryUseCase } from "@/application/use-cases/delete-menu-category.use-case.ts";
 import { GetMenuItemDetailsUseCase } from "@/application/use-cases/get-menu-item-details.use-case.ts";
 import { ListMenuItemsUseCase } from "@/application/use-cases/list-menu-items.use-case.ts";
+import { UpdateMenuCategoryStatusUseCase } from "@/application/use-cases/update-menu-category-status.use-case.ts";
 import { UpdateMenuCategoryUseCase } from "@/application/use-cases/update-menu-category.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
@@ -30,6 +32,12 @@ export const menuModule = new ContainerModule(({ bind }) => {
 
 	bind<IUpdateMenuCategoryUseCase>(TYPES.UseCases.UpdateMenuCategoryUseCase)
 		.to(UpdateMenuCategoryUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateMenuCategoryStatusUseCase>(
+		TYPES.UseCases.UpdateMenuCategoryStatusUseCase,
+	)
+		.to(UpdateMenuCategoryStatusUseCase)
 		.inSingletonScope();
 
 	bind<IDeleteMenuCategoryUseCase>(TYPES.UseCases.DeleteMenuCategoryUseCase)

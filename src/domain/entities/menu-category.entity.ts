@@ -152,6 +152,25 @@ export class MenuCategory {
 		this.props.updatedAt = new Date();
 	}
 
+	public updateStatus(isActive: boolean): void {
+		if (this.props.isDeleted) {
+			throw new InvalidCategoryDataError(
+				messages.CANNOT_MODIFY_DELETED_CATEGORY,
+			);
+		}
+
+		if (typeof isActive !== "boolean") {
+			throw new InvalidCategoryDataError(messages.CATEGORY_IS_ACTIVE_INVALID);
+		}
+
+		if (this.props.isActive === isActive) {
+			return;
+		}
+
+		this.props.isActive = isActive;
+		this.props.updatedAt = new Date();
+	}
+
 	public get id(): string {
 		return this.props.id;
 	}
