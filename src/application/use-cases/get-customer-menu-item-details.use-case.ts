@@ -32,7 +32,8 @@ export class GetCustomerMenuItemDetailsUseCase
 		if (
 			!restaurant ||
 			restaurant.isBlocked ||
-			(!restaurant.statusVO.isActive() && !restaurant.statusVO.isApproved())
+			!restaurant.statusVO.isActive() ||
+			!restaurant.isSubscriptionActive
 		) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}

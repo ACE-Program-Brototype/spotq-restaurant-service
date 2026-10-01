@@ -70,10 +70,13 @@ export function restaurantOwnerAuthMiddleware(
 		req.params?.restaurantId || req.params?.id,
 	)?.trim();
 
+	const email = getHeaderValue(req.headers["x-user-email"]);
+	const restaurantId = headerRestaurantId || userId;
+
 	if (
 		paramRestaurantId &&
-		headerRestaurantId &&
-		paramRestaurantId !== headerRestaurantId.trim()
+		restaurantId &&
+		paramRestaurantId !== restaurantId.trim()
 	) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
@@ -86,9 +89,6 @@ export function restaurantOwnerAuthMiddleware(
 			);
 		return;
 	}
-
-	const email = getHeaderValue(req.headers["x-user-email"]);
-	const restaurantId = headerRestaurantId || userId;
 
 	req.user = {
 		userId,
