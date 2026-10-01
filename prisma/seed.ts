@@ -782,7 +782,6 @@ async function main() {
 				isVegetarian: itemData.isVegetarian,
 				isFeatured: itemData.isFeatured,
 				isAvailable: itemData.isAvailable,
-				isDeleted: itemData.isDeleted ?? false,
 				categoryId: itemData.categoryId,
 			},
 			create: {

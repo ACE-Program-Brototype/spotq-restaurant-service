@@ -321,6 +321,7 @@ model MenuItem {
   addons   MenuItemAddon[]
 
   @@index([restaurantId])
+  @@index([restaurantId, isDeleted])
   @@index([categoryId])
   @@map("menu_items")
 }

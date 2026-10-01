@@ -220,7 +220,7 @@ export class MenuItemController {
 		res: Response,
 	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
-		const menuItemId = String(req.params.menuItemId ?? req.params.id);
+		const menuItemId = String(req.params.menuItemId);
 
 		await this.deleteMenuItemUseCase.execute({
 			restaurantId,

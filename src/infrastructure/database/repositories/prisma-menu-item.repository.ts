@@ -286,6 +286,26 @@ export class PrismaMenuItemRepository
 	public async updateMenuItem(item: MenuItem): Promise<MenuItem> {
 		try {
 			const data = this.mapper.toPersistence(item);
+			if (data.isDeleted) {
+				const result = await this.prismaClient.menuItem.updateMany({
+					where: {
+						id: data.id,
+						restaurantId: data.restaurantId,
+						isDeleted: false,
+					},
+					data: {
+						isDeleted: true,
+						updatedAt: data.updatedAt,
+					},
+				});
+
+				if (result.count === 0) {
+					throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
+				}
+
+				return item;
+			}
+
 			const updated = await this.dbModel.update({
 				where: { id: data.id },
 				data: {
