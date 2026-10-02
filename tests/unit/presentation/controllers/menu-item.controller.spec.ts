@@ -478,6 +478,13 @@ describe("MenuItemController", () => {
 				menuItemId,
 			});
 			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+					data: mockDetailsDto,
+				}),
+			);
 		});
 	});
 });

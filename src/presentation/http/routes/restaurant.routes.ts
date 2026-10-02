@@ -28,7 +28,6 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
-import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	createMenuItemBodySchema,
 	createMenuItemParamsSchema,
@@ -36,6 +35,7 @@ import {
 import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
 import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
+import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	listMenuItemsParamsSchema,
 	listMenuItemsQuerySchema,
@@ -300,4 +300,3 @@ restaurantRouter.get(
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getCustomerMenuItemDetails,
 );
-

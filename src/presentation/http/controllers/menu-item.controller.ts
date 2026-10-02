@@ -202,11 +202,10 @@ export class MenuItemController {
 		const restaurantId = String(req.params.restaurantId);
 		const menuItemId = String(req.params.menuItemId ?? req.params.id);
 
-		const result =
-			await this.getRestaurantOwnerMenuItemDetailsUseCase.execute({
-				restaurantId,
-				menuItemId,
-			});
+		const result = await this.getRestaurantOwnerMenuItemDetailsUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
 
 		sendSuccessResponse(
 			res,

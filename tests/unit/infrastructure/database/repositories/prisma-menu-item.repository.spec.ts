@@ -151,8 +151,9 @@ describe("PrismaMenuItemRepository", () => {
 		it("should create menu item with details inside transaction", async () => {
 			const mockTx = {
 				menuItem: {
-					create:
-						jest.fn<() => Promise<unknown>>().mockResolvedValue(rawMenuItem),
+					create: jest
+						.fn<() => Promise<unknown>>()
+						.mockResolvedValue(rawMenuItem),
 				},
 				menuItemImage: {
 					create: jest.fn<() => Promise<unknown>>().mockResolvedValue({

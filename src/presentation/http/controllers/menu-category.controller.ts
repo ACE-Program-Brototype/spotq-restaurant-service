@@ -94,10 +94,9 @@ export class MenuCategoryController {
 		res: Response,
 	): Promise<Response> => {
 		const restaurantId = String(req.params.restaurantId);
-		const result =
-			await this.listRestaurantMenuCategoriesUseCase.execute({
-				restaurantId,
-			});
+		const result = await this.listRestaurantMenuCategoriesUseCase.execute({
+			restaurantId,
+		});
 
 		return sendSuccessResponse(
 			res,

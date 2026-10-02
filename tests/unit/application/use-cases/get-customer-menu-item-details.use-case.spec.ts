@@ -59,6 +59,37 @@ describe("GetCustomerMenuItemDetailsUseCase", () => {
 		).rejects.toThrow(RestaurantNotFoundError);
 	});
 
+	it("should throw RestaurantNotFoundError if restaurant is blocked", async () => {
+		const blocked = Restaurant.reconstitute({
+			id: "rest-123",
+			restaurantName: "Spice Kitchen",
+			email: "test@example.com",
+			phone: "+1234567890",
+			ownerName: "Owner",
+			ownerEmail: "owner@example.com",
+			status: "ACTIVE",
+			onboardingStatus: "COMPLETED",
+			emailVerifiedAt: now,
+			rejectionReason: null,
+			lastLoginAt: now,
+			isSubscriptionActive: true,
+			subscriptionPlanCode: "PREMIUM",
+			subscriptionEndsAt: new Date(now.getTime() + 1000000),
+			isBlocked: true,
+			blockReason: "Violation",
+			createdAt: now,
+			updatedAt: now,
+		});
+		restaurantRepository.findById.mockResolvedValue(blocked);
+
+		await expect(
+			useCase.execute({
+				restaurantId: "rest-123",
+				menuItemId: "item-123",
+			}),
+		).rejects.toThrow(RestaurantNotFoundError);
+	});
+
 	it("should throw RestaurantNotFoundError if restaurant is APPROVED but not ACTIVE", async () => {
 		const approvedRestaurant = Restaurant.reconstitute({
 			id: "rest-123",
