@@ -1,16 +1,16 @@
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
-import { UpdateMenuCategoryUseCase } from "@/application/use-cases/update-menu-category.use-case.ts";
+import { UpdateMenuCategoryStatusUseCase } from "@/application/use-cases/update-menu-category-status.use-case.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
+import { CategoryNotFoundError } from "@/domain/errors/menu-category.errors.ts";
 import {
-	CategoryAlreadyExistsError,
-	CategoryNotFoundError,
-} from "@/domain/errors/menu-category.errors.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 
-describe("UpdateMenuCategoryUseCase", () => {
-	let useCase: UpdateMenuCategoryUseCase;
+describe("UpdateMenuCategoryStatusUseCase", () => {
+	let useCase: UpdateMenuCategoryStatusUseCase;
 	let mockRestaurantRepo: jest.Mocked<IRestaurantRepository>;
 	let mockMenuCategoryRepo: jest.Mocked<IMenuCategoryRepository>;
 
@@ -42,13 +42,13 @@ describe("UpdateMenuCategoryUseCase", () => {
 			delete: jest.fn(),
 		} as unknown as jest.Mocked<IMenuCategoryRepository>;
 
-		useCase = new UpdateMenuCategoryUseCase(
+		useCase = new UpdateMenuCategoryStatusUseCase(
 			mockRestaurantRepo,
 			mockMenuCategoryRepo,
 		);
 	});
 
-	it("should update category successfully with partial payload", async () => {
+	it("should deactivate category successfully when isActive is false", async () => {
 		mockRestaurantRepo.findById.mockResolvedValueOnce({
 			id: restaurantId,
 		} as Restaurant);
@@ -56,9 +56,7 @@ describe("UpdateMenuCategoryUseCase", () => {
 		const existingCategory = MenuCategory.create({
 			id: categoryId,
 			restaurantId,
-			name: "Main Course",
-			description: "Old description",
-			displayOrder: 1,
+			name: "Breakfast",
 			isActive: true,
 		});
 		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
@@ -70,18 +68,76 @@ describe("UpdateMenuCategoryUseCase", () => {
 		const result = await useCase.execute({
 			restaurantId,
 			categoryId,
-			description: "Updated description",
 			isActive: false,
 		});
 
 		expect(result).toBeDefined();
 		expect(result.id).toBe(categoryId);
 		expect(result.restaurantId).toBe(restaurantId);
-		expect(result.name).toBe("Main Course");
-		expect(result.description).toBe("Updated description");
-		expect(result.displayOrder).toBe(1);
+		expect(result.name).toBe("Breakfast");
 		expect(result.isActive).toBe(false);
 		expect(mockMenuCategoryRepo.updateCategory).toHaveBeenCalledTimes(1);
+	});
+
+	it("should activate category successfully when isActive is true", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+		} as Restaurant);
+
+		const existingCategory = MenuCategory.reconstitute({
+			id: categoryId,
+			restaurantId,
+			name: "Seasonal Specials",
+			description: null,
+			displayOrder: 0,
+			isActive: false,
+			isDeleted: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
+
+		mockMenuCategoryRepo.updateCategory.mockImplementationOnce(
+			async (entity: MenuCategory) => entity,
+		);
+
+		const result = await useCase.execute({
+			restaurantId,
+			categoryId,
+			isActive: true,
+		});
+
+		expect(result).toBeDefined();
+		expect(result.id).toBe(categoryId);
+		expect(result.restaurantId).toBe(restaurantId);
+		expect(result.name).toBe("Seasonal Specials");
+		expect(result.isActive).toBe(true);
+		expect(mockMenuCategoryRepo.updateCategory).toHaveBeenCalledTimes(1);
+	});
+
+	it("should be idempotent and not call repository updateCategory when category already has the requested status", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+		} as Restaurant);
+
+		const existingCategory = MenuCategory.create({
+			id: categoryId,
+			restaurantId,
+			name: "Breakfast",
+			isActive: true,
+		});
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
+
+		const result = await useCase.execute({
+			restaurantId,
+			categoryId,
+			isActive: true,
+		});
+
+		expect(result).toBeDefined();
+		expect(result.id).toBe(categoryId);
+		expect(result.isActive).toBe(true);
+		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
 	});
 
 	it("should throw RestaurantNotFoundError when restaurant does not exist", async () => {
@@ -91,9 +147,27 @@ describe("UpdateMenuCategoryUseCase", () => {
 			useCase.execute({
 				restaurantId: "non-existent-restaurant",
 				categoryId,
-				name: "New Name",
+				isActive: false,
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
+
+		expect(mockMenuCategoryRepo.findById).not.toHaveBeenCalled();
+		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
+	});
+
+	it("should throw RestaurantAccountBlockedError when restaurant is blocked", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+			isBlocked: true,
+		} as Restaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				categoryId,
+				isActive: false,
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
 
 		expect(mockMenuCategoryRepo.findById).not.toHaveBeenCalled();
 		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
@@ -109,7 +183,7 @@ describe("UpdateMenuCategoryUseCase", () => {
 			useCase.execute({
 				restaurantId,
 				categoryId: "non-existent-category",
-				name: "New Name",
+				isActive: false,
 			}),
 		).rejects.toThrow(CategoryNotFoundError);
 
@@ -124,7 +198,8 @@ describe("UpdateMenuCategoryUseCase", () => {
 		const otherRestaurantCategory = MenuCategory.create({
 			id: categoryId,
 			restaurantId: "other-restaurant-id",
-			name: "Starters",
+			name: "Breakfast",
+			isActive: true,
 		});
 		mockMenuCategoryRepo.findById.mockResolvedValueOnce(
 			otherRestaurantCategory,
@@ -134,98 +209,11 @@ describe("UpdateMenuCategoryUseCase", () => {
 			useCase.execute({
 				restaurantId,
 				categoryId,
-				name: "New Name",
+				isActive: false,
 			}),
 		).rejects.toThrow(CategoryNotFoundError);
 
 		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
-	});
-
-	it("should throw CategoryAlreadyExistsError when new name conflicts with another category in the same restaurant", async () => {
-		mockRestaurantRepo.findById.mockResolvedValueOnce({
-			id: restaurantId,
-		} as Restaurant);
-
-		const existingCategory = MenuCategory.create({
-			id: categoryId,
-			restaurantId,
-			name: "Main Course",
-		});
-		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
-
-		const conflictingCategory = MenuCategory.create({
-			id: "different-category-id",
-			restaurantId,
-			name: "Desserts",
-		});
-		mockMenuCategoryRepo.findByNameAndRestaurantId.mockResolvedValueOnce(
-			conflictingCategory,
-		);
-
-		await expect(
-			useCase.execute({
-				restaurantId,
-				categoryId,
-				name: "Desserts",
-			}),
-		).rejects.toThrow(CategoryAlreadyExistsError);
-
-		expect(mockMenuCategoryRepo.updateCategory).not.toHaveBeenCalled();
-	});
-
-	it("should allow updating name if it matches the current category's name", async () => {
-		mockRestaurantRepo.findById.mockResolvedValueOnce({
-			id: restaurantId,
-		} as Restaurant);
-
-		const existingCategory = MenuCategory.create({
-			id: categoryId,
-			restaurantId,
-			name: "Main Course",
-		});
-		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
-
-		mockMenuCategoryRepo.updateCategory.mockImplementationOnce(
-			async (entity: MenuCategory) => entity,
-		);
-
-		const result = await useCase.execute({
-			restaurantId,
-			categoryId,
-			name: "Main Course",
-		});
-
-		expect(result.name).toBe("Main Course");
-		expect(mockMenuCategoryRepo.updateCategory).toHaveBeenCalledTimes(1);
-	});
-
-	it("should pass previousDisplayOrder to repository when displayOrder changes", async () => {
-		mockRestaurantRepo.findById.mockResolvedValueOnce({
-			id: restaurantId,
-		} as Restaurant);
-
-		const existingCategory = MenuCategory.create({
-			id: categoryId,
-			restaurantId,
-			name: "Main Course",
-			displayOrder: 3,
-		});
-		mockMenuCategoryRepo.findById.mockResolvedValueOnce(existingCategory);
-
-		mockMenuCategoryRepo.updateCategory.mockImplementationOnce(
-			async (entity: MenuCategory) => entity,
-		);
-
-		await useCase.execute({
-			restaurantId,
-			categoryId,
-			displayOrder: 1,
-		});
-
-		expect(mockMenuCategoryRepo.updateCategory).toHaveBeenCalledWith(
-			expect.any(MenuCategory),
-			3,
-		);
 	});
 
 	it("should throw CategoryNotFoundError when category is soft-deleted", async () => {
@@ -233,11 +221,16 @@ describe("UpdateMenuCategoryUseCase", () => {
 			id: restaurantId,
 		} as Restaurant);
 
-		const softDeletedCategory = MenuCategory.create({
+		const softDeletedCategory = MenuCategory.reconstitute({
 			id: categoryId,
 			restaurantId,
-			name: "Starters",
+			name: "Breakfast",
+			description: null,
+			displayOrder: 0,
+			isActive: false,
 			isDeleted: true,
+			createdAt: new Date(),
+			updatedAt: new Date(),
 		});
 		mockMenuCategoryRepo.findById.mockResolvedValueOnce(softDeletedCategory);
 
@@ -245,7 +238,7 @@ describe("UpdateMenuCategoryUseCase", () => {
 			useCase.execute({
 				restaurantId,
 				categoryId,
-				name: "New Name",
+				isActive: true,
 			}),
 		).rejects.toThrow(CategoryNotFoundError);
 

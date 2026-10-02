@@ -28,7 +28,6 @@ import {
 	createMenuCategoryBodySchema,
 	createMenuCategoryParamsSchema,
 } from "../validators/create-menu-category.validator";
-import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	createMenuItemBodySchema,
 	createMenuItemParamsSchema,
@@ -36,6 +35,7 @@ import {
 import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
 import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
+import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	listMenuItemsParamsSchema,
 	listMenuItemsQuerySchema,
@@ -68,6 +68,10 @@ import {
 	updateMenuCategoryBodySchema,
 	updateMenuCategoryParamsSchema,
 } from "../validators/update-menu-category.validator";
+import {
+	updateMenuCategoryStatusBodySchema,
+	updateMenuCategoryStatusParamsSchema,
+} from "../validators/update-menu-category-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -264,6 +268,14 @@ restaurantRouter.patch(
 	validateRequestParams(updateMenuCategoryParamsSchema),
 	validateRequestBody(updateMenuCategoryBodySchema),
 	menuCategoryController.updateCategory,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_CATEGORY_STATUS_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateMenuCategoryStatusParamsSchema),
+	validateRequestBody(updateMenuCategoryStatusBodySchema),
+	menuCategoryController.updateCategoryStatus,
 );
 
 restaurantRouter.delete(

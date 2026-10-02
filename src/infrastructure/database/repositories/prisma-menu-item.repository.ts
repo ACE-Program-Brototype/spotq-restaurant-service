@@ -259,13 +259,24 @@ export class PrismaMenuItemRepository
 						where: { restaurantId, isDeleted: false },
 					}),
 					this.prismaClient.menuItem.count({
-						where: { restaurantId },
+						where: {
+							restaurantId,
+							category: { isDeleted: false },
+						},
 					}),
 					this.prismaClient.menuItem.count({
-						where: { restaurantId, isAvailable: true },
+						where: {
+							restaurantId,
+							isAvailable: true,
+							category: { isDeleted: false },
+						},
 					}),
 					this.prismaClient.menuItem.count({
-						where: { restaurantId, isAvailable: false },
+						where: {
+							restaurantId,
+							isAvailable: false,
+							category: { isDeleted: false },
+						},
 					}),
 				]);
 
@@ -407,6 +418,12 @@ export class PrismaMenuItemRepository
 
 			const where: Prisma.MenuItemWhereInput = {
 				restaurantId,
+				category: {
+					isDeleted: false,
+					...(typeof params.categoryIsActive === "boolean" && {
+						isActive: params.categoryIsActive,
+					}),
+				},
 			};
 
 			if (categoryId) {

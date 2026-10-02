@@ -160,6 +160,7 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			{} as never,
 			{} as never,
 			{} as never,
+			{} as never,
 			useCase,
 		);
 
@@ -232,6 +233,7 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			{} as never,
 			{} as never,
 			{} as never,
+			{} as never,
 			useCase,
 		);
 
@@ -288,6 +290,7 @@ describe("GET /admin/restaurants/:restaurantId/menu/categories - Integration & C
 			mockMenuCategoryRepo as never,
 		);
 		const controller = new MenuCategoryController(
+			{} as never,
 			{} as never,
 			{} as never,
 			{} as never,
