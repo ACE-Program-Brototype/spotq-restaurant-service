@@ -146,6 +146,24 @@ describe("ListMenuItemsValidator", () => {
 			}
 		});
 
+		it("should parse isAvailable and is_available boolean filters properly", () => {
+			const res1 = listMenuItemsQuerySchema.safeParse({
+				isAvailable: "false",
+			});
+			expect(res1.success).toBe(true);
+			if (res1.success) {
+				expect(res1.data.isAvailable).toBe(false);
+			}
+
+			const res2 = listMenuItemsQuerySchema.safeParse({
+				is_available: "true",
+			});
+			expect(res2.success).toBe(true);
+			if (res2.success) {
+				expect(res2.data.isAvailable).toBe(true);
+			}
+		});
+
 		it("should reject invalid categoryId and category_id UUIDs with custom error message", () => {
 			const res1 = listMenuItemsQuerySchema.safeParse({
 				categoryId: "not-a-uuid",
