@@ -126,4 +126,5 @@ export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
 	): Promise<MenuItemQueryResult>;
 	getRestaurantMenuStats(restaurantId: string): Promise<RestaurantMenuStats>;
 	updateMenuItem(item: MenuItem): Promise<MenuItem>;
+	updateAvailability(item: MenuItem): Promise<MenuItem>;
 }
