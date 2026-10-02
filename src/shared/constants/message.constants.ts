@@ -328,6 +328,7 @@ export const messages = {
 		"minPrice cannot be greater than maxPrice",
 	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
 	MENU_ITEM_DETAILS_FETCHED_SUCCESS: "Menu item details retrieved successfully",
+	STAFF_MENU_ITEMS_FETCHED_SUCCESS: "Staff menu items retrieved successfully",
 } as const;
 
 export type MessageKey = keyof typeof messages;

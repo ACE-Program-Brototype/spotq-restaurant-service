@@ -60,7 +60,12 @@ describe("GET /:restaurantId/menu/items - Route Level & Query Transformation Sui
 			mockMenuItemRepo,
 			mockStorageService as never,
 		);
-		controller = new MenuItemController({} as never, useCase, {} as never);
+		controller = new MenuItemController(
+			{} as never,
+			useCase,
+			{} as never,
+			{} as never,
+		);
 	});
 
 	it("should transform snake_case aliases and boolean strings through validation middleware and execute repository with mapped values", async () => {

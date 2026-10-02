@@ -5,6 +5,7 @@ import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/d
 import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
+import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import type { IUpdateMenuCategoryStatusUseCase } from "@/application/ports/use-cases/update-menu-category-status.use-case.port.ts";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
@@ -13,6 +14,7 @@ import { DeleteMenuCategoryUseCase } from "@/application/use-cases/delete-menu-c
 import { GetMenuItemDetailsUseCase } from "@/application/use-cases/get-menu-item-details.use-case.ts";
 import { ListMenuItemsUseCase } from "@/application/use-cases/list-menu-items.use-case.ts";
 import { ListRestaurantMenuCategoriesUseCase } from "@/application/use-cases/list-restaurant-menu-categories.use-case.ts";
+import { ListStaffMenuItemsUseCase } from "@/application/use-cases/list-staff-menu-items.use-case.ts";
 import { UpdateMenuCategoryUseCase } from "@/application/use-cases/update-menu-category.use-case.ts";
 import { UpdateMenuCategoryStatusUseCase } from "@/application/use-cases/update-menu-category-status.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -62,6 +64,10 @@ export const menuModule = new ContainerModule(({ bind }) => {
 
 	bind<IListMenuItemsUseCase>(TYPES.UseCases.ListMenuItemsUseCase)
 		.to(ListMenuItemsUseCase)
+		.inSingletonScope();
+
+	bind<IListStaffMenuItemsUseCase>(TYPES.UseCases.ListStaffMenuItemsUseCase)
+		.to(ListStaffMenuItemsUseCase)
 		.inSingletonScope();
 
 	bind<IGetMenuItemDetailsUseCase>(TYPES.UseCases.GetMenuItemDetailsUseCase)

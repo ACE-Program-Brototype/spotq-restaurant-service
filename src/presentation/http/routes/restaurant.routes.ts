@@ -13,6 +13,7 @@ import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
 import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
+
 import {
 	validate,
 	validateRequestBody,
@@ -40,6 +41,10 @@ import {
 	listMenuItemsParamsSchema,
 	listMenuItemsQuerySchema,
 } from "../validators/list-menu-items.validator";
+import {
+	listStaffMenuItemsParamsSchema,
+	listStaffMenuItemsQuerySchema,
+} from "../validators/list-staff-menu-items.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -291,6 +296,17 @@ restaurantRouter.get(
 	validateRequestParams(listMenuItemsParamsSchema),
 	validateRequestQuery(listMenuItemsQuerySchema),
 	menuItemController.listMenuItems,
+);
+
+restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.STAFF_MENU_ITEMS,
+		RESTAURANT_ROUTES.STAFF_MENU_ITEMS_PREFIX,
+	],
+	staffAuthMiddleware,
+	validateRequestParams(listStaffMenuItemsParamsSchema),
+	validateRequestQuery(listStaffMenuItemsQuerySchema),
+	menuItemController.listStaffMenuItems.bind(menuItemController),
 );
 
 restaurantRouter.get(

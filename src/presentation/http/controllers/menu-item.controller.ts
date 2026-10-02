@@ -4,6 +4,7 @@ import type { MenuItemStatusFilter } from "@/application/dtos/menu-item/list-men
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
+import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type {
 	MenuItemSortField,
@@ -12,6 +13,7 @@ import type {
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import type { AuthenticatedUser } from "@/types/express.d.ts";
 
 @injectable()
 export class MenuItemController {
@@ -22,6 +24,8 @@ export class MenuItemController {
 		private readonly listMenuItemsUseCase: IListMenuItemsUseCase,
 		@inject(TYPES.UseCases.GetMenuItemDetailsUseCase)
 		private readonly getMenuItemDetailsUseCase: IGetMenuItemDetailsUseCase,
+		@inject(TYPES.UseCases.ListStaffMenuItemsUseCase)
+		private readonly listStaffMenuItemsUseCase: IListStaffMenuItemsUseCase,
 	) {}
 
 	public createMenuItem = async (
@@ -208,6 +212,68 @@ export class MenuItemController {
 			res,
 			result,
 			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public listStaffMenuItems = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+
+		const validatedQuery = (res.locals?.query ?? req.query) as
+			| Record<string, unknown>
+			| undefined;
+
+		const pageVal = validatedQuery?.page;
+		const limitVal = validatedQuery?.limit;
+		const userRole =
+			(req.user as AuthenticatedUser | undefined)?.role ||
+			(req.headers["x-user-role"] as string | undefined);
+
+		const result = await this.listStaffMenuItemsUseCase.execute({
+			restaurantId,
+			page:
+				typeof pageVal === "number"
+					? pageVal
+					: pageVal !== undefined
+						? Number(pageVal)
+						: 1,
+			limit:
+				typeof limitVal === "number"
+					? limitVal
+					: limitVal !== undefined
+						? Number(limitVal)
+						: 50,
+			search: validatedQuery?.search as string | undefined,
+			categoryId: (validatedQuery?.categoryId ?? validatedQuery?.category_id) as
+				| string
+				| undefined,
+			isAvailable: validatedQuery?.isAvailable as boolean | undefined,
+			includeInactive: Boolean(
+				validatedQuery?.includeInactive ?? validatedQuery?.include_inactive,
+			),
+			includeVariants:
+				validatedQuery?.includeVariants !== undefined
+					? Boolean(validatedQuery.includeVariants)
+					: validatedQuery?.include_variants !== undefined
+						? Boolean(validatedQuery.include_variants)
+						: true,
+			sortBy: (validatedQuery?.sortBy ?? validatedQuery?.sort_by) as
+				| string
+				| undefined,
+			sortOrder: (validatedQuery?.sortOrder ?? validatedQuery?.sort_order) as
+				| "asc"
+				| "desc"
+				| undefined,
+			userRole,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_MENU_ITEMS_FETCHED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

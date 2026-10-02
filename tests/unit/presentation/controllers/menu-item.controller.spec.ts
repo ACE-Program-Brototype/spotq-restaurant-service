@@ -4,6 +4,7 @@ import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
+import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -12,6 +13,7 @@ describe("MenuItemController", () => {
 	let createMenuItemUseCase: jest.Mocked<ICreateMenuItemUseCase>;
 	let listMenuItemsUseCase: jest.Mocked<IListMenuItemsUseCase>;
 	let getMenuItemDetailsUseCase: jest.Mocked<IGetMenuItemDetailsUseCase>;
+	let listStaffMenuItemsUseCase: jest.Mocked<IListStaffMenuItemsUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -32,10 +34,15 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
+		listStaffMenuItemsUseCase = {
+			execute: jest.fn(),
+		};
+
 		controller = new MenuItemController(
 			createMenuItemUseCase,
 			listMenuItemsUseCase,
 			getMenuItemDetailsUseCase,
+			listStaffMenuItemsUseCase,
 		);
 
 		res = {
@@ -435,6 +442,106 @@ describe("MenuItemController", () => {
 					success: true,
 					message: messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
 					data: mockDetailsDto,
+				}),
+			);
+		});
+	});
+
+	describe("listStaffMenuItems", () => {
+		it("should return 200 with staff menu items listing data on success", async () => {
+			const mockStaffResponse = {
+				restaurantId,
+				page: 1,
+				limit: 50,
+				totalCount: 1,
+				totalPages: 1,
+				items: [
+					{
+						id: "item-001",
+						name: "Pepperoni Pizza",
+						sku: "PIZ-PEP",
+						description: "Classic pepperoni",
+						basePrice: 12.5,
+						categoryId,
+						categoryName: "Pizzas",
+						displayOrder: 1,
+						isActive: true,
+						isAvailable: true,
+						unavailabilityReason: null,
+						autoResetAt: null,
+						variantCount: 1,
+						hasVariants: true,
+						variants: [
+							{
+								id: "var-1",
+								name: "Small",
+								sku: "PIZ-PEP-SM",
+								price: 12.5,
+								isDefault: true,
+								isAvailable: true,
+							},
+						],
+						updatedAt: new Date().toISOString(),
+					},
+				],
+			};
+
+			listStaffMenuItemsUseCase.execute.mockResolvedValueOnce(
+				mockStaffResponse,
+			);
+
+			const req = {
+				params: { restaurantId },
+				query: {},
+				user: {
+					userId: "staff-1",
+					restaurantId,
+					role: "staff",
+					email: "staff@example.com",
+				},
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const res = {
+				status: statusMock,
+				json: jsonMock,
+				locals: {
+					query: {
+						page: 1,
+						limit: 50,
+						search: "Pepperoni",
+						categoryId,
+						isAvailable: true,
+						includeInactive: false,
+						includeVariants: true,
+						sortBy: "categoryDisplayOrder",
+						sortOrder: "asc",
+					},
+				},
+			} as unknown as Response;
+
+			await controller.listStaffMenuItems(req, res);
+
+			expect(listStaffMenuItemsUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				page: 1,
+				limit: 50,
+				search: "Pepperoni",
+				categoryId,
+				isAvailable: true,
+				includeInactive: false,
+				includeVariants: true,
+				sortBy: "categoryDisplayOrder",
+				sortOrder: "asc",
+				userRole: "staff",
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.STAFF_MENU_ITEMS_FETCHED_SUCCESS,
+					data: mockStaffResponse,
 				}),
 			);
 		});
