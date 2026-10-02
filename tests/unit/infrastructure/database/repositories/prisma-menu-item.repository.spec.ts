@@ -280,6 +280,17 @@ describe("PrismaMenuItemRepository", () => {
 				limit: 10,
 			});
 
+			expect(mockPrisma.menuItem.findMany).toHaveBeenCalledWith(
+				expect.objectContaining({
+					where: expect.objectContaining({
+						restaurantId,
+						categoryId,
+						category: {
+							isDeleted: false,
+						},
+					}),
+				}),
+			);
 			expect(result.items).toHaveLength(1);
 			expect(result.items[0].name).toBe("Wagyu Burger");
 			expect(result.items[0].categoryName).toBe("Main Course");
@@ -289,6 +300,33 @@ describe("PrismaMenuItemRepository", () => {
 			expect(result.stats.totalMenuItems).toBe(10);
 			expect(result.stats.availableItems).toBe(8);
 			expect(result.stats.outOfStockItems).toBe(2);
+		});
+
+		it("should filter by category isActive when categoryIsActive is boolean", async () => {
+			mockPrisma.menuItem.findMany.mockResolvedValue([]);
+			mockPrisma.menuItem.count
+				.mockResolvedValueOnce(0)
+				.mockResolvedValueOnce(0)
+				.mockResolvedValueOnce(0)
+				.mockResolvedValueOnce(0);
+			mockPrisma.menuCategory.count.mockResolvedValue(1);
+
+			await repository.findManyWithFiltersAndStats({
+				restaurantId,
+				categoryIsActive: true,
+			});
+
+			expect(mockPrisma.menuItem.findMany).toHaveBeenCalledWith(
+				expect.objectContaining({
+					where: expect.objectContaining({
+						restaurantId,
+						category: {
+							isActive: true,
+							isDeleted: false,
+						},
+					}),
+				}),
+			);
 		});
 	});
 

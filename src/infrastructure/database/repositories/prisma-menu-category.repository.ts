@@ -80,6 +80,21 @@ export class PrismaMenuCategoryRepository
 		}
 	}
 
+	public async findByRestaurantId(
+		restaurantId: string,
+	): Promise<MenuCategory[]> {
+		try {
+			const records = await this.dbModel.findMany({
+				where: { restaurantId, isDeleted: false },
+				orderBy: { displayOrder: "asc" },
+			});
+			return records.map((record) => this.mapper.toDomain(record));
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
 	public async getNextDisplayOrder(restaurantId: string): Promise<number> {
 		try {
 			const last = await this.dbModel.findFirst({

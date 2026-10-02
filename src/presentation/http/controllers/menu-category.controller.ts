@@ -2,7 +2,9 @@ import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
+import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
+import type { IUpdateMenuCategoryStatusUseCase } from "@/application/ports/use-cases/update-menu-category-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -17,12 +19,16 @@ export class MenuCategoryController {
 		private readonly updateMenuCategoryUseCase: IUpdateMenuCategoryUseCase,
 		@inject(TYPES.UseCases.DeleteMenuCategoryUseCase)
 		private readonly deleteMenuCategoryUseCase: IDeleteMenuCategoryUseCase,
+		@inject(TYPES.UseCases.UpdateMenuCategoryStatusUseCase)
+		private readonly updateMenuCategoryStatusUseCase: IUpdateMenuCategoryStatusUseCase,
+		@inject(TYPES.UseCases.ListRestaurantMenuCategoriesUseCase)
+		private readonly listRestaurantMenuCategoriesUseCase: IListRestaurantMenuCategoriesUseCase,
 	) {}
 
 	public createCategory = async (
 		req: Request,
 		res: Response,
-	): Promise<Response> => {
+	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const { name, description, displayOrder } = req.body;
 
@@ -33,7 +39,7 @@ export class MenuCategoryController {
 			displayOrder,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
 			messages.MENU_CATEGORY_CREATED_SUCCESS,
@@ -44,7 +50,7 @@ export class MenuCategoryController {
 	public updateCategory = async (
 		req: Request,
 		res: Response,
-	): Promise<Response> => {
+	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const categoryId = String(req.params.categoryId);
 		const { name, description, displayOrder, isActive } = req.body;
@@ -58,7 +64,7 @@ export class MenuCategoryController {
 			isActive,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
 			messages.MENU_CATEGORY_UPDATED_SUCCESS,
@@ -66,10 +72,32 @@ export class MenuCategoryController {
 		);
 	};
 
+	public updateCategoryStatus = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const categoryId = String(req.params.categoryId);
+		const { isActive } = req.body;
+
+		const result = await this.updateMenuCategoryStatusUseCase.execute({
+			restaurantId,
+			categoryId,
+			isActive,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_CATEGORY_STATUS_UPDATED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
 	public deleteCategory = async (
 		req: Request,
 		res: Response,
-	): Promise<Response> => {
+	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const categoryId = String(req.params.categoryId);
 
@@ -78,10 +106,27 @@ export class MenuCategoryController {
 			categoryId,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			null,
 			messages.MENU_CATEGORY_DELETED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public listRestaurantCategories = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const result = await this.listRestaurantMenuCategoriesUseCase.execute({
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_CATEGORIES_FETCHED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};
