@@ -122,6 +122,7 @@ export const TYPES = {
 		ListMenuItemsUseCase: Symbol.for("ListMenuItemsUseCase"),
 		GetMenuItemDetailsUseCase: Symbol.for("GetMenuItemDetailsUseCase"),
 		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
+		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
 	},
 
 	Controller: {

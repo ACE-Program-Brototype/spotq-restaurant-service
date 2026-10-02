@@ -8,6 +8,7 @@ import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-m
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
 import type { IUpdateMenuCategoryStatusUseCase } from "@/application/ports/use-cases/update-menu-category-status.use-case.port.ts";
+import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
 import { CreateMenuItemUseCase } from "@/application/use-cases/create-menu-item.use-case.ts";
 import { DeleteMenuCategoryUseCase } from "@/application/use-cases/delete-menu-category.use-case.ts";
@@ -17,6 +18,7 @@ import { ListMenuItemsUseCase } from "@/application/use-cases/list-menu-items.us
 import { ListRestaurantMenuCategoriesUseCase } from "@/application/use-cases/list-restaurant-menu-categories.use-case.ts";
 import { UpdateMenuCategoryUseCase } from "@/application/use-cases/update-menu-category.use-case.ts";
 import { UpdateMenuCategoryStatusUseCase } from "@/application/use-cases/update-menu-category-status.use-case.ts";
+import { UpdateMenuItemStatusUseCase } from "@/application/use-cases/update-menu-item-status.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 import type { IMenuItemRepository } from "@/domain/repositories/menu-item.repository.interface.ts";
@@ -72,6 +74,10 @@ export const menuModule = new ContainerModule(({ bind }) => {
 
 	bind<IDeleteMenuItemUseCase>(TYPES.UseCases.DeleteMenuItemUseCase)
 		.to(DeleteMenuItemUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateMenuItemStatusUseCase>(TYPES.UseCases.UpdateMenuItemStatusUseCase)
+		.to(UpdateMenuItemStatusUseCase)
 		.inSingletonScope();
 
 	bind(TYPES.Controller.MenuCategoryController)

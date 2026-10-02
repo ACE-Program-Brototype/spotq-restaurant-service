@@ -8,6 +8,7 @@ export interface CreateMenuItemVariantInputDto {
 	name: string;
 	price: number;
 	isDefault?: boolean;
+	isAvailable?: boolean;
 }
 
 export interface CreateMenuItemAddonInputDto {
@@ -43,6 +44,7 @@ export interface MenuItemVariantResponseDto {
 	name: string;
 	price: number;
 	isDefault: boolean;
+	isAvailable: boolean;
 }
 
 export interface MenuItemAddonResponseDto {
