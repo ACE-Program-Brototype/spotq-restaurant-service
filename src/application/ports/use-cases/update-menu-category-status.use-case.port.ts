@@ -3,7 +3,4 @@ import type { UpdateMenuCategoryStatusInputDto } from "@/application/dtos/menu/u
 import type { IUseCase } from "@/application/ports/use-cases/use-case.port.ts";
 
 export interface IUpdateMenuCategoryStatusUseCase
-	extends IUseCase<
-		UpdateMenuCategoryStatusInputDto,
-		MenuCategoryResponseDto
-	> {}
+	extends IUseCase<UpdateMenuCategoryStatusInputDto, MenuCategoryResponseDto> {}

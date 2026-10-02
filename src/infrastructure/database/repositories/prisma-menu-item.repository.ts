@@ -46,7 +46,8 @@ export class PrismaMenuItemRepository
 		PrismaMenuItem,
 		PrismaClient["menuItem"]
 	>
-	implements IMenuItemRepository {
+	implements IMenuItemRepository
+{
 	constructor(
 		@inject(TYPES.PrismaClient)
 		private readonly prismaClient: PrismaClient,
@@ -212,11 +213,11 @@ export class PrismaMenuItemRepository
 
 			const domainCategory = record.category
 				? {
-					id: record.category.id,
-					name: record.category.name,
-					description: record.category.description,
-					isActive: record.category.isActive,
-				}
+						id: record.category.id,
+						name: record.category.name,
+						description: record.category.description,
+						isActive: record.category.isActive,
+					}
 				: null;
 
 			const domainAddons = record.addons

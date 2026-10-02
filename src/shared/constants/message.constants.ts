@@ -271,6 +271,7 @@ export const messages = {
 	INVALID_ADDON_ID: "Invalid add-on ID",
 	INVALID_MENU_ITEM_ID: "Invalid menu item ID",
 	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	MENU_CATEGORIES_FETCHED_SUCCESS: "Menu categories retrieved successfully",
 	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
 	MENU_CATEGORY_STATUS_UPDATED_SUCCESS:
 		"Menu category status updated successfully",

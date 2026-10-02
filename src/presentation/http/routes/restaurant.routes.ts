@@ -35,6 +35,7 @@ import {
 import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
 import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
+import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	listMenuItemsParamsSchema,
 	listMenuItemsQuerySchema,
@@ -290,6 +291,13 @@ restaurantRouter.get(
 	validateRequestParams(listMenuItemsParamsSchema),
 	validateRequestQuery(listMenuItemsQuerySchema),
 	menuItemController.listMenuItems,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.MENU_CATEGORIES,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamSchema),
+	menuCategoryController.listRestaurantCategories,
 );
 
 restaurantRouter.get(

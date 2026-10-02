@@ -232,9 +232,7 @@ describe("UpdateMenuCategoryStatusUseCase", () => {
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		});
-		mockMenuCategoryRepo.findById.mockResolvedValueOnce(
-			softDeletedCategory,
-		);
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce(softDeletedCategory);
 
 		await expect(
 			useCase.execute({
