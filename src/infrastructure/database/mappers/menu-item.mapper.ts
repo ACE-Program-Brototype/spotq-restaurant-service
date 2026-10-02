@@ -62,6 +62,7 @@ export const MenuItemVariantPersistenceMapper: IEntityMapper<
 			name: raw.name,
 			price: Number(raw.price),
 			isDefault: raw.isDefault,
+			isAvailable: raw.isAvailable,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt,
 		});
@@ -75,6 +76,7 @@ export const MenuItemVariantPersistenceMapper: IEntityMapper<
 			name: entity.name,
 			price: new Prisma.Decimal(entity.price),
 			isDefault: entity.isDefault,
+			isAvailable: entity.isAvailable,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		};
