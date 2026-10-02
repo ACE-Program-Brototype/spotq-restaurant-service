@@ -291,6 +291,7 @@ export class MenuItem {
 			);
 		}
 		this.props.isDeleted = true;
+		this.props.isAvailable = false;
 		this.props.updatedAt = new Date();
 	}
 

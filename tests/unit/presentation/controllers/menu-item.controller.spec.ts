@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
 import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
@@ -12,6 +13,7 @@ describe("MenuItemController", () => {
 	let createMenuItemUseCase: jest.Mocked<ICreateMenuItemUseCase>;
 	let listMenuItemsUseCase: jest.Mocked<IListMenuItemsUseCase>;
 	let getMenuItemDetailsUseCase: jest.Mocked<IGetMenuItemDetailsUseCase>;
+	let deleteMenuItemUseCase: jest.Mocked<IDeleteMenuItemUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -32,10 +34,15 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
+		deleteMenuItemUseCase = {
+			execute: jest.fn(),
+		};
+
 		controller = new MenuItemController(
 			createMenuItemUseCase,
 			listMenuItemsUseCase,
 			getMenuItemDetailsUseCase,
+			deleteMenuItemUseCase,
 		);
 
 		res = {
@@ -435,6 +442,39 @@ describe("MenuItemController", () => {
 					success: true,
 					message: messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
 					data: mockDetailsDto,
+				}),
+			);
+		});
+	});
+
+	describe("deleteMenuItem", () => {
+		it("should return 200 on successful deletion", async () => {
+			const menuItemId = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+			deleteMenuItemUseCase.execute.mockResolvedValueOnce(undefined);
+
+			const deleteReq = {
+				params: { restaurantId, menuItemId },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const deleteRes = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.deleteMenuItem(deleteReq, deleteRes);
+
+			expect(deleteMenuItemUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				menuItemId,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_ITEM_DELETED_SUCCESS,
+					data: null,
 				}),
 			);
 		});

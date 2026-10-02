@@ -144,10 +144,10 @@ export class PrismaMenuItemRepository
 		}
 	}
 
-	public async findById(id: string): Promise<MenuItem | null> {
+	public override async findById(id: string): Promise<MenuItem | null> {
 		try {
-			const record = await this.dbModel.findUnique({
-				where: { id },
+			const record = await this.dbModel.findFirst({
+				where: { id, isDeleted: false },
 			});
 			return record ? this.mapper.toDomain(record) : null;
 		} catch (error) {

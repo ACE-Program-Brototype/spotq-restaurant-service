@@ -167,6 +167,7 @@ describe("MenuItem Entity", () => {
 
 		item.softDelete();
 		expect(item.isDeleted).toBe(true);
+		expect(item.isAvailable).toBe(false);
 
 		expect(() => item.softDelete()).toThrow(InvalidMenuItemDataError);
 		expect(() => item.update({ name: "New Name" })).toThrow(

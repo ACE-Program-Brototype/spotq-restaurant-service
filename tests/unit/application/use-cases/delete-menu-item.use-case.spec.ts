@@ -91,6 +91,23 @@ describe("DeleteMenuItemUseCase", () => {
 		expect(mockMenuItemRepo.updateMenuItem).not.toHaveBeenCalled();
 	});
 
+	it("should throw RestaurantNotFoundError when restaurant is blocked", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+			isBlocked: true,
+		} as Restaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				menuItemId,
+			}),
+		).rejects.toThrow(RestaurantNotFoundError);
+
+		expect(mockMenuItemRepo.findById).not.toHaveBeenCalled();
+		expect(mockMenuItemRepo.updateMenuItem).not.toHaveBeenCalled();
+	});
+
 	it("should throw MenuItemNotFoundError when menuItem does not exist", async () => {
 		mockRestaurantRepo.findById.mockResolvedValueOnce({
 			id: restaurantId,

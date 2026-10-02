@@ -30,7 +30,7 @@ export class DeleteMenuItemUseCase implements IDeleteMenuItemUseCase {
 		const restaurant = await this.restaurantRepository.findById(
 			input.restaurantId,
 		);
-		if (!restaurant) {
+		if (!restaurant || restaurant.isBlocked) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 

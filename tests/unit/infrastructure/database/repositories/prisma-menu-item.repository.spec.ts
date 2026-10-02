@@ -132,17 +132,20 @@ describe("PrismaMenuItemRepository", () => {
 	});
 
 	describe("findById", () => {
-		it("should find menu item by id", async () => {
-			mockPrisma.menuItem.findUnique.mockResolvedValue(rawMenuItem);
+		it("should find non-deleted menu item by id", async () => {
+			mockPrisma.menuItem.findFirst.mockResolvedValue(rawMenuItem);
 
 			const result = await repository.findById("item-123");
 
+			expect(mockPrisma.menuItem.findFirst).toHaveBeenCalledWith({
+				where: { id: "item-123", isDeleted: false },
+			});
 			expect(result).toBeDefined();
 			expect(result?.id).toBe(rawMenuItem.id);
 		});
 
-		it("should return null if menu item not found", async () => {
-			mockPrisma.menuItem.findUnique.mockResolvedValue(null);
+		it("should return null if menu item not found or deleted", async () => {
+			mockPrisma.menuItem.findFirst.mockResolvedValue(null);
 
 			const result = await repository.findById("non-existent");
 			expect(result).toBeNull();
