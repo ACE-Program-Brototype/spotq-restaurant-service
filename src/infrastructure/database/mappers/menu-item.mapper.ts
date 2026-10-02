@@ -24,6 +24,7 @@ export const MenuItemPersistenceMapper: IEntityMapper<
 			isVegetarian: raw.isVegetarian,
 			isFeatured: raw.isFeatured,
 			isAvailable: raw.isAvailable,
+			isDeleted: raw.isDeleted,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt,
 		});
@@ -42,6 +43,7 @@ export const MenuItemPersistenceMapper: IEntityMapper<
 			isVegetarian: entity.isVegetarian,
 			isFeatured: entity.isFeatured,
 			isAvailable: entity.isAvailable,
+			isDeleted: entity.isDeleted,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		};

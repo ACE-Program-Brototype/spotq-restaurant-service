@@ -134,6 +134,7 @@ export class PrismaMenuItemRepository
 						equals: name,
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
@@ -143,10 +144,10 @@ export class PrismaMenuItemRepository
 		}
 	}
 
-	public async findById(id: string): Promise<MenuItem | null> {
+	public override async findById(id: string): Promise<MenuItem | null> {
 		try {
-			const record = await this.dbModel.findUnique({
-				where: { id },
+			const record = await this.dbModel.findFirst({
+				where: { id, isDeleted: false },
 			});
 			return record ? this.mapper.toDomain(record) : null;
 		} catch (error) {
@@ -164,6 +165,7 @@ export class PrismaMenuItemRepository
 				where: {
 					id: menuItemId,
 					restaurantId,
+					isDeleted: false,
 				},
 				include: {
 					category: true,
@@ -261,12 +263,14 @@ export class PrismaMenuItemRepository
 					this.prismaClient.menuItem.count({
 						where: {
 							restaurantId,
+							isDeleted: false,
 							category: { isDeleted: false },
 						},
 					}),
 					this.prismaClient.menuItem.count({
 						where: {
 							restaurantId,
+							isDeleted: false,
 							isAvailable: true,
 							category: { isDeleted: false },
 						},
@@ -274,6 +278,7 @@ export class PrismaMenuItemRepository
 					this.prismaClient.menuItem.count({
 						where: {
 							restaurantId,
+							isDeleted: false,
 							isAvailable: false,
 							category: { isDeleted: false },
 						},
@@ -288,6 +293,52 @@ export class PrismaMenuItemRepository
 			};
 		} catch (error) {
 			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
+	public async updateMenuItem(item: MenuItem): Promise<MenuItem> {
+		try {
+			const data = this.mapper.toPersistence(item);
+			if (data.isDeleted) {
+				const result = await this.prismaClient.menuItem.updateMany({
+					where: {
+						id: data.id,
+						restaurantId: data.restaurantId,
+						isDeleted: false,
+					},
+					data: {
+						isDeleted: true,
+						updatedAt: data.updatedAt,
+					},
+				});
+
+				if (result.count === 0) {
+					throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
+				}
+
+				return item;
+			}
+
+			const updated = await this.dbModel.update({
+				where: { id: data.id },
+				data: {
+					categoryId: data.categoryId,
+					name: data.name,
+					description: data.description,
+					price: data.price,
+					preparationTime: data.preparationTime,
+					calories: data.calories,
+					isVegetarian: data.isVegetarian,
+					isFeatured: data.isFeatured,
+					isAvailable: data.isAvailable,
+					isDeleted: data.isDeleted,
+					updatedAt: data.updatedAt,
+				},
+			});
+			return this.mapper.toDomain(updated);
+		} catch (error) {
+			this.handlePrismaError(error, item);
 			throw error;
 		}
 	}
@@ -418,6 +469,7 @@ export class PrismaMenuItemRepository
 
 			const where: Prisma.MenuItemWhereInput = {
 				restaurantId,
+				isDeleted: false,
 				category: {
 					isDeleted: false,
 					...(typeof params.categoryIsActive === "boolean" && {
