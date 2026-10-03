@@ -309,6 +309,7 @@ restaurantRouter.get(
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.MENU_ITEM_DETAIL,
+	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getMenuItemDetails,
 );
@@ -319,6 +320,10 @@ restaurantRouter.patch(
 	validateRequestParams(updateMenuItemStatusParamsSchema),
 	validateRequestBody(updateMenuItemStatusBodySchema),
 	menuItemController.updateMenuItemStatus,
+restaurantRouter.get(
+	RESTAURANT_ROUTES.CUSTOMER_MENU_ITEM_DETAIL,
+	validateRequestParams(getMenuItemDetailsParamsSchema),
+	menuItemController.getCustomerMenuItemDetails,
 );
 
 restaurantRouter.delete(

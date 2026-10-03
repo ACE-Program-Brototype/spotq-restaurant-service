@@ -121,6 +121,33 @@ describe("restaurantOwnerAuthMiddleware", () => {
 		expect(mockNext).not.toHaveBeenCalled();
 	});
 
+	it("should return 403 when x-restaurant-id is omitted and req.params.restaurantId does not match x-user-id", () => {
+		mockReq.headers = {
+			"x-user-id": "rest-owner-123",
+			"x-user-role": "restaurant_owner",
+		};
+		mockReq.params = {
+			restaurantId: "rest-other-999",
+		};
+
+		restaurantOwnerAuthMiddleware(
+			mockReq as AuthenticatedOwnerRequest,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				success: false,
+				statusCode: HTTP_STATUS.FORBIDDEN,
+				code: "FORBIDDEN",
+				message: messages.RESTAURANT_ACCESS_FORBIDDEN,
+			}),
+		);
+		expect(mockNext).not.toHaveBeenCalled();
+	});
+
 	it("should authenticate restaurant_owner and call next()", () => {
 		mockReq.headers = {
 			"x-user-id": "owner-uuid-123",

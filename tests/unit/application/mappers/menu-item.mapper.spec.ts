@@ -165,7 +165,7 @@ describe("MenuItemMapper", () => {
 		expect(response.pagination.hasPrevPage).toBe(true);
 	});
 
-	it("should map MenuItemDetailsAggregate to MenuItemDetailsResponseDto with object keys", () => {
+	it("should map MenuItemDetailsAggregate to RestaurantOwnerMenuItemDetailsResponseDto with object keys", () => {
 		const now = new Date();
 		const item = MenuItem.reconstitute({
 			id: "item-123",
@@ -228,7 +228,8 @@ describe("MenuItemMapper", () => {
 			],
 		};
 
-		const dto = MenuItemMapper.toDetailsResponseDto(detailsAggregate);
+		const dto =
+			MenuItemMapper.toRestaurantOwnerDetailsResponseDto(detailsAggregate);
 
 		expect(dto).toEqual({
 			id: "item-123",
@@ -280,5 +281,159 @@ describe("MenuItemMapper", () => {
 			createdAt: now.toISOString(),
 			updatedAt: now.toISOString(),
 		});
+	});
+
+	it("should map MenuItemDetailsAggregate to CustomerMenuItemDetailsResponseDto with object keys", () => {
+		const now = new Date();
+		const item = MenuItem.reconstitute({
+			id: "item-123",
+			restaurantId: "rest-123",
+			categoryId: "cat-123",
+			name: "Chicken Biryani",
+			description: "Classic dum biryani",
+			price: 320.0,
+			preparationTime: 25,
+			calories: 600,
+			isVegetarian: false,
+			isFeatured: true,
+			isAvailable: true,
+			createdAt: now,
+			updatedAt: now,
+		});
+
+		const detailsAggregate = {
+			item,
+			category: null,
+			images: [],
+			variants: [],
+			addons: [],
+		};
+
+		const dto = MenuItemMapper.toCustomerDetailsResponseDto(detailsAggregate);
+
+		expect(dto.category).toBeNull();
+		expect(dto.categoryName).toBe("");
+		expect(dto.name).toBe("Chicken Biryani");
+		expect(dto.isFeatured).toBe(true);
+		expect("createdAt" in dto).toBe(false);
+		expect("updatedAt" in dto).toBe(false);
+		expect("isAvailable" in dto).toBe(false);
+	});
+
+	it("should map MenuItemDetailsAggregate with populated images, variants, and addons to CustomerMenuItemDetailsResponseDto", () => {
+		const now = new Date();
+		const item = MenuItem.reconstitute({
+			id: "item-123",
+			restaurantId: "rest-123",
+			categoryId: "cat-123",
+			name: "Chicken Biryani",
+			description: "Classic dum biryani",
+			price: 320.0,
+			preparationTime: 25,
+			calories: 600,
+			isVegetarian: false,
+			isFeatured: true,
+			isAvailable: true,
+			createdAt: now,
+			updatedAt: now,
+		});
+
+		const variant = MenuItemVariant.reconstitute({
+			id: "var-1",
+			menuItemId: "item-123",
+			sku: "BIRYANI-FULL",
+			name: "Full Portion",
+			price: 320.0,
+			isDefault: true,
+			createdAt: now,
+			updatedAt: now,
+		});
+
+		const detailsAggregate = {
+			item,
+			category: {
+				id: "cat-123",
+				name: "Biryani",
+				description: "Delicious rice dishes",
+				isActive: true,
+			},
+			images: [
+				{
+					id: "img-1",
+					menuItemId: "item-123",
+					objectKey: "menu/biryani.png",
+					displayOrder: 0,
+					createdAt: now,
+				},
+			],
+			variants: [variant],
+			addons: [
+				{
+					id: "junc-1",
+					menuItemId: "item-123",
+					addonId: "addon-1",
+					name: "Extra Raita",
+					description: "Cool cucumber yogurt",
+					price: 30.0,
+					priceOverride: 40.0,
+					imageKey: "addons/raita.png",
+					isAvailable: true,
+					isDeleted: false,
+				},
+			],
+		};
+
+		const dto = MenuItemMapper.toCustomerDetailsResponseDto(detailsAggregate);
+
+		expect(dto).toEqual({
+			id: "item-123",
+			restaurantId: "rest-123",
+			categoryId: "cat-123",
+			categoryName: "Biryani",
+			category: {
+				id: "cat-123",
+				name: "Biryani",
+				description: "Delicious rice dishes",
+			},
+			name: "Chicken Biryani",
+			description: "Classic dum biryani",
+			price: 320.0,
+			preparationTime: 25,
+			calories: 600,
+			isVegetarian: false,
+			isFeatured: true,
+			images: [
+				{
+					id: "img-1",
+					objectKey: "menu/biryani.png",
+					displayOrder: 0,
+				},
+			],
+			variants: [
+				{
+					id: "var-1",
+					sku: "BIRYANI-FULL",
+					name: "Full Portion",
+					price: 320.0,
+					isDefault: true,
+					isAvailable: true,
+				},
+			],
+			addons: [
+				{
+					id: "junc-1",
+					addonId: "addon-1",
+					name: "Extra Raita",
+					description: "Cool cucumber yogurt",
+					price: 30.0,
+					priceOverride: 40.0,
+					imageKey: "addons/raita.png",
+					isAvailable: true,
+				},
+			],
+		});
+		expect("createdAt" in dto).toBe(false);
+		expect("updatedAt" in dto).toBe(false);
+		expect("isAvailable" in dto).toBe(false);
 	});
 });

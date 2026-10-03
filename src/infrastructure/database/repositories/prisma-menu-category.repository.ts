@@ -1,6 +1,7 @@
-import type {
-	PrismaClient,
-	MenuCategory as PrismaMenuCategory,
+import {
+	Prisma,
+	type PrismaClient,
+	type MenuCategory as PrismaMenuCategory,
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
@@ -68,7 +69,7 @@ export class PrismaMenuCategoryRepository
 					restaurantId,
 					name: {
 						equals: name,
-						mode: "insensitive",
+						mode: Prisma.QueryMode.insensitive,
 					},
 					isDeleted: false,
 				},

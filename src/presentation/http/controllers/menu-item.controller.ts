@@ -3,7 +3,8 @@ import { inject, injectable } from "inversify";
 import type { MenuItemStatusFilter } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
-import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
+import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-customer-menu-item-details.use-case.port.ts";
+import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -22,8 +23,10 @@ export class MenuItemController {
 		private readonly createMenuItemUseCase: ICreateMenuItemUseCase,
 		@inject(TYPES.UseCases.ListMenuItemsUseCase)
 		private readonly listMenuItemsUseCase: IListMenuItemsUseCase,
-		@inject(TYPES.UseCases.GetMenuItemDetailsUseCase)
-		private readonly getMenuItemDetailsUseCase: IGetMenuItemDetailsUseCase,
+		@inject(TYPES.UseCases.GetRestaurantOwnerMenuItemDetailsUseCase)
+		private readonly getRestaurantOwnerMenuItemDetailsUseCase: IGetRestaurantOwnerMenuItemDetailsUseCase,
+		@inject(TYPES.UseCases.GetCustomerMenuItemDetailsUseCase)
+		private readonly getCustomerMenuItemDetailsUseCase: IGetCustomerMenuItemDetailsUseCase,
 		@inject(TYPES.UseCases.DeleteMenuItemUseCase)
 		private readonly deleteMenuItemUseCase: IDeleteMenuItemUseCase,
 		@inject(TYPES.UseCases.UpdateMenuItemStatusUseCase)
@@ -211,7 +214,27 @@ export class MenuItemController {
 		const restaurantId = String(req.params.restaurantId);
 		const menuItemId = String(req.params.menuItemId);
 
-		const result = await this.getMenuItemDetailsUseCase.execute({
+		const result = await this.getRestaurantOwnerMenuItemDetailsUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public getCustomerMenuItemDetails = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId ?? req.params.id);
+
+		const result = await this.getCustomerMenuItemDetailsUseCase.execute({
 			restaurantId,
 			menuItemId,
 		});

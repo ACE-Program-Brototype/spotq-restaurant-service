@@ -34,6 +34,7 @@ export const RESTAURANT_ROUTES = {
 	MENU_ITEMS: "/:restaurantId/menu/items",
 	MENU_ITEM_DETAIL: "/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
+	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
 } as const;
 
