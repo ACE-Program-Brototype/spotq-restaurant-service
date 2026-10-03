@@ -10,6 +10,7 @@ import type {
 	MenuItemSortField,
 	SortOrder,
 } from "@/domain/constants/menu-item.constants.ts";
+import type { ListStaffMenuItemsQuery } from "@/presentation/http/validators/list-staff-menu-items.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
@@ -221,52 +222,14 @@ export class MenuItemController {
 		res: Response,
 	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
-
-		const validatedQuery = (res.locals?.query ?? req.query) as
-			| Record<string, unknown>
-			| undefined;
-
-		const pageVal = validatedQuery?.page;
-		const limitVal = validatedQuery?.limit;
+		const query = (res.locals?.query ?? req.query) as ListStaffMenuItemsQuery;
 		const userRole =
 			(req.user as AuthenticatedUser | undefined)?.role ||
 			(req.headers["x-user-role"] as string | undefined);
 
 		const result = await this.listStaffMenuItemsUseCase.execute({
 			restaurantId,
-			page:
-				typeof pageVal === "number"
-					? pageVal
-					: pageVal !== undefined
-						? Number(pageVal)
-						: 1,
-			limit:
-				typeof limitVal === "number"
-					? limitVal
-					: limitVal !== undefined
-						? Number(limitVal)
-						: 50,
-			search: validatedQuery?.search as string | undefined,
-			categoryId: (validatedQuery?.categoryId ?? validatedQuery?.category_id) as
-				| string
-				| undefined,
-			isAvailable: validatedQuery?.isAvailable as boolean | undefined,
-			includeInactive: Boolean(
-				validatedQuery?.includeInactive ?? validatedQuery?.include_inactive,
-			),
-			includeVariants:
-				validatedQuery?.includeVariants !== undefined
-					? Boolean(validatedQuery.includeVariants)
-					: validatedQuery?.include_variants !== undefined
-						? Boolean(validatedQuery.include_variants)
-						: true,
-			sortBy: (validatedQuery?.sortBy ?? validatedQuery?.sort_by) as
-				| string
-				| undefined,
-			sortOrder: (validatedQuery?.sortOrder ?? validatedQuery?.sort_order) as
-				| "asc"
-				| "desc"
-				| undefined,
+			...query,
 			userRole,
 		});
 

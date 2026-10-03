@@ -586,25 +586,17 @@ export class PrismaMenuItemRepository
 				| Prisma.MenuItemOrderByWithRelationInput
 				| Prisma.MenuItemOrderByWithRelationInput[];
 
-			if (sortBy === "createdAt" || sortBy === "created_at") {
+			if (sortBy === "createdAt") {
 				orderBy = [{ createdAt: safeSortOrder }];
 			} else if (sortBy === "name") {
 				orderBy = [{ name: safeSortOrder }];
-			} else if (
-				sortBy === "price" ||
-				sortBy === "basePrice" ||
-				sortBy === "base_price"
-			) {
+			} else if (sortBy === "price") {
 				orderBy = [{ price: safeSortOrder }];
-			} else if (sortBy === "updatedAt" || sortBy === "updated_at") {
+			} else if (sortBy === "updatedAt") {
 				orderBy = [{ updatedAt: safeSortOrder }];
-			} else if (sortBy === "isAvailable" || sortBy === "is_available") {
+			} else if (sortBy === "isAvailable") {
 				orderBy = [{ isAvailable: safeSortOrder }];
-			} else if (
-				sortBy === "displayOrder" ||
-				sortBy === "categoryDisplayOrder" ||
-				sortBy === "category_display_order"
-			) {
+			} else if (sortBy === "displayOrder") {
 				orderBy = [
 					{ category: { displayOrder: safeSortOrder } },
 					{ createdAt: "asc" },
@@ -615,6 +607,27 @@ export class PrismaMenuItemRepository
 			}
 
 			const skip = (page - 1) * limit;
+
+			const variantsRelation = includeVariants
+				? {
+						orderBy: [
+							{ isDefault: "desc" as const },
+							{ price: "asc" as const },
+							{ createdAt: "asc" as const },
+						],
+					}
+				: {
+						select: {
+							id: true,
+							sku: true,
+							isDefault: true,
+						},
+						orderBy: [
+							{ isDefault: "desc" as const },
+							{ price: "asc" as const },
+							{ createdAt: "asc" as const },
+						],
+					};
 
 			const [records, filteredTotal] = await Promise.all([
 				this.prismaClient.menuItem.findMany({
@@ -627,13 +640,7 @@ export class PrismaMenuItemRepository
 								isActive: true,
 							},
 						},
-						variants: {
-							orderBy: [
-								{ isDefault: "desc" },
-								{ price: "asc" },
-								{ createdAt: "asc" },
-							],
-						},
+						variants: variantsRelation,
 					},
 					orderBy,
 					skip,
@@ -643,15 +650,22 @@ export class PrismaMenuItemRepository
 			]);
 
 			const items: StaffMenuItemResultItem[] = records.map((record) => {
-				const defaultVariant = record.variants.find((v) => v.isDefault);
-				const firstVariantWithSku = record.variants.find((v) => Boolean(v.sku));
+				const variants = record.variants as Array<{
+					id: string;
+					name?: string;
+					sku?: string | null;
+					price?: unknown;
+					isDefault: boolean;
+				}>;
+				const defaultVariant = variants.find((v) => v.isDefault);
+				const firstVariantWithSku = variants.find((v) => Boolean(v.sku));
 				const topLevelSku =
 					defaultVariant?.sku || firstVariantWithSku?.sku || null;
 
 				const mappedVariants = includeVariants
-					? record.variants.map((v) => ({
+					? variants.map((v) => ({
 							id: v.id,
-							name: v.name,
+							name: v.name ?? "",
 							sku: v.sku ?? null,
 							price: Number(v.price),
 							isDefault: v.isDefault,
@@ -672,8 +686,8 @@ export class PrismaMenuItemRepository
 					isAvailable: record.isAvailable,
 					unavailabilityReason: null,
 					autoResetAt: null,
-					variantCount: record.variants.length,
-					hasVariants: record.variants.length > 0,
+					variantCount: variants.length,
+					hasVariants: variants.length > 0,
 					variants: mappedVariants,
 					createdAt: record.createdAt,
 					updatedAt: record.updatedAt,

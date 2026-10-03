@@ -4,6 +4,7 @@ export const AUTH_ROLES = {
 	RESTAURANT: "restaurant",
 	OWNER: "owner",
 	ADMIN: "admin",
+	MANAGER: "manager",
 	STAFF: "staff",
 } as const;
 
@@ -15,6 +16,15 @@ export const ALLOWED_OWNER_ROLES: ReadonlySet<string> = new Set([
 	AUTH_ROLES.RESTAURANT,
 	AUTH_ROLES.OWNER,
 	AUTH_ROLES.ADMIN,
+]);
+
+export const MANAGER_ADMIN_ROLES: ReadonlySet<string> = new Set([
+	AUTH_ROLES.MANAGER,
+	AUTH_ROLES.ADMIN,
+	AUTH_ROLES.RESTAURANT_ADMIN,
+	AUTH_ROLES.RESTAURANT_OWNER,
+	AUTH_ROLES.OWNER,
+	AUTH_ROLES.RESTAURANT,
 ]);
 
 export const TOKEN_TYPES = {

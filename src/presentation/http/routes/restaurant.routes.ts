@@ -306,7 +306,7 @@ restaurantRouter.get(
 	staffAuthMiddleware,
 	validateRequestParams(listStaffMenuItemsParamsSchema),
 	validateRequestQuery(listStaffMenuItemsQuerySchema),
-	menuItemController.listStaffMenuItems.bind(menuItemController),
+	menuItemController.listStaffMenuItems,
 );
 
 restaurantRouter.get(
@@ -323,7 +323,7 @@ restaurantRouter.get(
 	],
 	staffAuthMiddleware,
 	validateRequestParams(listMenuCategoriesParamSchema),
-	menuCategoryController.listStaffCategories.bind(menuCategoryController),
+	menuCategoryController.listStaffCategories,
 );
 
 restaurantRouter.get(

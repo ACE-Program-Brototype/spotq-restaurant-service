@@ -7,26 +7,10 @@ export const listStaffMenuItemsParamsSchema = z
 	})
 	.strict();
 
-function parseOptionalString(val: unknown): unknown {
-	if (val === undefined || val === null) return undefined;
-	if (typeof val === "string") {
-		const trimmed = val.trim();
-		return trimmed === "" ? undefined : trimmed;
-	}
-	return val;
-}
-
-function parseBooleanFilter(val: unknown): unknown {
-	if (val === undefined || val === null) return undefined;
-	if (typeof val === "boolean") return val;
-	if (typeof val === "string") {
-		const trimmed = val.trim().toLowerCase();
-		if (trimmed === "") return undefined;
-		if (trimmed === "true" || trimmed === "1") return true;
-		if (trimmed === "false" || trimmed === "0") return false;
-	}
-	return val;
-}
+import {
+	parseBooleanFilter,
+	parseOptionalString,
+} from "./utils/query-parser.util.ts";
 
 function parseAvailabilityFilter(val: unknown): unknown {
 	if (val === undefined || val === null) return undefined;

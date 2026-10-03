@@ -41,27 +41,10 @@ export const listMenuItemsParamsSchema = z
 	})
 	.strict();
 
-function parseOptionalString(val: unknown): unknown {
-	if (val === undefined || val === null) return undefined;
-	if (typeof val === "string") {
-		const trimmed = val.trim();
-		return trimmed === "" ? undefined : trimmed;
-	}
-	return val;
-}
-
-function parseBooleanFilter(val: unknown): unknown {
-	if (val === undefined || val === null) return undefined;
-	if (typeof val === "string") {
-		const trimmed = val.trim();
-		if (trimmed === "") return undefined;
-		const lower = trimmed.toLowerCase();
-		if (lower === "true" || lower === "1") return true;
-		if (lower === "false" || lower === "0") return false;
-		return trimmed;
-	}
-	return val;
-}
+import {
+	parseBooleanFilter,
+	parseOptionalString,
+} from "./utils/query-parser.util.ts";
 
 export const listMenuItemsQuerySchema = z
 	.object({

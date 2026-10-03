@@ -7,21 +7,14 @@ import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
 import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
+import { STAFF_MENU_PAGINATION } from "@/domain/constants/menu-item.constants.ts";
 import {
 	RestaurantAccountBlockedError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuItemRepository } from "@/domain/repositories/menu-item.repository.interface.ts";
+import { MANAGER_ADMIN_ROLES } from "@/shared/constants/auth.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-
-const MANAGER_ADMIN_ROLES = new Set([
-	"manager",
-	"admin",
-	"restaurant_admin",
-	"restaurant_owner",
-	"owner",
-	"restaurant",
-]);
 
 @injectable()
 export class ListStaffMenuItemsUseCase implements IListStaffMenuItemsUseCase {
@@ -48,9 +41,15 @@ export class ListStaffMenuItemsUseCase implements IListStaffMenuItemsUseCase {
 			);
 		}
 
-		const page = dto.page && dto.page > 0 ? dto.page : 1;
-		const rawLimit = dto.limit && dto.limit > 0 ? dto.limit : 50;
-		const limit = Math.min(rawLimit, 100);
+		const page =
+			dto.page && dto.page > 0
+				? dto.page
+				: STAFF_MENU_PAGINATION.DEFAULT_PAGE;
+		const rawLimit =
+			dto.limit && dto.limit > 0
+				? dto.limit
+				: STAFF_MENU_PAGINATION.DEFAULT_LIMIT;
+		const limit = Math.min(rawLimit, STAFF_MENU_PAGINATION.MAX_LIMIT);
 
 		let includeInactive = false;
 		if (dto.includeInactive === true) {
