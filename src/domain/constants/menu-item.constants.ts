@@ -7,6 +7,13 @@ export const MENU_ITEM_CALORIES_MAX = 50000;
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 10;
 export const MAX_LIMIT = 100;
+
+export const STAFF_MENU_PAGINATION = {
+	DEFAULT_PAGE: 1,
+	DEFAULT_LIMIT: 50,
+	MAX_LIMIT: 100,
+} as const;
+
 export const SORT_ORDERS = ["asc", "desc"] as const;
 export type SortOrder = (typeof SORT_ORDERS)[number];
 

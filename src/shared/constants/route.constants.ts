@@ -33,6 +33,11 @@ export const RESTAURANT_ROUTES = {
 	MENU_CATEGORY_DELETE: "/:restaurantId/menu/categories/:categoryId",
 	MENU_ITEMS: "/:restaurantId/menu/items",
 	MENU_ITEM_DETAIL: "/:restaurantId/menu/items/:menuItemId",
+	STAFF_MENU_ITEMS: "/:restaurantId/staff/menu/items",
+	STAFF_MENU_ITEMS_PREFIX: "/restaurants/:restaurantId/staff/menu/items",
+	STAFF_MENU_CATEGORIES: "/:restaurantId/staff/menu/categories",
+	STAFF_MENU_CATEGORIES_PREFIX:
+		"/restaurants/:restaurantId/staff/menu/categories",
 	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
 	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",

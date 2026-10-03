@@ -7,10 +7,15 @@ import type {
 	PaginatedMenuItemsResponseDto,
 } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type {
+	StaffMenuItemListItemDto,
+	StaffMenuItemsResponseDto,
+} from "@/application/dtos/menu-item/list-staff-menu-items.dto.ts";
+import type {
 	MenuItemAggregate,
 	MenuItemDetailsAggregate,
 	MenuItemWithRelations,
 	RestaurantMenuStats,
+	StaffMenuItemResultItem,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
 
 export const MenuItemMapper = {
@@ -201,6 +206,46 @@ export const MenuItemMapper = {
 				hasNextPage: page < totalPages,
 				hasPrevPage: page > 1,
 			},
+		};
+	},
+
+	toStaffMenuItemDto(item: StaffMenuItemResultItem): StaffMenuItemListItemDto {
+		return {
+			id: item.id,
+			name: item.name,
+			sku: item.sku,
+			description: item.description,
+			basePrice: item.basePrice,
+			categoryId: item.categoryId,
+			categoryName: item.categoryName,
+			displayOrder: item.categoryDisplayOrder,
+			isActive: item.categoryIsActive,
+			isAvailable: item.isAvailable,
+			unavailabilityReason: item.unavailabilityReason,
+			autoResetAt: item.autoResetAt ? item.autoResetAt.toISOString() : null,
+			variantCount: item.variantCount,
+			hasVariants: item.hasVariants,
+			variants: item.variants,
+			updatedAt: item.updatedAt.toISOString(),
+		};
+	},
+
+	toStaffMenuItemsResponse(
+		restaurantId: string,
+		items: StaffMenuItemResultItem[],
+		total: number,
+		page: number,
+		limit: number,
+	): StaffMenuItemsResponseDto {
+		const totalPages = Math.ceil(total / limit) || 0;
+
+		return {
+			restaurantId,
+			page,
+			limit,
+			totalCount: total,
+			totalPages,
+			items: items.map((item) => MenuItemMapper.toStaffMenuItemDto(item)),
 		};
 	},
 };

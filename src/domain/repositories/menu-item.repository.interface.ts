@@ -108,6 +108,53 @@ export interface MenuItemDetailsAggregate {
 	addons: MenuItemDetailsAddonData[];
 }
 
+export interface StaffMenuItemVariantData {
+	id: string;
+	name: string;
+	sku: string | null;
+	price: number;
+	isDefault: boolean;
+	isAvailable: boolean;
+}
+
+export interface StaffMenuItemResultItem {
+	id: string;
+	name: string;
+	sku: string | null;
+	description: string | null;
+	basePrice: number;
+	categoryId: string;
+	categoryName: string;
+	categoryDisplayOrder: number;
+	categoryIsActive: boolean;
+	isAvailable: boolean;
+	unavailabilityReason: string | null;
+	autoResetAt: Date | null;
+	variantCount: number;
+	hasVariants: boolean;
+	variants: StaffMenuItemVariantData[];
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface StaffMenuItemQueryFilterParams {
+	restaurantId: string;
+	categoryId?: string;
+	isAvailable?: boolean;
+	includeInactive?: boolean;
+	includeVariants?: boolean;
+	search?: string;
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
+	page?: number;
+	limit?: number;
+}
+
+export interface StaffMenuItemQueryResult {
+	items: StaffMenuItemResultItem[];
+	total: number;
+}
+
 export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
 	createWithDetails(
 		params: CreateMenuItemRepositoryParams,
@@ -124,6 +171,9 @@ export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
 	findManyWithFiltersAndStats(
 		params: MenuItemQueryFilterParams,
 	): Promise<MenuItemQueryResult>;
+	findManyStaffMenuItems(
+		params: StaffMenuItemQueryFilterParams,
+	): Promise<StaffMenuItemQueryResult>;
 	getRestaurantMenuStats(restaurantId: string): Promise<RestaurantMenuStats>;
 	updateMenuItem(item: MenuItem): Promise<MenuItem>;
 	updateAvailability(item: MenuItem): Promise<MenuItem>;

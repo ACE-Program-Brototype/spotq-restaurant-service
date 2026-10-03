@@ -120,6 +120,7 @@ export const TYPES = {
 			"ListRestaurantMenuCategoriesUseCase",
 		),
 		ListMenuItemsUseCase: Symbol.for("ListMenuItemsUseCase"),
+		ListStaffMenuItemsUseCase: Symbol.for("ListStaffMenuItemsUseCase"),
 		GetRestaurantOwnerMenuItemDetailsUseCase: Symbol.for(
 			"GetRestaurantOwnerMenuItemDetailsUseCase",
 		),

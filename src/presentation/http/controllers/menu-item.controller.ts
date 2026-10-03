@@ -6,15 +6,18 @@ import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delet
 import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-customer-menu-item-details.use-case.port.ts";
 import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
+import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type {
 	MenuItemSortField,
 	SortOrder,
 } from "@/domain/constants/menu-item.constants.ts";
+import type { ListStaffMenuItemsQuery } from "@/presentation/http/validators/list-staff-menu-items.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import type { AuthenticatedUser } from "@/types/express.d.ts";
 
 @injectable()
 export class MenuItemController {
@@ -23,6 +26,8 @@ export class MenuItemController {
 		private readonly createMenuItemUseCase: ICreateMenuItemUseCase,
 		@inject(TYPES.UseCases.ListMenuItemsUseCase)
 		private readonly listMenuItemsUseCase: IListMenuItemsUseCase,
+		@inject(TYPES.UseCases.ListStaffMenuItemsUseCase)
+		private readonly listStaffMenuItemsUseCase: IListStaffMenuItemsUseCase,
 		@inject(TYPES.UseCases.GetRestaurantOwnerMenuItemDetailsUseCase)
 		private readonly getRestaurantOwnerMenuItemDetailsUseCase: IGetRestaurantOwnerMenuItemDetailsUseCase,
 		@inject(TYPES.UseCases.GetCustomerMenuItemDetailsUseCase)
@@ -243,6 +248,30 @@ export class MenuItemController {
 			res,
 			result,
 			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public listStaffMenuItems = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const query = (res.locals?.query ?? req.query) as ListStaffMenuItemsQuery;
+		const userRole =
+			(req.user as AuthenticatedUser | undefined)?.role ||
+			(req.headers["x-user-role"] as string | undefined);
+
+		const result = await this.listStaffMenuItemsUseCase.execute({
+			restaurantId,
+			...query,
+			userRole,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_MENU_ITEMS_FETCHED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};
