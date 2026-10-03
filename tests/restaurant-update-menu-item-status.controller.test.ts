@@ -47,6 +47,7 @@ describe("PATCH /:restaurantId/menu/items/:menuItemId/status - Route & Acceptanc
 			{} as never,
 			{} as never,
 			{} as never,
+			{} as never,
 			updateStatusUseCase,
 		);
 	});

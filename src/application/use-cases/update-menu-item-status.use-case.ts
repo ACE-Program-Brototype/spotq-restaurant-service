@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import type { MenuItemDetailsResponseDto } from "@/application/dtos/menu-item/get-menu-item-details.dto.ts";
+import type { RestaurantOwnerMenuItemDetailsResponseDto } from "@/application/dtos/menu-item/get-restaurant-owner-menu-item-details.dto.ts";
 import type { UpdateMenuItemStatusInputDto } from "@/application/dtos/menu-item/update-menu-item-status.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
@@ -37,7 +37,7 @@ export class UpdateMenuItemStatusUseCase
 
 	public async execute(
 		input: UpdateMenuItemStatusInputDto,
-	): Promise<MenuItemDetailsResponseDto> {
+	): Promise<RestaurantOwnerMenuItemDetailsResponseDto> {
 		const restaurant = await this.restaurantRepository.findById(
 			input.restaurantId,
 		);
@@ -74,6 +74,6 @@ export class UpdateMenuItemStatusUseCase
 			throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
 		}
 
-		return MenuItemMapper.toDetailsResponseDto(updatedAggregate);
+		return MenuItemMapper.toRestaurantOwnerDetailsResponseDto(updatedAggregate);
 	}
 }
