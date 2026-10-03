@@ -317,6 +317,16 @@ restaurantRouter.get(
 );
 
 restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.STAFF_MENU_CATEGORIES,
+		RESTAURANT_ROUTES.STAFF_MENU_CATEGORIES_PREFIX,
+	],
+	staffAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamSchema),
+	menuCategoryController.listStaffCategories.bind(menuCategoryController),
+);
+
+restaurantRouter.get(
 	RESTAURANT_ROUTES.MENU_ITEM_DETAIL,
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getMenuItemDetails,

@@ -4,7 +4,6 @@ import type { IRestaurantRepository } from "@/application/ports/repositories/res
 import { ListStaffMenuItemsUseCase } from "@/application/use-cases/list-staff-menu-items.use-case.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";
-import { staffMenuAuthMiddleware } from "@/presentation/http/middleware/staff-menu.auth.middleware.ts";
 import {
 	validateRequestParams,
 	validateRequestQuery,
@@ -15,6 +14,7 @@ import {
 } from "@/presentation/http/validators/list-staff-menu-items.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { staffAuthMiddleware } from "@presentation/http/middleware/staff.auth.middleware";
 
 describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Controller Suite", () => {
 	let mockRestaurantRepo: jest.Mocked<IRestaurantRepository>;
@@ -71,7 +71,7 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 		};
 		const next = jest.fn();
 
-		staffMenuAuthMiddleware(req as never, res as never, next);
+		staffAuthMiddleware(req as never, res as never, next);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.UNAUTHORIZED);
 		expect(jsonMock).toHaveBeenCalledWith(
@@ -84,13 +84,13 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it("should return 403 FORBIDDEN when user attempts cross-restaurant access", () => {
+	it("should return 403 FORBIDDEN when user role is not staff", () => {
 		const req = {
 			method: "GET",
 			url: `/${restaurantId}/staff/menu/items`,
 			headers: {
 				...staffHeaders,
-				"x-restaurant-id": "b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22", // different restaurant
+				"x-user-role": "customer",
 			},
 			params: { restaurantId },
 		};
@@ -103,13 +103,13 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 		};
 		const next = jest.fn();
 
-		staffMenuAuthMiddleware(req as never, res as never, next);
+		staffAuthMiddleware(req as never, res as never, next);
 
 		expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.FORBIDDEN);
 		expect(jsonMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: false,
-				message: messages.RESTAURANT_ACCESS_FORBIDDEN,
+				message: messages.STAFF_FORBIDDEN,
 				statusCode: HTTP_STATUS.FORBIDDEN,
 			}),
 		);
@@ -153,7 +153,7 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 			locals: {},
 		};
 
-		staffMenuAuthMiddleware(req as never, res as never, jest.fn());
+		staffAuthMiddleware(req as never, res as never, jest.fn());
 
 		try {
 			await controller.listStaffMenuItems(req as never, res as never);
@@ -191,7 +191,7 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 			locals: {},
 		};
 
-		staffMenuAuthMiddleware(req as never, res as never, jest.fn());
+		staffAuthMiddleware(req as never, res as never, jest.fn());
 
 		try {
 			await controller.listStaffMenuItems(req as never, res as never);
@@ -311,7 +311,7 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 
 		// 1. Auth middleware
 		const nextAuth = jest.fn();
-		staffMenuAuthMiddleware(req as never, res as never, nextAuth);
+		staffAuthMiddleware(req as never, res as never, nextAuth);
 		expect(nextAuth).toHaveBeenCalled();
 
 		// 2. Params validator
@@ -412,7 +412,7 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 			locals: {} as Record<string, unknown>,
 		};
 
-		staffMenuAuthMiddleware(req as never, res as never, jest.fn());
+		staffAuthMiddleware(req as never, res as never, jest.fn());
 		await validateRequestParams(listStaffMenuItemsParamsSchema)(
 			req as never,
 			res as never,

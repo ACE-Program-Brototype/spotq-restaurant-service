@@ -130,4 +130,21 @@ export class MenuCategoryController {
 			HTTP_STATUS.OK,
 		);
 	};
+
+	public listStaffCategories = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const result = await this.listRestaurantMenuCategoriesUseCase.execute({
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_CATEGORIES_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
 }
