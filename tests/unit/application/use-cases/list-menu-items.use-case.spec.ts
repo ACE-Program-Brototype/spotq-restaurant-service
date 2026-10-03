@@ -250,4 +250,25 @@ describe("ListMenuItemsUseCase", () => {
 			}),
 		);
 	});
+
+	it("should preserve explicitly passed isAvailable when status is ALL", async () => {
+		restaurantRepository.findById.mockResolvedValue({
+			id: mockRestaurantId,
+		} as unknown as Awaited<ReturnType<IRestaurantRepository["findById"]>>);
+		menuItemRepository.findManyWithFiltersAndStats.mockResolvedValue(
+			mockQueryResult,
+		);
+
+		await useCase.execute({
+			restaurantId: mockRestaurantId,
+			status: "ALL",
+			isAvailable: false,
+		});
+
+		expect(menuItemRepository.findManyWithFiltersAndStats).toHaveBeenCalledWith(
+			expect.objectContaining({
+				isAvailable: false,
+			}),
+		);
+	});
 });

@@ -80,14 +80,40 @@ describe("updateMenuItemStatusBodySchema", () => {
 		}
 	});
 
-	it("should pass validation when is_available snake_case is provided", () => {
+	it("should pass validation when is_available snake_case is provided and transform to isAvailable", () => {
 		const result = updateMenuItemStatusBodySchema.safeParse({
 			is_available: false,
 		});
 
 		expect(result.success).toBe(true);
 		if (result.success) {
-			expect(result.data.is_available).toBe(false);
+			expect(result.data.isAvailable).toBe(false);
+		}
+	});
+
+	it("should pass validation when both isAvailable and is_available are provided with identical values", () => {
+		const result = updateMenuItemStatusBodySchema.safeParse({
+			isAvailable: true,
+			is_available: true,
+		});
+
+		expect(result.success).toBe(true);
+		if (result.success) {
+			expect(result.data.isAvailable).toBe(true);
+		}
+	});
+
+	it("should fail validation when isAvailable and is_available conflict", () => {
+		const result = updateMenuItemStatusBodySchema.safeParse({
+			isAvailable: true,
+			is_available: false,
+		});
+
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.error.issues[0]?.message).toBe(
+				messages.MENU_ITEM_IS_AVAILABLE_INVALID,
+			);
 		}
 	});
 

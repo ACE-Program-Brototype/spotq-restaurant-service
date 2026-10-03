@@ -56,7 +56,7 @@ export class ListMenuItemsUseCase implements IListMenuItemsUseCase {
 			} else if (normalizedStatus === "OUT_OF_STOCK") {
 				isAvailable = false;
 			} else if (normalizedStatus === "ALL") {
-				isAvailable = undefined;
+				isAvailable = dto.isAvailable;
 			}
 		}
 

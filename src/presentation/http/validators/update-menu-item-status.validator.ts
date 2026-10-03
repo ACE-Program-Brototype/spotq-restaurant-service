@@ -27,7 +27,19 @@ export const updateMenuItemStatusBodySchema = z
 		{
 			message: messages.MENU_ITEM_IS_AVAILABLE_INVALID,
 		},
-	);
+	)
+	.refine(
+		(data) =>
+			data.isAvailable === undefined ||
+			data.is_available === undefined ||
+			data.isAvailable === data.is_available,
+		{
+			message: messages.MENU_ITEM_IS_AVAILABLE_INVALID,
+		},
+	)
+	.transform((data) => ({
+		isAvailable: (data.isAvailable ?? data.is_available) as boolean,
+	}));
 
 export type UpdateMenuItemStatusParams = z.infer<
 	typeof updateMenuItemStatusParamsSchema

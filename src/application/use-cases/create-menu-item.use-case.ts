@@ -115,6 +115,10 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 			input.variants.forEach((v, index) => {
 				const isDefault =
 					defaultCount === 0 ? index === 0 : (v.isDefault ?? false);
+				const isAvailable =
+					v.isAvailable !== undefined
+						? v.isAvailable
+						: (input.isAvailable ?? true);
 				variantsToCreate.push(
 					MenuItemVariant.create({
 						menuItemId,
@@ -122,6 +126,7 @@ export class CreateMenuItemUseCase implements ICreateMenuItemUseCase {
 						name: v.name,
 						price: v.price,
 						isDefault,
+						isAvailable,
 					}),
 				);
 			});

@@ -34,6 +34,8 @@ export const createMenuItemVariantSchema = z.object({
 		.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM }),
 	is_default: z.boolean().optional(),
 	isDefault: z.boolean().optional(),
+	is_available: z.boolean().optional(),
+	isAvailable: z.boolean().optional(),
 });
 
 export const createMenuItemAddonSchema = z

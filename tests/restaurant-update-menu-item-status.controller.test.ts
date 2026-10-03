@@ -156,7 +156,7 @@ describe("PATCH /:restaurantId/menu/items/:menuItemId/status - Route & Acceptanc
 		expect(jsonMock).toHaveBeenCalledWith(
 			expect.objectContaining({
 				success: true,
-				statusCode: 200,
+				statusCode: HTTP_STATUS.OK,
 				message: messages.MENU_ITEM_STATUS_UPDATED_SUCCESS,
 				data: expect.objectContaining({
 					id: menuItemId,

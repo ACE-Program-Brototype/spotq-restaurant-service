@@ -76,11 +76,14 @@ export class MenuItemController {
 				price: number;
 				isDefault?: boolean;
 				is_default?: boolean;
+				isAvailable?: boolean;
+				is_available?: boolean;
 			}) => ({
 				sku: v.sku ?? null,
 				name: v.name,
 				price: Number(v.price),
 				isDefault: v.isDefault ?? v.is_default ?? false,
+				isAvailable: v.isAvailable ?? v.is_available,
 			}),
 		);
 
@@ -247,15 +250,12 @@ export class MenuItemController {
 	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const menuItemId = String(req.params.menuItemId);
-		const { isAvailable, is_available } = req.body;
-
-		const resolvedIsAvailable =
-			isAvailable !== undefined ? Boolean(isAvailable) : Boolean(is_available);
+		const isAvailable = req.body?.isAvailable ?? req.body?.is_available;
 
 		const result = await this.updateMenuItemStatusUseCase.execute({
 			restaurantId,
 			menuItemId,
-			isAvailable: resolvedIsAvailable,
+			isAvailable: Boolean(isAvailable),
 		});
 
 		sendSuccessResponse(

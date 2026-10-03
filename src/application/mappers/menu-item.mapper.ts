@@ -87,7 +87,7 @@ export const MenuItemMapper = {
 				name: v.name,
 				price: v.price,
 				isDefault: v.isDefault,
-				isAvailable: v.isAvailable,
+				isAvailable: aggregate.item.isAvailable && v.isAvailable,
 			})),
 			addons: aggregate.addons.map((a) => ({
 				id: a.id,
