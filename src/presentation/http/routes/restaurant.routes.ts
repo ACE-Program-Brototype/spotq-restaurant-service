@@ -11,8 +11,10 @@ import {
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
+import { restaurantOrStaffAuthMiddleware } from "../middleware/restaurant-or-staff.auth.middleware";
 import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
+
 import {
 	validate,
 	validateRequestBody,
@@ -73,6 +75,10 @@ import {
 	updateMenuCategoryStatusBodySchema,
 	updateMenuCategoryStatusParamsSchema,
 } from "../validators/update-menu-category-status.validator";
+import {
+	updateMenuItemStatusBodySchema,
+	updateMenuItemStatusParamsSchema,
+} from "../validators/update-menu-item-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -306,6 +312,14 @@ restaurantRouter.get(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getMenuItemDetails,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_ITEM_STATUS_UPDATE,
+	restaurantOrStaffAuthMiddleware,
+	validateRequestParams(updateMenuItemStatusParamsSchema),
+	validateRequestBody(updateMenuItemStatusBodySchema),
+	menuItemController.updateMenuItemStatus,
 );
 
 restaurantRouter.get(

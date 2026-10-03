@@ -95,4 +95,19 @@ describe("MenuItemVariant Entity", () => {
 		variant.setDefault(true);
 		expect(variant.isDefault).toBe(true);
 	});
+
+	it("should initialize isAvailable with default true and support updating availability", () => {
+		const variant = MenuItemVariant.create({
+			menuItemId: "item-123",
+			name: "Small Portion",
+			price: 80.0,
+		});
+		expect(variant.isAvailable).toBe(true);
+
+		variant.updateAvailability(false);
+		expect(variant.isAvailable).toBe(false);
+
+		variant.updateAvailability(true);
+		expect(variant.isAvailable).toBe(true);
+	});
 });

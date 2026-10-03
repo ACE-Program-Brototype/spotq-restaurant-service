@@ -343,6 +343,44 @@ export class PrismaMenuItemRepository
 		}
 	}
 
+	public async updateAvailability(item: MenuItem): Promise<MenuItem> {
+		try {
+			const data = this.mapper.toPersistence(item);
+			await this.prismaClient.$transaction(async (tx) => {
+				const result = await tx.menuItem.updateMany({
+					where: {
+						id: data.id,
+						restaurantId: data.restaurantId,
+						isDeleted: false,
+					},
+					data: {
+						isAvailable: data.isAvailable,
+						updatedAt: data.updatedAt,
+					},
+				});
+
+				if (result.count === 0) {
+					throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
+				}
+
+				await tx.menuItemVariant.updateMany({
+					where: {
+						menuItemId: data.id,
+					},
+					data: {
+						isAvailable: data.isAvailable,
+						updatedAt: data.updatedAt,
+					},
+				});
+			});
+
+			return item;
+		} catch (error) {
+			this.handlePrismaError(error, item);
+			throw error;
+		}
+	}
+
 	public async createWithDetails(
 		params: CreateMenuItemRepositoryParams,
 	): Promise<MenuItemAggregate> {
@@ -378,6 +416,7 @@ export class PrismaMenuItemRepository
 								name: variantData.name,
 								price: variantData.price,
 								isDefault: variantData.isDefault,
+								isAvailable: variantData.isAvailable,
 								createdAt: variantData.createdAt,
 								updatedAt: variantData.updatedAt,
 							},

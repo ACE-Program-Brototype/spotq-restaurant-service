@@ -6,6 +6,7 @@ import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delet
 import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-customer-menu-item-details.use-case.port.ts";
 import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
+import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -16,6 +17,7 @@ describe("MenuItemController", () => {
 	let getRestaurantOwnerMenuItemDetailsUseCase: jest.Mocked<IGetRestaurantOwnerMenuItemDetailsUseCase>;
 	let getCustomerMenuItemDetailsUseCase: jest.Mocked<IGetCustomerMenuItemDetailsUseCase>;
 	let deleteMenuItemUseCase: jest.Mocked<IDeleteMenuItemUseCase>;
+	let updateMenuItemStatusUseCase: jest.Mocked<IUpdateMenuItemStatusUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -44,12 +46,17 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
+		updateMenuItemStatusUseCase = {
+			execute: jest.fn(),
+		};
+
 		controller = new MenuItemController(
 			createMenuItemUseCase,
 			listMenuItemsUseCase,
 			getRestaurantOwnerMenuItemDetailsUseCase,
 			getCustomerMenuItemDetailsUseCase,
 			deleteMenuItemUseCase,
+			updateMenuItemStatusUseCase,
 		);
 
 		res = {
@@ -525,6 +532,99 @@ describe("MenuItemController", () => {
 					data: null,
 				}),
 			);
+		});
+	});
+
+	describe("updateMenuItemStatus", () => {
+		it("should return 200 on successful status update with isAvailable camelCase", async () => {
+			const menuItemId = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+			const mockUpdatedItem = {
+				id: menuItemId,
+				restaurantId,
+				categoryId,
+				categoryName: "Burgers",
+				category: null,
+				name: "Classic Cheeseburger",
+				description: null,
+				price: 12.99,
+				preparationTime: 15,
+				calories: 500,
+				isVegetarian: false,
+				isFeatured: false,
+				isAvailable: false,
+				images: [],
+				variants: [
+					{
+						id: "var-1",
+						sku: "BURGER-1",
+						name: "Regular",
+						price: 12.99,
+						isDefault: true,
+						isAvailable: false,
+					},
+				],
+				addons: [],
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			};
+
+			updateMenuItemStatusUseCase.execute.mockResolvedValueOnce(
+				mockUpdatedItem as never,
+			);
+
+			const patchReq = {
+				params: { restaurantId, menuItemId },
+				body: { isAvailable: false },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const patchRes = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.updateMenuItemStatus(patchReq, patchRes);
+
+			expect(updateMenuItemStatusUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				menuItemId,
+				isAvailable: false,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_ITEM_STATUS_UPDATED_SUCCESS,
+					data: mockUpdatedItem,
+				}),
+			);
+		});
+
+		it("should support is_available snake_case in body", async () => {
+			const menuItemId = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+			updateMenuItemStatusUseCase.execute.mockResolvedValueOnce({} as never);
+
+			const patchReq = {
+				params: { restaurantId, menuItemId },
+				body: { is_available: true },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const patchRes = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.updateMenuItemStatus(patchReq, patchRes);
+
+			expect(updateMenuItemStatusUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+				menuItemId,
+				isAvailable: true,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		});
 	});
 });

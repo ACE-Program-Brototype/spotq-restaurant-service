@@ -90,6 +90,7 @@ describe("MenuItemMapper", () => {
 					name: "Full Portion",
 					price: 320.0,
 					isDefault: true,
+					isAvailable: true,
 				},
 			],
 			addons: [
