@@ -3,7 +3,8 @@ import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/c
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
 import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
-import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
+import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-customer-menu-item-details.use-case.port.ts";
+import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import type { IUpdateMenuCategoryUseCase } from "@/application/ports/use-cases/update-menu-category.use-case.port.ts";
@@ -12,7 +13,8 @@ import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-c
 import { CreateMenuItemUseCase } from "@/application/use-cases/create-menu-item.use-case.ts";
 import { DeleteMenuCategoryUseCase } from "@/application/use-cases/delete-menu-category.use-case.ts";
 import { DeleteMenuItemUseCase } from "@/application/use-cases/delete-menu-item.use-case.ts";
-import { GetMenuItemDetailsUseCase } from "@/application/use-cases/get-menu-item-details.use-case.ts";
+import { GetCustomerMenuItemDetailsUseCase } from "@/application/use-cases/get-customer-menu-item-details.use-case.ts";
+import { GetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/use-cases/get-restaurant-owner-menu-item-details.use-case.ts";
 import { ListMenuItemsUseCase } from "@/application/use-cases/list-menu-items.use-case.ts";
 import { ListRestaurantMenuCategoriesUseCase } from "@/application/use-cases/list-restaurant-menu-categories.use-case.ts";
 import { UpdateMenuCategoryUseCase } from "@/application/use-cases/update-menu-category.use-case.ts";
@@ -66,8 +68,16 @@ export const menuModule = new ContainerModule(({ bind }) => {
 		.to(ListMenuItemsUseCase)
 		.inSingletonScope();
 
-	bind<IGetMenuItemDetailsUseCase>(TYPES.UseCases.GetMenuItemDetailsUseCase)
-		.to(GetMenuItemDetailsUseCase)
+	bind<IGetRestaurantOwnerMenuItemDetailsUseCase>(
+		TYPES.UseCases.GetRestaurantOwnerMenuItemDetailsUseCase,
+	)
+		.to(GetRestaurantOwnerMenuItemDetailsUseCase)
+		.inSingletonScope();
+
+	bind<IGetCustomerMenuItemDetailsUseCase>(
+		TYPES.UseCases.GetCustomerMenuItemDetailsUseCase,
+	)
+		.to(GetCustomerMenuItemDetailsUseCase)
 		.inSingletonScope();
 
 	bind<IDeleteMenuItemUseCase>(TYPES.UseCases.DeleteMenuItemUseCase)

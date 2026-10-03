@@ -3,7 +3,8 @@ import type { Request, Response } from "express";
 import type { PaginatedMenuItemsResponseDto } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
-import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
+import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-customer-menu-item-details.use-case.port.ts";
+import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -12,7 +13,8 @@ import { messages } from "@/shared/constants/message.constants.ts";
 describe("MenuItemController", () => {
 	let createMenuItemUseCase: jest.Mocked<ICreateMenuItemUseCase>;
 	let listMenuItemsUseCase: jest.Mocked<IListMenuItemsUseCase>;
-	let getMenuItemDetailsUseCase: jest.Mocked<IGetMenuItemDetailsUseCase>;
+	let getRestaurantOwnerMenuItemDetailsUseCase: jest.Mocked<IGetRestaurantOwnerMenuItemDetailsUseCase>;
+	let getCustomerMenuItemDetailsUseCase: jest.Mocked<IGetCustomerMenuItemDetailsUseCase>;
 	let deleteMenuItemUseCase: jest.Mocked<IDeleteMenuItemUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
@@ -30,7 +32,11 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
-		getMenuItemDetailsUseCase = {
+		getRestaurantOwnerMenuItemDetailsUseCase = {
+			execute: jest.fn(),
+		};
+
+		getCustomerMenuItemDetailsUseCase = {
 			execute: jest.fn(),
 		};
 
@@ -41,7 +47,8 @@ describe("MenuItemController", () => {
 		controller = new MenuItemController(
 			createMenuItemUseCase,
 			listMenuItemsUseCase,
-			getMenuItemDetailsUseCase,
+			getRestaurantOwnerMenuItemDetailsUseCase,
+			getCustomerMenuItemDetailsUseCase,
 			deleteMenuItemUseCase,
 		);
 
@@ -415,7 +422,7 @@ describe("MenuItemController", () => {
 				updatedAt: new Date().toISOString(),
 			};
 
-			getMenuItemDetailsUseCase.execute.mockResolvedValueOnce(
+			getRestaurantOwnerMenuItemDetailsUseCase.execute.mockResolvedValueOnce(
 				mockDetailsDto as never,
 			);
 
@@ -432,7 +439,48 @@ describe("MenuItemController", () => {
 
 			await controller.getMenuItemDetails(detailReq, detailRes);
 
-			expect(getMenuItemDetailsUseCase.execute).toHaveBeenCalledWith({
+			expect(
+				getRestaurantOwnerMenuItemDetailsUseCase.execute,
+			).toHaveBeenCalledWith({
+				restaurantId,
+				menuItemId,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+					data: mockDetailsDto,
+				}),
+			);
+		});
+
+		it("should return 200 for customer getCustomerMenuItemDetails", async () => {
+			const menuItemId = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+			const mockDetailsDto = {
+				id: menuItemId,
+				name: "Classic Cheeseburger",
+				price: 14.5,
+			};
+
+			getCustomerMenuItemDetailsUseCase.execute.mockResolvedValueOnce(
+				mockDetailsDto as never,
+			);
+
+			const detailReq = {
+				params: { restaurantId, menuItemId },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const detailRes = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.getCustomerMenuItemDetails(detailReq, detailRes);
+
+			expect(getCustomerMenuItemDetailsUseCase.execute).toHaveBeenCalledWith({
 				restaurantId,
 				menuItemId,
 			});

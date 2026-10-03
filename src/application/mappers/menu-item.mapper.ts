@@ -1,5 +1,6 @@
 import type { MenuItemResponseDto } from "@/application/dtos/menu-item/create-menu-item.dto.ts";
-import type { MenuItemDetailsResponseDto } from "@/application/dtos/menu-item/get-menu-item-details.dto.ts";
+import type { CustomerMenuItemDetailsResponseDto } from "@/application/dtos/menu-item/get-customer-menu-item-details.dto.ts";
+import type { RestaurantOwnerMenuItemDetailsResponseDto } from "@/application/dtos/menu-item/get-restaurant-owner-menu-item-details.dto.ts";
 import type {
 	MenuItemListItemDto,
 	MenuItemStatsDto,
@@ -50,9 +51,9 @@ export const MenuItemMapper = {
 		};
 	},
 
-	toDetailsResponseDto(
+	toRestaurantOwnerDetailsResponseDto(
 		aggregate: MenuItemDetailsAggregate,
-	): MenuItemDetailsResponseDto {
+	): RestaurantOwnerMenuItemDetailsResponseDto {
 		const category = aggregate.category
 			? {
 					id: aggregate.category.id,
@@ -100,6 +101,56 @@ export const MenuItemMapper = {
 			})),
 			createdAt: aggregate.item.createdAt.toISOString(),
 			updatedAt: aggregate.item.updatedAt.toISOString(),
+		};
+	},
+
+	toCustomerDetailsResponseDto(
+		aggregate: MenuItemDetailsAggregate,
+	): CustomerMenuItemDetailsResponseDto {
+		const category = aggregate.category
+			? {
+					id: aggregate.category.id,
+					name: aggregate.category.name,
+					description: aggregate.category.description,
+				}
+			: null;
+
+		return {
+			id: aggregate.item.id,
+			restaurantId: aggregate.item.restaurantId,
+			categoryId: aggregate.item.categoryId,
+			categoryName: aggregate.category?.name ?? "",
+			category,
+			name: aggregate.item.name,
+			description: aggregate.item.description,
+			price: aggregate.item.price,
+			preparationTime: aggregate.item.preparationTime,
+			calories: aggregate.item.calories,
+			isVegetarian: aggregate.item.isVegetarian,
+			isFeatured: aggregate.item.isFeatured,
+			images: aggregate.images.map((img) => ({
+				id: img.id,
+				objectKey: img.objectKey,
+				displayOrder: img.displayOrder,
+			})),
+			variants: aggregate.variants.map((v) => ({
+				id: v.id,
+				sku: v.sku,
+				name: v.name,
+				price: v.price,
+				isDefault: v.isDefault,
+				isAvailable: aggregate.item.isAvailable,
+			})),
+			addons: aggregate.addons.map((a) => ({
+				id: a.id,
+				addonId: a.addonId,
+				name: a.name,
+				description: a.description,
+				price: a.price,
+				priceOverride: a.priceOverride,
+				imageKey: a.imageKey,
+				isAvailable: a.isAvailable,
+			})),
 		};
 	},
 
