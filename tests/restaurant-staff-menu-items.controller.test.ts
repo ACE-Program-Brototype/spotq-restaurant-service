@@ -50,8 +50,11 @@ describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Contro
 		controller = new MenuItemController(
 			{} as never,
 			{} as never,
-			{} as never,
 			useCase,
+			{} as never,
+			{} as never,
+			{} as never,
+			{} as never,
 		);
 	});
 

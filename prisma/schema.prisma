@@ -307,6 +307,7 @@ model MenuItem {
   isVegetarian Boolean @default(false) @map("is_vegetarian")
   isFeatured   Boolean @default(false) @map("is_featured")
   isAvailable  Boolean @default(true) @map("is_available")
+  isDeleted    Boolean @default(false) @map("is_deleted")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -320,6 +321,7 @@ model MenuItem {
   addons   MenuItemAddon[]
 
   @@index([restaurantId])
+  @@index([restaurantId, isDeleted])
   @@index([categoryId])
   @@map("menu_items")
 }
@@ -343,7 +345,8 @@ model MenuItemVariant {
   sku        String? @db.VarChar(100)
   name       String  @db.VarChar(255)
   price      Decimal @db.Decimal(10, 2)
-  isDefault  Boolean @default(false) @map("is_default")
+  isDefault   Boolean @default(false) @map("is_default")
+  isAvailable Boolean @default(true) @map("is_available")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)

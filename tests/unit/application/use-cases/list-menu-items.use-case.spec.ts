@@ -230,4 +230,45 @@ describe("ListMenuItemsUseCase", () => {
 			}),
 		);
 	});
+
+	it("should allow both available and unavailable items when status is ALL or omitted", async () => {
+		restaurantRepository.findById.mockResolvedValue({
+			id: mockRestaurantId,
+		} as unknown as Awaited<ReturnType<IRestaurantRepository["findById"]>>);
+		menuItemRepository.findManyWithFiltersAndStats.mockResolvedValue(
+			mockQueryResult,
+		);
+
+		await useCase.execute({
+			restaurantId: mockRestaurantId,
+			status: "ALL",
+		});
+
+		expect(menuItemRepository.findManyWithFiltersAndStats).toHaveBeenCalledWith(
+			expect.objectContaining({
+				isAvailable: undefined,
+			}),
+		);
+	});
+
+	it("should preserve explicitly passed isAvailable when status is ALL", async () => {
+		restaurantRepository.findById.mockResolvedValue({
+			id: mockRestaurantId,
+		} as unknown as Awaited<ReturnType<IRestaurantRepository["findById"]>>);
+		menuItemRepository.findManyWithFiltersAndStats.mockResolvedValue(
+			mockQueryResult,
+		);
+
+		await useCase.execute({
+			restaurantId: mockRestaurantId,
+			status: "ALL",
+			isAvailable: false,
+		});
+
+		expect(menuItemRepository.findManyWithFiltersAndStats).toHaveBeenCalledWith(
+			expect.objectContaining({
+				isAvailable: false,
+			}),
+		);
+	});
 });

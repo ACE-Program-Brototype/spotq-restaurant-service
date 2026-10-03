@@ -1,6 +1,7 @@
-import type {
-	PrismaClient,
-	MenuCategory as PrismaMenuCategory,
+import {
+	Prisma,
+	type PrismaClient,
+	type MenuCategory as PrismaMenuCategory,
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
@@ -68,7 +69,7 @@ export class PrismaMenuCategoryRepository
 					restaurantId,
 					name: {
 						equals: name,
-						mode: "insensitive",
+						mode: Prisma.QueryMode.insensitive,
 					},
 					isDeleted: false,
 				},
@@ -205,7 +206,7 @@ export class PrismaMenuCategoryRepository
 					where: {
 						id,
 						isDeleted: false,
-						menuItems: { none: {} },
+						menuItems: { none: { isDeleted: false } },
 					},
 					data: {
 						name: data.name,
@@ -256,6 +257,7 @@ export class PrismaMenuCategoryRepository
 			const count = await this.prismaClient.menuItem.count({
 				where: {
 					categoryId,
+					isDeleted: false,
 				},
 			});
 			return count > 0;

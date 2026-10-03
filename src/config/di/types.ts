@@ -121,7 +121,14 @@ export const TYPES = {
 		),
 		ListMenuItemsUseCase: Symbol.for("ListMenuItemsUseCase"),
 		ListStaffMenuItemsUseCase: Symbol.for("ListStaffMenuItemsUseCase"),
-		GetMenuItemDetailsUseCase: Symbol.for("GetMenuItemDetailsUseCase"),
+		GetRestaurantOwnerMenuItemDetailsUseCase: Symbol.for(
+			"GetRestaurantOwnerMenuItemDetailsUseCase",
+		),
+		GetCustomerMenuItemDetailsUseCase: Symbol.for(
+			"GetCustomerMenuItemDetailsUseCase",
+		),
+		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
+		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
 	},
 
 	Controller: {

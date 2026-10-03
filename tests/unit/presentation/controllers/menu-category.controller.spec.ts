@@ -407,9 +407,9 @@ describe("MenuCategoryController", () => {
 
 			const res = {} as Response;
 
-			await expect(
-				controller.listStaffCategories(req, res),
-			).rejects.toThrow(testError);
+			await expect(controller.listStaffCategories(req, res)).rejects.toThrow(
+				testError,
+			);
 		});
 	});
 });

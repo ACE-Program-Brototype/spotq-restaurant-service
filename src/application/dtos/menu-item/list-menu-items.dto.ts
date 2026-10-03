@@ -16,6 +16,7 @@ export interface ListMenuItemsQueryDto {
 	maxPrice?: number;
 	isVegetarian?: boolean;
 	isFeatured?: boolean;
+	isAvailable?: boolean;
 	sortBy?: string;
 	sortOrder?: "asc" | "desc";
 }

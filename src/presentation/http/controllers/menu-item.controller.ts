@@ -2,9 +2,12 @@ import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { MenuItemStatusFilter } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
-import type { IGetMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-menu-item-details.use-case.port.ts";
+import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
+import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-customer-menu-item-details.use-case.port.ts";
+import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
+import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type {
 	MenuItemSortField,
@@ -23,10 +26,16 @@ export class MenuItemController {
 		private readonly createMenuItemUseCase: ICreateMenuItemUseCase,
 		@inject(TYPES.UseCases.ListMenuItemsUseCase)
 		private readonly listMenuItemsUseCase: IListMenuItemsUseCase,
-		@inject(TYPES.UseCases.GetMenuItemDetailsUseCase)
-		private readonly getMenuItemDetailsUseCase: IGetMenuItemDetailsUseCase,
 		@inject(TYPES.UseCases.ListStaffMenuItemsUseCase)
 		private readonly listStaffMenuItemsUseCase: IListStaffMenuItemsUseCase,
+		@inject(TYPES.UseCases.GetRestaurantOwnerMenuItemDetailsUseCase)
+		private readonly getRestaurantOwnerMenuItemDetailsUseCase: IGetRestaurantOwnerMenuItemDetailsUseCase,
+		@inject(TYPES.UseCases.GetCustomerMenuItemDetailsUseCase)
+		private readonly getCustomerMenuItemDetailsUseCase: IGetCustomerMenuItemDetailsUseCase,
+		@inject(TYPES.UseCases.DeleteMenuItemUseCase)
+		private readonly deleteMenuItemUseCase: IDeleteMenuItemUseCase,
+		@inject(TYPES.UseCases.UpdateMenuItemStatusUseCase)
+		private readonly updateMenuItemStatusUseCase: IUpdateMenuItemStatusUseCase,
 	) {}
 
 	public createMenuItem = async (
@@ -75,11 +84,14 @@ export class MenuItemController {
 				price: number;
 				isDefault?: boolean;
 				is_default?: boolean;
+				isAvailable?: boolean;
+				is_available?: boolean;
 			}) => ({
 				sku: v.sku ?? null,
 				name: v.name,
 				price: Number(v.price),
 				isDefault: v.isDefault ?? v.is_default ?? false,
+				isAvailable: v.isAvailable ?? v.is_available,
 			}),
 		);
 
@@ -150,6 +162,8 @@ export class MenuItemController {
 			validatedQuery?.isVegetarian ?? validatedQuery?.is_vegetarian;
 		const isFeaturedVal =
 			validatedQuery?.isFeatured ?? validatedQuery?.is_featured;
+		const isAvailableVal =
+			validatedQuery?.isAvailable ?? validatedQuery?.is_available;
 
 		const parseBool = (val: unknown): boolean | undefined => {
 			if (typeof val === "boolean") return val;
@@ -181,6 +195,7 @@ export class MenuItemController {
 			maxPrice: maxPriceVal !== undefined ? Number(maxPriceVal) : undefined,
 			isVegetarian: parseBool(isVegetarianVal),
 			isFeatured: parseBool(isFeaturedVal),
+			isAvailable: parseBool(isAvailableVal),
 			sortBy: (validatedQuery?.sortBy ?? validatedQuery?.sort_by) as
 				| MenuItemSortField
 				| undefined,
@@ -202,9 +217,29 @@ export class MenuItemController {
 		res: Response,
 	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId);
+
+		const result = await this.getRestaurantOwnerMenuItemDetailsUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public getCustomerMenuItemDetails = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
 		const menuItemId = String(req.params.menuItemId ?? req.params.id);
 
-		const result = await this.getMenuItemDetailsUseCase.execute({
+		const result = await this.getCustomerMenuItemDetailsUseCase.execute({
 			restaurantId,
 			menuItemId,
 		});
@@ -237,6 +272,48 @@ export class MenuItemController {
 			res,
 			result,
 			messages.STAFF_MENU_ITEMS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public deleteMenuItem = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId);
+
+		await this.deleteMenuItemUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
+
+		sendSuccessResponse(
+			res,
+			null,
+			messages.MENU_ITEM_DELETED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public updateMenuItemStatus = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId);
+		const isAvailable = req.body?.isAvailable ?? req.body?.is_available;
+
+		const result = await this.updateMenuItemStatusUseCase.execute({
+			restaurantId,
+			menuItemId,
+			isAvailable: Boolean(isAvailable),
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_STATUS_UPDATED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

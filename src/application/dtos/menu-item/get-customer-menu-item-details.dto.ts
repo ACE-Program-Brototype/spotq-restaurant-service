@@ -1,21 +1,21 @@
-export interface GetMenuItemDetailsInputDto {
+export interface GetCustomerMenuItemDetailsInputDto {
 	restaurantId: string;
 	menuItemId: string;
 }
 
-export interface MenuItemDetailCategoryDto {
+export interface CustomerMenuItemDetailCategoryDto {
 	id: string;
 	name: string;
 	description: string | null;
 }
 
-export interface MenuItemDetailImageDto {
+export interface CustomerMenuItemDetailImageDto {
 	id: string;
 	objectKey: string;
 	displayOrder: number;
 }
 
-export interface MenuItemDetailVariantDto {
+export interface CustomerMenuItemDetailVariantDto {
 	id: string;
 	sku: string | null;
 	name: string;
@@ -24,7 +24,7 @@ export interface MenuItemDetailVariantDto {
 	isAvailable: boolean;
 }
 
-export interface MenuItemDetailAddonDto {
+export interface CustomerMenuItemDetailAddonDto {
 	id: string;
 	addonId: string;
 	name: string;
@@ -35,12 +35,12 @@ export interface MenuItemDetailAddonDto {
 	isAvailable: boolean;
 }
 
-export interface MenuItemDetailsResponseDto {
+export interface CustomerMenuItemDetailsResponseDto {
 	id: string;
 	restaurantId: string;
 	categoryId: string;
 	categoryName: string;
-	category: MenuItemDetailCategoryDto | null;
+	category: CustomerMenuItemDetailCategoryDto | null;
 	name: string;
 	description: string | null;
 	price: number;
@@ -48,10 +48,7 @@ export interface MenuItemDetailsResponseDto {
 	calories: number | null;
 	isVegetarian: boolean;
 	isFeatured: boolean;
-	isAvailable: boolean;
-	images: MenuItemDetailImageDto[];
-	variants: MenuItemDetailVariantDto[];
-	addons: MenuItemDetailAddonDto[];
-	createdAt: string;
-	updatedAt: string;
+	images: CustomerMenuItemDetailImageDto[];
+	variants: CustomerMenuItemDetailVariantDto[];
+	addons: CustomerMenuItemDetailAddonDto[];
 }

@@ -38,6 +38,9 @@ export const RESTAURANT_ROUTES = {
 	STAFF_MENU_CATEGORIES: "/:restaurantId/staff/menu/categories",
 	STAFF_MENU_CATEGORIES_PREFIX:
 		"/restaurants/:restaurantId/staff/menu/categories",
+	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
+	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
+	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
 } as const;
 
 export const STAFF_ROUTES = {

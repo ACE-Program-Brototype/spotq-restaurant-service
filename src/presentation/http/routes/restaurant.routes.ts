@@ -11,6 +11,7 @@ import {
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
+import { restaurantOrStaffAuthMiddleware } from "../middleware/restaurant-or-staff.auth.middleware";
 import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
 
@@ -35,6 +36,7 @@ import {
 } from "../validators/create-menu-item.validator";
 import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
+import { deleteMenuItemParamsSchema } from "../validators/delete-menu-item.validator";
 import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
 import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
@@ -77,6 +79,10 @@ import {
 	updateMenuCategoryStatusBodySchema,
 	updateMenuCategoryStatusParamsSchema,
 } from "../validators/update-menu-category-status.validator";
+import {
+	updateMenuItemStatusBodySchema,
+	updateMenuItemStatusParamsSchema,
+} from "../validators/update-menu-item-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -328,6 +334,28 @@ restaurantRouter.get(
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.MENU_ITEM_DETAIL,
+	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getMenuItemDetails,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_ITEM_STATUS_UPDATE,
+	restaurantOrStaffAuthMiddleware,
+	validateRequestParams(updateMenuItemStatusParamsSchema),
+	validateRequestBody(updateMenuItemStatusBodySchema),
+	menuItemController.updateMenuItemStatus,
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.CUSTOMER_MENU_ITEM_DETAIL,
+	validateRequestParams(getMenuItemDetailsParamsSchema),
+	menuItemController.getCustomerMenuItemDetails,
+);
+
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.MENU_ITEM_DELETE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteMenuItemParamsSchema),
+	menuItemController.deleteMenuItem,
 );

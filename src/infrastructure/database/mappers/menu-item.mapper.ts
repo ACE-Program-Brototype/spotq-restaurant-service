@@ -24,6 +24,7 @@ export const MenuItemPersistenceMapper: IEntityMapper<
 			isVegetarian: raw.isVegetarian,
 			isFeatured: raw.isFeatured,
 			isAvailable: raw.isAvailable,
+			isDeleted: raw.isDeleted,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt,
 		});
@@ -42,6 +43,7 @@ export const MenuItemPersistenceMapper: IEntityMapper<
 			isVegetarian: entity.isVegetarian,
 			isFeatured: entity.isFeatured,
 			isAvailable: entity.isAvailable,
+			isDeleted: entity.isDeleted,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		};
@@ -60,6 +62,7 @@ export const MenuItemVariantPersistenceMapper: IEntityMapper<
 			name: raw.name,
 			price: Number(raw.price),
 			isDefault: raw.isDefault,
+			isAvailable: raw.isAvailable,
 			createdAt: raw.createdAt,
 			updatedAt: raw.updatedAt,
 		});
@@ -73,6 +76,7 @@ export const MenuItemVariantPersistenceMapper: IEntityMapper<
 			name: entity.name,
 			price: new Prisma.Decimal(entity.price),
 			isDefault: entity.isDefault,
+			isAvailable: entity.isAvailable,
 			createdAt: entity.createdAt,
 			updatedAt: entity.updatedAt,
 		};

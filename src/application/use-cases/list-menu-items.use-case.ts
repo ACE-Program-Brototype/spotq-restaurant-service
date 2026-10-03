@@ -48,13 +48,15 @@ export class ListMenuItemsUseCase implements IListMenuItemsUseCase {
 		const sortBy = dto.sortBy || DEFAULT_SORT_BY;
 		const sortOrder = dto.sortOrder || DEFAULT_SORT_ORDER;
 
-		let isAvailable: boolean | undefined;
+		let isAvailable: boolean | undefined = dto.isAvailable;
 		if (typeof dto.status === "string") {
 			const normalizedStatus = dto.status.trim().toUpperCase();
 			if (normalizedStatus === "AVAILABLE") {
 				isAvailable = true;
 			} else if (normalizedStatus === "OUT_OF_STOCK") {
 				isAvailable = false;
+			} else if (normalizedStatus === "ALL") {
+				isAvailable = dto.isAvailable;
 			}
 		}
 

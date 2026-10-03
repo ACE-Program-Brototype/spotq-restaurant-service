@@ -1,14 +1,14 @@
 import type { NextFunction, Request, Response } from "express";
-import { ALLOWED_OWNER_ROLES } from "@/shared/constants/auth.constants.ts";
+import { ALLOWED_OWNER_OR_STAFF_ROLES } from "@/shared/constants/auth.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { ApiResponse } from "@/shared/response/api-response.ts";
-import type { AuthenticatedOwner } from "@/types/express.d.ts";
+import type { AuthenticatedUser } from "@/types/express.d.ts";
 
-export type { AuthenticatedOwner };
+export type { AuthenticatedUser };
 
-export interface AuthenticatedOwnerRequest extends Request {
-	user?: AuthenticatedOwner;
+export interface AuthenticatedUserRequest extends Request {
+	user?: AuthenticatedUser;
 	userId?: string;
 }
 
@@ -26,9 +26,9 @@ function getHeaderValue(
 
 /**
  * Authentication and authorization middleware verifying that requests originating
- * from the API gateway carry a valid restaurant owner identity.
+ * from the API gateway carry a valid restaurant owner or staff identity.
  */
-export function restaurantOwnerAuthMiddleware(
+export function restaurantOrStaffAuthMiddleware(
 	req: Request,
 	res: Response,
 	next: NextFunction,
@@ -53,12 +53,12 @@ export function restaurantOwnerAuthMiddleware(
 	const role = getHeaderValue(req.headers["x-user-role"]);
 	const normalizedRole = role?.toLowerCase().trim();
 
-	if (!normalizedRole || !ALLOWED_OWNER_ROLES.has(normalizedRole)) {
+	if (!normalizedRole || !ALLOWED_OWNER_OR_STAFF_ROLES.has(normalizedRole)) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
 			.json(
 				ApiResponse.error(
-					messages.OWNER_FORBIDDEN,
+					messages.FORBIDDEN,
 					"FORBIDDEN",
 					HTTP_STATUS.FORBIDDEN,
 				),
@@ -70,13 +70,10 @@ export function restaurantOwnerAuthMiddleware(
 		req.params?.restaurantId || req.params?.id,
 	)?.trim();
 
-	const email = getHeaderValue(req.headers["x-user-email"]);
-	const restaurantId = headerRestaurantId || userId;
-
 	if (
 		paramRestaurantId &&
-		restaurantId &&
-		paramRestaurantId !== restaurantId.trim()
+		headerRestaurantId &&
+		paramRestaurantId !== headerRestaurantId.trim()
 	) {
 		res
 			.status(HTTP_STATUS.FORBIDDEN)
@@ -90,11 +87,14 @@ export function restaurantOwnerAuthMiddleware(
 		return;
 	}
 
+	const email = getHeaderValue(req.headers["x-user-email"]);
+	const restaurantId = headerRestaurantId || userId;
+
 	req.user = {
 		userId,
 		restaurantId: restaurantId || "",
 		email: email || "",
-		role: role || "RESTAURANT_OWNER",
+		role: role || (normalizedRole === "staff" ? "STAFF" : "RESTAURANT_OWNER"),
 	};
 
 	req.userId = userId;

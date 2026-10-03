@@ -99,6 +99,8 @@ export const listMenuItemsQuerySchema = z
 		is_vegetarian: z.preprocess(parseBooleanFilter, z.boolean().optional()),
 		isFeatured: z.preprocess(parseBooleanFilter, z.boolean().optional()),
 		is_featured: z.preprocess(parseBooleanFilter, z.boolean().optional()),
+		isAvailable: z.preprocess(parseBooleanFilter, z.boolean().optional()),
+		is_available: z.preprocess(parseBooleanFilter, z.boolean().optional()),
 		sortBy: z.preprocess(
 			parseOptionalString,
 			z.enum(MENU_ITEM_SORT_FIELDS).optional(),
@@ -155,6 +157,7 @@ export const listMenuItemsQuerySchema = z
 			search: data.search,
 			categoryId: data.categoryId ?? data.category_id,
 			status: data.status,
+			isAvailable: data.isAvailable ?? data.is_available,
 			minPrice: data.minPrice ?? data.min_price,
 			maxPrice: data.maxPrice ?? data.max_price,
 			isVegetarian: data.isVegetarian ?? data.is_vegetarian,

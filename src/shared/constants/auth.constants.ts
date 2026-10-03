@@ -27,6 +27,15 @@ export const MANAGER_ADMIN_ROLES: ReadonlySet<string> = new Set([
 	AUTH_ROLES.RESTAURANT,
 ]);
 
+export const ALLOWED_OWNER_OR_STAFF_ROLES: ReadonlySet<string> = new Set([
+	AUTH_ROLES.RESTAURANT_OWNER,
+	AUTH_ROLES.RESTAURANT_ADMIN,
+	AUTH_ROLES.RESTAURANT,
+	AUTH_ROLES.OWNER,
+	AUTH_ROLES.ADMIN,
+	AUTH_ROLES.STAFF,
+]);
+
 export const TOKEN_TYPES = {
 	ACCESS: "access",
 	REFRESH: "refresh",

@@ -9,6 +9,7 @@ export interface MenuItemVariantProps {
 	name: string;
 	price: number;
 	isDefault: boolean;
+	isAvailable: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -20,6 +21,7 @@ export interface CreateMenuItemVariantProps {
 	name: string;
 	price: number;
 	isDefault?: boolean;
+	isAvailable?: boolean;
 }
 
 export interface ReconstituteMenuItemVariantProps {
@@ -29,6 +31,7 @@ export interface ReconstituteMenuItemVariantProps {
 	name: string;
 	price: number;
 	isDefault: boolean;
+	isAvailable?: boolean;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -81,6 +84,7 @@ export class MenuItemVariant {
 			name: trimmedName,
 			price: createProps.price,
 			isDefault: createProps.isDefault ?? false,
+			isAvailable: createProps.isAvailable ?? true,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -96,6 +100,7 @@ export class MenuItemVariant {
 			name: reconstituteProps.name,
 			price: reconstituteProps.price,
 			isDefault: reconstituteProps.isDefault,
+			isAvailable: reconstituteProps.isAvailable ?? true,
 			createdAt: reconstituteProps.createdAt,
 			updatedAt: reconstituteProps.updatedAt,
 		});
@@ -125,6 +130,10 @@ export class MenuItemVariant {
 		return this.props.isDefault;
 	}
 
+	public get isAvailable(): boolean {
+		return this.props.isAvailable;
+	}
+
 	public get createdAt(): Date {
 		return this.props.createdAt;
 	}
@@ -139,6 +148,11 @@ export class MenuItemVariant {
 
 	public setDefault(isDefault: boolean): void {
 		this.props.isDefault = isDefault;
+		this.props.updatedAt = new Date();
+	}
+
+	public updateAvailability(isAvailable: boolean): void {
+		this.props.isAvailable = isAvailable;
 		this.props.updatedAt = new Date();
 	}
 }

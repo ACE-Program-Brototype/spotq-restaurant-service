@@ -78,6 +78,7 @@ describe("PrismaMenuItemRepository", () => {
 				findMany: jest.fn(),
 				count: jest.fn(),
 				update: jest.fn(),
+				updateMany: jest.fn(),
 			},
 			menuCategory: {
 				findFirst: jest.fn(),
@@ -113,6 +114,7 @@ describe("PrismaMenuItemRepository", () => {
 						equals: "wagyu burger",
 						mode: "insensitive",
 					},
+					isDeleted: false,
 				},
 			});
 		});
@@ -130,17 +132,20 @@ describe("PrismaMenuItemRepository", () => {
 	});
 
 	describe("findById", () => {
-		it("should find menu item by id", async () => {
-			mockPrisma.menuItem.findUnique.mockResolvedValue(rawMenuItem);
+		it("should find non-deleted menu item by id", async () => {
+			mockPrisma.menuItem.findFirst.mockResolvedValue(rawMenuItem);
 
 			const result = await repository.findById("item-123");
 
+			expect(mockPrisma.menuItem.findFirst).toHaveBeenCalledWith({
+				where: { id: "item-123", isDeleted: false },
+			});
 			expect(result).toBeDefined();
 			expect(result?.id).toBe(rawMenuItem.id);
 		});
 
-		it("should return null if menu item not found", async () => {
-			mockPrisma.menuItem.findUnique.mockResolvedValue(null);
+		it("should return null if menu item not found or deleted", async () => {
+			mockPrisma.menuItem.findFirst.mockResolvedValue(null);
 
 			const result = await repository.findById("non-existent");
 			expect(result).toBeNull();
@@ -478,6 +483,7 @@ describe("PrismaMenuItemRepository", () => {
 				where: {
 					id: rawMenuItem.id,
 					restaurantId,
+					isDeleted: false,
 				},
 				include: {
 					category: true,
@@ -528,6 +534,108 @@ describe("PrismaMenuItemRepository", () => {
 			);
 
 			expect(result).toBeNull();
+		});
+	});
+
+	describe("updateMenuItem", () => {
+		it("should soft delete a menu item with atomic condition using updateMany", async () => {
+			const item = MenuItem.reconstitute({
+				id: rawMenuItem.id,
+				restaurantId: rawMenuItem.restaurantId,
+				categoryId: rawMenuItem.categoryId,
+				name: rawMenuItem.name,
+				description: rawMenuItem.description,
+				price: Number(rawMenuItem.price),
+				preparationTime: rawMenuItem.preparationTime,
+				calories: rawMenuItem.calories,
+				isVegetarian: rawMenuItem.isVegetarian,
+				isFeatured: rawMenuItem.isFeatured,
+				isAvailable: rawMenuItem.isAvailable,
+				isDeleted: true,
+				createdAt: rawMenuItem.createdAt,
+				updatedAt: new Date(),
+			});
+
+			mockPrisma.menuItem.updateMany.mockResolvedValueOnce({
+				count: 1,
+			});
+
+			const result = await repository.updateMenuItem(item);
+
+			expect(result.isDeleted).toBe(true);
+			expect(mockPrisma.menuItem.updateMany).toHaveBeenCalledWith({
+				where: {
+					id: rawMenuItem.id,
+					restaurantId: rawMenuItem.restaurantId,
+					isDeleted: false,
+				},
+				data: expect.objectContaining({
+					isDeleted: true,
+				}),
+			});
+		});
+
+		it("should throw MenuItemNotFoundError when soft-delete updateMany affects 0 rows", async () => {
+			const item = MenuItem.reconstitute({
+				id: rawMenuItem.id,
+				restaurantId: rawMenuItem.restaurantId,
+				categoryId: rawMenuItem.categoryId,
+				name: rawMenuItem.name,
+				description: rawMenuItem.description,
+				price: Number(rawMenuItem.price),
+				preparationTime: rawMenuItem.preparationTime,
+				calories: rawMenuItem.calories,
+				isVegetarian: rawMenuItem.isVegetarian,
+				isFeatured: rawMenuItem.isFeatured,
+				isAvailable: rawMenuItem.isAvailable,
+				isDeleted: true,
+				createdAt: rawMenuItem.createdAt,
+				updatedAt: new Date(),
+			});
+
+			mockPrisma.menuItem.updateMany.mockResolvedValueOnce({
+				count: 0,
+			});
+
+			await expect(repository.updateMenuItem(item)).rejects.toThrow(
+				MenuItemNotFoundError,
+			);
+		});
+
+		it("should update an active menu item using update when isDeleted is false", async () => {
+			const item = MenuItem.reconstitute({
+				id: rawMenuItem.id,
+				restaurantId: rawMenuItem.restaurantId,
+				categoryId: rawMenuItem.categoryId,
+				name: "Updated Name",
+				description: rawMenuItem.description,
+				price: Number(rawMenuItem.price),
+				preparationTime: rawMenuItem.preparationTime,
+				calories: rawMenuItem.calories,
+				isVegetarian: rawMenuItem.isVegetarian,
+				isFeatured: rawMenuItem.isFeatured,
+				isAvailable: rawMenuItem.isAvailable,
+				isDeleted: false,
+				createdAt: rawMenuItem.createdAt,
+				updatedAt: new Date(),
+			});
+
+			mockPrisma.menuItem.update.mockResolvedValueOnce({
+				...rawMenuItem,
+				name: "Updated Name",
+				isDeleted: false,
+			});
+
+			const result = await repository.updateMenuItem(item);
+
+			expect(result.name).toBe("Updated Name");
+			expect(mockPrisma.menuItem.update).toHaveBeenCalledWith({
+				where: { id: rawMenuItem.id },
+				data: expect.objectContaining({
+					name: "Updated Name",
+					isDeleted: false,
+				}),
+			});
 		});
 	});
 });

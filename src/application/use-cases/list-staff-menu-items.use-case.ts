@@ -42,9 +42,7 @@ export class ListStaffMenuItemsUseCase implements IListStaffMenuItemsUseCase {
 		}
 
 		const page =
-			dto.page && dto.page > 0
-				? dto.page
-				: STAFF_MENU_PAGINATION.DEFAULT_PAGE;
+			dto.page && dto.page > 0 ? dto.page : STAFF_MENU_PAGINATION.DEFAULT_PAGE;
 		const rawLimit =
 			dto.limit && dto.limit > 0
 				? dto.limit
