@@ -206,7 +206,7 @@ export class PrismaMenuCategoryRepository
 					where: {
 						id,
 						isDeleted: false,
-						menuItems: { none: {} },
+						menuItems: { none: { isDeleted: false } },
 					},
 					data: {
 						name: data.name,
@@ -257,6 +257,7 @@ export class PrismaMenuCategoryRepository
 			const count = await this.prismaClient.menuItem.count({
 				where: {
 					categoryId,
+					isDeleted: false,
 				},
 			});
 			return count > 0;

@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { MenuItemStatusFilter } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
+import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
 import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-customer-menu-item-details.use-case.port.ts";
 import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
@@ -25,6 +26,8 @@ export class MenuItemController {
 		private readonly getRestaurantOwnerMenuItemDetailsUseCase: IGetRestaurantOwnerMenuItemDetailsUseCase,
 		@inject(TYPES.UseCases.GetCustomerMenuItemDetailsUseCase)
 		private readonly getCustomerMenuItemDetailsUseCase: IGetCustomerMenuItemDetailsUseCase,
+		@inject(TYPES.UseCases.DeleteMenuItemUseCase)
+		private readonly deleteMenuItemUseCase: IDeleteMenuItemUseCase,
 	) {}
 
 	public createMenuItem = async (
@@ -200,7 +203,7 @@ export class MenuItemController {
 		res: Response,
 	): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
-		const menuItemId = String(req.params.menuItemId ?? req.params.id);
+		const menuItemId = String(req.params.menuItemId);
 
 		const result = await this.getRestaurantOwnerMenuItemDetailsUseCase.execute({
 			restaurantId,
@@ -231,6 +234,26 @@ export class MenuItemController {
 			res,
 			result,
 			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public deleteMenuItem = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId);
+
+		await this.deleteMenuItemUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
+
+		sendSuccessResponse(
+			res,
+			null,
+			messages.MENU_ITEM_DELETED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

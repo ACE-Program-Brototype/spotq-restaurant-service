@@ -258,4 +258,66 @@ describe("MenuCategory Entity", () => {
 			expect(category.updatedAt).toEqual(updatedAt);
 		});
 	});
+
+	describe("updateStatus()", () => {
+		it("should update isActive to false and refresh updatedAt when deactivated", () => {
+			const category = MenuCategory.create(validProps);
+			const initialUpdatedAt = category.updatedAt;
+
+			category.updateStatus(false);
+
+			expect(category.isActive).toBe(false);
+			expect(category.updatedAt.getTime()).toBeGreaterThanOrEqual(
+				initialUpdatedAt.getTime(),
+			);
+		});
+
+		it("should update isActive to true and refresh updatedAt when activated", () => {
+			const category = MenuCategory.reconstitute({
+				id: "cat-1",
+				restaurantId: validProps.restaurantId,
+				name: "Drinks",
+				description: null,
+				displayOrder: 0,
+				isActive: false,
+				isDeleted: false,
+				createdAt: new Date("2026-01-01"),
+				updatedAt: new Date("2026-01-01"),
+			});
+
+			category.updateStatus(true);
+
+			expect(category.isActive).toBe(true);
+			expect(category.updatedAt.getTime()).toBeGreaterThan(
+				new Date("2026-01-01").getTime(),
+			);
+		});
+
+		it("should be idempotent and not change updatedAt when status is unchanged", () => {
+			const category = MenuCategory.create(validProps);
+			const initialUpdatedAt = category.updatedAt;
+
+			category.updateStatus(true);
+
+			expect(category.isActive).toBe(true);
+			expect(category.updatedAt).toEqual(initialUpdatedAt);
+		});
+
+		it("should throw InvalidCategoryDataError when isActive is not a boolean", () => {
+			const category = MenuCategory.create(validProps);
+			// biome-ignore lint/suspicious/noExplicitAny: test runtime type check
+			expect(() => category.updateStatus("true" as any)).toThrow(
+				InvalidCategoryDataError,
+			);
+		});
+
+		it("should throw InvalidCategoryDataError when modifying a soft-deleted category", () => {
+			const category = MenuCategory.create(validProps);
+			category.softDelete();
+
+			expect(() => category.updateStatus(true)).toThrow(
+				InvalidCategoryDataError,
+			);
+		});
+	});
 });

@@ -34,6 +34,7 @@ import {
 } from "../validators/create-menu-item.validator";
 import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
+import { deleteMenuItemParamsSchema } from "../validators/delete-menu-item.validator";
 import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
 import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
@@ -68,6 +69,10 @@ import {
 	updateMenuCategoryBodySchema,
 	updateMenuCategoryParamsSchema,
 } from "../validators/update-menu-category.validator";
+import {
+	updateMenuCategoryStatusBodySchema,
+	updateMenuCategoryStatusParamsSchema,
+} from "../validators/update-menu-category-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -266,6 +271,14 @@ restaurantRouter.patch(
 	menuCategoryController.updateCategory,
 );
 
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_CATEGORY_STATUS_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateMenuCategoryStatusParamsSchema),
+	validateRequestBody(updateMenuCategoryStatusBodySchema),
+	menuCategoryController.updateCategoryStatus,
+);
+
 restaurantRouter.delete(
 	RESTAURANT_ROUTES.MENU_CATEGORY_DELETE,
 	restaurantOwnerAuthMiddleware,
@@ -299,4 +312,11 @@ restaurantRouter.get(
 	RESTAURANT_ROUTES.CUSTOMER_MENU_ITEM_DETAIL,
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getCustomerMenuItemDetails,
+);
+
+restaurantRouter.delete(
+	RESTAURANT_ROUTES.MENU_ITEM_DELETE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteMenuItemParamsSchema),
+	menuItemController.deleteMenuItem,
 );

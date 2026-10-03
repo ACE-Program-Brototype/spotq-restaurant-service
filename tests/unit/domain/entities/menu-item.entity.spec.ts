@@ -160,4 +160,21 @@ describe("MenuItem Entity", () => {
 		expect(item.isFeatured).toBe(false);
 		expect(item.isAvailable).toBe(false);
 	});
+
+	it("should soft delete a menu item and prevent subsequent modifications", () => {
+		const item = MenuItem.create(validProps);
+		expect(item.isDeleted).toBe(false);
+
+		item.softDelete();
+		expect(item.isDeleted).toBe(true);
+		expect(item.isAvailable).toBe(false);
+
+		expect(() => item.softDelete()).toThrow(InvalidMenuItemDataError);
+		expect(() => item.update({ name: "New Name" })).toThrow(
+			InvalidMenuItemDataError,
+		);
+		expect(() => item.updateAvailability(true)).toThrow(
+			InvalidMenuItemDataError,
+		);
+	});
 });

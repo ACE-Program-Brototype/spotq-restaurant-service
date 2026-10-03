@@ -485,7 +485,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem
 				.count,
 		).toHaveBeenCalledWith({
-			where: { categoryId: "cat-1" },
+			where: { categoryId: "cat-1", isDeleted: false },
 		});
 	});
 
@@ -521,7 +521,7 @@ describe("PrismaMenuCategoryRepository", () => {
 			where: {
 				id: "cat-1",
 				isDeleted: false,
-				menuItems: { none: {} },
+				menuItems: { none: { isDeleted: false } },
 			},
 			data: expect.objectContaining({
 				isDeleted: true,
