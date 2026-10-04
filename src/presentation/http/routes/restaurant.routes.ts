@@ -79,6 +79,10 @@ import {
 	updateMenuItemStatusBodySchema,
 	updateMenuItemStatusParamsSchema,
 } from "../validators/update-menu-item-status.validator";
+import {
+	updateMenuItemBodySchema,
+	updateMenuItemParamsSchema,
+} from "../validators/update-menu-item.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -312,6 +316,22 @@ restaurantRouter.get(
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getMenuItemDetails,
+);
+
+restaurantRouter.put(
+	RESTAURANT_ROUTES.MENU_ITEM_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateMenuItemParamsSchema),
+	validateRequestBody(updateMenuItemBodySchema),
+	menuItemController.updateMenuItem,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_ITEM_UPDATE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateMenuItemParamsSchema),
+	validateRequestBody(updateMenuItemBodySchema),
+	menuItemController.updateMenuItem,
 );
 
 restaurantRouter.patch(
