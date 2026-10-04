@@ -70,12 +70,17 @@ export class PrismaMenuItemRepository
 			const target = Array.isArray(meta?.target)
 				? meta?.target.join(",")
 				: String(meta?.target || "");
-			if (target.includes("addon")) {
+			const targetLower = target.toLowerCase();
+			if (targetLower.includes("addon")) {
 				throw new InvalidMenuItemDataError(
 					messages.DUPLICATE_ADDON_IN_MENU_ITEM,
 				);
 			}
-			if (target.includes("default") || target.includes("variant")) {
+			if (
+				targetLower.includes("default") ||
+				targetLower.includes("variant") ||
+				targetLower.includes("idx")
+			) {
 				throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
 			}
 			throw new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
@@ -403,7 +408,23 @@ export class PrismaMenuItemRepository
 						existingVariants.map((v) => [v.id, v]),
 					);
 
-					const keptVariantIds: string[] = [];
+					const keptVariantIds = params.variants
+						.map((v) => v.id)
+						.filter((id): id is string => Boolean(id && existingVariantMap.has(id)));
+
+					// Delete removed variants first to free up any constraints
+					await tx.menuItemVariant.deleteMany({
+						where: {
+							menuItemId: itemData.id,
+							id: { notIn: keptVariantIds },
+						},
+					});
+
+					// Reset isDefault on remaining variants to prevent unique index collisions
+					await tx.menuItemVariant.updateMany({
+						where: { menuItemId: itemData.id },
+						data: { isDefault: false },
+					});
 
 					for (const variant of params.variants) {
 						variant.assignMenuItemId(itemData.id);
@@ -422,9 +443,8 @@ export class PrismaMenuItemRepository
 									updatedAt: variantData.updatedAt,
 								},
 							});
-							keptVariantIds.push(variantData.id);
 						} else {
-							const created = await tx.menuItemVariant.create({
+							await tx.menuItemVariant.create({
 								data: {
 									id: variantData.id,
 									menuItemId: itemData.id,
@@ -437,16 +457,8 @@ export class PrismaMenuItemRepository
 									updatedAt: variantData.updatedAt,
 								},
 							});
-							keptVariantIds.push(created.id);
 						}
 					}
-
-					await tx.menuItemVariant.deleteMany({
-						where: {
-							menuItemId: itemData.id,
-							id: { notIn: keptVariantIds },
-						},
-					});
 				}
 
 				if (params.addons !== undefined) {
