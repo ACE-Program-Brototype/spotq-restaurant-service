@@ -31,6 +31,7 @@ import type {
 	MenuItemQueryResult,
 	MenuItemWithRelations,
 	RestaurantMenuStats,
+	UpdateMenuItemRepositoryParams,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
@@ -339,6 +340,199 @@ export class PrismaMenuItemRepository
 			return this.mapper.toDomain(updated);
 		} catch (error) {
 			this.handlePrismaError(error, item);
+			throw error;
+		}
+	}
+
+	public async updateWithDetails(
+		params: UpdateMenuItemRepositoryParams,
+	): Promise<MenuItemAggregate> {
+		try {
+			return await this.prismaClient.$transaction(async (tx) => {
+				const itemData = this.mapper.toPersistence(params.menuItem);
+
+				const updatedItemCount = await tx.menuItem.updateMany({
+					where: {
+						id: itemData.id,
+						restaurantId: itemData.restaurantId,
+						isDeleted: false,
+					},
+					data: {
+						categoryId: itemData.categoryId,
+						name: itemData.name,
+						description: itemData.description,
+						price: itemData.price,
+						preparationTime: itemData.preparationTime,
+						calories: itemData.calories,
+						isVegetarian: itemData.isVegetarian,
+						isFeatured: itemData.isFeatured,
+						isAvailable: itemData.isAvailable,
+						updatedAt: itemData.updatedAt,
+					},
+				});
+
+				if (updatedItemCount.count === 0) {
+					throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
+				}
+
+				if (params.images !== undefined) {
+					await tx.menuItemImage.deleteMany({
+						where: { menuItemId: itemData.id },
+					});
+
+					if (params.images.length > 0) {
+						await Promise.all(
+							params.images.map((img, index) =>
+								tx.menuItemImage.create({
+									data: {
+										menuItemId: itemData.id,
+										objectKey: img.objectKey,
+										displayOrder: img.displayOrder ?? index,
+									},
+								}),
+							),
+						);
+					}
+				}
+
+				if (params.variants !== undefined) {
+					const existingVariants = await tx.menuItemVariant.findMany({
+						where: { menuItemId: itemData.id },
+					});
+					const existingVariantMap = new Map(
+						existingVariants.map((v) => [v.id, v]),
+					);
+
+					const keptVariantIds: string[] = [];
+
+					for (const variant of params.variants) {
+						variant.assignMenuItemId(itemData.id);
+						const variantData =
+							MenuItemVariantPersistenceMapper.toPersistence(variant);
+
+						if (existingVariantMap.has(variantData.id)) {
+							await tx.menuItemVariant.update({
+								where: { id: variantData.id },
+								data: {
+									sku: variantData.sku,
+									name: variantData.name,
+									price: variantData.price,
+									isDefault: variantData.isDefault,
+									isAvailable: variantData.isAvailable,
+									updatedAt: variantData.updatedAt,
+								},
+							});
+							keptVariantIds.push(variantData.id);
+						} else {
+							const created = await tx.menuItemVariant.create({
+								data: {
+									id: variantData.id,
+									menuItemId: itemData.id,
+									sku: variantData.sku,
+									name: variantData.name,
+									price: variantData.price,
+									isDefault: variantData.isDefault,
+									isAvailable: variantData.isAvailable,
+									createdAt: variantData.createdAt,
+									updatedAt: variantData.updatedAt,
+								},
+							});
+							keptVariantIds.push(created.id);
+						}
+					}
+
+					await tx.menuItemVariant.deleteMany({
+						where: {
+							menuItemId: itemData.id,
+							id: { notIn: keptVariantIds },
+						},
+					});
+				}
+
+				if (params.addons !== undefined) {
+					await tx.menuItemAddon.deleteMany({
+						where: { menuItemId: itemData.id },
+					});
+
+					if (params.addons.length > 0) {
+						await Promise.all(
+							params.addons.map((addonLink) =>
+								tx.menuItemAddon.create({
+									data: {
+										menuItemId: itemData.id,
+										addonId: addonLink.addonId,
+										priceOverride:
+											addonLink.priceOverride !== null
+												? new Prisma.Decimal(addonLink.priceOverride)
+												: null,
+									},
+								}),
+							),
+						);
+					}
+				}
+
+				const fullItem = await tx.menuItem.findUniqueOrThrow({
+					where: { id: itemData.id },
+					include: {
+						images: {
+							orderBy: {
+								displayOrder: "asc",
+							},
+						},
+						variants: {
+							orderBy: [
+								{ isDefault: "desc" },
+								{ price: "asc" },
+								{ createdAt: "asc" },
+							],
+						},
+						addons: {
+							where: {
+								addon: {
+									isDeleted: false,
+								},
+							},
+							include: {
+								addon: true,
+							},
+							orderBy: {
+								createdAt: "asc",
+							},
+						},
+					},
+				});
+
+				const domainItem = this.mapper.toDomain(fullItem);
+				const domainVariants = fullItem.variants.map((v) =>
+					MenuItemVariantPersistenceMapper.toDomain(v),
+				);
+				const domainImages = fullItem.images.map((img) => ({
+					id: img.id,
+					menuItemId: img.menuItemId,
+					objectKey: img.objectKey,
+					displayOrder: img.displayOrder,
+					createdAt: img.createdAt,
+				}));
+				const domainAddons = fullItem.addons.map((a) => ({
+					id: a.id,
+					menuItemId: a.menuItemId,
+					addonId: a.addonId,
+					name: a.addon?.name || "",
+					price: Number(a.addon?.price || 0),
+					priceOverride:
+						a.priceOverride !== null ? Number(a.priceOverride) : null,
+				}));
+
+				return {
+					item: domainItem,
+					images: domainImages,
+					variants: domainVariants,
+					addons: domainAddons,
+				};
+			});
+		} catch (error) {
+			this.handlePrismaError(error, params);
 			throw error;
 		}
 	}
