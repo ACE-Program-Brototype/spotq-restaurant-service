@@ -289,6 +289,7 @@ export const messages = {
 	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
 	CANNOT_MODIFY_DELETED_CATEGORY: "Cannot modify a deleted category",
 	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
+	MENU_ITEM_UPDATED_SUCCESS: "Menu item updated successfully",
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",
 	MENU_ITEM_NOT_FOUND: "Menu item not found",
