@@ -36,6 +36,16 @@ export interface CreateMenuItemRepositoryParams {
 	}>;
 }
 
+export interface UpdateMenuItemRepositoryParams {
+	menuItem: MenuItem;
+	images?: Array<{ id?: string; objectKey: string; displayOrder: number }>;
+	variants?: MenuItemVariant[];
+	addons?: Array<{
+		addonId: string;
+		priceOverride: number | null;
+	}>;
+}
+
 export interface MenuItemQueryFilterParams {
 	restaurantId: string;
 	categoryId?: string;
@@ -126,5 +136,8 @@ export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
 	): Promise<MenuItemQueryResult>;
 	getRestaurantMenuStats(restaurantId: string): Promise<RestaurantMenuStats>;
 	updateMenuItem(item: MenuItem): Promise<MenuItem>;
+	updateWithDetails(
+		params: UpdateMenuItemRepositoryParams,
+	): Promise<MenuItemAggregate>;
 	updateAvailability(item: MenuItem): Promise<MenuItem>;
 }

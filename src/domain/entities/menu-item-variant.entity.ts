@@ -36,6 +36,14 @@ export interface ReconstituteMenuItemVariantProps {
 	updatedAt: Date;
 }
 
+export interface UpdateMenuItemVariantProps {
+	sku?: string | null;
+	name?: string;
+	price?: number;
+	isDefault?: boolean;
+	isAvailable?: boolean;
+}
+
 export class MenuItemVariant {
 	private props: MenuItemVariantProps;
 
@@ -153,6 +161,45 @@ export class MenuItemVariant {
 
 	public updateAvailability(isAvailable: boolean): void {
 		this.props.isAvailable = isAvailable;
+		this.props.updatedAt = new Date();
+	}
+
+	public update(updateProps: UpdateMenuItemVariantProps): void {
+		if (updateProps.name !== undefined) {
+			const trimmedName = updateProps.name.trim();
+			if (!trimmedName) {
+				throw new InvalidVariantDataError(messages.VARIANT_NAME_REQUIRED);
+			}
+			if (trimmedName.length > 255) {
+				throw new InvalidVariantDataError(messages.MENU_ITEM_NAME_MAX_LENGTH);
+			}
+			this.props.name = trimmedName;
+		}
+
+		if (updateProps.price !== undefined) {
+			if (updateProps.price < 0 || Number.isNaN(updateProps.price)) {
+				throw new InvalidVariantDataError(messages.VARIANT_PRICE_NEGATIVE);
+			}
+			if (updateProps.price > 99999999.99) {
+				throw new InvalidVariantDataError(messages.PRICE_EXCEEDS_MAXIMUM);
+			}
+			this.props.price = updateProps.price;
+		}
+
+		if (updateProps.sku !== undefined) {
+			this.props.sku = updateProps.sku
+				? updateProps.sku.trim().toUpperCase()
+				: null;
+		}
+
+		if (updateProps.isDefault !== undefined) {
+			this.props.isDefault = updateProps.isDefault;
+		}
+
+		if (updateProps.isAvailable !== undefined) {
+			this.props.isAvailable = updateProps.isAvailable;
+		}
+
 		this.props.updatedAt = new Date();
 	}
 }
