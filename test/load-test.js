@@ -6,6 +6,7 @@ const listingDuration = new Trend("listing_duration");
 const searchDuration = new Trend("search_duration");
 const healthDuration = new Trend("health_duration");
 const categoriesDuration = new Trend("categories_duration");
+const itemDuration = new Trend("item_detail_duration");
 const successRate = new Rate("successful_requests");
 const requestCount = new Counter("total_requests");
 
@@ -25,6 +26,7 @@ export const options = {
 		search_duration: ["p(95)<300"],
 		health_duration: ["p(95)<150"],
 		categories_duration: ["p(95)<250"],
+		item_detail_duration: ["p(95)<250"],
 		successful_requests: ["rate>0.99"],
 	},
 };
@@ -32,6 +34,8 @@ export const options = {
 const BASE_URL = __ENV.BASE_URL || "http://localhost:3001";
 const RESTAURANT_ID =
 	__ENV.RESTAURANT_ID || "e2873c56-c2a2-402b-81a4-5b2b9b6727a3";
+const MENU_ITEM_ID =
+	__ENV.MENU_ITEM_ID || "d3b07384-d113-4638-b765-b1a629b0a672";
 
 const ADMIN_HEADERS = {
 	"Content-Type": "application/json",
@@ -50,7 +54,7 @@ export default function () {
 		const isHealthy = check(healthRes, {
 			"health status is 200": (r) => r.status === 200,
 			"health indicates service ready": (r) =>
-				r.body.includes("Service health check successful"),
+				Boolean(r.body?.includes("Service health check successful")),
 		});
 		successRate.add(isHealthy);
 	});
@@ -68,7 +72,8 @@ export default function () {
 
 		const isListSuccess = check(listRes, {
 			"listing status is 200": (r) => r.status === 200,
-			"listing has pagination data": (r) => r.body.includes("pagination"),
+			"listing has pagination data": (r) =>
+				Boolean(r.body?.includes("pagination")),
 		});
 		successRate.add(isListSuccess);
 	});
@@ -86,7 +91,7 @@ export default function () {
 
 		const isSearchSuccess = check(searchRes, {
 			"search status is 200": (r) => r.status === 200,
-			"search returns results": (r) => r.body.includes("restaurants"),
+			"search returns results": (r) => Boolean(r.body?.includes("restaurants")),
 		});
 		successRate.add(isSearchSuccess);
 	});
@@ -104,9 +109,28 @@ export default function () {
 
 		const isCatSuccess = check(catRes, {
 			"categories status is 200": (r) => r.status === 200,
-			"categories payload valid": (r) => r.body.includes("categories"),
+			"categories payload valid": (r) =>
+				Boolean(r.body?.includes("categories")),
 		});
 		successRate.add(isCatSuccess);
+	});
+
+	sleep(0.3);
+
+	// 5. Customer Menu Item Details (Public Browsing)
+	group("Customer Menu Item Details API", () => {
+		const itemRes = http.get(
+			`${BASE_URL}/customer/${RESTAURANT_ID}/menu/items/${MENU_ITEM_ID}`,
+			{ headers: { "Content-Type": "application/json" } },
+		);
+		requestCount.add(1);
+		itemDuration.add(itemRes.timings.duration);
+
+		const isItemSuccess = check(itemRes, {
+			"item detail status is 200 or 404": (r) =>
+				r.status === 200 || r.status === 404,
+		});
+		successRate.add(isItemSuccess);
 	});
 
 	sleep(0.5);
