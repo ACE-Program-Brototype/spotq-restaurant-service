@@ -44,6 +44,10 @@ import {
 	listMenuItemsQuerySchema,
 } from "../validators/list-menu-items.validator";
 import {
+	listStaffMenuItemsParamsSchema,
+	listStaffMenuItemsQuerySchema,
+} from "../validators/list-staff-menu-items.validator";
+import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
 } from "../validators/restaurant-email-verification.validator";
@@ -305,10 +309,31 @@ restaurantRouter.get(
 );
 
 restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.STAFF_MENU_ITEMS,
+		RESTAURANT_ROUTES.STAFF_MENU_ITEMS_PREFIX,
+	],
+	staffAuthMiddleware,
+	validateRequestParams(listStaffMenuItemsParamsSchema),
+	validateRequestQuery(listStaffMenuItemsQuerySchema),
+	menuItemController.listStaffMenuItems,
+);
+
+restaurantRouter.get(
 	RESTAURANT_ROUTES.MENU_CATEGORIES,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(listMenuCategoriesParamSchema),
 	menuCategoryController.listRestaurantCategories,
+);
+
+restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.STAFF_MENU_CATEGORIES,
+		RESTAURANT_ROUTES.STAFF_MENU_CATEGORIES_PREFIX,
+	],
+	staffAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamSchema),
+	menuCategoryController.listStaffCategories,
 );
 
 restaurantRouter.get(

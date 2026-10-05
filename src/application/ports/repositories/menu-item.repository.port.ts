@@ -4,6 +4,10 @@ import type {
 	MenuItemQueryResult,
 	MenuItemWithRelations,
 	RestaurantMenuStats,
+	StaffMenuItemQueryFilterParams,
+	StaffMenuItemQueryResult,
+	StaffMenuItemResultItem,
+	StaffMenuItemVariantData,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
 
 export type {
@@ -12,4 +16,8 @@ export type {
 	MenuItemQueryResult,
 	MenuItemWithRelations,
 	RestaurantMenuStats,
+	StaffMenuItemQueryFilterParams,
+	StaffMenuItemQueryResult,
+	StaffMenuItemResultItem,
+	StaffMenuItemVariantData,
 };

@@ -352,4 +352,64 @@ describe("MenuCategoryController", () => {
 			).rejects.toThrow(testError);
 		});
 	});
+
+	describe("listStaffCategories", () => {
+		it("should return 200 OK with categories payload for staff", async () => {
+			const expectedResponse: ListMenuCategoriesResponseDto = {
+				restaurantId,
+				categories: [
+					{
+						id: "cat-1",
+						name: "Appetizers",
+						description: "Starters",
+						isActive: true,
+						displayOrder: 1,
+					},
+				],
+			};
+
+			mockListUseCase.execute.mockResolvedValueOnce(expectedResponse);
+
+			const req = {
+				params: { restaurantId },
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const res = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.listStaffCategories(req, res);
+
+			expect(mockListUseCase.execute).toHaveBeenCalledWith({
+				restaurantId,
+			});
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_CATEGORIES_FETCHED_SUCCESS,
+					statusCode: HTTP_STATUS.OK,
+					data: expectedResponse,
+				}),
+			);
+		});
+
+		it("should reject with error when use case throws an error", async () => {
+			const testError = new Error("Restaurant not found");
+			mockListUseCase.execute.mockRejectedValueOnce(testError);
+
+			const req = {
+				params: { restaurantId },
+			} as unknown as Request;
+
+			const res = {} as Response;
+
+			await expect(controller.listStaffCategories(req, res)).rejects.toThrow(
+				testError,
+			);
+		});
+	});
 });

@@ -32,6 +32,9 @@ import type {
 	MenuItemWithRelations,
 	RestaurantMenuStats,
 	UpdateMenuItemRepositoryParams,
+	StaffMenuItemQueryFilterParams,
+	StaffMenuItemQueryResult,
+	StaffMenuItemResultItem,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
@@ -846,6 +849,180 @@ export class PrismaMenuItemRepository
 				items,
 				total: filteredTotal,
 				stats,
+			};
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
+	public async findManyStaffMenuItems(
+		params: StaffMenuItemQueryFilterParams,
+	): Promise<StaffMenuItemQueryResult> {
+		try {
+			const {
+				restaurantId,
+				categoryId,
+				isAvailable,
+				includeInactive = false,
+				includeVariants = true,
+				search,
+				sortBy,
+				sortOrder = "asc",
+				page = 1,
+				limit = 50,
+			} = params;
+
+			const where: Prisma.MenuItemWhereInput = {
+				restaurantId,
+				category: {
+					isDeleted: false,
+					...(includeInactive !== true && { isActive: true }),
+				},
+			};
+
+			if (categoryId) {
+				where.categoryId = categoryId;
+			}
+
+			if (typeof isAvailable === "boolean") {
+				where.isAvailable = isAvailable;
+			}
+
+			if (search && search.trim().length > 0) {
+				const trimmedSearch = search.trim();
+				where.OR = [
+					{ name: { contains: trimmedSearch, mode: "insensitive" } },
+					{ description: { contains: trimmedSearch, mode: "insensitive" } },
+					{
+						variants: {
+							some: {
+								OR: [
+									{ name: { contains: trimmedSearch, mode: "insensitive" } },
+									{ sku: { contains: trimmedSearch, mode: "insensitive" } },
+								],
+							},
+						},
+					},
+				];
+			}
+
+			const safeSortOrder = sortOrder === "desc" ? "desc" : "asc";
+			let orderBy:
+				| Prisma.MenuItemOrderByWithRelationInput
+				| Prisma.MenuItemOrderByWithRelationInput[];
+
+			if (sortBy === "createdAt") {
+				orderBy = [{ createdAt: safeSortOrder }];
+			} else if (sortBy === "name") {
+				orderBy = [{ name: safeSortOrder }];
+			} else if (sortBy === "price") {
+				orderBy = [{ price: safeSortOrder }];
+			} else if (sortBy === "updatedAt") {
+				orderBy = [{ updatedAt: safeSortOrder }];
+			} else if (sortBy === "isAvailable") {
+				orderBy = [{ isAvailable: safeSortOrder }];
+			} else if (sortBy === "displayOrder") {
+				orderBy = [
+					{ category: { displayOrder: safeSortOrder } },
+					{ createdAt: "asc" },
+				];
+			} else {
+				// Default order: category.displayOrder asc, then item.createdAt asc
+				orderBy = [{ category: { displayOrder: "asc" } }, { createdAt: "asc" }];
+			}
+
+			const skip = (page - 1) * limit;
+
+			const variantsRelation = includeVariants
+				? {
+						orderBy: [
+							{ isDefault: "desc" as const },
+							{ price: "asc" as const },
+							{ createdAt: "asc" as const },
+						],
+					}
+				: {
+						select: {
+							id: true,
+							sku: true,
+							isDefault: true,
+						},
+						orderBy: [
+							{ isDefault: "desc" as const },
+							{ price: "asc" as const },
+							{ createdAt: "asc" as const },
+						],
+					};
+
+			const [records, filteredTotal] = await Promise.all([
+				this.prismaClient.menuItem.findMany({
+					where,
+					include: {
+						category: {
+							select: {
+								name: true,
+								displayOrder: true,
+								isActive: true,
+							},
+						},
+						variants: variantsRelation,
+					},
+					orderBy,
+					skip,
+					take: limit,
+				}),
+				this.prismaClient.menuItem.count({ where }),
+			]);
+
+			const items: StaffMenuItemResultItem[] = records.map((record) => {
+				const variants = record.variants as Array<{
+					id: string;
+					name?: string;
+					sku?: string | null;
+					price?: unknown;
+					isDefault: boolean;
+				}>;
+				const defaultVariant = variants.find((v) => v.isDefault);
+				const firstVariantWithSku = variants.find((v) => Boolean(v.sku));
+				const topLevelSku =
+					defaultVariant?.sku || firstVariantWithSku?.sku || null;
+
+				const mappedVariants = includeVariants
+					? variants.map((v) => ({
+							id: v.id,
+							name: v.name ?? "",
+							sku: v.sku ?? null,
+							price: Number(v.price),
+							isDefault: v.isDefault,
+							isAvailable: record.isAvailable,
+						}))
+					: [];
+
+				return {
+					id: record.id,
+					name: record.name,
+					sku: topLevelSku,
+					description: record.description,
+					basePrice: Number(record.price),
+					categoryId: record.categoryId,
+					categoryName: record.category?.name ?? "",
+					categoryDisplayOrder: record.category?.displayOrder ?? 0,
+					categoryIsActive: record.category?.isActive ?? true,
+					isAvailable: record.isAvailable,
+					unavailabilityReason: null,
+					autoResetAt: null,
+					variantCount: variants.length,
+					hasVariants: variants.length > 0,
+					variants: mappedVariants,
+					createdAt: record.createdAt,
+					updatedAt: record.updatedAt,
+				};
+			});
+
+			return {
+				items,
+				total: filteredTotal,
 			};
 		} catch (error) {
 			this.handlePrismaError(error);

@@ -331,6 +331,7 @@ export const messages = {
 		"minPrice cannot be greater than maxPrice",
 	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
 	MENU_ITEM_DETAILS_FETCHED_SUCCESS: "Menu item details retrieved successfully",
+	STAFF_MENU_ITEMS_FETCHED_SUCCESS: "Staff menu items retrieved successfully",
 	MENU_ITEM_STATUS_UPDATED_SUCCESS: "Menu item status updated successfully",
 	MENU_ITEM_DELETED_SUCCESS: "Menu item deleted successfully",
 	MENU_ITEM_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
