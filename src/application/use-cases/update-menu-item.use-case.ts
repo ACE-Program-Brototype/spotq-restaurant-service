@@ -130,6 +130,10 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 		let preparedVariants: MenuItemVariant[] | undefined;
 		let resolvedPrice = input.price;
 
+		const existingVariantMap = new Map(
+			existingDetails.variants.map((v) => [v.id, v]),
+		);
+
 		if (input.variants !== undefined) {
 			preparedVariants = [];
 			if (input.variants.length > 0) {
@@ -142,16 +146,17 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 					);
 				}
 
+				for (const v of input.variants) {
+					if (v.id && !existingVariantMap.has(v.id)) {
+						throw new InvalidVariantDataError(messages.INVALID_VARIANT_DATA);
+					}
+				}
+
 				const defaultCount = input.variants.filter((v) => v.isDefault).length;
 				if (defaultCount > 1) {
 					throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
 				}
 
-				const existingVariantMap = new Map(
-					existingDetails.variants.map((v) => [v.id, v]),
-				);
-
-				const now = new Date();
 				input.variants.forEach((v, index) => {
 					const isDefault =
 						defaultCount === 0 ? index === 0 : (v.isDefault ?? false);
@@ -167,20 +172,15 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 									? input.isAvailable
 									: existingDetails.item.isAvailable;
 
-					if (v.id) {
-						preparedVariants?.push(
-							MenuItemVariant.reconstitute({
-								id: v.id,
-								menuItemId: input.menuItemId,
-								sku: v.sku ?? null,
-								name: v.name.trim(),
-								price: v.price,
-								isDefault,
-								isAvailable,
-								createdAt: now,
-								updatedAt: now,
-							}),
-						);
+					if (existingVariant) {
+						existingVariant.update({
+							name: v.name,
+							price: v.price,
+							sku: v.sku,
+							isDefault,
+							isAvailable,
+						});
+						preparedVariants?.push(existingVariant);
 					} else {
 						preparedVariants?.push(
 							MenuItemVariant.create({
@@ -199,6 +199,14 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 					preparedVariants.find((v) => v.isDefault) ?? preparedVariants[0];
 				resolvedPrice = defaultVariant.price;
 			}
+		} else if (input.price !== undefined) {
+			if (existingDetails.variants.length > 0) {
+				const defaultVariant =
+					existingDetails.variants.find((v) => v.isDefault) ??
+					existingDetails.variants[0];
+				defaultVariant.update({ price: input.price });
+				preparedVariants = existingDetails.variants;
+			}
 		}
 
 		let preparedImages:
@@ -206,6 +214,18 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 			| undefined;
 
 		if (input.images !== undefined) {
+			const existingImageIdSet = new Set(
+				existingDetails.images.map((img) => img.id),
+			);
+
+			for (const img of input.images) {
+				if (img.id && !existingImageIdSet.has(img.id)) {
+					throw new InvalidMenuItemDataError(
+						messages.INVALID_MENU_ITEM_IMAGE_ID,
+					);
+				}
+			}
+
 			preparedImages = input.images.map((img, index) => ({
 				id: img.id,
 				objectKey: img.objectKey.trim(),

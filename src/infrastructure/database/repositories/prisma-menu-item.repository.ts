@@ -398,23 +398,42 @@ export class PrismaMenuItemRepository
 				}
 
 				if (params.images !== undefined) {
-					await tx.menuItemImage.deleteMany({
+					const existingImages = await tx.menuItemImage.findMany({
 						where: { menuItemId: itemData.id },
 					});
+					const existingImageMap = new Map(
+						existingImages.map((img) => [img.id, img]),
+					);
 
-					if (params.images.length > 0) {
-						await Promise.all(
-							params.images.map((img, index) =>
-								tx.menuItemImage.create({
-									data: {
-										...(img.id ? { id: img.id } : {}),
-										menuItemId: itemData.id,
-										objectKey: img.objectKey,
-										displayOrder: img.displayOrder ?? index,
-									},
-								}),
-							),
-						);
+					const keptImageIds = params.images
+						.map((img) => img.id)
+						.filter((id): id is string => Boolean(id && existingImageMap.has(id)));
+
+					await tx.menuItemImage.deleteMany({
+						where: {
+							menuItemId: itemData.id,
+							id: { notIn: keptImageIds },
+						},
+					});
+
+					for (const img of params.images) {
+						if (img.id && existingImageMap.has(img.id)) {
+							await tx.menuItemImage.update({
+								where: { id: img.id },
+								data: {
+									objectKey: img.objectKey,
+									displayOrder: img.displayOrder,
+								},
+							});
+						} else {
+							await tx.menuItemImage.create({
+								data: {
+									menuItemId: itemData.id,
+									objectKey: img.objectKey,
+									displayOrder: img.displayOrder,
+								},
+							});
+						}
 					}
 				}
 

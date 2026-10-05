@@ -319,6 +319,8 @@ export const messages = {
 	MENU_ITEM_DESCRIPTION_REQUIRED: "Menu item description is required",
 	PREPARATION_TIME_REQUIRED: "Preparation time is required",
 	MENU_ITEM_IMAGES_REQUIRED: "At least one image is required",
+	INVALID_MENU_ITEM_DATA: "Invalid menu item data",
+	INVALID_MENU_ITEM_IMAGE_ID: "Invalid menu item image ID",
 	IS_VEGETARIAN_REQUIRED: "isVegetarian is required",
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
 	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
