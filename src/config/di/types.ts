@@ -128,6 +128,7 @@ export const TYPES = {
 			"GetCustomerMenuItemDetailsUseCase",
 		),
 		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
+		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
 		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
 	},
 

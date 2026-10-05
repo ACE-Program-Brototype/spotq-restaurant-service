@@ -156,6 +156,7 @@ describe("PrismaMenuItemRepository", () => {
 		it("should create menu item with details inside transaction", async () => {
 			const mockTx = {
 				menuItem: {
+					findFirst: jest.fn<() => Promise<unknown>>().mockResolvedValue(null),
 					create: jest
 						.fn<() => Promise<unknown>>()
 						.mockResolvedValue(rawMenuItem),
@@ -230,6 +231,37 @@ describe("PrismaMenuItemRepository", () => {
 			expect(aggregate.images).toHaveLength(1);
 			expect(aggregate.variants).toHaveLength(1);
 			expect(aggregate.addons).toHaveLength(1);
+		});
+	});
+
+	describe("updateWithDetails", () => {
+		it("should throw MenuItemAlreadyExistsError when another item with same name exists in restaurant", async () => {
+			const mockTx = {
+				menuItem: {
+					findFirst: jest.fn<() => Promise<unknown>>().mockResolvedValue({
+						id: "other-item-id",
+						name: rawMenuItem.name,
+					}),
+				},
+			};
+
+			mockPrisma.$transaction.mockImplementation(async (callback: unknown) => {
+				return (callback as (tx: unknown) => Promise<unknown>)(mockTx);
+			});
+
+			const domainItem = MenuItem.create({
+				id: rawMenuItem.id,
+				restaurantId: rawMenuItem.restaurantId,
+				categoryId: rawMenuItem.categoryId,
+				name: rawMenuItem.name,
+				price: 350.0,
+			});
+
+			await expect(
+				repository.updateWithDetails({
+					menuItem: domainItem,
+				}),
+			).rejects.toThrow(MenuItemAlreadyExistsError);
 		});
 	});
 

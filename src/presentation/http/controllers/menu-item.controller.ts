@@ -8,6 +8,7 @@ import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/po
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
+import type { IUpdateMenuItemUseCase } from "@/application/ports/use-cases/update-menu-item.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type {
 	MenuItemSortField,
@@ -36,6 +37,8 @@ export class MenuItemController {
 		private readonly deleteMenuItemUseCase: IDeleteMenuItemUseCase,
 		@inject(TYPES.UseCases.UpdateMenuItemStatusUseCase)
 		private readonly updateMenuItemStatusUseCase: IUpdateMenuItemStatusUseCase,
+		@inject(TYPES.UseCases.UpdateMenuItemUseCase)
+		private readonly updateMenuItemUseCase: IUpdateMenuItemUseCase,
 	) {}
 
 	public createMenuItem = async (
@@ -314,6 +317,149 @@ export class MenuItemController {
 			res,
 			result,
 			messages.MENU_ITEM_STATUS_UPDATED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public updateMenuItem = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId);
+
+		const {
+			categoryId,
+			category_id,
+			name,
+			description,
+			price,
+			preparationTime,
+			preparation_time,
+			calories,
+			isVegetarian,
+			is_vegetarian,
+			isFeatured,
+			is_featured,
+			isAvailable,
+			is_available,
+			images,
+			variants,
+			addons,
+		} = req.body;
+
+		const resolvedCategoryId =
+			categoryId !== undefined
+				? String(categoryId)
+				: category_id !== undefined
+					? String(category_id)
+					: undefined;
+
+		const mappedImages = images
+			? images.map(
+					(img: {
+						id?: string;
+						objectKey?: string;
+						object_key?: string;
+						displayOrder?: number;
+						display_order?: number;
+					}) => ({
+						id: img.id,
+						objectKey: String(img.objectKey ?? img.object_key ?? "").trim(),
+						displayOrder: img.displayOrder ?? img.display_order,
+					}),
+				)
+			: undefined;
+
+		const mappedVariants = variants
+			? variants.map(
+					(v: {
+						id?: string;
+						sku?: string | null;
+						name: string;
+						price: number;
+						isDefault?: boolean;
+						is_default?: boolean;
+						isAvailable?: boolean;
+						is_available?: boolean;
+					}) => ({
+						id: v.id,
+						sku: v.sku ?? null,
+						name: v.name,
+						price: Number(v.price),
+						isDefault: v.isDefault ?? v.is_default ?? false,
+						isAvailable: v.isAvailable ?? v.is_available,
+					}),
+				)
+			: undefined;
+
+		const mappedAddons = addons
+			? addons.map(
+					(a: {
+						addonId?: string;
+						addon_id?: string;
+						priceOverride?: number | null;
+						price_override?: number | null;
+					}) => ({
+						addonId: String(a.addonId ?? a.addon_id ?? "").trim(),
+						priceOverride:
+							a.priceOverride !== undefined
+								? a.priceOverride
+								: a.price_override !== undefined
+									? a.price_override
+									: null,
+					}),
+				)
+			: undefined;
+
+		const result = await this.updateMenuItemUseCase.execute({
+			restaurantId,
+			menuItemId,
+			categoryId: resolvedCategoryId,
+			name: name !== undefined ? String(name) : undefined,
+			description:
+				description !== undefined && description !== null
+					? String(description).trim()
+					: description === null
+						? null
+						: undefined,
+			price: price !== undefined && price !== null ? Number(price) : undefined,
+			preparationTime:
+				preparationTime !== undefined && preparationTime !== null
+					? Number(preparationTime)
+					: preparation_time !== undefined && preparation_time !== null
+						? Number(preparation_time)
+						: preparationTime === null || preparation_time === null
+							? null
+							: undefined,
+			calories: calories !== undefined ? calories : undefined,
+			isVegetarian:
+				isVegetarian !== undefined
+					? Boolean(isVegetarian)
+					: is_vegetarian !== undefined
+						? Boolean(is_vegetarian)
+						: undefined,
+			isFeatured:
+				isFeatured !== undefined
+					? Boolean(isFeatured)
+					: is_featured !== undefined
+						? Boolean(is_featured)
+						: undefined,
+			isAvailable:
+				isAvailable !== undefined
+					? Boolean(isAvailable)
+					: is_available !== undefined
+						? Boolean(is_available)
+						: undefined,
+			images: mappedImages,
+			variants: mappedVariants,
+			addons: mappedAddons,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_UPDATED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};

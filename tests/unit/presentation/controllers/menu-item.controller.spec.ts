@@ -8,6 +8,7 @@ import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/po
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
+import type { IUpdateMenuItemUseCase } from "@/application/ports/use-cases/update-menu-item.use-case.port.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -20,6 +21,7 @@ describe("MenuItemController", () => {
 	let getCustomerMenuItemDetailsUseCase: jest.Mocked<IGetCustomerMenuItemDetailsUseCase>;
 	let deleteMenuItemUseCase: jest.Mocked<IDeleteMenuItemUseCase>;
 	let updateMenuItemStatusUseCase: jest.Mocked<IUpdateMenuItemStatusUseCase>;
+	let updateMenuItemUseCase: jest.Mocked<IUpdateMenuItemUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -56,6 +58,10 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
+		updateMenuItemUseCase = {
+			execute: jest.fn(),
+		};
+
 		controller = new MenuItemController(
 			createMenuItemUseCase,
 			listMenuItemsUseCase,
@@ -64,6 +70,7 @@ describe("MenuItemController", () => {
 			getCustomerMenuItemDetailsUseCase,
 			deleteMenuItemUseCase,
 			updateMenuItemStatusUseCase,
+			updateMenuItemUseCase,
 		);
 
 		res = {
@@ -732,6 +739,95 @@ describe("MenuItemController", () => {
 				isAvailable: true,
 			});
 			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+		});
+	});
+
+	describe("updateMenuItem", () => {
+		it("should return 200 on successful menu item update", async () => {
+			const menuItemId = "c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a33";
+			const mockUpdatedItem = {
+				id: menuItemId,
+				restaurantId,
+				categoryId,
+				name: "Updated Deluxe Burger",
+				description: "With double cheese",
+				price: 18.99,
+				preparationTime: 20,
+				calories: 600,
+				isVegetarian: false,
+				isFeatured: true,
+				isAvailable: true,
+				images: [
+					{ id: "img-1", objectKey: "menu/deluxe.png", displayOrder: 0 },
+				],
+				variants: [
+					{
+						id: "var-1",
+						sku: "BURGER-DLX",
+						name: "Large",
+						price: 18.99,
+						isDefault: true,
+						isAvailable: true,
+					},
+				],
+				addons: [],
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			};
+
+			updateMenuItemUseCase.execute.mockResolvedValueOnce(
+				mockUpdatedItem as never,
+			);
+
+			const updateReq = {
+				params: { restaurantId, menuItemId },
+				body: {
+					name: "Updated Deluxe Burger",
+					description: "With double cheese",
+					price: 18.99,
+					preparationTime: 20,
+					calories: 600,
+					isVegetarian: false,
+					isFeatured: true,
+					isAvailable: true,
+					images: [{ objectKey: "menu/deluxe.png" }],
+					variants: [
+						{
+							id: "var-1",
+							sku: "BURGER-DLX",
+							name: "Large",
+							price: 18.99,
+							isDefault: true,
+						},
+					],
+				},
+			} as unknown as Request;
+
+			const jsonMock = jest.fn();
+			const statusMock = jest.fn().mockReturnValue({ json: jsonMock });
+			const updateRes = {
+				status: statusMock,
+				json: jsonMock,
+			} as unknown as Response;
+
+			await controller.updateMenuItem(updateReq, updateRes);
+
+			expect(updateMenuItemUseCase.execute).toHaveBeenCalledWith(
+				expect.objectContaining({
+					restaurantId,
+					menuItemId,
+					name: "Updated Deluxe Burger",
+					price: 18.99,
+				}),
+			);
+			expect(statusMock).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(jsonMock).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.MENU_ITEM_UPDATED_SUCCESS,
+					data: mockUpdatedItem,
+				}),
+			);
 		});
 	});
 });

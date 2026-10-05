@@ -110,6 +110,7 @@ export class PrismaAddonRepository
 				where: {
 					id: { in: ids },
 					restaurantId,
+					isDeleted: false,
 				},
 			});
 			return records.map((r) => this.mapper.toDomain(r));
