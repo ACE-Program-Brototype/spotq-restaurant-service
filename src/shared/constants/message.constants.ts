@@ -309,6 +309,8 @@ export const messages = {
 	CALORIES_NEGATIVE: "Calories cannot be negative",
 	INVALID_VARIANT_DATA: "Invalid variant data",
 	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
+	DUPLICATE_VARIANT_IN_MENU_ITEM:
+		"Duplicate variants are not allowed for a menu item",
 	VARIANT_NAME_REQUIRED: "Variant name is required",
 	VARIANT_MENU_ITEM_ID_REQUIRED: "Variant menu item ID is required",
 	VARIANT_PRICE_REQUIRED: "Variant price is required",

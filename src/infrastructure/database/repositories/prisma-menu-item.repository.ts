@@ -390,6 +390,7 @@ export class PrismaMenuItemRepository
 							params.images.map((img, index) =>
 								tx.menuItemImage.create({
 									data: {
+										...(img.id ? { id: img.id } : {}),
 										menuItemId: itemData.id,
 										objectKey: img.objectKey,
 										displayOrder: img.displayOrder ?? index,

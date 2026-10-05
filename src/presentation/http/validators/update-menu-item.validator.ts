@@ -128,6 +128,19 @@ export const updateMenuItemBodySchema = z
 	.refine(
 		(data) => {
 			if (!data.variants || data.variants.length <= 1) return true;
+			const variantIds = data.variants
+				.map((v) => v.id?.trim())
+				.filter((id): id is string => Boolean(id));
+			return new Set(variantIds).size === variantIds.length;
+		},
+		{
+			message: messages.DUPLICATE_VARIANT_IN_MENU_ITEM,
+			path: ["variants"],
+		},
+	)
+	.refine(
+		(data) => {
+			if (!data.variants || data.variants.length <= 1) return true;
 			const defaultCount = data.variants.filter(
 				(v) => v.isDefault ?? v.is_default,
 			).length;

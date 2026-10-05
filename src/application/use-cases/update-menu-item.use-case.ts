@@ -62,7 +62,8 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 			if (
 				!category ||
 				category.restaurantId !== input.restaurantId ||
-				category.isDeleted
+				category.isDeleted ||
+				!category.isActive
 			) {
 				throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
 			}
@@ -132,21 +133,39 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 		if (input.variants !== undefined) {
 			preparedVariants = [];
 			if (input.variants.length > 0) {
+				const variantIds = input.variants
+					.map((v) => v.id?.trim())
+					.filter((id): id is string => Boolean(id));
+				if (new Set(variantIds).size !== variantIds.length) {
+					throw new InvalidVariantDataError(
+						messages.DUPLICATE_VARIANT_IN_MENU_ITEM,
+					);
+				}
+
 				const defaultCount = input.variants.filter((v) => v.isDefault).length;
 				if (defaultCount > 1) {
 					throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
 				}
 
+				const existingVariantMap = new Map(
+					existingDetails.variants.map((v) => [v.id, v]),
+				);
+
 				const now = new Date();
 				input.variants.forEach((v, index) => {
 					const isDefault =
 						defaultCount === 0 ? index === 0 : (v.isDefault ?? false);
+					const existingVariant = v.id
+						? existingVariantMap.get(v.id)
+						: undefined;
 					const isAvailable =
 						v.isAvailable !== undefined
 							? v.isAvailable
-							: input.isAvailable !== undefined
-								? input.isAvailable
-								: existingDetails.item.isAvailable;
+							: existingVariant
+								? existingVariant.isAvailable
+								: input.isAvailable !== undefined
+									? input.isAvailable
+									: existingDetails.item.isAvailable;
 
 					if (v.id) {
 						preparedVariants?.push(

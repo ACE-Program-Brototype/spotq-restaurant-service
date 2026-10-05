@@ -352,4 +352,128 @@ describe("UpdateMenuItemUseCase", () => {
 			}),
 		).rejects.toThrow(InvalidVariantDataError);
 	});
+
+	it("should throw CategoryNotFoundError when target category is inactive", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId } as Restaurant);
+
+		const existingItem = MenuItem.create({
+			id: menuItemId,
+			restaurantId,
+			categoryId,
+			name: "Biryani",
+			price: 250,
+		});
+
+		mockMenuItemRepo.findByIdAndRestaurantId.mockResolvedValueOnce({
+			item: existingItem,
+			category: null,
+			images: [],
+			variants: [],
+			addons: [],
+		});
+
+		mockMenuCategoryRepo.findById.mockResolvedValueOnce({
+			id: newCategoryId,
+			restaurantId,
+			name: "Inactive Category",
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: false,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				menuItemId,
+				categoryId: newCategoryId,
+			}),
+		).rejects.toThrow(CategoryNotFoundError);
+	});
+
+	it("should throw InvalidVariantDataError when duplicate variant IDs are provided", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId } as Restaurant);
+
+		const existingItem = MenuItem.create({
+			id: menuItemId,
+			restaurantId,
+			categoryId,
+			name: "Biryani",
+			price: 250,
+		});
+
+		mockMenuItemRepo.findByIdAndRestaurantId.mockResolvedValueOnce({
+			item: existingItem,
+			category: null,
+			images: [],
+			variants: [],
+			addons: [],
+		});
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				menuItemId,
+				variants: [
+					{ id: "var-1", name: "Small", price: 100 },
+					{ id: "var-1", name: "Large", price: 200 },
+				],
+			}),
+		).rejects.toThrow(InvalidVariantDataError);
+	});
+
+	it("should preserve existing variant availability when isAvailable is not provided in update", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({ id: restaurantId } as Restaurant);
+
+		const existingItem = MenuItem.create({
+			id: menuItemId,
+			restaurantId,
+			categoryId,
+			name: "Biryani",
+			price: 250,
+			isAvailable: true,
+		});
+
+		const existingVariant = MenuItemVariant.create({
+			id: "var-1",
+			menuItemId,
+			name: "Small",
+			price: 100,
+			isDefault: true,
+			isAvailable: false,
+		});
+
+		mockMenuItemRepo.findByIdAndRestaurantId.mockResolvedValueOnce({
+			item: existingItem,
+			category: null,
+			images: [],
+			variants: [existingVariant],
+			addons: [],
+		});
+
+		mockMenuItemRepo.updateWithDetails.mockResolvedValueOnce({
+			item: existingItem,
+			images: [],
+			variants: [existingVariant],
+			addons: [],
+		});
+
+		await useCase.execute({
+			restaurantId,
+			menuItemId,
+			variants: [{ id: "var-1", name: "Small Updated", price: 120 }],
+		});
+
+		expect(mockMenuItemRepo.updateWithDetails).toHaveBeenCalledWith(
+			expect.objectContaining({
+				variants: [
+					expect.objectContaining({
+						id: "var-1",
+						isAvailable: false,
+					}),
+				],
+			}),
+		);
+	});
 });

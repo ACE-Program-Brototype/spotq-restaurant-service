@@ -132,6 +132,22 @@ describe("update-menu-item.validator", () => {
 			}
 		});
 
+		it("should fail when duplicate variant IDs are specified", () => {
+			const result = updateMenuItemBodySchema.safeParse({
+				variants: [
+					{ id: validVariantId, name: "Small", price: 100 },
+					{ id: validVariantId, name: "Large", price: 200 },
+				],
+			});
+			expect(result.success).toBe(false);
+			if (!result.success) {
+				const issue = result.error.issues.find((i) =>
+					i.path.includes("variants"),
+				);
+				expect(issue?.message).toBe(messages.DUPLICATE_VARIANT_IN_MENU_ITEM);
+			}
+		});
+
 		it("should fail when duplicate addons are specified", () => {
 			const result = updateMenuItemBodySchema.safeParse({
 				addons: [{ addonId: validAddonId }, { addonId: validAddonId }],
