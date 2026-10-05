@@ -356,6 +356,20 @@ export class PrismaMenuItemRepository
 			return await this.prismaClient.$transaction(async (tx) => {
 				const itemData = this.mapper.toPersistence(params.menuItem);
 
+				const duplicate = await tx.menuItem.findFirst({
+					where: {
+						restaurantId: itemData.restaurantId,
+						name: { equals: itemData.name, mode: "insensitive" },
+						isDeleted: false,
+						id: { not: itemData.id },
+					},
+				});
+				if (duplicate) {
+					throw new MenuItemAlreadyExistsError(
+						messages.MENU_ITEM_ALREADY_EXISTS,
+					);
+				}
+
 				const updatedItemCount = await tx.menuItem.updateMany({
 					where: {
 						id: itemData.id,
@@ -594,6 +608,20 @@ export class PrismaMenuItemRepository
 		try {
 			return await this.prismaClient.$transaction(async (tx) => {
 				const itemData = this.mapper.toPersistence(params.menuItem);
+
+				const duplicate = await tx.menuItem.findFirst({
+					where: {
+						restaurantId: itemData.restaurantId,
+						name: { equals: itemData.name, mode: "insensitive" },
+						isDeleted: false,
+					},
+				});
+				if (duplicate) {
+					throw new MenuItemAlreadyExistsError(
+						messages.MENU_ITEM_ALREADY_EXISTS,
+					);
+				}
+
 				const createdItemRaw = await tx.menuItem.create({
 					data: itemData,
 				});
