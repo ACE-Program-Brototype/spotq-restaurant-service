@@ -31,7 +31,7 @@ export const options = {
 
 const BASE_URL = __ENV.BASE_URL || "http://localhost:3001";
 const RESTAURANT_ID =
-	__ENV.RESTAURANT_ID || "e2873c56-c2a2-402b-81a4-5b2b9b6727a3";
+	__ENV.RESTAURANT_ID || "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 
 const ADMIN_HEADERS = {
 	"Content-Type": "application/json",

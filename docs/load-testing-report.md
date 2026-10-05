@@ -1,4 +1,4 @@
-# SpotQ Restaurant Service — Load Testing Report
+# SpotQ Restaurant Service - Load Testing Report
 
 - **Jira Story**: [SCRUM-879](https://spotq.atlassian.net/browse/SCRUM-879)
 - **Service**: `spotq-restaurant-service`
@@ -123,12 +123,31 @@ As per the story's "Out of Scope" guidelines, the following optimization stories
 
 ## 7. How to Reproduce
 
-Execute the test suite directly using k6 CLI or pnpm script:
+### Prerequisites
+Install Grafana k6 on your system:
+- **macOS (Homebrew)**:
+  ```bash
+  brew install k6
+  ```
+- **Linux (Debian/Ubuntu)**:
+  ```bash
+  sudo gpg -k
+  sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D34EE24C
+  echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+  sudo apt-get update && sudo apt-get install k6
+  ```
+- **Docker**:
+  ```bash
+  docker run --rm -i --net=host grafana/k6 run - < test/load-test.js
+  ```
+
+### Execution
+Execute the test suite via pnpm script or k6 CLI:
 ```bash
 # 1. Start the service
 pnpm run dev
 
-# 2. Run the load test suite
+# 2. Run the load test suite (uses default seeded restaurant SpotQ Grand Bistro)
 pnpm run test:load
 
 # Or run with custom parameters
