@@ -15,7 +15,10 @@ import {
 	MenuItemAlreadyExistsError,
 	MenuItemNotFoundError,
 } from "@/domain/errors/menu-item.errors.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -41,6 +44,12 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 		);
 		if (!restaurant) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError(
+				messages.RESTAURANT_ACCOUNT_BLOCKED,
+			);
 		}
 
 		const existingDetails =
@@ -118,8 +127,7 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 					preparedAddons?.push({
 						addonId: addon.addonId.trim(),
 						priceOverride:
-							addon.priceOverride !== undefined &&
-							addon.priceOverride !== null
+							addon.priceOverride !== undefined && addon.priceOverride !== null
 								? addon.priceOverride
 								: null,
 					});
@@ -135,70 +143,70 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 		);
 
 		if (input.variants !== undefined) {
+			if (input.variants.length === 0) {
+				throw new InvalidVariantDataError(messages.INVALID_VARIANT_DATA);
+			}
+
 			preparedVariants = [];
-			if (input.variants.length > 0) {
-				const variantIds = input.variants
-					.map((v) => v.id?.trim())
-					.filter((id): id is string => Boolean(id));
-				if (new Set(variantIds).size !== variantIds.length) {
-					throw new InvalidVariantDataError(
-						messages.DUPLICATE_VARIANT_IN_MENU_ITEM,
-					);
+			const variantIds = input.variants
+				.map((v) => v.id?.trim())
+				.filter((id): id is string => Boolean(id));
+			if (new Set(variantIds).size !== variantIds.length) {
+				throw new InvalidVariantDataError(
+					messages.DUPLICATE_VARIANT_IN_MENU_ITEM,
+				);
+			}
+
+			for (const v of input.variants) {
+				if (v.id && !existingVariantMap.has(v.id)) {
+					throw new InvalidVariantDataError(messages.INVALID_VARIANT_DATA);
 				}
+			}
 
-				for (const v of input.variants) {
-					if (v.id && !existingVariantMap.has(v.id)) {
-						throw new InvalidVariantDataError(messages.INVALID_VARIANT_DATA);
-					}
-				}
+			const defaultCount = input.variants.filter((v) => v.isDefault).length;
+			if (defaultCount > 1) {
+				throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
+			}
 
-				const defaultCount = input.variants.filter((v) => v.isDefault).length;
-				if (defaultCount > 1) {
-					throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
-				}
+			input.variants.forEach((v, index) => {
+				const isDefault =
+					defaultCount === 0 ? index === 0 : (v.isDefault ?? false);
+				const existingVariant = v.id ? existingVariantMap.get(v.id) : undefined;
+				const isAvailable =
+					v.isAvailable !== undefined
+						? v.isAvailable
+						: existingVariant
+							? existingVariant.isAvailable
+							: input.isAvailable !== undefined
+								? input.isAvailable
+								: existingDetails.item.isAvailable;
 
-				input.variants.forEach((v, index) => {
-					const isDefault =
-						defaultCount === 0 ? index === 0 : (v.isDefault ?? false);
-					const existingVariant = v.id
-						? existingVariantMap.get(v.id)
-						: undefined;
-					const isAvailable =
-						v.isAvailable !== undefined
-							? v.isAvailable
-							: existingVariant
-								? existingVariant.isAvailable
-								: input.isAvailable !== undefined
-									? input.isAvailable
-									: existingDetails.item.isAvailable;
-
-					if (existingVariant) {
-						existingVariant.update({
+				if (existingVariant) {
+					existingVariant.update({
+						name: v.name,
+						price: v.price,
+						sku: v.sku,
+						isDefault,
+						isAvailable,
+					});
+					preparedVariants?.push(existingVariant);
+				} else {
+					preparedVariants?.push(
+						MenuItemVariant.create({
+							menuItemId: input.menuItemId,
+							sku: v.sku,
 							name: v.name,
 							price: v.price,
-							sku: v.sku,
 							isDefault,
 							isAvailable,
-						});
-						preparedVariants?.push(existingVariant);
-					} else {
-						preparedVariants?.push(
-							MenuItemVariant.create({
-								menuItemId: input.menuItemId,
-								sku: v.sku,
-								name: v.name,
-								price: v.price,
-								isDefault,
-								isAvailable,
-							}),
-						);
-					}
-				});
+						}),
+					);
+				}
+			});
 
-				const defaultVariant =
-					preparedVariants.find((v) => v.isDefault) ?? preparedVariants[0];
-				resolvedPrice = defaultVariant.price;
-			}
+			const defaultVariant =
+				preparedVariants.find((v) => v.isDefault) ?? preparedVariants[0];
+			resolvedPrice = defaultVariant.price;
 		} else if (input.price !== undefined) {
 			if (existingDetails.variants.length > 0) {
 				const defaultVariant =

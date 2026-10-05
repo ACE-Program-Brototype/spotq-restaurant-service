@@ -407,7 +407,9 @@ export class PrismaMenuItemRepository
 
 					const keptImageIds = params.images
 						.map((img) => img.id)
-						.filter((id): id is string => Boolean(id && existingImageMap.has(id)));
+						.filter((id): id is string =>
+							Boolean(id && existingImageMap.has(id)),
+						);
 
 					await tx.menuItemImage.deleteMany({
 						where: {
@@ -416,25 +418,26 @@ export class PrismaMenuItemRepository
 						},
 					});
 
-					for (const img of params.images) {
-						if (img.id && existingImageMap.has(img.id)) {
-							await tx.menuItemImage.update({
-								where: { id: img.id },
-								data: {
-									objectKey: img.objectKey,
-									displayOrder: img.displayOrder,
-								},
-							});
-						} else {
-							await tx.menuItemImage.create({
+					await Promise.all(
+						params.images.map((img) => {
+							if (img.id && existingImageMap.has(img.id)) {
+								return tx.menuItemImage.update({
+									where: { id: img.id },
+									data: {
+										objectKey: img.objectKey,
+										displayOrder: img.displayOrder,
+									},
+								});
+							}
+							return tx.menuItemImage.create({
 								data: {
 									menuItemId: itemData.id,
 									objectKey: img.objectKey,
 									displayOrder: img.displayOrder,
 								},
 							});
-						}
-					}
+						}),
+					);
 				}
 
 				if (params.variants !== undefined) {
@@ -447,7 +450,9 @@ export class PrismaMenuItemRepository
 
 					const keptVariantIds = params.variants
 						.map((v) => v.id)
-						.filter((id): id is string => Boolean(id && existingVariantMap.has(id)));
+						.filter((id): id is string =>
+							Boolean(id && existingVariantMap.has(id)),
+						);
 
 					// Delete removed variants first to free up any constraints
 					await tx.menuItemVariant.deleteMany({
@@ -463,25 +468,26 @@ export class PrismaMenuItemRepository
 						data: { isDefault: false },
 					});
 
-					for (const variant of params.variants) {
-						variant.assignMenuItemId(itemData.id);
-						const variantData =
-							MenuItemVariantPersistenceMapper.toPersistence(variant);
+					await Promise.all(
+						params.variants.map((variant) => {
+							variant.assignMenuItemId(itemData.id);
+							const variantData =
+								MenuItemVariantPersistenceMapper.toPersistence(variant);
 
-						if (existingVariantMap.has(variantData.id)) {
-							await tx.menuItemVariant.update({
-								where: { id: variantData.id },
-								data: {
-									sku: variantData.sku,
-									name: variantData.name,
-									price: variantData.price,
-									isDefault: variantData.isDefault,
-									isAvailable: variantData.isAvailable,
-									updatedAt: variantData.updatedAt,
-								},
-							});
-						} else {
-							await tx.menuItemVariant.create({
+							if (existingVariantMap.has(variantData.id)) {
+								return tx.menuItemVariant.update({
+									where: { id: variantData.id },
+									data: {
+										sku: variantData.sku,
+										name: variantData.name,
+										price: variantData.price,
+										isDefault: variantData.isDefault,
+										isAvailable: variantData.isAvailable,
+										updatedAt: variantData.updatedAt,
+									},
+								});
+							}
+							return tx.menuItemVariant.create({
 								data: {
 									id: variantData.id,
 									menuItemId: itemData.id,
@@ -494,8 +500,8 @@ export class PrismaMenuItemRepository
 									updatedAt: variantData.updatedAt,
 								},
 							});
-						}
-					}
+						}),
+					);
 				}
 
 				if (params.addons !== undefined) {
@@ -894,6 +900,7 @@ export class PrismaMenuItemRepository
 
 			const where: Prisma.MenuItemWhereInput = {
 				restaurantId,
+				isDeleted: false,
 				category: {
 					isDeleted: false,
 					...(includeInactive !== true && { isActive: true }),

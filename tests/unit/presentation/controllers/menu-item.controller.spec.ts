@@ -757,7 +757,9 @@ describe("MenuItemController", () => {
 				isVegetarian: false,
 				isFeatured: true,
 				isAvailable: true,
-				images: [{ id: "img-1", objectKey: "menu/deluxe.png", displayOrder: 0 }],
+				images: [
+					{ id: "img-1", objectKey: "menu/deluxe.png", displayOrder: 0 },
+				],
 				variants: [
 					{
 						id: "var-1",

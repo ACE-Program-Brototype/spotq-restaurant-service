@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { MENU_ITEM_PRICE_MAX } from "@/domain/constants/menu-item.constants.ts";
 import { InvalidVariantDataError } from "@/domain/errors/menu-item.errors.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
@@ -76,7 +77,7 @@ export class MenuItemVariant {
 			throw new InvalidVariantDataError(messages.VARIANT_PRICE_NEGATIVE);
 		}
 
-		if (createProps.price > 99999999.99) {
+		if (createProps.price > MENU_ITEM_PRICE_MAX) {
 			throw new InvalidVariantDataError(messages.PRICE_EXCEEDS_MAXIMUM);
 		}
 
@@ -180,7 +181,7 @@ export class MenuItemVariant {
 			if (updateProps.price < 0 || Number.isNaN(updateProps.price)) {
 				throw new InvalidVariantDataError(messages.VARIANT_PRICE_NEGATIVE);
 			}
-			if (updateProps.price > 99999999.99) {
+			if (updateProps.price > MENU_ITEM_PRICE_MAX) {
 				throw new InvalidVariantDataError(messages.PRICE_EXCEEDS_MAXIMUM);
 			}
 			this.props.price = updateProps.price;

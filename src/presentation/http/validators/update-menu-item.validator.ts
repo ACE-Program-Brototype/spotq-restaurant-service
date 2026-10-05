@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MENU_ITEM_PRICE_MAX } from "@/domain/constants/menu-item.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 export const updateMenuItemParamsSchema = z.object({
@@ -34,7 +35,7 @@ export const updateMenuItemVariantSchema = z.object({
 	price: z
 		.number({ message: messages.VARIANT_PRICE_REQUIRED })
 		.min(0, { message: messages.VARIANT_PRICE_NEGATIVE })
-		.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM }),
+		.max(MENU_ITEM_PRICE_MAX, { message: messages.PRICE_EXCEEDS_MAXIMUM }),
 	is_default: z.boolean().optional(),
 	isDefault: z.boolean().optional(),
 	is_available: z.boolean().optional(),
@@ -48,13 +49,13 @@ export const updateMenuItemAddonSchema = z
 		price_override: z
 			.number()
 			.min(0)
-			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
+			.max(MENU_ITEM_PRICE_MAX, { message: messages.PRICE_EXCEEDS_MAXIMUM })
 			.optional()
 			.nullable(),
 		priceOverride: z
 			.number()
 			.min(0)
-			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
+			.max(MENU_ITEM_PRICE_MAX, { message: messages.PRICE_EXCEEDS_MAXIMUM })
 			.optional()
 			.nullable(),
 	})
@@ -87,7 +88,7 @@ export const updateMenuItemBodySchema = z
 		price: z
 			.number()
 			.min(0, { message: messages.MENU_ITEM_PRICE_NEGATIVE })
-			.max(99999999.99, { message: messages.PRICE_EXCEEDS_MAXIMUM })
+			.max(MENU_ITEM_PRICE_MAX, { message: messages.PRICE_EXCEEDS_MAXIMUM })
 			.optional(),
 		preparation_time: z
 			.number()
@@ -109,7 +110,7 @@ export const updateMenuItemBodySchema = z
 		is_available: z.boolean().optional(),
 		isAvailable: z.boolean().optional(),
 		images: z.array(updateMenuItemImageSchema).optional(),
-		variants: z.array(updateMenuItemVariantSchema).optional(),
+		variants: z.array(updateMenuItemVariantSchema).min(1).optional(),
 		addons: z.array(updateMenuItemAddonSchema).optional(),
 	})
 	.refine(
