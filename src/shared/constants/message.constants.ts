@@ -289,6 +289,7 @@ export const messages = {
 	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
 	CANNOT_MODIFY_DELETED_CATEGORY: "Cannot modify a deleted category",
 	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
+	MENU_ITEM_UPDATED_SUCCESS: "Menu item updated successfully",
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",
 	MENU_ITEM_NOT_FOUND: "Menu item not found",
@@ -308,6 +309,8 @@ export const messages = {
 	CALORIES_NEGATIVE: "Calories cannot be negative",
 	INVALID_VARIANT_DATA: "Invalid variant data",
 	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
+	DUPLICATE_VARIANT_IN_MENU_ITEM:
+		"Duplicate variants are not allowed for a menu item",
 	VARIANT_NAME_REQUIRED: "Variant name is required",
 	VARIANT_MENU_ITEM_ID_REQUIRED: "Variant menu item ID is required",
 	VARIANT_PRICE_REQUIRED: "Variant price is required",
@@ -316,6 +319,8 @@ export const messages = {
 	MENU_ITEM_DESCRIPTION_REQUIRED: "Menu item description is required",
 	PREPARATION_TIME_REQUIRED: "Preparation time is required",
 	MENU_ITEM_IMAGES_REQUIRED: "At least one image is required",
+	INVALID_MENU_ITEM_DATA: "Invalid menu item data",
+	INVALID_MENU_ITEM_IMAGE_ID: "Invalid menu item image ID",
 	IS_VEGETARIAN_REQUIRED: "isVegetarian is required",
 	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
 	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
