@@ -1,4 +1,4 @@
 -- AlterTable
-ALTER TABLE "restaurants" ADD COLUMN     "is_subscription_active" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "subscription_ends_at" TIMESTAMPTZ(3),
-ADD COLUMN     "subscription_plan_code" TEXT;
+ALTER TABLE "restaurants" ADD COLUMN   IF NOT EXISTS  "is_subscription_active" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN  IF NOT EXISTS   "subscription_ends_at" TIMESTAMPTZ(3),
+ADD COLUMN  IF NOT EXISTS     "subscription_plan_code" TEXT;

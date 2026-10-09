@@ -21,6 +21,18 @@ enum OnboardingStatus {
   COMPLETED
 }
 
+enum TableShape {
+  SQUARE
+  CIRCLE
+}
+
+enum TableStatus {
+  AVAILABLE
+  OCCUPIED
+  PARTIAL_OCCUPIED
+  MAINTENANCE
+}
+
 model Restaurant {
   id String @id @default(uuid()) @db.Uuid
 
@@ -62,6 +74,8 @@ model Restaurant {
   menuCategories MenuCategory[]
   menuItems      MenuItem[]
   addons         Addon[]
+  tableSections  TableSection[]
+  tables         Table[]
 
   @@map("restaurants")
 }
@@ -79,16 +93,16 @@ enum StaffStatus {
 }
 
 model Staff {
-  id           String            @id @default(uuid()) @db.Uuid
-  email        String            @unique @map("email")
-  fullname     String            @map("fullname")
-  phone        String            @map("phone")
-  passwordHash String            @map("password_hash")
-  avatarUrl    String?           @map("avatar_url")
-  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @map("email")
+  fullname     String   @map("fullname")
+  phone        String   @map("phone")
+  passwordHash String   @map("password_hash")
+  avatarUrl    String?  @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  memberships  RestaurantStaff[]
+  memberships RestaurantStaff[]
 
   @@map("staff")
 }
@@ -340,11 +354,11 @@ model MenuItemImage {
 }
 
 model MenuItemVariant {
-  id         String  @id @default(uuid()) @db.Uuid
-  menuItemId String  @map("menu_item_id") @db.Uuid
-  sku        String? @db.VarChar(100)
-  name       String  @db.VarChar(255)
-  price      Decimal @db.Decimal(10, 2)
+  id          String  @id @default(uuid()) @db.Uuid
+  menuItemId  String  @map("menu_item_id") @db.Uuid
+  sku         String? @db.VarChar(100)
+  name        String  @db.VarChar(255)
+  price       Decimal @db.Decimal(10, 2)
   isDefault   Boolean @default(false) @map("is_default")
   isAvailable Boolean @default(true) @map("is_available")
 
@@ -384,7 +398,6 @@ model MenuItemAddon {
   addonId       String   @map("addon_id") @db.Uuid
   priceOverride Decimal? @map("price_override") @db.Decimal(10, 2)
 
-
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -395,4 +408,42 @@ model MenuItemAddon {
   @@index([menuItemId])
   @@index([addonId])
   @@map("menu_item_addons")
+}
+
+model TableSection {
+  id           String   @id @default(uuid()) @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+  sectionName  String   @map("section_name") @db.VarChar(100)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  tables     Table[]
+
+  @@unique([restaurantId, id])
+  @@index([restaurantId])
+  @@map("table_sections")
+}
+
+model Table {
+  id               String      @id @default(uuid()) @db.Uuid
+  restaurantId     String      @map("restaurant_id") @db.Uuid
+  sectionId        String?     @map("section_id") @db.Uuid
+  tableNumber      String      @map("table_number") @db.VarChar(50)
+  capacity         Int         @default(2)
+  currentOccupancy Int         @default(0) @map("current_occupancy")
+  tableShape       TableShape  @default(SQUARE) @map("table_shape")
+  status           TableStatus @default(AVAILABLE)
+  isActive         Boolean     @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  restaurant Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  section    TableSection? @relation(fields: [restaurantId, sectionId], references: [restaurantId, id], onDelete: NoAction)
+
+  @@unique([restaurantId, tableNumber])
+  @@index([restaurantId, status])
+  @@index([restaurantId, sectionId])
+  @@map("tables")
 }
