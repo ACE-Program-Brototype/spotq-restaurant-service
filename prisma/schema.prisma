@@ -420,6 +420,7 @@ model TableSection {
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   tables     Table[]
 
+  @@unique([restaurantId, id])
   @@index([restaurantId])
   @@map("table_sections")
 }
@@ -439,9 +440,10 @@ model Table {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   restaurant Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  section    TableSection? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  section    TableSection? @relation(fields: [restaurantId, sectionId], references: [restaurantId, id], onDelete: NoAction)
 
   @@unique([restaurantId, tableNumber])
   @@index([restaurantId, status])
+  @@index([restaurantId, sectionId])
   @@map("tables")
 }
