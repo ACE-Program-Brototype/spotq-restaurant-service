@@ -37,6 +37,8 @@ import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service
 import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
+import { ListCustomerRestaurantsUseCase } from "@/application/use-cases/list-customer-restaurant.use-case.ts";
+import { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
 
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	// Controllers
@@ -132,4 +134,10 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<SubscriptionExpiryService>(TYPES.Services.SubscriptionExpiryService)
 		.to(SubscriptionExpiryService)
 		.inSingletonScope();
+	bind(TYPES.UseCases.ListCustomerRestaurantsUseCase)
+		.to(ListCustomerRestaurantsUseCase)
+		.inSingletonScope();
+	bind(TYPES.Controller.CustomerRestaurantController)
+		.to(CustomerRestaurantController)
+		.inSingletonScope()
 });

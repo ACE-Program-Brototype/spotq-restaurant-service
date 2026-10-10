@@ -130,6 +130,8 @@ export const TYPES = {
 		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
 		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
 		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
+
+		ListCustomerRestaurantsUseCase: Symbol.for("ListCustomerRestaurantsUseCase",),
 	},
 
 	Controller: {
@@ -140,6 +142,7 @@ export const TYPES = {
 		AddonController: Symbol.for("AddonController"),
 		MenuItemController: Symbol.for("MenuItemController"),
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
+		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
 	},
 
 	Database: {

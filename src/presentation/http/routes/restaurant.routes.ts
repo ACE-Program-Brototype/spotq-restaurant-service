@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	addonController,
+	customerRestaurantController,
 	menuCategoryController,
 	menuItemController,
 	restaurantAuthController,
@@ -14,7 +15,7 @@ import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middlewa
 import { restaurantOrStaffAuthMiddleware } from "../middleware/restaurant-or-staff.auth.middleware";
 import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
-
+import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import {
 	validate,
 	validateRequestBody,
@@ -146,6 +147,12 @@ restaurantRouter.patch(
 	restaurantStaffManagementController.updateStaffStatus.bind(
 		restaurantStaffManagementController,
 	),
+);
+
+restaurantRouter.get(
+  RESTAURANT_ROUTES.CUSTOMER_LIST,
+  validateRequestQuery(listCustomerRestaurantsQuerySchema, HTTP_STATUS.BAD_REQUEST),
+  customerRestaurantController.listRestaurants,
 );
 
 const updateStaffProfileChain: express.RequestHandler[] = [
