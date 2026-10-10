@@ -544,7 +544,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	});
 
 	test("POST /registration/email-otp returns 200 OK", async () => {
-		const res = await fetch(`${baseUrl}/registration/email-otp`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.EMAIL_OTP}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: "test@restaurant.com" }),
@@ -556,7 +556,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	});
 
 	test("POST /registration/email-otp/verify returns token and sets HTTP-only refresh cookie", async () => {
-		const res = await fetch(`${baseUrl}/registration/email-otp/verify`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.VERIFY_EMAIL}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: "test@restaurant.com", otp: "123456" }),
@@ -577,7 +577,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	});
 
 	test("POST /onboard succeeds with x-restaurant-id header", async () => {
-		const res = await fetch(`${baseUrl}/onboard`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -597,7 +597,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 			email: "e2ebearer@restaurant.com",
 		});
 
-		const res = await fetch(`${baseUrl}/onboard`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -612,7 +612,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	});
 
 	test("GET /verification-status returns status data", async () => {
-		const res = await fetch(`${baseUrl}/verification-status`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.VERIFICATION_STATUS}`, {
 			method: "GET",
 			headers: {
 				"x-restaurant-id": "rest-e2e-100",
@@ -644,7 +644,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	});
 
 	test("POST /onboard fails with 401 when no authentication headers or token provided", async () => {
-		const res = await fetch(`${baseUrl}/onboard`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ restaurantName: "Unauthorized Diner" }),

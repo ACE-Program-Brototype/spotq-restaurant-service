@@ -5,12 +5,12 @@ export const SYSTEM_ROUTES = {
 } as const;
 
 export const RESTAURANT_ROUTES = {
-	EMAIL_OTP: "/registration/email-otp",
-	VERIFY_EMAIL: "/registration/email-otp/verify",
-	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
+	EMAIL_OTP: "/otp",
+	VERIFY_EMAIL: "/otp/verify",
+	RESEND_EMAIL_OTP: "/otp/resend",
 	REFRESH_ACCESS_TOKEN: "/refresh-token",
-	REGISTRATION_REFRESH_TOKEN: "/registration/refresh-token",
-	ONBOARD: "/onboard",
+	REGISTRATION_REFRESH_TOKEN: "/refresh-token",
+	ONBOARD: "/onboarding",
 	STAFF_STATUS_UPDATE: "/:restaurantId/staff/:staffId/status",
 	STAFF_UPDATE: "/:restaurantId/staff/:staffId",
 	STAFF_LIST: "/:restaurantId/staff",
@@ -80,6 +80,11 @@ export const ADMIN_ROUTES = {
 	RESTAURANT_MENU_CATEGORIES: "/restaurants/:restaurantId/menu/categories",
 } as const;
 
+export const JWKS_ROUTES = {
+	BASE: "/.well-known",
+	JWKS: "/jwks.json",
+} as const;
+
 export type RestaurantRoute =
 	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
 
@@ -89,3 +94,4 @@ export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
 export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
 export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
+export type JwksRoute = (typeof JWKS_ROUTES)[keyof typeof JWKS_ROUTES];
