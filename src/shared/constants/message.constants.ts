@@ -338,6 +338,9 @@ export const messages = {
 	MENU_ITEM_DELETED_SUCCESS: "Menu item deleted successfully",
 	MENU_ITEM_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
 	CANNOT_MODIFY_DELETED_MENU_ITEM: "Cannot modify a deleted menu item",
+
+	// TABLE SECTION
+	INVALID_TABLE_SECTION_NAME : "Table section name is invalid"
 } as const;
 
 export type MessageKey = keyof typeof messages;

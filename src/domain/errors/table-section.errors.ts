@@ -1,0 +1,10 @@
+import { DOMAIN_ERROR_CODES } from "@domain/constants/error-code.constants";
+import { DomainError } from "./domain.error";
+import {messages as sharedMessage} from '@/shared/constants/message.constants'
+
+export class InvalidTableSectionNameError extends DomainError {
+  code = DOMAIN_ERROR_CODES.INVALID_TABLE_SECTION_NAME;
+  constructor(message: string = sharedMessage.INVALID_TABLE_SECTION_NAME, details?: unknown) {
+    super(message, details);
+  }
+}
