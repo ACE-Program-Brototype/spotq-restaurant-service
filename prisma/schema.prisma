@@ -416,12 +416,13 @@ model TableSection {
   sectionName  String   @map("section_name") @db.VarChar(100)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  isDeleted    Boolean  @default(false) @map("is_deleted")
 
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   tables     Table[]
 
   @@unique([restaurantId, id])
-  @@index([restaurantId])
+  @@index([restaurantId, isDeleted])
   @@map("table_sections")
 }
 
@@ -435,6 +436,7 @@ model Table {
   tableShape       TableShape  @default(SQUARE) @map("table_shape")
   status           TableStatus @default(AVAILABLE)
   isActive         Boolean     @default(true) @map("is_active")
+  isDeleted        Boolean     @default(false) @map("is_deleted")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -442,7 +444,6 @@ model Table {
   restaurant Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   section    TableSection? @relation(fields: [restaurantId, sectionId], references: [restaurantId, id], onDelete: NoAction)
 
-  @@unique([restaurantId, tableNumber])
   @@index([restaurantId, status])
   @@index([restaurantId, sectionId])
   @@map("tables")
