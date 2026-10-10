@@ -6,6 +6,19 @@ export interface IEntityMapper<TDomain, TModel> {
 	toPersistence(entity: TDomain): TModel;
 }
 
+export interface PaginationOptions<TWhere = unknown, TOrderBy = unknown> {
+	where?: TWhere;
+	orderBy?: TOrderBy;
+	page: number;
+	limit: number;
+}
+
+export interface PaginatedResult<TDomain> {
+	items: TDomain[];
+	total: number;
+}
+
+
 @injectable()
 export abstract class PrismaBaseRepository<
 	TDomain extends { id: string },
@@ -17,6 +30,9 @@ export abstract class PrismaBaseRepository<
 		protected readonly dbModel: TDelegate,
 		protected readonly mapper: IEntityMapper<TDomain, TModel>,
 	) {}
+
+
+	private static readonly MAX_PAGE_SIZE = 100
 
 	// biome-ignore lint/suspicious/noExplicitAny: Internal bridge for generic base calls
 	protected get delegate(): any {
@@ -50,6 +66,46 @@ export abstract class PrismaBaseRepository<
 			throw error;
 		}
 	}
+
+	public async create(entity: TDomain): Promise<TDomain> {
+		try {
+			const record = await this.delegate.create({
+				data: this.mapper.toPersistence(entity),
+			});
+			return this.mapper.toDomain(record);
+		} catch (error) {
+			this.handlePrismaError(error, entity);
+			throw error
+		}
+	}
+
+	public async findPaginated<TWhere = unknown, TOrderBy = unknown>(
+		options: PaginationOptions<TWhere, TOrderBy>,
+	): Promise<PaginatedResult<TDomain>> {
+		try {
+			const { where, orderBy, page, limit } = options;
+			const take = Math.min(
+				Math.max(limit, 1),
+				PrismaBaseRepository.MAX_PAGE_SIZE,
+			);
+			const skip = (Math.max(page, 1) - 1) * take;
+			const [records, total] = await Promise.all([
+				this.delegate.findMany({ where, orderBy, skip, take }) as Promise<
+				TModel[]
+				>,
+				this.delegate.count({ where }) as Promise<number>,
+			]);
+
+			return {
+				items: records.map((r) => this.mapper.toDomain(r)),
+				total,
+			};
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
 
 	public async update(
 		id: string,
