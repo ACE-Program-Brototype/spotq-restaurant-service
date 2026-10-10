@@ -3,6 +3,7 @@ import { z } from "zod";
 const SORT_FIELDS = [
   "createdAt",
   "restaurantName",
+  "name",
   "city",
   "price",
   "rating",

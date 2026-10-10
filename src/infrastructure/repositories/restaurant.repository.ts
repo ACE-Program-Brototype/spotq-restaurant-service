@@ -980,10 +980,24 @@ export class RestaurantRepository implements IRestaurantRepository {
       sortOrder,
     } = params;
 
-    const orderBy: Prisma.RestaurantOrderByWithRelationInput =
-      sortBy === "restaurantName"
-        ? { restaurantName: sortOrder }
-        : { createdAt: sortOrder };
+    let orderBy: Prisma.RestaurantOrderByWithRelationInput;
+
+    switch (sortBy) {
+      case "restaurantName":
+      case "name":
+        orderBy = { restaurantName: sortOrder };
+        break;
+      case "city":
+        orderBy = { address: { city: sortOrder } };
+        break;
+      case "price":
+        orderBy = { profile: { averageCost: sortOrder } };
+        break;
+      case "createdAt":
+      default:
+        orderBy = { createdAt: sortOrder };
+        break;
+    }
 
     const menuItemWhere: Prisma.MenuItemWhereInput = {
       isDeleted: false,
@@ -1002,20 +1016,67 @@ export class RestaurantRepository implements IRestaurantRepository {
       }),
     };
 
-    const where: Prisma.RestaurantWhereInput = {
-      status: "ACTIVE",
-      onboardingStatus: "COMPLETED",
-      isBlocked: false,
-      isSubscriptionActive: true,
+    const cuisines = cuisine
+      ? cuisine
+          .split(",")
+          .map((c) => c.trim())
+          .filter(Boolean)
+      : [];
 
-      ...(search && {
-        restaurantName: {
-          contains: search,
-          mode: "insensitive",
-        },
-      }),
+    const andConditions: Prisma.RestaurantWhereInput[] = [
+      { status: "ACTIVE" },
+      { onboardingStatus: "COMPLETED" },
+      { isBlocked: false },
+      { isSubscriptionActive: true },
+    ];
 
-      ...(city && {
+    if (search) {
+      andConditions.push({
+        OR: [
+          {
+            restaurantName: {
+              contains: search,
+              mode: "insensitive",
+            },
+          },
+          {
+            profile: {
+              is: {
+                description: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+          {
+            profile: {
+              is: {
+                cuisineType: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+            },
+          },
+          {
+            menuItems: {
+              some: {
+                name: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+                isDeleted: false,
+                isAvailable: true,
+              },
+            },
+          },
+        ],
+      });
+    }
+
+    if (city) {
+      andConditions.push({
         address: {
           is: {
             city: {
@@ -1024,24 +1085,34 @@ export class RestaurantRepository implements IRestaurantRepository {
             },
           },
         },
-      }),
+      });
+    }
 
-      ...(cuisine && {
-        profile: {
-          is: {
-            cuisineType: {
-              contains: cuisine,
-              mode: "insensitive",
+    if (cuisines.length > 0) {
+      andConditions.push({
+        OR: cuisines.map((c) => ({
+          profile: {
+            is: {
+              cuisineType: {
+                contains: c,
+                mode: "insensitive",
+              },
             },
           },
-        },
-      }),
+        })),
+      });
+    }
 
-      ...((foodItem || minPrice !== undefined || maxPrice !== undefined) && {
+    if (foodItem || minPrice !== undefined || maxPrice !== undefined) {
+      andConditions.push({
         menuItems: {
           some: menuItemWhere,
         },
-      }),
+      });
+    }
+
+    const where: Prisma.RestaurantWhereInput = {
+      AND: andConditions,
     };
 
     const skip = (page - 1) * limit;

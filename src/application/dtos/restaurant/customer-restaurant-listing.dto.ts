@@ -8,7 +8,7 @@ export interface ListCustomerRestaurantsInputDto {
   minRating?: number;
   minPrice?: number;
   maxPrice?: number;
-  sortBy: "createdAt" | "restaurantName" | "city" | "price" | "rating";
+  sortBy: "createdAt" | "restaurantName" | "name" | "city" | "price" | "rating";
   sortOrder: "asc" | "desc";
 }
 

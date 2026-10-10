@@ -42,6 +42,7 @@ export const RESTAURANT_ROUTES = {
 	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
 	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
+	CUSTOMER_LIST: "/api/v1/restaurants",
 } as const;
 
 export const STAFF_ROUTES = {
