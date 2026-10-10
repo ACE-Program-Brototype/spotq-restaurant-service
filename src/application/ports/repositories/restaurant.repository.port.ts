@@ -22,6 +22,30 @@ export interface RestaurantFilterParams {
 	sortBy: string;
 	sortOrder: "asc" | "desc";
 }
+export interface CustomerRestaurantFilterParams {
+	page: number;
+	limit: number;
+	search?: string;
+	city?: string;
+	cuisine?: string;
+	foodItem?: string;
+	minRating?: number;
+	minPrice?: number;
+	maxPrice?: number;
+	sortBy?: string;
+	sortOrder: "asc" | "desc";
+}
+
+export interface CustomerRestaurantListItem {
+	id: string;
+	restaurantName: string;
+	city: string | null;
+	state: string | null;
+	cuisineType: string | null;
+	averageCost: number | null;
+	createdAt: Date;
+}
+
 
 export interface RestaurantApplicationFilterParams {
 	page: number;
@@ -85,6 +109,8 @@ export interface RestaurantApplicationDetail {
 	images: RestaurantImageDetail[];
 }
 
+
+
 export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 	existsByEmail(email: string): Promise<boolean>;
 
@@ -130,4 +156,8 @@ export interface IRestaurantRepository extends IBaseRepository<Restaurant> {
 		restaurantId: string,
 		data: UpdateRestaurantProfileDto,
 	): Promise<RestaurantProfileResponseDto>;
+
+	findCustomerRestaurants(
+		params: CustomerRestaurantFilterParams,
+	): Promise<{ restaurants: CustomerRestaurantListItem[]; total: number }>;
 }
