@@ -8,3 +8,20 @@ export class InvalidTableSectionNameError extends DomainError {
     super(message, details);
   }
 }
+
+export class TableSectionAlreadyExists extends DomainError {
+  code = DOMAIN_ERROR_CODES.TABLE_SECTION_ALREADY_EXISTS
+
+  constructor(message : string = sharedMessage.TABLE_SECTION_ALREADY_EXISTS, details? : unknown){
+    super(message, details)
+  }
+}
+
+export class TableSectionNotFound extends DomainError {
+  code = DOMAIN_ERROR_CODES.TABLE_SECTION_NOT_FOUND
+
+  constructor(message : string = sharedMessage.TABLE_SECTION_NOT_FOUND, details? : unknown){
+    super(message, details)
+  }
+}
+
