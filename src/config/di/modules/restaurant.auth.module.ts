@@ -28,7 +28,7 @@ import { SendRestaurantEmailOtpUseCase } from "@/application/use-cases/send-emai
 import { UpdateRestaurantProfileUseCase } from "@/application/use-cases/update-restaurant-profile.use-case";
 import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 import { TYPES } from "@/config/di/types";
-import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
+import { RestaurantRepository } from "@/infrastructure/database/repositories/restaurant.repository";
 import { AuthTokenService } from "@/infrastructure/services/auth-token.service";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
 import { OtpService } from "@/infrastructure/services/otp.service";
@@ -37,8 +37,6 @@ import { RedisOtpStore } from "@/infrastructure/services/redis-otp-store.service
 import { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
-import { ListCustomerRestaurantsUseCase } from "@/application/use-cases/list-customer-restaurant.use-case.ts";
-import { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
 
 export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	// Controllers
@@ -134,10 +132,4 @@ export const restaurantAuthModule = new ContainerModule(({ bind }) => {
 	bind<SubscriptionExpiryService>(TYPES.Services.SubscriptionExpiryService)
 		.to(SubscriptionExpiryService)
 		.inSingletonScope();
-	bind(TYPES.UseCases.ListCustomerRestaurantsUseCase)
-		.to(ListCustomerRestaurantsUseCase)
-		.inSingletonScope();
-	bind(TYPES.Controller.CustomerRestaurantController)
-		.to(CustomerRestaurantController)
-		.inSingletonScope()
 });
