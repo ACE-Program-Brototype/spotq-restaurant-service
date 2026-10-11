@@ -2,7 +2,7 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 
-import type { ListCustomerRestaurantsUseCase } from "@/application/use-cases/list-customer-restaurant.use-case.ts";
+import type { ListCustomerRestaurantsUseCase } from "@application/use-cases/restaurant/list-customer-restaurant.use-case";
 import { TYPES } from "@/config/di/types.ts";
 import type { ListCustomerRestaurantsQuery } from "@/presentation/http/validators/list-customer-restaurants.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";

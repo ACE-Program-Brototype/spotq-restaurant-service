@@ -16,16 +16,16 @@ import type {
 } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
 import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
+import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	CustomerRestaurantFilterParams,
 	CustomerRestaurantListItem,
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
 	RestaurantFilterParams,
-} from "@/application/ports/repositories/restaurant.repository.port.ts";
-import { TYPES } from "@/config/di/types.ts";
-import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+} from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
