@@ -1,23 +1,33 @@
 import type {
+	CreateRestaurantData,
 	CustomerRestaurantFilterParams,
 	CustomerRestaurantListItem,
 	IRestaurantRepository,
+	OnboardRestaurantData,
 	RestaurantAddressDetail,
 	RestaurantApplicationDetail,
 	RestaurantApplicationFilterParams,
+	RestaurantCompletedDetails,
 	RestaurantDocumentDetail,
 	RestaurantFilterParams,
 	RestaurantImageDetail,
+	RestaurantProfileDetails,
+	UpdateRestaurantProfileData,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 export type {
+	CreateRestaurantData,
 	CustomerRestaurantFilterParams,
 	CustomerRestaurantListItem,
 	IRestaurantRepository,
+	OnboardRestaurantData,
 	RestaurantAddressDetail,
 	RestaurantApplicationDetail,
 	RestaurantApplicationFilterParams,
+	RestaurantCompletedDetails,
 	RestaurantDocumentDetail,
 	RestaurantFilterParams,
 	RestaurantImageDetail,
+	RestaurantProfileDetails,
+	UpdateRestaurantProfileData,
 };

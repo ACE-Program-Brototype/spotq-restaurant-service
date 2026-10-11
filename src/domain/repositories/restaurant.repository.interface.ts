@@ -1,10 +1,3 @@
-import type { RestaurantDetailsResponseDto } from "@/application/dtos/admin/restaurant-details.dto.ts";
-import type {
-	CreateRestaurantDto,
-	OnboardRestaurantDto,
-} from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
-import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
-import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import type { IBaseRepository } from "@/domain/repositories/base.repository.interface.ts";
 import type { RestaurantStatus } from "@/domain/value-objects/restaurant-status.vo.ts";
@@ -109,11 +102,231 @@ export interface RestaurantApplicationDetail {
 	images: RestaurantImageDetail[];
 }
 
+export interface CreateRestaurantData {
+	restaurantName: string;
+	email: string;
+	phone: string;
+	ownerName: string;
+	ownerEmail: string;
+	emailVerifiedAt: Date;
+}
+
+export interface OnboardDocumentItemData {
+	documentName: string;
+	documentKey: string;
+}
+
+export interface OnboardDocumentsData {
+	fssai: OnboardDocumentItemData;
+	businessRegistration: OnboardDocumentItemData;
+	ownerIdentity: OnboardDocumentItemData;
+	gst: OnboardDocumentItemData;
+	businessPan: OnboardDocumentItemData;
+}
+
+export interface OnboardImageData {
+	objectKey: string;
+	fileName?: string;
+	displayOrder: number;
+}
+
+export interface OnboardLocationData {
+	addressLine1: string;
+	addressLine2?: string;
+	city: string;
+	state: string;
+	country: string;
+	pincode: string;
+	latitude: number;
+	longitude: number;
+}
+
+export interface OnboardRestaurantData {
+	restaurantName: string;
+	phone: string;
+	ownerName: string;
+	seatingCapacity?: number;
+	documents?: OnboardDocumentsData;
+	restaurantImages?: OnboardImageData[];
+	location?: OnboardLocationData;
+}
+
+export interface RestaurantCompletedDetailsAddress {
+	id: string;
+	addressLine1: string;
+	addressLine2: string | null;
+	city: string;
+	state: string;
+	country: string;
+	pincode: string;
+	latitude: number;
+	longitude: number;
+}
+
+export interface RestaurantCompletedDetailsStaffMember {
+	id: string;
+	fullname: string;
+	email: string;
+	phone: string;
+	role: string;
+	status: string;
+	avatarUrl: string | null;
+	createdAt: Date;
+}
+
+export interface RestaurantCompletedDetailsDocument {
+	id: string;
+	documentType: string;
+	documentName: string;
+	documentKey: string;
+	verificationStatus: string;
+	uploadedAt: Date;
+}
+
+export interface RestaurantCompletedDetailsImage {
+	id: string;
+	objectKey: string;
+	displayOrder: number;
+	createdAt: Date;
+}
+
+export interface RestaurantCompletedDetailsOperatingHour {
+	id: string;
+	dayOfWeek: number;
+	isOpen: boolean;
+	openTime: Date | null;
+	closeTime: Date | null;
+}
+
+export interface RestaurantCompletedDetailsSettings {
+	isOpened: boolean;
+	isPreorder: boolean;
+	isLoyaltyEnabled: boolean;
+	cuisineType: string | null;
+	seatingCapacity: number | null;
+	openTime: Date | null;
+	closeTime: Date | null;
+}
+
+export interface RestaurantCompletedDetailsProfile {
+	coverImage: string | null;
+	avatar: string | null;
+	description: string | null;
+	fssaiNumber: string | null;
+	registerNumber: string | null;
+	gstNumber: string | null;
+}
+
+export interface RestaurantCompletedDetailsLinkedAccount {
+	email: string;
+	phone: string;
+	isEmailVerified: boolean;
+	lastLoginAt: Date | null;
+}
+
+export interface RestaurantCompletedDetails {
+	id: string;
+	restaurantName: string;
+	category: string | null;
+	email: string;
+	phone: string;
+	ownerName: string;
+	ownerEmail: string;
+	status: string;
+	onboardingStatus: string;
+	isBlocked: boolean;
+	blockReason: string | null;
+	isSubscriptionActive: boolean;
+	subscriptionPlanCode: string | null;
+	subscriptionEndsAt: Date | null;
+	lastLoginAt: Date | null;
+	createdAt: Date;
+	updatedAt: Date;
+	address: RestaurantCompletedDetailsAddress | null;
+	settings: RestaurantCompletedDetailsSettings | null;
+	profile: RestaurantCompletedDetailsProfile | null;
+	operatingHours: RestaurantCompletedDetailsOperatingHour[];
+	staff: RestaurantCompletedDetailsStaffMember[];
+	documents: RestaurantCompletedDetailsDocument[];
+	images: RestaurantCompletedDetailsImage[];
+	linkedAccount: RestaurantCompletedDetailsLinkedAccount;
+}
+
+export interface RestaurantProfileItemDetails {
+	id?: string;
+	name: string;
+	phone: string;
+	ownerName: string;
+}
+
+export interface RestaurantProfileSectionDetails {
+	logo: string | null;
+	avatarUpdatedAt?: Date | null;
+	coverImage: string | null;
+	description: string | null;
+	cuisineType: string | null;
+	averageCost: number;
+}
+
+export interface RestaurantProfileSettingsDetails {
+	acceptsQueue: boolean;
+	acceptsQrOrders: boolean;
+	loyaltyEnabled: boolean;
+	autoAcceptQueue: boolean;
+	seatingCapacity: number;
+}
+
+export interface RestaurantProfileBusinessHoursDetails {
+	dayOfWeek: number;
+	openTime: string | null;
+	closeTime: string | null;
+	isClosed: boolean;
+}
+
+export interface RestaurantProfileDetails {
+	restaurant: RestaurantProfileItemDetails;
+	profile: RestaurantProfileSectionDetails;
+	settings: RestaurantProfileSettingsDetails;
+	businessHours: RestaurantProfileBusinessHoursDetails[];
+}
+
+export interface UpdateRestaurantProfileData {
+	restaurant?: {
+		name?: string;
+		phone?: string;
+		ownerName?: string;
+	};
+	profile?: {
+		avatarUpdatedAt?: Date | null;
+		hasAvatar?: boolean | null;
+		logoKey?: string | null;
+		coverImageKey?: string | null;
+		description?: string | null;
+		cuisineType?: string | null;
+		averageCost?: number;
+	};
+	settings?: {
+		isOpened?: boolean;
+		isPreorder?: boolean;
+		seatingCapacity?: number;
+		acceptsQueue?: boolean;
+		acceptsQrOrders?: boolean;
+		loyaltyEnabled?: boolean;
+		autoAcceptQueue?: boolean;
+	};
+	businessHours?: Array<{
+		dayOfWeek: number;
+		openTime?: string | null;
+		closeTime?: string | null;
+		isClosed?: boolean;
+	}>;
+}
+
 export interface IRestaurantRepository
 	extends IBaseRepository<Restaurant, string> {
 	create(data: Partial<Restaurant>): Promise<Restaurant>;
 
-	createRestaurant(data: CreateRestaurantDto): Promise<Restaurant>;
+	createRestaurant(data: CreateRestaurantData): Promise<Restaurant>;
 
 	existsByEmail(email: string): Promise<boolean>;
 
@@ -127,7 +340,7 @@ export interface IRestaurantRepository
 
 	findCompletedDetailsById(
 		id: string,
-	): Promise<RestaurantDetailsResponseDto | null>;
+	): Promise<RestaurantCompletedDetails | null>;
 
 	updateLastLogin(id: string, date?: Date): Promise<void>;
 
@@ -148,17 +361,17 @@ export interface IRestaurantRepository
 
 	completeOnboarding(
 		restaurant: Restaurant,
-		dto: OnboardRestaurantDto,
+		dto: OnboardRestaurantData,
 	): Promise<Restaurant>;
 
 	getRestaurantProfileDetails(
 		restaurantId: string,
-	): Promise<RestaurantProfileResponseDto | null>;
+	): Promise<RestaurantProfileDetails | null>;
 
 	updateProfileDetails(
 		restaurantId: string,
-		data: UpdateRestaurantProfileDto,
-	): Promise<RestaurantProfileResponseDto>;
+		data: UpdateRestaurantProfileData,
+	): Promise<RestaurantProfileDetails>;
 
 	findCustomerRestaurants(
 		params: CustomerRestaurantFilterParams,
