@@ -7,7 +7,7 @@ export interface TableSectionProps {
 	sectionName: string;
 	createdAt: Date;
 	updatedAt: Date;
-  isDeleted: boolean
+	isDeleted: boolean;
 }
 
 export interface CreateTableSectionProps {
@@ -67,7 +67,7 @@ export class TableSection {
 			restaurantId: props.restaurantId,
 			createdAt: props.createdAt,
 			updatedAt: props.updatedAt,
-      isDeleted : props.isDeleted
+			isDeleted: props.isDeleted,
 		});
 	}
 
@@ -91,7 +91,7 @@ export class TableSection {
 		return this.props.updatedAt;
 	}
 
-  get isDeleted(){
-    return this.props.isDeleted
-  }
+	get isDeleted() {
+		return this.props.isDeleted;
+	}
 }
