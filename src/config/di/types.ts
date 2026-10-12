@@ -131,6 +131,8 @@ export const TYPES = {
 		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
 		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
 
+		// TABLE SECTION
+		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
 		ListCustomerRestaurantsUseCase: Symbol.for("ListCustomerRestaurantsUseCase",),
 	},
 
@@ -142,6 +144,7 @@ export const TYPES = {
 		AddonController: Symbol.for("AddonController"),
 		MenuItemController: Symbol.for("MenuItemController"),
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
+		TableSectionController: Symbol.for("TableSectionController"),
 		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
 	},
 
@@ -154,6 +157,7 @@ export const TYPES = {
 		AddonRepository: Symbol.for("AddonRepository"),
 		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
 		MenuItemRepository: Symbol.for("MenuItemRepository"),
+		TableSectionRepository: Symbol.for("TableSectionRepository"),
 	},
 
 	Redis: {
