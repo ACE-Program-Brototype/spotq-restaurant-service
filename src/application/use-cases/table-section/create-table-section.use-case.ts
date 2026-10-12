@@ -24,6 +24,10 @@ export class CreateTableSectionUseCase implements ICreateTableSectionUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
+		if (!restaurant.isBlocked) {
+			throw new ForbiddenAccessError();
+		}
+
 		// is user restaurant admin
 		// Checks by checking if restaurant id === dto.userId
 		if (restaurant.id !== dto.userId) {
@@ -31,9 +35,11 @@ export class CreateTableSectionUseCase implements ICreateTableSectionUseCase {
 		}
 
 		// is table section exists
-		const existingTableSection = await this.tableSectionRepo.findBySectionName(
-			dto.name,
-		);
+		const existingTableSection =
+			await this.tableSectionRepo.findBySectionNameAndRestaurant(
+				dto.name,
+				dto.restaurantId,
+			);
 
 		if (existingTableSection) {
 			throw new TableSectionAlreadyExists();

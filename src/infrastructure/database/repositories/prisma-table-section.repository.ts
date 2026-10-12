@@ -140,10 +140,12 @@ export class PrismaTableSectionRepository
 		}
 	}
 
-	async findBySectionName(name: string): Promise<TableSection | null> {
+	async findBySectionNameAndRestaurant(name: string, restaurantId : string): Promise<TableSection | null> {
 		try {
 			return await super.findOne<Prisma.TableSectionWhereInput>({
 				sectionName: name,
+				restaurantId ,
+				isDeleted : false
 			});
 		} catch (error) {
 			this.handlePrismaError(error);
