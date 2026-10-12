@@ -19,7 +19,9 @@ export class CreateTableSectionUseCase implements ICreateTableSectionUseCase {
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepo: IRestaurantRepository,
 	) {}
-	async execute(dto: ICreateTableSectionInputDTO): Promise<void> {
+	async execute(
+		dto: ICreateTableSectionInputDTO,
+	): Promise<{ name: string; id: string }> {
 		// is user belongs to the restaurant
 		const restaurant = await this.restaurantRepo.findById(dto.restaurantId);
 
@@ -54,6 +56,9 @@ export class CreateTableSectionUseCase implements ICreateTableSectionUseCase {
 			restaurantId: dto.restaurantId,
 		});
 
-		await this.tableSectionRepo.createTableSection(tableSection);
+		const tableSectionRes =
+			await this.tableSectionRepo.createTableSection(tableSection);
+
+		return { id: tableSectionRes.id, name: tableSectionRes.sectionName };
 	}
 }

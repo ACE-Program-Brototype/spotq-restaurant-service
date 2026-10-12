@@ -22,7 +22,7 @@ export interface ITableSectionRepository extends IBaseRepository<TableSection> {
 	 * Creates a table section row
 	 * @param tableSection TableSection Entity
 	 */
-	createTableSection(tableSection: TableSection): Promise<void>;
+	createTableSection(tableSection: TableSection): Promise<TableSection>;
 
 	/**
 	 * Saves the table section to db

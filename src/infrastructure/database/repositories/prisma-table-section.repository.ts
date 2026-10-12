@@ -62,11 +62,12 @@ export class PrismaTableSectionRepository
 		}
 	}
 
-	async createTableSection(tableSection: TableSection): Promise<void> {
+	async createTableSection(tableSection: TableSection): Promise<TableSection> {
 		try {
-			await super.create(tableSection);
+			return await super.create(tableSection);
 		} catch (error) {
 			this.handlePrismaError(error);
+			throw error
 		}
 	}
 
