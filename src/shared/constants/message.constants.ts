@@ -346,6 +346,7 @@ export const messages = {
 	TABLE_SECTION_ALREADY_EXIST: "Table Section already exists",
 	TABLE_SECTION_CREATE_SUCCESS: "Table Section Created Successfully",
 	TABLE_SECTION_NAME_REQUIRED: "Table Section name required",
+	TABLE_SECTION_NAME_MAX: "Table section name must not exceed 100 characters.",
 } as const;
 
 export type MessageKey = keyof typeof messages;

@@ -12,7 +12,8 @@ export const createTableSectionBodySchema = z
 		name: z
 			.string()
 			.trim()
-			.min(1, { message: messages.TABLE_SECTION_NAME_REQUIRED }),
+			.min(1, { message: messages.TABLE_SECTION_NAME_REQUIRED })
+			.max(100, { message: messages.TABLE_SECTION_NAME_MAX }),
 	})
 	.strict();
 
