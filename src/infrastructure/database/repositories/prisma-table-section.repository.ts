@@ -132,7 +132,7 @@ export class PrismaTableSectionRepository
 			// is not used in BaseRepo
 			return this.delegate.update({
 				where: { id: id },
-				data: { isDeleted: false },
+				data: { isDeleted: true },
 			});
 		} catch (error) {
 			this.handlePrismaError(error);
