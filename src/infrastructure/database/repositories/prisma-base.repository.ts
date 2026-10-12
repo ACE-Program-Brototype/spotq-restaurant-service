@@ -1,11 +1,14 @@
 import { injectable } from "inversify";
-import type { IBaseRepository, PaginatedResult, PaginationOptions } from "@/domain/repositories/base.repository.interface.ts";
+import type {
+	IBaseRepository,
+	PaginatedResult,
+	PaginationOptions,
+} from "@/domain/repositories/base.repository.interface.ts";
 
 export interface IEntityMapper<TDomain, TModel> {
 	toDomain(raw: TModel): TDomain;
 	toPersistence(entity: TDomain): TModel;
 }
-
 
 @injectable()
 export abstract class PrismaBaseRepository<
@@ -97,6 +100,7 @@ export abstract class PrismaBaseRepository<
 		where: TWhere,
 	): Promise<TDomain | null> {
 		try {
+			console.log(this.delegate, "------");
 			const record = (await this.delegate.findFirst({
 				where,
 			})) as TModel | null;

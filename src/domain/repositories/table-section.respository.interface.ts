@@ -43,4 +43,6 @@ export interface ITableSectionRepository extends IBaseRepository<TableSection> {
 	 * @param id TableSection.id
 	 */
 	deleteTableSection(id: string): Promise<void>;
+
+	findBySectionName(name: string): Promise<TableSection | null>;
 }

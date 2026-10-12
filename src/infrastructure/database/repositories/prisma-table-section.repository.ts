@@ -30,7 +30,8 @@ export class PrismaTableSectionRepository
 		@inject(TYPES.PrismaClient)
 		prisma: PrismaClient,
 	) {
-		super(prisma.table_section, TableSectionPersistenceMapper);
+		console.log(prisma.tableSection, "HIIIII_______");
+		super(prisma.tableSection, TableSectionPersistenceMapper);
 	}
 
 	protected override handlePrismaError(
@@ -141,7 +142,7 @@ export class PrismaTableSectionRepository
 
 	async findBySectionName(name: string): Promise<TableSection | null> {
 		try {
-			return super.findOne<Prisma.TableSectionWhereInput>({
+			return await super.findOne<Prisma.TableSectionWhereInput>({
 				sectionName: name,
 			});
 		} catch (error) {
