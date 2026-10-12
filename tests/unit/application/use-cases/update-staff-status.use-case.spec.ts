@@ -11,7 +11,7 @@ import {
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("UpdateStaffStatusUseCase", () => {
-	let staffRepository: jest.Mocked<Required<IRestaurantStaffRepository>>;
+	let staffRepository: jest.Mocked<IRestaurantStaffRepository>;
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
 	let useCase: UpdateStaffStatusUseCase;
 
@@ -54,7 +54,7 @@ describe("UpdateStaffStatusUseCase", () => {
 			updateStatus: jest.fn(),
 			save: jest.fn(),
 			delete: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantStaffRepository>;
 
 		restaurantRepository = {
 			findById: jest.fn(),
@@ -62,10 +62,8 @@ describe("UpdateStaffStatusUseCase", () => {
 			existsByEmail: jest.fn(),
 			createRestaurant: jest.fn(),
 			create: jest.fn(),
-			findUnique: jest.fn(),
-			find: jest.fn(),
 			update: jest.fn(),
-		};
+		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		useCase = new UpdateStaffStatusUseCase(
 			staffRepository,
