@@ -133,6 +133,7 @@ export const TYPES = {
 
 		// TABLE SECTION
 		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
+		ListCustomerRestaurantsUseCase: Symbol.for("ListCustomerRestaurantsUseCase",),
 	},
 
 	Controller: {
@@ -144,6 +145,7 @@ export const TYPES = {
 		MenuItemController: Symbol.for("MenuItemController"),
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
 		TableSectionController: Symbol.for("TableSectionController"),
+		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
 	},
 
 	Database: {

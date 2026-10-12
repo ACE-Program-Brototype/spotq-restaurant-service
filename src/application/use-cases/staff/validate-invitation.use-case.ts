@@ -3,7 +3,7 @@ import type {
 	ValidateInvitationDTO,
 	ValidateInvitationResponseDTO,
 } from "@/application/dtos/staff/validate-invitation.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IInvitationTokenService } from "@/application/ports/services/invitation-token.service.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";

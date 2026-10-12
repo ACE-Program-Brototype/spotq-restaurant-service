@@ -3,7 +3,7 @@ import type {
 	GetRestaurantApplicationDetailsDto,
 	RestaurantApplicationDetailsResponseDto,
 } from "@/application/dtos/admin/get-restaurant-application-details.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IGetRestaurantApplicationDetailsUseCase } from "@/application/ports/use-cases/admin/get-restaurant-application-details.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";

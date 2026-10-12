@@ -1,4 +1,4 @@
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 

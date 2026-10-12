@@ -1,4 +1,4 @@
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { UpdateAddonUseCase } from "@/application/use-cases/update-addon.use-case.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";

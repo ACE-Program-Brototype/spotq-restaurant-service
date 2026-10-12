@@ -4,7 +4,7 @@ import type {
 	PaginatedStaffMembersResponseDTO,
 } from "@/application/dtos/staff/list-staff.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListStaffMembersUseCase } from "@/application/ports/use-cases/list-staff-members.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";

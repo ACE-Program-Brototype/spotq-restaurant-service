@@ -1,7 +1,7 @@
 import type {
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
-} from "@/application/ports/repositories/restaurant.repository.port.ts";
+} from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ListRestaurantApplicationsUseCase } from "@/application/use-cases/admin/list-restaurant-applications.use-case.ts";
 
 describe("ListRestaurantApplicationsUseCase", () => {
