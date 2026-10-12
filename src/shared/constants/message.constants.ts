@@ -340,10 +340,12 @@ export const messages = {
 	CANNOT_MODIFY_DELETED_MENU_ITEM: "Cannot modify a deleted menu item",
 
 	// TABLE SECTION
-	INVALID_TABLE_SECTION_NAME : "Table section name is invalid",
-	TABLE_SECTION_ALREADY_EXISTS : "Table Section already exists",
-	TABLE_SECTION_NOT_FOUND : "Table Section not found",
-	TABLE_SECTION_ALREADY_EXIST : "Table Section already exists"
+	INVALID_TABLE_SECTION_NAME: "Table section name is invalid",
+	TABLE_SECTION_ALREADY_EXISTS: "Table Section already exists",
+	TABLE_SECTION_NOT_FOUND: "Table Section not found",
+	TABLE_SECTION_ALREADY_EXIST: "Table Section already exists",
+	TABLE_SECTION_CREATE_SUCCESS: "Table Section Created Successfully",
+	TABLE_SECTION_NAME_REQUIRED: "Table Section name required",
 } as const;
 
 export type MessageKey = keyof typeof messages;

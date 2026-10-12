@@ -80,6 +80,14 @@ export const ADMIN_ROUTES = {
 	RESTAURANT_MENU_CATEGORIES: "/restaurants/:restaurantId/menu/categories",
 } as const;
 
+export const TABLE_SECTION_ROUTES = {
+	BASE: "/",
+	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
+};
+
+export type TableSectionRoute =
+	(typeof TABLE_SECTION_ROUTES)[keyof typeof TABLE_SECTION_ROUTES];
+
 export type RestaurantRoute =
 	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
 
