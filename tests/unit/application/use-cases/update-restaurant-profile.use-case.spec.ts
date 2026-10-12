@@ -1,5 +1,5 @@
 import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
 import { UpdateRestaurantProfileUseCase } from "@/application/use-cases/update-restaurant-profile.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";

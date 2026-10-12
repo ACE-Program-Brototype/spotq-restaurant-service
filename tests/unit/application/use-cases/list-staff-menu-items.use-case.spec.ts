@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ListStaffMenuItemsUseCase } from "@/application/use-cases/list-staff-menu-items.use-case.ts";
 import {
 	RestaurantAccountBlockedError,

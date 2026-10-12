@@ -14,7 +14,7 @@ import type {
 	SelectRestaurantResponseDTO,
 } from "@/application/dtos/staff/select-restaurant.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type {
 	ITokenService,
 	StaffTokenPayload,

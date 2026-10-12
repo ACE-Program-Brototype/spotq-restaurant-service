@@ -4,7 +4,7 @@ import type {
 	CreateAddonInputDto,
 } from "@/application/dtos/addon/create-addon.dto.ts";
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";

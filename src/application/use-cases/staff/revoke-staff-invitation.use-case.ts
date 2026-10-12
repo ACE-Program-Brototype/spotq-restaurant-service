@@ -3,7 +3,7 @@ import type {
 	RevokeInvitationDTO,
 	RevokeInvitationResponseDTO,
 } from "@/application/dtos/staff/revoke-invitation.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { StaffInvitation } from "@/domain/entities/staff-invitation.entity.ts";

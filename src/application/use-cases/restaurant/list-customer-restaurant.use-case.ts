@@ -5,7 +5,7 @@ import type {
   PaginatedCustomerRestaurantsOutputDto,
 } from "@/application/dtos/restaurant/customer-restaurant-listing.dto.ts";
 
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { TYPES } from "@/config/di/types.ts";
 
 const DEFAULT_PAGE = 1;

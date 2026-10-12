@@ -3,7 +3,7 @@ import type {
 	CreateMenuCategoryInputDto,
 	MenuCategoryResponseDto,
 } from "@/application/dtos/menu/create-menu-category.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";

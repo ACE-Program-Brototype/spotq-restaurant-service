@@ -3,7 +3,7 @@ import type {
 	BlockRestaurantDto,
 	BlockRestaurantResponseDto,
 } from "@/application/dtos/admin/block-restaurant.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IBlockRestaurantUseCase } from "@/application/ports/use-cases/admin/block-restaurant.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {

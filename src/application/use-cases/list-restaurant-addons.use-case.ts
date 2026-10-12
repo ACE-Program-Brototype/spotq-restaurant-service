@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import type { AddonResponseDto } from "@/application/dtos/addon/create-addon.dto.ts";
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListRestaurantAddonsUseCase } from "@/application/ports/use-cases/list-restaurant-addons.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";

@@ -4,7 +4,7 @@ import type {
 	PaginatedRestaurantsResponseDTO,
 } from "@/application/dtos/admin/list-restaurants.dto.ts";
 import { RestaurantMapper } from "@/application/mappers/restaurant.mapper.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListRestaurantsUseCase } from "@/application/ports/use-cases/list-restaurants.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 

@@ -1,5 +1,5 @@
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { GetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/use-cases/get-restaurant-owner-menu-item-details.use-case.ts";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";

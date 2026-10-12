@@ -2,7 +2,7 @@ import type {
 	RestaurantAddressDetail,
 	RestaurantDocumentDetail,
 	RestaurantImageDetail,
-} from "@/application/ports/repositories/restaurant.repository.port.ts";
+} from "@/domain/repositories/restaurant.repository.interface.ts";
 
 export interface ListRestaurantApplicationsDto {
 	page?: number;

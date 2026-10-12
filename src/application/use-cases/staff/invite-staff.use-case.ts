@@ -4,7 +4,7 @@ import type {
 	StaffInvitationResponseDTO,
 } from "@/application/dtos/staff/invite-staff.dto.ts";
 import type { IStaffInvitationConfig } from "@/application/ports/config/staff-invitation-config.port.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type { IInvitationTokenService } from "@/application/ports/services/invitation-token.service.port.ts";
 import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
