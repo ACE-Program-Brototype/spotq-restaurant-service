@@ -3,7 +3,7 @@ import type {
 	UnblockRestaurantDto,
 	UnblockRestaurantResponseDto,
 } from "@/application/dtos/admin/unblock-restaurant.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IUnblockRestaurantUseCase } from "@/application/ports/use-cases/admin/unblock-restaurant.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {

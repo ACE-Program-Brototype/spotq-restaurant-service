@@ -1,6 +1,6 @@
 import { InvalidOtpError } from "@/application/errors/invalid-otp.error";
 import { RestaurantAccountBlockedError } from "@/application/errors/restaurant-account-blocked.error";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";

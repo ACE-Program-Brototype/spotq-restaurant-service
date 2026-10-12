@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ListRestaurantsUseCase } from "@/application/use-cases/admin/list-restaurants.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 

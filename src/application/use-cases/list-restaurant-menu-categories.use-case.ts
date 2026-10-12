@@ -4,7 +4,7 @@ import type {
 	ListMenuCategoriesResponseDto,
 } from "@/application/dtos/menu/list-menu-categories.dto.ts";
 import type { IMenuCategoryRepository } from "@/application/ports/repositories/menu-category.repository.port.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListRestaurantMenuCategoriesUseCase } from "@/application/ports/use-cases/list-restaurant-menu-categories.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";

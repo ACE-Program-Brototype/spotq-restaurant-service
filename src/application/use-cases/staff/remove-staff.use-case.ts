@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import type { RemoveStaffDTO } from "@/application/dtos/staff/remove-staff.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRemoveStaffUseCase } from "@/application/ports/use-cases/remove-staff.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {

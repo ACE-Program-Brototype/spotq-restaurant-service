@@ -1,4 +1,4 @@
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { GetRestaurantVerificationStatusUseCase } from "@/application/use-cases/get-verification-status.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
 

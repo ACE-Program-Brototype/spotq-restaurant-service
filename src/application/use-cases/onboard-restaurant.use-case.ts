@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import type { OnboardRestaurantDto } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IOnboardRestaurantUseCase } from "@/application/ports/use-cases/onboard-restaurant.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import {
