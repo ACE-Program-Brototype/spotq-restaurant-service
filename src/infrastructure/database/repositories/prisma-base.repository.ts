@@ -1,21 +1,9 @@
 import { injectable } from "inversify";
-import type { IBaseRepository } from "@/domain/repositories/base.repository.interface.ts";
+import type { IBaseRepository, PaginatedResult, PaginationOptions } from "@/domain/repositories/base.repository.interface.ts";
 
 export interface IEntityMapper<TDomain, TModel> {
 	toDomain(raw: TModel): TDomain;
 	toPersistence(entity: TDomain): TModel;
-}
-
-export interface PaginationOptions<TWhere = unknown, TOrderBy = unknown> {
-	where?: TWhere;
-	orderBy?: TOrderBy;
-	page: number;
-	limit: number;
-}
-
-export interface PaginatedResult<TDomain> {
-	items: TDomain[];
-	total: number;
 }
 
 
@@ -31,8 +19,7 @@ export abstract class PrismaBaseRepository<
 		protected readonly mapper: IEntityMapper<TDomain, TModel>,
 	) {}
 
-
-	private static readonly MAX_PAGE_SIZE = 100
+	private static readonly MAX_PAGE_SIZE = 100;
 
 	// biome-ignore lint/suspicious/noExplicitAny: Internal bridge for generic base calls
 	protected get delegate(): any {
@@ -75,7 +62,7 @@ export abstract class PrismaBaseRepository<
 			return this.mapper.toDomain(record);
 		} catch (error) {
 			this.handlePrismaError(error, entity);
-			throw error
+			throw error;
 		}
 	}
 
@@ -91,7 +78,7 @@ export abstract class PrismaBaseRepository<
 			const skip = (Math.max(page, 1) - 1) * take;
 			const [records, total] = await Promise.all([
 				this.delegate.findMany({ where, orderBy, skip, take }) as Promise<
-				TModel[]
+					TModel[]
 				>,
 				this.delegate.count({ where }) as Promise<number>,
 			]);
@@ -106,6 +93,20 @@ export abstract class PrismaBaseRepository<
 		}
 	}
 
+	public async findOne<TWhere = unknown>(
+		where: TWhere,
+	): Promise<TDomain | null> {
+		try {
+			const record = (await this.delegate.findFirst({
+				where,
+			})) as TModel | null;
+
+			return record ? this.mapper.toDomain(record) : null;
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
 
 	public async update(
 		id: string,

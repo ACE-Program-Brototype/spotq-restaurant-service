@@ -125,7 +125,6 @@ export class PrismaTableSectionRepository
 		return where;
 	}
 
-	
 	async deleteTableSection(id: string): Promise<void> {
 		try {
 			// Handled isDelete here instead of baseRepo because softDelete
@@ -133,6 +132,17 @@ export class PrismaTableSectionRepository
 			return this.delegate.update({
 				where: { id: id },
 				data: { isDeleted: false },
+			});
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
+	async findBySectionName(name: string): Promise<TableSection | null> {
+		try {
+			return super.findOne<Prisma.TableSectionWhereInput>({
+				sectionName: name,
 			});
 		} catch (error) {
 			this.handlePrismaError(error);
