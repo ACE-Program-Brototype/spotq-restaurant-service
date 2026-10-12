@@ -35,6 +35,7 @@ export class CreateTableSectionUseCase implements ICreateTableSectionUseCase {
 
 		// is user restaurant admin
 		// Checks by checking if restaurant id === dto.userId
+		// In Application Restaurant Id is same as restaurant admins userId from JWT
 		if (restaurant.id !== dto.userId) {
 			throw new ForbiddenAccessError();
 		}
