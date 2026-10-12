@@ -100,7 +100,6 @@ export abstract class PrismaBaseRepository<
 		where: TWhere,
 	): Promise<TDomain | null> {
 		try {
-			console.log(this.delegate, "------");
 			const record = (await this.delegate.findFirst({
 				where,
 			})) as TModel | null;

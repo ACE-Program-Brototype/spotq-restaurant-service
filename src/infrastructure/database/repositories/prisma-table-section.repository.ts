@@ -30,7 +30,6 @@ export class PrismaTableSectionRepository
 		@inject(TYPES.PrismaClient)
 		prisma: PrismaClient,
 	) {
-		console.log(prisma.tableSection, "HIIIII_______");
 		super(prisma.tableSection, TableSectionPersistenceMapper);
 	}
 
