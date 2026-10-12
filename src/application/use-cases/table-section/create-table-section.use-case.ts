@@ -2,7 +2,10 @@ import type { ICreateTableSectionInputDTO } from "@application/dtos/table-sectio
 import type { ICreateTableSectionUseCase } from "@application/ports/use-cases/table-section/create-table-section.use-case.port";
 import { TYPES } from "@config/di/types";
 import { TableSection } from "@domain/entities/table-section.entity";
-import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@domain/errors/restaurant.errors";
 import { ForbiddenAccessError } from "@domain/errors/staff.errors";
 import { TableSectionAlreadyExists } from "@domain/errors/table-section.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
@@ -24,8 +27,8 @@ export class CreateTableSectionUseCase implements ICreateTableSectionUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
-		if (!restaurant.isBlocked) {
-			throw new ForbiddenAccessError();
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError();
 		}
 
 		// is user restaurant admin
