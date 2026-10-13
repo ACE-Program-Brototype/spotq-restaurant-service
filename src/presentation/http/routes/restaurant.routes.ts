@@ -123,11 +123,6 @@ restaurantRouter.post(
 );
 
 restaurantRouter.post(
-	RESTAURANT_ROUTES.REGISTRATION_REFRESH_TOKEN,
-	restaurantAuthController.refreshAccessToken.bind(restaurantAuthController),
-);
-
-restaurantRouter.post(
 	RESTAURANT_ROUTES.ONBOARD,
 	restaurantAuthMiddleware,
 	validateRequestBody(onboardRestaurantSchema),

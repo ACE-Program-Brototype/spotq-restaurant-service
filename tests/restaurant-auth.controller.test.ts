@@ -543,7 +543,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		}
 	});
 
-	test("POST /registration/email-otp returns 200 OK", async () => {
+	test("POST /otp returns 200 OK", async () => {
 		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.EMAIL_OTP}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -555,7 +555,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.equal(json.success, true);
 	});
 
-	test("POST /registration/email-otp/verify returns token and sets HTTP-only refresh cookie", async () => {
+	test("POST /otp/verify returns token and sets HTTP-only refresh cookie", async () => {
 		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.VERIFY_EMAIL}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -576,7 +576,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.ok(json.data.accessToken);
 	});
 
-	test("POST /onboard succeeds with x-restaurant-id header", async () => {
+	test("POST /onboarding succeeds with x-restaurant-id header", async () => {
 		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: {
@@ -591,7 +591,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.equal(json.success, true);
 	});
 
-	test("POST /onboard succeeds with Authorization Bearer JWT token", async () => {
+	test("POST /onboarding succeeds with Authorization Bearer JWT token", async () => {
 		const token = new AuthTokenService().generateAccessToken({
 			restaurantId: "rest-e2e-bearer-200",
 			email: "e2ebearer@restaurant.com",
@@ -643,7 +643,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.equal(json.data.restaurantId, "rest-e2e-555");
 	});
 
-	test("POST /onboard fails with 401 when no authentication headers or token provided", async () => {
+	test("POST /onboarding fails with 401 when no authentication headers or token provided", async () => {
 		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },

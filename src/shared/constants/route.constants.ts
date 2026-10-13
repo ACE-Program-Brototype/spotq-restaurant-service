@@ -9,7 +9,6 @@ export const RESTAURANT_ROUTES = {
 	VERIFY_EMAIL: "/otp/verify",
 	RESEND_EMAIL_OTP: "/otp/resend",
 	REFRESH_ACCESS_TOKEN: "/refresh-token",
-	REGISTRATION_REFRESH_TOKEN: "/refresh-token",
 	ONBOARD: "/onboarding",
 	STAFF_STATUS_UPDATE: "/:restaurantId/staff/:staffId/status",
 	STAFF_UPDATE: "/:restaurantId/staff/:staffId",
