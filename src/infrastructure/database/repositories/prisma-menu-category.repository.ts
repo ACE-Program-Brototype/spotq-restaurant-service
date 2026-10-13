@@ -3,7 +3,6 @@ import {
 	type PrismaClient,
 	type MenuCategory as PrismaMenuCategory,
 } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
 import type { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
@@ -31,39 +30,21 @@ export class PrismaMenuCategoryRepository
 		@inject(TYPES.PrismaClient)
 		private readonly prismaClient: PrismaClient,
 	) {
-		super(prismaClient.menuCategory, MenuCategoryPersistenceMapper);
-	}
-
-	protected override handlePrismaError(
-		error: unknown,
-		_context?: unknown,
-	): void {
-		const code = (error as { code?: string })?.code;
-		if (
-			code === "P2002" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
-		) {
-			throw new CategoryAlreadyExistsError(messages.CATEGORY_ALREADY_EXISTS);
-		}
-		if (
-			code === "P2003" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2003")
-		) {
-			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
-		}
-		if (
-			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
-		) {
-			throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
-		}
+		super(prismaClient.menuCategory, MenuCategoryPersistenceMapper, {
+			P2002: () =>
+				new CategoryAlreadyExistsError(messages.CATEGORY_ALREADY_EXISTS),
+			P2003: () =>
+				new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND),
+			P2025: () =>
+				new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND),
+		});
 	}
 
 	public async findByNameAndRestaurantId(
 		restaurantId: string,
 		name: string,
 	): Promise<MenuCategory | null> {
-		try {
+		return this.run(async () => {
 			const record = await this.dbModel.findFirst({
 				where: {
 					restaurantId,
@@ -75,43 +56,34 @@ export class PrismaMenuCategoryRepository
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async findByRestaurantId(
 		restaurantId: string,
 	): Promise<MenuCategory[]> {
-		try {
+		return this.run(async () => {
 			const records = await this.dbModel.findMany({
 				where: { restaurantId, isDeleted: false },
 				orderBy: { displayOrder: "asc" },
 			});
 			return records.map((record) => this.mapper.toDomain(record));
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async getNextDisplayOrder(restaurantId: string): Promise<number> {
-		try {
+		return this.run(async () => {
 			const last = await this.dbModel.findFirst({
 				where: { restaurantId, isDeleted: false },
 				orderBy: { displayOrder: "desc" },
 				select: { displayOrder: true },
 			});
 			return last ? last.displayOrder + 1 : 0;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async create(category: MenuCategory): Promise<MenuCategory> {
-		try {
+		return this.run(async () => {
 			const data = this.mapper.toPersistence(category);
 			const created = await this.prismaClient.$transaction(async (tx) => {
 				await tx.menuCategory.updateMany({
@@ -132,17 +104,14 @@ export class PrismaMenuCategoryRepository
 				return tx.menuCategory.create({ data });
 			});
 			return this.mapper.toDomain(created);
-		} catch (error) {
-			this.handlePrismaError(error, category);
-			throw error;
-		}
+		});
 	}
 
 	public async updateCategory(
 		category: MenuCategory,
 		previousDisplayOrder?: number,
 	): Promise<MenuCategory> {
-		try {
+		return this.run(async () => {
 			const data = this.mapper.toPersistence(category);
 			const { id, restaurantId, displayOrder } = data;
 
@@ -246,14 +215,11 @@ export class PrismaMenuCategoryRepository
 				},
 			});
 			return this.mapper.toDomain(updated);
-		} catch (error) {
-			this.handlePrismaError(error, category);
-			throw error;
-		}
+		});
 	}
 
 	public async hasMenuItems(categoryId: string): Promise<boolean> {
-		try {
+		return this.run(async () => {
 			const count = await this.prismaClient.menuItem.count({
 				where: {
 					categoryId,
@@ -261,9 +227,6 @@ export class PrismaMenuCategoryRepository
 				},
 			});
 			return count > 0;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 }

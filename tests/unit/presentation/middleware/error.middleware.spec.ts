@@ -1,5 +1,10 @@
 import type { Request, Response } from "express";
 import { InvalidOtpError } from "@/application/errors/invalid-otp.error";
+import {
+	RestaurantAlreadyExistsError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors";
+import { PersistenceError } from "@/infrastructure/errors/persistence.error";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware";
 
 describe("error.middleware", () => {
@@ -35,12 +40,47 @@ describe("error.middleware", () => {
 		);
 	});
 
-	it("should return clean 500 message without exposing raw error or stack trace", () => {
-		const rawError = new Error(
-			"Raw database connection failure or Prisma query error",
+	it("should map RestaurantAlreadyExistsError to status code 409", () => {
+		const error = new RestaurantAlreadyExistsError();
+
+		errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
+
+		expect(mockRes.status).toHaveBeenCalledWith(409);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				statusCode: 409,
+				code: "RESTAURANT_ALREADY_EXISTS",
+				message: "Restaurant with this email already exists",
+			}),
+		);
+	});
+
+	it("should map RestaurantNotFoundError to status code 404", () => {
+		const error = new RestaurantNotFoundError();
+
+		errorHandler(error, mockReq as Request, mockRes as Response, mockNext);
+
+		expect(mockRes.status).toHaveBeenCalledWith(404);
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				statusCode: 404,
+				code: "RESTAURANT_NOT_FOUND",
+			}),
+		);
+	});
+
+	it("should map PersistenceError to 500 without leaking DB details to client", () => {
+		const persistenceError = new PersistenceError(
+			"Database connection crashed",
+			{ query: "SELECT * FROM restaurants" },
 		);
 
-		errorHandler(rawError, mockReq as Request, mockRes as Response, mockNext);
+		errorHandler(
+			persistenceError,
+			mockReq as Request,
+			mockRes as Response,
+			mockNext,
+		);
 
 		expect(mockRes.status).toHaveBeenCalledWith(500);
 		expect(mockRes.json).toHaveBeenCalledWith({

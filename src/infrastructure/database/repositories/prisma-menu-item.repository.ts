@@ -3,7 +3,6 @@ import {
 	type PrismaClient,
 	type MenuItem as PrismaMenuItem,
 } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -56,74 +55,54 @@ export class PrismaMenuItemRepository
 		@inject(TYPES.PrismaClient)
 		private readonly prismaClient: PrismaClient,
 	) {
-		super(prismaClient.menuItem, MenuItemPersistenceMapper);
-	}
+		super(prismaClient.menuItem, MenuItemPersistenceMapper, {
+			P2002: (error: unknown) => {
+				const meta = (error as { meta?: { target?: string[] | string } })?.meta;
+				const target = Array.isArray(meta?.target)
+					? meta?.target.join(",")
+					: String(meta?.target || "");
+				const targetLower = target.toLowerCase();
+				if (targetLower.includes("addon")) {
+					return new InvalidMenuItemDataError(
+						messages.DUPLICATE_ADDON_IN_MENU_ITEM,
+					);
+				}
+				if (
+					targetLower.includes("default") ||
+					targetLower.includes("variant") ||
+					targetLower.includes("idx")
+				) {
+					return new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
+				}
+				return new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
+			},
+			P2003: (error: unknown) => {
+				const field = String(
+					(error as { meta?: { field_name?: string } })?.meta?.field_name || "",
+				).toLowerCase();
+				const message = String(
+					(error as { message?: string })?.message || "",
+				).toLowerCase();
 
-	protected override handlePrismaError(
-		error: unknown,
-		_context?: unknown,
-	): void {
-		const code = (error as { code?: string })?.code;
-		const meta = (error as { meta?: { target?: string[] | string } })?.meta;
-
-		if (
-			code === "P2002" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
-		) {
-			const target = Array.isArray(meta?.target)
-				? meta?.target.join(",")
-				: String(meta?.target || "");
-			const targetLower = target.toLowerCase();
-			if (targetLower.includes("addon")) {
-				throw new InvalidMenuItemDataError(
-					messages.DUPLICATE_ADDON_IN_MENU_ITEM,
-				);
-			}
-			if (
-				targetLower.includes("default") ||
-				targetLower.includes("variant") ||
-				targetLower.includes("idx")
-			) {
-				throw new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
-			}
-			throw new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
-		}
-
-		if (
-			code === "P2003" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2003")
-		) {
-			const field = String(
-				(error as { meta?: { field_name?: string } })?.meta?.field_name || "",
-			).toLowerCase();
-			const message = String(
-				(error as { message?: string })?.message || "",
-			).toLowerCase();
-
-			if (field.includes("category") || message.includes("category")) {
-				throw new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
-			}
-			if (field.includes("addon") || message.includes("addon")) {
-				throw new AddonNotFoundForRestaurantError(
-					messages.ADDON_NOT_FOUND_FOR_RESTAURANT,
-				);
-			}
-			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
-		}
-
-		if (
-			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
-		) {
-			throw new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND);
-		}
+				if (field.includes("category") || message.includes("category")) {
+					return new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
+				}
+				if (field.includes("addon") || message.includes("addon")) {
+					return new AddonNotFoundForRestaurantError(
+						messages.ADDON_NOT_FOUND_FOR_RESTAURANT,
+					);
+				}
+				return new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+			},
+			P2025: () => new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND),
+		});
 	}
 
 	public async findByNameAndRestaurantId(
 		nameOrRestaurantId: string,
 		restaurantIdOrName: string,
 	): Promise<MenuItem | null> {
-		try {
+		return this.run(async () => {
 			const uuidRegex =
 				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 			let restaurantId = nameOrRestaurantId;
@@ -147,29 +126,23 @@ export class PrismaMenuItemRepository
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public override async findById(id: string): Promise<MenuItem | null> {
-		try {
+		return this.run(async () => {
 			const record = await this.dbModel.findFirst({
 				where: { id, isDeleted: false },
 			});
 			return record ? this.mapper.toDomain(record) : null;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async findByIdAndRestaurantId(
 		menuItemId: string,
 		restaurantId: string,
 	): Promise<MenuItemDetailsAggregate | null> {
-		try {
+		return this.run(async () => {
 			const record = await this.prismaClient.menuItem.findFirst({
 				where: {
 					id: menuItemId,
@@ -254,16 +227,13 @@ export class PrismaMenuItemRepository
 				variants: domainVariants,
 				addons: domainAddons,
 			};
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async getRestaurantMenuStats(
 		restaurantId: string,
 	): Promise<RestaurantMenuStats> {
-		try {
+		return this.run(async () => {
 			const [totalCategories, totalMenuItems, availableItems, outOfStockItems] =
 				await Promise.all([
 					this.prismaClient.menuCategory.count({
@@ -300,14 +270,11 @@ export class PrismaMenuItemRepository
 				availableItems,
 				outOfStockItems,
 			};
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async updateMenuItem(item: MenuItem): Promise<MenuItem> {
-		try {
+		return this.run(async () => {
 			const data = this.mapper.toPersistence(item);
 			if (data.isDeleted) {
 				const result = await this.prismaClient.menuItem.updateMany({
@@ -346,16 +313,13 @@ export class PrismaMenuItemRepository
 				},
 			});
 			return this.mapper.toDomain(updated);
-		} catch (error) {
-			this.handlePrismaError(error, item);
-			throw error;
-		}
+		});
 	}
 
 	public async updateWithDetails(
 		params: UpdateMenuItemRepositoryParams,
 	): Promise<MenuItemAggregate> {
-		try {
+		return this.run(async () => {
 			return await this.prismaClient.$transaction(async (tx) => {
 				const itemData = this.mapper.toPersistence(params.menuItem);
 
@@ -586,14 +550,11 @@ export class PrismaMenuItemRepository
 					addons: domainAddons,
 				};
 			});
-		} catch (error) {
-			this.handlePrismaError(error, params);
-			throw error;
-		}
+		});
 	}
 
 	public async updateAvailability(item: MenuItem): Promise<MenuItem> {
-		try {
+		return this.run(async () => {
 			const data = this.mapper.toPersistence(item);
 			await this.prismaClient.$transaction(async (tx) => {
 				const result = await tx.menuItem.updateMany({
@@ -624,16 +585,13 @@ export class PrismaMenuItemRepository
 			});
 
 			return item;
-		} catch (error) {
-			this.handlePrismaError(error, item);
-			throw error;
-		}
+		});
 	}
 
 	public async createWithDetails(
 		params: CreateMenuItemRepositoryParams,
 	): Promise<MenuItemAggregate> {
-		try {
+		return this.run(async () => {
 			return await this.prismaClient.$transaction(async (tx) => {
 				const itemData = this.mapper.toPersistence(params.menuItem);
 
@@ -744,16 +702,13 @@ export class PrismaMenuItemRepository
 					addons: createdAddonsRaw,
 				};
 			});
-		} catch (error) {
-			this.handlePrismaError(error, params);
-			throw error;
-		}
+		});
 	}
 
 	public async findManyWithFiltersAndStats(
 		params: MenuItemQueryFilterParams,
 	): Promise<MenuItemQueryResult> {
-		try {
+		return this.run(async () => {
 			const {
 				restaurantId,
 				categoryId,
@@ -875,16 +830,13 @@ export class PrismaMenuItemRepository
 				total: filteredTotal,
 				stats,
 			};
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async findManyStaffMenuItems(
 		params: StaffMenuItemQueryFilterParams,
 	): Promise<StaffMenuItemQueryResult> {
-		try {
+		return this.run(async () => {
 			const {
 				restaurantId,
 				categoryId,
@@ -1050,9 +1002,6 @@ export class PrismaMenuItemRepository
 				items,
 				total: filteredTotal,
 			};
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 }

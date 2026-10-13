@@ -6,12 +6,14 @@ import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
 import {
 	AddonNotFoundForRestaurantError,
 	CategoryNotFoundError,
+	InvalidMenuItemDataError,
 	InvalidVariantDataError,
 	MenuItemAlreadyExistsError,
 	MenuItemNotFoundError,
 } from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import { PrismaMenuItemRepository } from "@/infrastructure/database/repositories/prisma-menu-item.repository.ts";
+import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
 
 describe("PrismaMenuItemRepository", () => {
 	let mockPrisma: {
@@ -441,6 +443,22 @@ describe("PrismaMenuItemRepository", () => {
 			).rejects.toThrow(AddonNotFoundForRestaurantError);
 		});
 
+		it("should map P2002 error with addon target to InvalidMenuItemDataError", async () => {
+			const p2002Error = new PrismaClientKnownRequestError(
+				"Unique constraint failed",
+				{
+					code: "P2002",
+					clientVersion: "6.0.0",
+					meta: { target: ["menu_item_addons_pkey"] },
+				},
+			);
+			mockPrisma.menuItem.findFirst.mockRejectedValue(p2002Error);
+
+			await expect(
+				repository.findByNameAndRestaurantId(restaurantId, "Existing"),
+			).rejects.toThrow(InvalidMenuItemDataError);
+		});
+
 		it("should map P2025 error to MenuItemNotFoundError", async () => {
 			const p2025Error = new PrismaClientKnownRequestError("Not found", {
 				code: "P2025",
@@ -451,6 +469,16 @@ describe("PrismaMenuItemRepository", () => {
 			await expect(
 				repository.findByNameAndRestaurantId(restaurantId, "Burger"),
 			).rejects.toThrow(MenuItemNotFoundError);
+		});
+
+		it("should map unexpected error to PersistenceError", async () => {
+			mockPrisma.menuItem.findFirst.mockRejectedValue(
+				new Error("Database connection lost"),
+			);
+
+			await expect(
+				repository.findByNameAndRestaurantId(restaurantId, "Burger"),
+			).rejects.toThrow(PersistenceError);
 		});
 	});
 

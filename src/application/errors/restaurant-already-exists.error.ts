@@ -1,6 +1,3 @@
-export class RestaurantAlreadyExistsError extends Error {
-	constructor() {
-		super("Restaurant with this email already exists");
-		this.name = "RestaurantAlreadyExistsError";
-	}
-}
+import { RestaurantAlreadyExistsError } from "@/domain/errors/restaurant.errors.ts";
+
+export { RestaurantAlreadyExistsError };

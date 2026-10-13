@@ -6,6 +6,7 @@ import type {
 } from "express";
 import { ZodError } from "zod";
 import { DomainError } from "@/domain/errors/domain.error.ts";
+import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import {
 	DOMAIN_ERROR_STATUS_MAP,
@@ -23,7 +24,7 @@ import { AppError } from "@/utils/response.model.ts";
 export { AppError };
 
 export const errorHandler: ErrorRequestHandler = (
-	err: Error | DomainError | AppError | ZodError | unknown,
+	err: Error | DomainError | AppError | ZodError | PersistenceError | unknown,
 	req: Request,
 	res: Response,
 	_next: NextFunction,
@@ -38,6 +39,11 @@ export const errorHandler: ErrorRequestHandler = (
 		code = err.code;
 		message = err.message;
 		errorDetails = err.details;
+	} else if (err instanceof PersistenceError) {
+		statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+		code = ERROR_CODES.INTERNAL_SERVER_ERROR;
+		message = messages.INTERNAL_SERVER_ERROR;
+		errorDetails = undefined;
 	} else if (err instanceof ZodError) {
 		statusCode = HTTP_STATUS.UNPROCESSABLE_ENTITY;
 		code = ERROR_CODES.VALIDATION_ERROR;
@@ -86,6 +92,9 @@ export const errorHandler: ErrorRequestHandler = (
 				name: errorObj.name,
 				message: errorObj.message,
 				stack: errorObj.stack,
+				...(err instanceof PersistenceError && err.originalError
+					? { originalError: err.originalError }
+					: {}),
 			},
 		},
 		messages.UNHANDLED_APP_ERROR,

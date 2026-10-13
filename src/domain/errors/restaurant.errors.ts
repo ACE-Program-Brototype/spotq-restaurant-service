@@ -30,6 +30,16 @@ export class RestaurantNotFoundError extends DomainError {
 	}
 }
 
+export class RestaurantAlreadyExistsError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.RESTAURANT_ALREADY_EXISTS;
+	constructor(
+		message = "Restaurant with this email already exists",
+		details?: unknown,
+	) {
+		super(message, details);
+	}
+}
+
 export class InvalidRestaurantStatusError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.INVALID_RESTAURANT_STATUS;
 	constructor(message: string = sharedMessages.INVALID_RESTAURANT_STATUS) {

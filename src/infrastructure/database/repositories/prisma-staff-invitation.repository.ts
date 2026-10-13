@@ -3,7 +3,6 @@ import type {
 	PrismaClient,
 	StaffInvitation as PrismaStaffInvitation,
 } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
@@ -33,119 +32,129 @@ export class PrismaStaffInvitationRepository
 		@inject(TYPES.PrismaClient)
 		private readonly prisma: PrismaClient,
 	) {
-		super(prisma.staffInvitation, StaffInvitationPersistenceMapper);
-	}
-
-	protected override handlePrismaError(
-		error: unknown,
-		_context?: unknown,
-	): void {
-		const code = (error as { code?: string })?.code;
-		if (code === "P2002" || error instanceof PrismaClientKnownRequestError) {
-			if (
-				(error as PrismaClientKnownRequestError).code === "P2002" ||
-				code === "P2002"
-			) {
-				throw new StaffInvitationAlreadyPendingError(
+		super(prisma.staffInvitation, StaffInvitationPersistenceMapper, {
+			P2002: (error: unknown) => {
+				const meta = (error as { meta?: { target?: string[] | string } })?.meta;
+				const target = meta?.target;
+				const targetStr = Array.isArray(target)
+					? target.join(",")
+					: String(target ?? "");
+				if (
+					targetStr.includes("staffId") ||
+					targetStr.includes("restaurant_staff")
+				) {
+					return new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
+				}
+				return new StaffInvitationAlreadyPendingError(
 					messages.STAFF_INVITATION_ALREADY_PENDING,
 				);
-			}
-		}
+			},
+		});
 	}
 
 	public async findByTokenHash(
 		tokenHash: string,
 	): Promise<StaffInvitation | null> {
-		const raw = await this.dbModel.findUnique({
-			where: { tokenHash },
+		return this.run(async () => {
+			const raw = await this.dbModel.findUnique({
+				where: { tokenHash },
+			});
+
+			if (!raw) {
+				return null;
+			}
+
+			return this.mapper.toDomain(raw);
 		});
-
-		if (!raw) {
-			return null;
-		}
-
-		return this.mapper.toDomain(raw);
 	}
 
 	public async findByEmail(email: string): Promise<StaffInvitation[]> {
-		const rawList = await this.dbModel.findMany({
-			where: { email: email.toLowerCase().trim() },
-		});
+		return this.run(async () => {
+			const rawList = await this.dbModel.findMany({
+				where: { email: email.toLowerCase().trim() },
+			});
 
-		return rawList.map((raw: PrismaStaffInvitation) =>
-			this.mapper.toDomain(raw),
-		);
+			return rawList.map((raw: PrismaStaffInvitation) =>
+				this.mapper.toDomain(raw),
+			);
+		});
 	}
 
 	public async findPendingByEmailAndRestaurant(
 		email: string,
 		restaurantId: string,
 	): Promise<StaffInvitation | null> {
-		const raw = await this.dbModel.findFirst({
-			where: {
-				email: email.toLowerCase().trim(),
-				restaurantId,
-				status: "PENDING",
-				expiresAt: {
-					gt: new Date(),
+		return this.run(async () => {
+			const raw = await this.dbModel.findFirst({
+				where: {
+					email: email.toLowerCase().trim(),
+					restaurantId,
+					status: "PENDING",
+					expiresAt: {
+						gt: new Date(),
+					},
 				},
-			},
+			});
+
+			if (!raw) {
+				return null;
+			}
+
+			return this.mapper.toDomain(raw);
 		});
-
-		if (!raw) {
-			return null;
-		}
-
-		return this.mapper.toDomain(raw);
 	}
 
 	public async findByRestaurantId(
 		restaurantId: string,
 	): Promise<StaffInvitation[]> {
-		const rawList = await this.dbModel.findMany({
-			where: { restaurantId },
-		});
+		return this.run(async () => {
+			const rawList = await this.dbModel.findMany({
+				where: { restaurantId },
+			});
 
-		return rawList.map((raw: PrismaStaffInvitation) =>
-			this.mapper.toDomain(raw),
-		);
+			return rawList.map((raw: PrismaStaffInvitation) =>
+				this.mapper.toDomain(raw),
+			);
+		});
 	}
 
 	public async findManyWithFilters(
 		params: StaffInvitationFilterParams,
 	): Promise<{ invitations: StaffInvitation[]; total: number }> {
-		const { restaurantId, page, limit, status, search, sortBy, sortOrder } =
-			params;
+		return this.run(async () => {
+			const { restaurantId, page, limit, status, search, sortBy, sortOrder } =
+				params;
 
-		const where: Prisma.StaffInvitationWhereInput = {
-			restaurantId,
-			...(status && { status }),
-			...(search && {
-				email: {
-					contains: search,
-					mode: "insensitive",
-				},
-			}),
-		};
+			const where: Prisma.StaffInvitationWhereInput = {
+				restaurantId,
+				...(status && { status }),
+				...(search && {
+					email: {
+						contains: search,
+						mode: "insensitive",
+					},
+				}),
+			};
 
-		const skip = (page - 1) * limit;
+			const skip = (page - 1) * limit;
 
-		const [rawList, total] = await Promise.all([
-			this.dbModel.findMany({
-				where,
-				orderBy: { [sortBy]: sortOrder },
-				skip,
-				take: limit,
-			}),
-			this.dbModel.count({ where }),
-		]);
+			const [rawList, total] = await Promise.all([
+				this.dbModel.findMany({
+					where,
+					orderBy: { [sortBy]: sortOrder },
+					skip,
+					take: limit,
+				}),
+				this.dbModel.count({ where }),
+			]);
 
-		return {
-			invitations: rawList.map((raw: PrismaStaffInvitation) =>
-				this.mapper.toDomain(raw),
-			),
-			total,
-		};
+			return {
+				invitations: rawList.map((raw: PrismaStaffInvitation) =>
+					this.mapper.toDomain(raw),
+				),
+				total,
+			};
+		});
 	}
 
 	public async createStaffWithInvitation(
@@ -161,65 +170,63 @@ export class PrismaStaffInvitationRepository
 		} = invitationData;
 
 		try {
-			await this.prisma.$transaction(async (tx) => {
-				const normalizedEmail = (staff.email || invitation.email)
-					.toLowerCase()
-					.trim();
+			await this.run(async () => {
+				await this.prisma.$transaction(async (tx) => {
+					const normalizedEmail = (staff.email || invitation.email)
+						.toLowerCase()
+						.trim();
 
-				const globalStaff = await tx.staff.upsert({
-					where: { email: normalizedEmail },
-					create: {
-						id: staff.staff?.id || staff.staffId || undefined,
-						email: normalizedEmail,
-						fullname: staff.fullname || staff.staff?.fullname || "",
-						phone: staff.phone || staff.staff?.phone || "",
-						passwordHash: staff.passwordHash || staff.staff?.passwordHash || "",
-						avatarUrl: staff.avatarUrl || staff.staff?.avatarUrl || null,
-					},
-					update: {
-						...(staff.fullname && { fullname: staff.fullname }),
-						...(staff.phone && { phone: staff.phone }),
-					},
-				});
-				const staffId = globalStaff.id;
+					const globalStaff = await tx.staff.upsert({
+						where: { email: normalizedEmail },
+						create: {
+							id: staff.staff?.id || staff.staffId || undefined,
+							email: normalizedEmail,
+							fullname: staff.fullname || staff.staff?.fullname || "",
+							phone: staff.phone || staff.staff?.phone || "",
+							passwordHash:
+								staff.passwordHash || staff.staff?.passwordHash || "",
+							avatarUrl: staff.avatarUrl || staff.staff?.avatarUrl || null,
+						},
+						update: {
+							...(staff.fullname && { fullname: staff.fullname }),
+							...(staff.phone && { phone: staff.phone }),
+						},
+					});
+					const staffId = globalStaff.id;
 
-				await tx.restaurantStaff.upsert({
-					where: {
-						staffId_restaurantId: {
+					await tx.restaurantStaff.upsert({
+						where: {
+							staffId_restaurantId: {
+								staffId,
+								restaurantId: staff.restaurantId,
+							},
+						},
+						create: {
+							id: staff.id,
 							staffId,
 							restaurantId: staff.restaurantId,
+							role: staff.role,
+							status: staff.status,
+							joinedAt: staff.joinedAt ?? new Date(),
+							leftAt: staff.leftAt,
 						},
-					},
-					create: {
-						id: staff.id,
-						staffId,
-						restaurantId: staff.restaurantId,
-						role: staff.role,
-						status: staff.status,
-						joinedAt: staff.joinedAt ?? new Date(),
-						leftAt: staff.leftAt,
-					},
-					update: {
-						status: staff.status,
-						role: staff.role,
-						leftAt: staff.leftAt,
-						updatedAt: new Date(),
-					},
-				});
+						update: {
+							status: staff.status,
+							role: staff.role,
+							leftAt: staff.leftAt,
+							updatedAt: new Date(),
+						},
+					});
 
-				await tx.staffInvitation.upsert({
-					where: { id: invitation.id },
-					create: invitationData,
-					update: invUpdateData,
+					await tx.staffInvitation.upsert({
+						where: { id: invitation.id },
+						create: invitationData,
+						update: invUpdateData,
+					});
 				});
 			});
 		} catch (error) {
-			const code = (error as { code?: string })?.code;
-			if (
-				code === "P2002" ||
-				(error instanceof PrismaClientKnownRequestError &&
-					error.code === "P2002")
-			) {
+			if (error instanceof StaffInvitationAlreadyPendingError) {
 				throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 			}
 			throw error;

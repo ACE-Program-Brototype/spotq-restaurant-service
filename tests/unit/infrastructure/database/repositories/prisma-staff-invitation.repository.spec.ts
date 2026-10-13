@@ -103,4 +103,25 @@ describe("PrismaStaffInvitationRepository", () => {
 			expect(result.invitations[0].email).toBe("john@example.com");
 		});
 	});
+
+	describe("error translation", () => {
+		it("should translate P2002 error to StaffInvitationAlreadyPendingError", async () => {
+			const { PrismaClientKnownRequestError } = await import(
+				"@prisma/client/runtime/library"
+			);
+			const { StaffInvitationAlreadyPendingError } = await import(
+				"@/domain/errors/staff.errors.ts"
+			);
+
+			const p2002 = new PrismaClientKnownRequestError("Duplicate invitation", {
+				code: "P2002",
+				clientVersion: "6.0.0",
+			});
+			mockPrisma.staffInvitation.findUnique.mockRejectedValueOnce(p2002);
+
+			await expect(
+				repository.findByTokenHash("hash123"),
+			).rejects.toThrow(StaffInvitationAlreadyPendingError);
+		});
+	});
 });
