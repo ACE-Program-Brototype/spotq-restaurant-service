@@ -347,6 +347,7 @@ export const messages = {
 	TABLE_SECTION_CREATE_SUCCESS: "Table Section Created Successfully",
 	TABLE_SECTION_NAME_REQUIRED: "Table Section name required",
 	TABLE_SECTION_NAME_MAX: "Table section name must not exceed 100 characters.",
+	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
 
 	// TABLE
 	INVALID_TABLE_CAPACITY: "Table capacity must be greater than 0.",

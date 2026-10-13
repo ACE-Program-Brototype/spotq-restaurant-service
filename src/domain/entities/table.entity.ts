@@ -5,6 +5,7 @@ import {
 	type TableStatusType,
 } from "@domain/constants/table.constants";
 import { RestaurantIdRequiredError } from "@domain/errors/restaurant.errors";
+import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 import {
 	InvalidTableCapacityError,
 	InvalidTableNumberError,
@@ -14,7 +15,7 @@ import {
 export interface TablePropsType {
 	id: string;
 	restaurantId: string;
-	sectionId: string | null;
+	sectionId: string;
 	tableNumber: string;
 	capacity: number;
 	currentOccupancy: number;
@@ -29,7 +30,7 @@ export interface TablePropsType {
 export interface CreateTablePropsType {
 	id?: string;
 	restaurantId: string;
-	sectionId?: string | null;
+	sectionId: string;
 	tableNumber: string;
 	capacity: number;
 	tableShape: TableShapeType;
@@ -68,10 +69,15 @@ export class Table {
 			throw new InvalidTableShapeError();
 		}
 
+		// throws if sectionId not provided
+		const sectionId = props.sectionId.trim()
+		if(!sectionId){
+			throw new TableSectionIdRequiredError()
+		}
+
 		// generates Id if not provided
 		const id = props.id || crypto.randomUUID();
 
-		const sectionId = props.sectionId || null;
 		const now = new Date();
 
 		return new Table({
