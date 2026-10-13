@@ -40,6 +40,11 @@ export type ReconstituteTableProps = TablePropsType;
 export class Table {
 	private constructor(private readonly props: TablePropsType) {}
 
+	/**
+	 * Used to create a new Table Instance
+	 * @param props CreateTablePropsType
+	 * @returns Table
+	 */
 	static create(props: CreateTablePropsType) {
 		// throw if capacity is less than 1
 		const capacity = props.capacity;
@@ -85,6 +90,11 @@ export class Table {
 		});
 	}
 
+	/**
+	 * Used to reconstruct a Table Instance from existing value
+	 * @param props ReconstituteTableProps
+	 * @returns Table
+	 */
 	public static reconstitute(props: ReconstituteTableProps) {
 		return new Table({
 			id: props.id,
