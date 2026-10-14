@@ -7,7 +7,7 @@ import {
 import { RestaurantIdRequiredError } from "@domain/errors/restaurant.errors";
 import {
 	InvalidTableCapacityError,
-	InvalidTableNumberError,
+	InvalidTableCodeError,
 	InvalidTableShapeError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
@@ -56,7 +56,7 @@ export class Table {
 		// throw if tableCode is invalid
 		const tableCode = props.tableCode.trim();
 		if (tableCode.length < 1 || tableCode.length > 50) {
-			throw new InvalidTableNumberError();
+			throw new InvalidTableCodeError();
 		}
 
 		// throws if restaurantId not provided

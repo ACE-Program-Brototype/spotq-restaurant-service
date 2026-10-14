@@ -10,7 +10,7 @@ export const createTableParamsSchema = z
 
 export const createTableBodySchema = z
 	.object({
-		tableNumber: z
+		tableCode: z
 			.string({ message: messages.TABLE_CODE_REQUIRED })
 			.trim()
 			.min(1, { message: messages.INVALID_TABLE_CODE })
