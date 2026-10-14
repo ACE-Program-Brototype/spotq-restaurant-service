@@ -5,18 +5,18 @@ import {
 	type TableStatusType,
 } from "@domain/constants/table.constants";
 import { RestaurantIdRequiredError } from "@domain/errors/restaurant.errors";
-import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 import {
 	InvalidTableCapacityError,
 	InvalidTableNumberError,
 	InvalidTableShapeError,
 } from "@domain/errors/table.errors";
+import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 
 export interface TablePropsType {
 	id: string;
 	restaurantId: string;
 	sectionId: string;
-	tableNumber: string;
+	tableCode: string;
 	capacity: number;
 	currentOccupancy: number;
 	tableShape: TableShapeType;
@@ -31,7 +31,7 @@ export interface CreateTablePropsType {
 	id?: string;
 	restaurantId: string;
 	sectionId: string;
-	tableNumber: string;
+	tableCode: string;
 	capacity: number;
 	tableShape: TableShapeType;
 }
@@ -53,9 +53,9 @@ export class Table {
 			throw new InvalidTableCapacityError();
 		}
 
-		// throw if tableNumber is invalid
-		const tableNumber = props.tableNumber.trim();
-		if (tableNumber.length < 1 || tableNumber.length > 50) {
+		// throw if tableCode is invalid
+		const tableCode = props.tableCode.trim();
+		if (tableCode.length < 1 || tableCode.length > 50) {
 			throw new InvalidTableNumberError();
 		}
 
@@ -70,9 +70,9 @@ export class Table {
 		}
 
 		// throws if sectionId not provided
-		const sectionId = props.sectionId.trim()
-		if(!sectionId){
-			throw new TableSectionIdRequiredError()
+		const sectionId = props.sectionId.trim();
+		if (!sectionId) {
+			throw new TableSectionIdRequiredError();
 		}
 
 		// generates Id if not provided
@@ -84,7 +84,7 @@ export class Table {
 			id,
 			sectionId,
 			restaurantId,
-			tableNumber,
+			tableCode,
 			capacity,
 			tableShape: props.tableShape,
 			currentOccupancy: 0,
@@ -106,7 +106,7 @@ export class Table {
 			id: props.id,
 			sectionId: props.sectionId,
 			restaurantId: props.restaurantId,
-			tableNumber: props.tableNumber,
+			tableCode: props.tableCode,
 			capacity: props.capacity,
 			tableShape: props.tableShape,
 			currentOccupancy: props.currentOccupancy,
@@ -130,8 +130,8 @@ export class Table {
 		return this.props.sectionId;
 	}
 
-	get tableNumber() {
-		return this.props.tableNumber;
+	get tableCode() {
+		return this.props.tableCode;
 	}
 
 	get capacity() {

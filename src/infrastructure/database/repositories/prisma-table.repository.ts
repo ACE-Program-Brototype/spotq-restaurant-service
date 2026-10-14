@@ -76,7 +76,7 @@ export class PrismaTableRepository
 
 	private static readonly SORT_COLUMNS = {
 		createdAt: "createdAt",
-		tableNumber: "tableNumber",
+		tableCode: "tableCode",
 	} as const;
 
 	async findManyWithFilter(
@@ -108,7 +108,7 @@ export class PrismaTableRepository
 		}
 
 		if (filter.search) {
-			where.tableNumber = {
+			where.tableCode = {
 				contains: filter.search,
 				mode: Prisma.QueryMode.insensitive,
 			};
@@ -128,7 +128,7 @@ export class PrismaTableRepository
 		try {
 			const records = (await this.delegate.findMany({
 				where: { restaurantId, isDeleted: false },
-				orderBy: [{ tableNumber: "asc" }, { id: "asc" }],
+				orderBy: [{ tableCode: "asc" }, { id: "asc" }],
 			})) as PrismaTable[];
 			return records.map((record) => this.mapper.toDomain(record));
 		} catch (error) {
@@ -148,7 +148,7 @@ export class PrismaTableRepository
 				grouped[sectionId] = []
 			}
 			
-			grouped[sectionId].push(table.tableNumber);
+			grouped[sectionId].push(table.tableCode);
 			return grouped;
 		}, {});
 	}
@@ -165,13 +165,13 @@ export class PrismaTableRepository
 		}
 	}
 
-	async findByTableNameAndRestaurant(
+	async findByTableCodeAndRestaurant(
 		name: string,
 		restaurantId: string,
 	): Promise<Table | null> {
 		try {
 			return await super.findOne<Prisma.TableWhereInput>({
-				tableNumber: name,
+				tableCode: name,
 				restaurantId,
 				isDeleted: false,
 			});

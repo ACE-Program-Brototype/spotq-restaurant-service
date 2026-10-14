@@ -9,7 +9,7 @@ export interface TableFilterParams {
 	sectionId?: string;
 	createdFrom?: Date;
 	createdTo?: Date;
-	sortBy: "createdAt" | "tableNumber";
+	sortBy: "createdAt" | "tableCode";
 	sortOrder: "asc" | "desc";
 }
 
@@ -62,12 +62,12 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	deleteTable(id: string): Promise<void>;
 
 	/**
-	 * Find Table by name and Restaurant Id
-	 * @param name string TableName
+	 * Find Table by code and Restaurant Id
+	 * @param code string TableCode
 	 * @param restaurantId string
 	 */
-	findByTableNameAndRestaurant(
-		name: string,
+	findByTableCodeAndRestaurant(
+		code: string,
 		restaurantId: string,
 	): Promise<Table | null>;
 }

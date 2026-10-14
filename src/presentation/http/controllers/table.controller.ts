@@ -21,13 +21,13 @@ export class TableController {
 			throw new UnauthorizedEntityAccessError();
 		}
 
-		const { tableNumber, tableType, capacity, sectionId } =
+		const { tableCode, tableType, capacity, sectionId } =
 			req.body as ICreateTableInputDTO;
 		const { restaurantId } = req.params as { restaurantId: string };
 
 		const result = await this._createTable.execute({
 			restaurantId,
-			tableNumber,
+			tableCode,
 			tableType,
 			sectionId,
 			capacity,

@@ -47,13 +47,13 @@ export class CreateTableUseCase implements ICreateTableUseCase {
 		}
 
 		// does this section exists in the restaurant
-		if(tableSection.restaurantId !== restaurant.id){
-			throw new TableSectionNotFound()
+		if (tableSection.restaurantId !== restaurant.id) {
+			throw new TableSectionNotFound();
 		}
 
 		// is table already exists
-		const existingTable = await this.tableRepo.findByTableNameAndRestaurant(
-			dto.tableNumber,
+		const existingTable = await this.tableRepo.findByTableCodeAndRestaurant(
+			dto.tableCode,
 			dto.restaurantId,
 		);
 		if (existingTable) {
@@ -62,7 +62,7 @@ export class CreateTableUseCase implements ICreateTableUseCase {
 
 		// creating table
 		const table = Table.create({
-			tableNumber: dto.tableNumber,
+			tableCode: dto.tableCode,
 			tableShape: dto.tableType,
 			restaurantId: restaurant.id,
 			sectionId: tableSection.id,
@@ -74,7 +74,7 @@ export class CreateTableUseCase implements ICreateTableUseCase {
 		// returns the output dto
 		return {
 			id: tableResult.id,
-			tableNumber: tableResult.tableNumber,
+			tableCode: tableResult.tableCode,
 			restaurantId: tableResult.restaurantId,
 			capacity: tableResult.capacity,
 			sectionId: tableResult.sectionId,
