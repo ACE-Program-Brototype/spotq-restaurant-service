@@ -17,33 +17,7 @@ import {
 	validateRequestParams,
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
-import {
-	createAddonBodySchema,
-	createAddonParamsSchema,
-	listAddonsParamsSchema,
-} from "../validators/create-addon.validator";
-import {
-	createMenuCategoryBodySchema,
-	createMenuCategoryParamsSchema,
-} from "../validators/create-menu-category.validator";
-import {
-	createMenuItemBodySchema,
-	createMenuItemParamsSchema,
-} from "../validators/create-menu-item.validator";
-import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
-import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
-import { deleteMenuItemParamsSchema } from "../validators/delete-menu-item.validator";
-import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
 import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
-import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
-import {
-	listMenuItemsParamsSchema,
-	listMenuItemsQuerySchema,
-} from "../validators/list-menu-items.validator";
-import {
-	listStaffMenuItemsParamsSchema,
-	listStaffMenuItemsQuerySchema,
-} from "../validators/list-staff-menu-items.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -60,26 +34,6 @@ import {
 	updateStaffStatusParamsSchema,
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
-import {
-	updateAddonBodySchema,
-	updateAddonParamsSchema,
-} from "../validators/update-addon.validator";
-import {
-	updateMenuCategoryBodySchema,
-	updateMenuCategoryParamsSchema,
-} from "../validators/update-menu-category.validator";
-import {
-	updateMenuCategoryStatusBodySchema,
-	updateMenuCategoryStatusParamsSchema,
-} from "../validators/update-menu-category-status.validator";
-import {
-	updateMenuItemBodySchema,
-	updateMenuItemParamsSchema,
-} from "../validators/update-menu-item.validator";
-import {
-	updateMenuItemStatusBodySchema,
-	updateMenuItemStatusParamsSchema,
-} from "../validators/update-menu-item-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 import { addonRouter } from "./addon.routes";
 import { menuRouter } from "./menu.routes";
