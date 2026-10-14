@@ -1,4 +1,3 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { UpdateAddonUseCase } from "@/application/use-cases/update-addon.use-case.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
@@ -8,6 +7,7 @@ import {
 } from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("UpdateAddonUseCase", () => {
 	let useCase: UpdateAddonUseCase;

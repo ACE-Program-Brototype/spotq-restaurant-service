@@ -3,10 +3,10 @@ import type {
 	ApproveRestaurantDto,
 	ApproveRestaurantResponseDto,
 } from "@/application/dtos/admin/approve-restaurant.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IApproveRestaurantUseCase } from "@/application/ports/use-cases/admin/approve-restaurant.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 
 @injectable()

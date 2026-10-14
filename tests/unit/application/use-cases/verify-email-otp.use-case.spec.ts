@@ -1,12 +1,12 @@
 import { InvalidOtpError } from "@/application/errors/invalid-otp.error";
 import { RestaurantAccountBlockedError } from "@/application/errors/restaurant-account-blocked.error";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
 import type { IOtpStore } from "@/application/ports/services/otp-store.port";
 import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("VerifyRestaurantEmailOtpUseCase", () => {
 	let useCase: VerifyRestaurantEmailOtpUseCase;

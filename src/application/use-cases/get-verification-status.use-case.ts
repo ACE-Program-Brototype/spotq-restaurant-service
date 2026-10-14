@@ -3,10 +3,10 @@ import type {
 	RestaurantVerificationStatusResponseDto,
 	VerificationStatus,
 } from "@/application/dtos/restaurant/restaurant-verification-status.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IGetRestaurantVerificationStatusUseCase } from "@/application/ports/use-cases/get-verification-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants";
 
 @injectable()

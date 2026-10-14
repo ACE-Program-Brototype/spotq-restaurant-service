@@ -1,4 +1,3 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { RejectRestaurantUseCase } from "@/application/use-cases/admin/reject-restaurant.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import {
@@ -7,6 +6,7 @@ import {
 	RestaurantAlreadyProcessedError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 
 describe("RejectRestaurantUseCase", () => {

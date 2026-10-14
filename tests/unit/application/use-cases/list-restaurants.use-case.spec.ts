@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ListRestaurantsUseCase } from "@/application/use-cases/admin/list-restaurants.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("ListRestaurantsUseCase", () => {
 	let mockRestaurantRepository: jest.Mocked<IRestaurantRepository>;

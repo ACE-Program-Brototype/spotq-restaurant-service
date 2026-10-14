@@ -1,7 +1,7 @@
 import { RestaurantStatus } from "@prisma/client";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { GetRestaurantStatusUseCase } from "@/application/use-cases/get-restaurant-status.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { RESTAURANT_NAVIGATION_TARGETS } from "@/shared/constants/navigation.constants.ts";
 
 describe("GetRestaurantStatusUseCase", () => {

@@ -2,7 +2,6 @@ import { inject, injectable } from "inversify";
 import type { MenuCategoryResponseDto } from "@/application/dtos/menu/create-menu-category.dto.ts";
 import type { UpdateMenuCategoryStatusInputDto } from "@/application/dtos/menu/update-menu-category-status.dto.ts";
 import { MenuCategoryMapper } from "@/application/mappers/menu-category.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IUpdateMenuCategoryStatusUseCase } from "@/application/ports/use-cases/update-menu-category-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { CategoryNotFoundError } from "@/domain/errors/menu-category.errors.ts";
@@ -11,6 +10,7 @@ import {
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
