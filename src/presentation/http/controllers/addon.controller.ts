@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
-import type { IDeleteAddonUseCase } from "@/application/ports/use-cases/delete-addon.use-case.port.ts";
-import type { IListRestaurantAddonsUseCase } from "@/application/ports/use-cases/list-restaurant-addons.use-case.port.ts";
-import type { IUpdateAddonUseCase } from "@/application/ports/use-cases/update-addon.use-case.port.ts";
+import type { ICreateAddonUseCase } from "@application/ports/use-cases/addon/create-addon.use-case.port";
+import type { IDeleteAddonUseCase } from "@application/ports/use-cases/addon/delete-addon.use-case.port";
+import type { IListRestaurantAddonsUseCase } from "@application/ports/use-cases/addon/list-restaurant-addons.use-case.port";
+import type { IUpdateAddonUseCase } from "@application/ports/use-cases/addon/update-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -61,16 +61,7 @@ export class AddonController {
 		const restaurantId = String(req.params.restaurantId);
 		const addonId = String(req.params.addonId);
 		const { name, description, price, imageKey, isAvailable } = req.body;
-		// to check weather the staff is blocked or not
-		// we need optional chaining in (req.headers?.["x-user-role"] as string | undefined); 
-		// since the x-user-role could be undefined
-		const userRole =
-			(req.user as AuthenticatedUser | undefined)?.role ||
-			(req.headers?.["x-user-role"] as string | undefined);
-		const userId =
-			(req.user as AuthenticatedUser | undefined)?.userId ||
-			(req.headers?.["x-user-id"] as string | undefined);
-
+		const user = req.user as AuthenticatedUser | undefined;
 
 		const result = await this.updateAddonUseCase.execute({
 			restaurantId,
@@ -80,8 +71,8 @@ export class AddonController {
 			price,
 			imageKey,
 			isAvailable,
-			...(userId ? { userId } : {}),
-			...(userRole ? { userRole } : {}),
+			...(user?.userId && { userId: user.userId }),
+			...(user?.role && { userRole: user.role }),
 		});
 
 		sendSuccessResponse(

@@ -5,7 +5,7 @@ import type {
 } from "@/application/dtos/addon/create-addon.dto.ts";
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
-import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
+import type { ICreateAddonUseCase } from "@application/ports/use-cases/addon/create-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";

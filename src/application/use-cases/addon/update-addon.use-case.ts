@@ -4,7 +4,7 @@ import type { UpdateAddonInputDto } from "@/application/dtos/addon/update-addon.
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
-import type { IUpdateAddonUseCase } from "@/application/ports/use-cases/update-addon.use-case.port.ts";
+import type { IUpdateAddonUseCase } from "@application/ports/use-cases/addon/update-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import {
 	AddonAlreadyExistsError,

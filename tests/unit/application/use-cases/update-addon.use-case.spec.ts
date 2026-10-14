@@ -1,5 +1,5 @@
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
-import { UpdateAddonUseCase } from "@/application/use-cases/update-addon.use-case.ts";
+import { UpdateAddonUseCase } from "@application/use-cases/addon/update-addon.use-case";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import {
