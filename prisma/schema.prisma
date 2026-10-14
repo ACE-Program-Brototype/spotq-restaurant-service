@@ -430,7 +430,7 @@ model Table {
   id               String      @id @default(uuid()) @db.Uuid
   restaurantId     String      @map("restaurant_id") @db.Uuid
   sectionId        String     @map("section_id") @db.Uuid
-  tableNumber      String      @map("table_number") @db.VarChar(50)
+  tableCode      String      @map("table_code") @db.VarChar(50)
   capacity         Int         @default(2)
   currentOccupancy Int         @default(0) @map("current_occupancy")
   tableShape       TableShape  @default(SQUARE) @map("table_shape")
