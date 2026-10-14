@@ -15,7 +15,6 @@ import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middlewa
 import { restaurantOrStaffAuthMiddleware } from "../middleware/restaurant-or-staff.auth.middleware";
 import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
-import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import {
 	validate,
 	validateRequestBody,
@@ -39,6 +38,7 @@ import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
 import { deleteMenuItemParamsSchema } from "../validators/delete-menu-item.validator";
 import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
+import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	listMenuItemsParamsSchema,
@@ -48,6 +48,7 @@ import {
 	listStaffMenuItemsParamsSchema,
 	listStaffMenuItemsQuerySchema,
 } from "../validators/list-staff-menu-items.validator";
+import { updateMenuItemVariantStatusParamsSchema } from "../validators/menu-item/update-menu-item-variant-status.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -81,13 +82,13 @@ import {
 	updateMenuCategoryStatusParamsSchema,
 } from "../validators/update-menu-category-status.validator";
 import {
-	updateMenuItemStatusBodySchema,
-	updateMenuItemStatusParamsSchema,
-} from "../validators/update-menu-item-status.validator";
-import {
 	updateMenuItemBodySchema,
 	updateMenuItemParamsSchema,
 } from "../validators/update-menu-item.validator";
+import {
+	updateMenuItemStatusBodySchema,
+	updateMenuItemStatusParamsSchema,
+} from "../validators/update-menu-item-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -150,9 +151,12 @@ restaurantRouter.patch(
 );
 
 restaurantRouter.get(
-  RESTAURANT_ROUTES.CUSTOMER_LIST,
-  validateRequestQuery(listCustomerRestaurantsQuerySchema, HTTP_STATUS.BAD_REQUEST),
-  customerRestaurantController.listRestaurants,
+	RESTAURANT_ROUTES.CUSTOMER_LIST,
+	validateRequestQuery(
+		listCustomerRestaurantsQuerySchema,
+		HTTP_STATUS.BAD_REQUEST,
+	),
+	customerRestaurantController.listRestaurants,
 );
 
 const updateStaffProfileChain: express.RequestHandler[] = [
@@ -248,14 +252,14 @@ restaurantRouter.post(
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.RESTAURANT_ADDONS,
-	restaurantOwnerAuthMiddleware,
+	restaurantOrStaffAuthMiddleware,
 	validateRequestParams(listAddonsParamsSchema),
 	addonController.listAddons,
 );
 
 restaurantRouter.patch(
 	RESTAURANT_ROUTES.RESTAURANT_ADDON_UPDATE,
-	restaurantOwnerAuthMiddleware,
+	restaurantOrStaffAuthMiddleware,
 	validateRequestParams(updateAddonParamsSchema),
 	validateRequestBody(updateAddonBodySchema),
 	addonController.updateAddon,
@@ -372,6 +376,13 @@ restaurantRouter.patch(
 	validateRequestParams(updateMenuItemStatusParamsSchema),
 	validateRequestBody(updateMenuItemStatusBodySchema),
 	menuItemController.updateMenuItemStatus,
+);
+
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.MENU_ITEM_VARIANT_STATUS_UPDATE,
+	restaurantOrStaffAuthMiddleware,
+	validateRequestParams(updateMenuItemVariantStatusParamsSchema),
+	menuItemController.updateMenuItemVariantStatus,
 );
 
 restaurantRouter.get(

@@ -1,3 +1,4 @@
+import type { UpdateMenuItemVariantStatusOutputDto } from "@application/dtos/menu-item/menu-item-variant.dto";
 import type { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import type { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
 import type { IBaseRepository } from "@/domain/repositories/base.repository.interface.ts";
@@ -190,4 +191,11 @@ export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
 		params: UpdateMenuItemRepositoryParams,
 	): Promise<MenuItemAggregate>;
 	updateAvailability(item: MenuItem): Promise<MenuItem>;
+
+	updateVariantAvailability(
+		id: string,
+		menuId: string,
+		restaurantId: string,
+		isAvailable: boolean,
+	): Promise<UpdateMenuItemVariantStatusOutputDto>;
 }

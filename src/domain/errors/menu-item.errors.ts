@@ -22,6 +22,14 @@ export class MenuItemNotFoundError extends DomainError {
 	}
 }
 
+export class MenuItemVariantNotFoundError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.MENU_ITEM_VARIANT_NOT_FOUND;
+
+	constructor(message: string = messages.MENU_ITEM_VARIANT_NOT_FOUND) {
+		super(message);
+	}
+}
+
 export class CategoryNotFoundError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.CATEGORY_NOT_FOUND;
 

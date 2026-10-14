@@ -1,3 +1,4 @@
+import type { UpdateMenuItemVariantStatusOutputDto } from "@application/dtos/menu-item/menu-item-variant.dto";
 import {
 	Prisma,
 	type PrismaClient,
@@ -31,10 +32,10 @@ import type {
 	MenuItemQueryResult,
 	MenuItemWithRelations,
 	RestaurantMenuStats,
-	UpdateMenuItemRepositoryParams,
 	StaffMenuItemQueryFilterParams,
 	StaffMenuItemQueryResult,
 	StaffMenuItemResultItem,
+	UpdateMenuItemRepositoryParams,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
@@ -1049,6 +1050,43 @@ export class PrismaMenuItemRepository
 			return {
 				items,
 				total: filteredTotal,
+			};
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
+	async updateVariantAvailability(
+		id: string,
+		menuId: string,
+		restaurantId: string,
+		isAvailable: boolean,
+	): Promise<UpdateMenuItemVariantStatusOutputDto> {
+		try {
+			const variant = await this.prismaClient.menuItemVariant.update({
+				where: {
+					id,
+					menuItemId: menuId,
+					menuItem: {
+						restaurantId,
+					},
+				},
+				data: {
+					isAvailable,
+				},
+			});
+
+			return {
+				id: variant.id,
+				menuItemId: variant.menuItemId,
+				restaurantId,
+				name: variant.name,
+				sku: variant.sku ?? null,
+				price: Number(variant.price),
+				isDefault: variant.isDefault,
+				isAvailable: variant.isAvailable,
+				updatedAt: variant.updatedAt,
 			};
 		} catch (error) {
 			this.handlePrismaError(error);

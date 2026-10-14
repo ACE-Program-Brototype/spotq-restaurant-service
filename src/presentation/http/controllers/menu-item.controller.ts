@@ -7,8 +7,9 @@ import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use
 import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
-import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
+import type { IUpdateMenuItemVariantStatusUseCase } from "@/application/ports/use-cases/menu-item/update-menu-item-variant-status.use-case.port.ts";
 import type { IUpdateMenuItemUseCase } from "@/application/ports/use-cases/update-menu-item.use-case.port.ts";
+import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type {
 	MenuItemSortField,
@@ -39,6 +40,8 @@ export class MenuItemController {
 		private readonly updateMenuItemStatusUseCase: IUpdateMenuItemStatusUseCase,
 		@inject(TYPES.UseCases.UpdateMenuItemUseCase)
 		private readonly updateMenuItemUseCase: IUpdateMenuItemUseCase,
+		@inject(TYPES.UseCases.UpdateMenuItemVariantStatusUseCase)
+		private readonly updateMenuItemVariantStatusUseCase: IUpdateMenuItemVariantStatusUseCase,
 	) {}
 
 	public createMenuItem = async (
@@ -317,6 +320,28 @@ export class MenuItemController {
 			res,
 			result,
 			messages.MENU_ITEM_STATUS_UPDATED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public updateMenuItemVariantStatus = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const id = String(req.params.variantId);
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.itemId);
+
+		const result = await this.updateMenuItemVariantStatusUseCase.execute({
+			id,
+			menuItemId,
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_VARIANT_STATUS_UPDATED_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};
