@@ -136,6 +136,10 @@ export const TYPES = {
 
 		// TABLE SECTION
 		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
+
+		// TABLE
+		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
+
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",
 		),
@@ -151,6 +155,7 @@ export const TYPES = {
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
 		TableSectionController: Symbol.for("TableSectionController"),
 		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
+		TableController: Symbol.for("TableController"),
 	},
 
 	Database: {
@@ -163,6 +168,7 @@ export const TYPES = {
 		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
 		MenuItemRepository: Symbol.for("MenuItemRepository"),
 		TableSectionRepository: Symbol.for("TableSectionRepository"),
+		TableRepository: Symbol.for("TableRepository"),
 	},
 
 	Redis: {

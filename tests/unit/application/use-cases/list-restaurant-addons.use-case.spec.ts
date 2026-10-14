@@ -4,6 +4,7 @@ import { ListRestaurantAddonsUseCase } from "@application/use-cases/addon/list-r
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("ListRestaurantAddonsUseCase", () => {
 	let restaurantRepository: jest.Mocked<Partial<IRestaurantRepository>>;

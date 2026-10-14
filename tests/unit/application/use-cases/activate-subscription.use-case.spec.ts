@@ -1,7 +1,7 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import { ActivateSubscriptionUseCase } from "@/application/use-cases/activate-subscription.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("ActivateSubscriptionUseCase", () => {
 	let useCase: ActivateSubscriptionUseCase;

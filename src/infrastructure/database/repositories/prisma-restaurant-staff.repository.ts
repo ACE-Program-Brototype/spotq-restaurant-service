@@ -1,6 +1,5 @@
 import { TYPES } from "@di/types.ts";
 import type { Prisma, PrismaClient } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import {
@@ -13,6 +12,7 @@ import type {
 	StaffFilterParams,
 } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import {
 	type PrismaRestaurantStaffWithRelations,
 	StaffPersistenceMapper,
@@ -32,30 +32,16 @@ export class PrismaRestaurantStaffRepository
 		@inject(TYPES.PrismaClient)
 		private readonly prismaClient: PrismaClient,
 	) {
-		super(prismaClient.restaurantStaff, StaffPersistenceMapper);
+		super(prismaClient.restaurantStaff, StaffPersistenceMapper, {
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+				new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS),
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
+				new StaffNotFoundError(messages.STAFF_NOT_FOUND),
+		});
 	}
 
 	private get isLegacyMock(): boolean {
 		return !(this.prismaClient as unknown as { staff?: unknown })?.staff;
-	}
-
-	protected override handlePrismaError(
-		error: unknown,
-		_context?: unknown,
-	): void {
-		const code = (error as { code?: string })?.code;
-		if (
-			code === "P2002" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
-		) {
-			throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
-		}
-		if (
-			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
-		) {
-			throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
-		}
 	}
 
 	public override async findById(id: string): Promise<RestaurantStaff | null> {
@@ -63,25 +49,27 @@ export class PrismaRestaurantStaffRepository
 			return null;
 		}
 
-		let record = (await this.delegate.findUnique({
-			where: { id },
-			...(this.isLegacyMock ? {} : { include: { staff: true } }),
-		})) as PrismaRestaurantStaffWithRelations | null;
-
-		if (!record) {
-			record = (await this.delegate.findFirst({
-				where: {
-					OR: [{ id }, { staffId: id }],
-				},
+		return this.run(async () => {
+			let record = (await this.delegate.findUnique({
+				where: { id },
 				...(this.isLegacyMock ? {} : { include: { staff: true } }),
 			})) as PrismaRestaurantStaffWithRelations | null;
-		}
 
-		if (!record) {
-			return null;
-		}
+			if (!record) {
+				record = (await this.delegate.findFirst({
+					where: {
+						OR: [{ id }, { staffId: id }],
+					},
+					...(this.isLegacyMock ? {} : { include: { staff: true } }),
+				})) as PrismaRestaurantStaffWithRelations | null;
+			}
 
-		return this.mapper.toDomain(record);
+			if (!record) {
+				return null;
+			}
+
+			return this.mapper.toDomain(record);
+		});
 	}
 
 	public async findByEmail(email: string): Promise<RestaurantStaff | null> {
@@ -101,15 +89,17 @@ export class PrismaRestaurantStaffRepository
 			options.include = { staff: true };
 		}
 
-		const record = (await this.delegate.findFirst(
-			options,
-		)) as PrismaRestaurantStaffWithRelations | null;
+		return this.run(async () => {
+			const record = (await this.delegate.findFirst(
+				options,
+			)) as PrismaRestaurantStaffWithRelations | null;
 
-		if (!record) {
-			return null;
-		}
+			if (!record) {
+				return null;
+			}
 
-		return this.mapper.toDomain(record);
+			return this.mapper.toDomain(record);
+		});
 	}
 
 	public async findByEmailAndRestaurantId(
@@ -121,31 +111,33 @@ export class PrismaRestaurantStaffRepository
 		}
 		const normalizedEmail = email.toLowerCase().trim();
 
-		if (this.isLegacyMock) {
-			const raw = (await this.delegate.findUnique({
-				where: {
-					restaurantId_email: {
-						email: normalizedEmail,
-						restaurantId,
+		return this.run(async () => {
+			if (this.isLegacyMock) {
+				const raw = (await this.delegate.findUnique({
+					where: {
+						restaurantId_email: {
+							email: normalizedEmail,
+							restaurantId,
+						},
 					},
+				})) as PrismaRestaurantStaffWithRelations | null;
+				return raw ? this.mapper.toDomain(raw) : null;
+			}
+
+			const record = (await this.delegate.findFirst({
+				where: {
+					restaurantId,
+					staff: { email: normalizedEmail },
 				},
+				include: { staff: true },
 			})) as PrismaRestaurantStaffWithRelations | null;
-			return raw ? this.mapper.toDomain(raw) : null;
-		}
 
-		const record = (await this.delegate.findFirst({
-			where: {
-				restaurantId,
-				staff: { email: normalizedEmail },
-			},
-			include: { staff: true },
-		})) as PrismaRestaurantStaffWithRelations | null;
+			if (!record) {
+				return null;
+			}
 
-		if (!record) {
-			return null;
-		}
-
-		return this.mapper.toDomain(record);
+			return this.mapper.toDomain(record);
+		});
 	}
 
 	public async findByStaffIdAndRestaurantId(
@@ -155,19 +147,22 @@ export class PrismaRestaurantStaffRepository
 		if (!staffId || !restaurantId) {
 			return null;
 		}
-		const raw = (await this.delegate.findFirst({
-			where: {
-				restaurantId,
-				OR: [{ staffId }, { id: staffId }],
-			},
-			...(this.isLegacyMock ? {} : { include: { staff: true } }),
-		})) as PrismaRestaurantStaffWithRelations | null;
 
-		if (!raw) {
-			return null;
-		}
+		return this.run(async () => {
+			const raw = (await this.delegate.findFirst({
+				where: {
+					restaurantId,
+					OR: [{ staffId }, { id: staffId }],
+				},
+				...(this.isLegacyMock ? {} : { include: { staff: true } }),
+			})) as PrismaRestaurantStaffWithRelations | null;
 
-		return this.mapper.toDomain(raw);
+			if (!raw) {
+				return null;
+			}
+
+			return this.mapper.toDomain(raw);
+		});
 	}
 
 	public async findActiveByStaffId(
@@ -177,43 +172,45 @@ export class PrismaRestaurantStaffRepository
 			return [];
 		}
 
-		const rawList = (await this.delegate.findMany({
-			where: {
-				OR: [{ staffId }, { id: staffId }],
-				status: { not: "REMOVED" },
-			},
-			include: {
-				staff: true,
-				restaurant: {
-					select: {
-						id: true,
-						restaurantName: true,
-						status: true,
-						isBlocked: true,
-						onboardingStatus: true,
-						isSubscriptionActive: true,
+		return this.run(async () => {
+			const rawList = (await this.delegate.findMany({
+				where: {
+					OR: [{ staffId }, { id: staffId }],
+					status: { not: "REMOVED" },
+				},
+				include: {
+					staff: true,
+					restaurant: {
+						select: {
+							id: true,
+							restaurantName: true,
+							status: true,
+							isBlocked: true,
+							onboardingStatus: true,
+							isSubscriptionActive: true,
+						},
 					},
 				},
-			},
-			orderBy: { createdAt: "asc" },
-		})) as (PrismaRestaurantStaffWithRelations & {
-			restaurant?: {
-				id: string;
-				restaurantName: string;
-				status: string;
-				isBlocked: boolean;
-				onboardingStatus: string;
-				isSubscriptionActive: boolean;
-			} | null;
-		})[];
+				orderBy: { createdAt: "asc" },
+			})) as (PrismaRestaurantStaffWithRelations & {
+				restaurant?: {
+					id: string;
+					restaurantName: string;
+					status: string;
+					isBlocked: boolean;
+					onboardingStatus: string;
+					isSubscriptionActive: boolean;
+				} | null;
+			})[];
 
-		return rawList.map((raw) => ({
-			membership: this.mapper.toDomain(raw),
-			restaurantId: raw.restaurantId,
-			restaurantName: raw.restaurant?.restaurantName || "Restaurant",
-			role: raw.role,
-			status: raw.status,
-		}));
+			return rawList.map((raw) => ({
+				membership: this.mapper.toDomain(raw),
+				restaurantId: raw.restaurantId,
+				restaurantName: raw.restaurant?.restaurantName || "Restaurant",
+				role: raw.role,
+				status: raw.status,
+			}));
+		});
 	}
 
 	public async findByRestaurantId(
@@ -222,12 +219,15 @@ export class PrismaRestaurantStaffRepository
 		if (!restaurantId) {
 			return [];
 		}
-		const rawList = (await this.delegate.findMany({
-			where: { restaurantId },
-			...(this.isLegacyMock ? {} : { include: { staff: true } }),
-		})) as PrismaRestaurantStaffWithRelations[];
 
-		return rawList.map((raw) => this.mapper.toDomain(raw));
+		return this.run(async () => {
+			const rawList = (await this.delegate.findMany({
+				where: { restaurantId },
+				...(this.isLegacyMock ? {} : { include: { staff: true } }),
+			})) as PrismaRestaurantStaffWithRelations[];
+
+			return rawList.map((raw) => this.mapper.toDomain(raw));
+		});
 	}
 
 	public async findManyWithFilters(
@@ -278,21 +278,23 @@ export class PrismaRestaurantStaffRepository
 			...(this.isLegacyMock ? {} : { include: { staff: true } }),
 		};
 
-		const [rawList, total] = await Promise.all([
-			this.delegate.findMany(findOptions) as Promise<
-				PrismaRestaurantStaffWithRelations[]
-			>,
-			this.delegate.count({ where }) as Promise<number>,
-		]);
+		return this.run(async () => {
+			const [rawList, total] = await Promise.all([
+				this.delegate.findMany(findOptions) as Promise<
+					PrismaRestaurantStaffWithRelations[]
+				>,
+				this.delegate.count({ where }) as Promise<number>,
+			]);
 
-		return {
-			staff: rawList.map((raw) => this.mapper.toDomain(raw)),
-			total,
-		};
+			return {
+				staff: rawList.map((raw) => this.mapper.toDomain(raw)),
+				total,
+			};
+		});
 	}
 
 	public override async save(entity: RestaurantStaff): Promise<void> {
-		try {
+		return this.run(async () => {
 			const data = this.mapper.toPersistence(entity);
 			const { id, createdAt, ...updateData } = data as Record<string, unknown>;
 
@@ -367,39 +369,38 @@ export class PrismaRestaurantStaffRepository
 				create: fullCreateData,
 				update: fullUpdateData,
 			});
-		} catch (error) {
-			this.handlePrismaError(error, entity);
-			throw error;
-		}
+		});
 	}
 
 	public async findByIdAndRestaurantId(
 		id: string,
 		restaurantId: string,
 	): Promise<RestaurantStaff | null> {
-		let raw = (await this.delegate.findFirst({
-			where: {
-				id,
-				restaurantId,
-			},
-			...(this.isLegacyMock ? {} : { include: { staff: true } }),
-		})) as PrismaRestaurantStaffWithRelations | null;
-
-		if (!raw && !this.isLegacyMock) {
-			raw = (await this.delegate.findFirst({
+		return this.run(async () => {
+			let raw = (await this.delegate.findFirst({
 				where: {
-					staffId: id,
+					id,
 					restaurantId,
 				},
-				include: { staff: true },
+				...(this.isLegacyMock ? {} : { include: { staff: true } }),
 			})) as PrismaRestaurantStaffWithRelations | null;
-		}
 
-		if (!raw) {
-			return null;
-		}
+			if (!raw && !this.isLegacyMock) {
+				raw = (await this.delegate.findFirst({
+					where: {
+						staffId: id,
+						restaurantId,
+					},
+					include: { staff: true },
+				})) as PrismaRestaurantStaffWithRelations | null;
+			}
 
-		return this.mapper.toDomain(raw);
+			if (!raw) {
+				return null;
+			}
+
+			return this.mapper.toDomain(raw);
+		});
 	}
 
 	public async updateStatus(
@@ -407,7 +408,7 @@ export class PrismaRestaurantStaffRepository
 		status: "ACTIVE" | "INACTIVE",
 		restaurantId?: string,
 	): Promise<RestaurantStaff> {
-		try {
+		return this.run(async () => {
 			let targetId = id;
 			if (restaurantId && !this.isLegacyMock) {
 				const existing = await this.findByIdAndRestaurantId(id, restaurantId);
@@ -429,23 +430,22 @@ export class PrismaRestaurantStaffRepository
 				options,
 			)) as PrismaRestaurantStaffWithRelations;
 			return this.mapper.toDomain(updated);
-		} catch (error) {
-			this.handlePrismaError(error, id);
-			throw error;
-		}
+		});
 	}
 
 	public async removeStaff(id: string, restaurantId: string): Promise<void> {
-		await this.delegate.updateMany({
-			where: {
-				restaurantId,
-				OR: [{ id }, { staffId: id }],
-			},
-			data: {
-				status: "REMOVED",
-				leftAt: new Date(),
-				updatedAt: new Date(),
-			},
+		return this.run(async () => {
+			await this.delegate.updateMany({
+				where: {
+					restaurantId,
+					OR: [{ id }, { staffId: id }],
+				},
+				data: {
+					status: "REMOVED",
+					leftAt: new Date(),
+					updatedAt: new Date(),
+				},
+			});
 		});
 	}
 
@@ -453,7 +453,7 @@ export class PrismaRestaurantStaffRepository
 		id: string,
 		data: { fullname?: string; phone?: string; avatarUrl?: string | null },
 	): Promise<RestaurantStaff> {
-		try {
+		return this.run(async () => {
 			if (this.isLegacyMock) {
 				const options: Record<string, unknown> = {
 					where: { id },
@@ -531,9 +531,6 @@ export class PrismaRestaurantStaffRepository
 			})) as PrismaRestaurantStaffWithRelations;
 
 			return this.mapper.toDomain(updated);
-		} catch (error) {
-			this.handlePrismaError(error, id);
-			throw error;
-		}
+		});
 	}
 }

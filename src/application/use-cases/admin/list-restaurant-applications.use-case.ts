@@ -3,9 +3,9 @@ import type {
 	ListRestaurantApplicationsDto,
 	PaginatedRestaurantApplicationsResponseDto,
 } from "@/application/dtos/admin/list-restaurant-applications.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListRestaurantApplicationsUseCase } from "@/application/ports/use-cases/admin/list-restaurant-applications.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;

@@ -1,9 +1,9 @@
 import { inject, injectable } from "inversify";
 import type { RestaurantStatusOutput } from "@/application/dtos/restaurant-status.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IGetRestaurantStatusUseCase } from "@/application/ports/use-cases/get-restaurant-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { RESTAURANT_STATUS } from "@/domain/enums/restaurant-status.enum.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { RESTAURANT_NAVIGATION_TARGETS } from "@/shared/constants/navigation.constants.ts";
 
 @injectable()

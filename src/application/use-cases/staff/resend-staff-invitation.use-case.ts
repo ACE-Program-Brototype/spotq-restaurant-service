@@ -4,7 +4,6 @@ import type {
 	ResendInvitationResponseDTO,
 } from "@/application/dtos/staff/resend-invitation.dto.ts";
 import type { IStaffInvitationConfig } from "@/application/ports/config/staff-invitation-config.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type { IInvitationTokenService } from "@/application/ports/services/invitation-token.service.port.ts";
 import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
@@ -16,6 +15,7 @@ import {
 	StaffAlreadyExistsError,
 	StaffInvitationNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { StaffEmail } from "@/domain/value-objects/email.vo.ts";

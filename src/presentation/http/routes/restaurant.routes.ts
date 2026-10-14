@@ -17,7 +17,33 @@ import {
 	validateRequestParams,
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
+import {
+	createAddonBodySchema,
+	createAddonParamsSchema,
+	listAddonsParamsSchema,
+} from "../validators/create-addon.validator";
+import {
+	createMenuCategoryBodySchema,
+	createMenuCategoryParamsSchema,
+} from "../validators/create-menu-category.validator";
+import {
+	createMenuItemBodySchema,
+	createMenuItemParamsSchema,
+} from "../validators/create-menu-item.validator";
+import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
+import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
+import { deleteMenuItemParamsSchema } from "../validators/delete-menu-item.validator";
+import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
 import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
+import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
+import {
+	listMenuItemsParamsSchema,
+	listMenuItemsQuerySchema,
+} from "../validators/list-menu-items.validator";
+import {
+	listStaffMenuItemsParamsSchema,
+	listStaffMenuItemsQuerySchema,
+} from "../validators/list-staff-menu-items.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -27,10 +53,6 @@ import { getStaffDetailParamsSchema } from "../validators/staff/get-staff-detail
 import { listStaffSchema } from "../validators/staff/list-staff.validator";
 import { removeStaffParamsSchema } from "../validators/staff/remove-staff.validator";
 import {
-	updateStaffInfoParamsSchema,
-	updateStaffInfoSchema,
-} from "../validators/staff/update-staff-info.validator";
-import {
 	updateStaffProfileBodySchema,
 	updateStaffProfileParamsSchema,
 } from "../validators/staff/update-staff-profile.validator";
@@ -38,6 +60,26 @@ import {
 	updateStaffStatusParamsSchema,
 	updateStaffStatusSchema,
 } from "../validators/staff/update-staff-status.validator";
+import {
+	updateAddonBodySchema,
+	updateAddonParamsSchema,
+} from "../validators/update-addon.validator";
+import {
+	updateMenuCategoryBodySchema,
+	updateMenuCategoryParamsSchema,
+} from "../validators/update-menu-category.validator";
+import {
+	updateMenuCategoryStatusBodySchema,
+	updateMenuCategoryStatusParamsSchema,
+} from "../validators/update-menu-category-status.validator";
+import {
+	updateMenuItemBodySchema,
+	updateMenuItemParamsSchema,
+} from "../validators/update-menu-item.validator";
+import {
+	updateMenuItemStatusBodySchema,
+	updateMenuItemStatusParamsSchema,
+} from "../validators/update-menu-item-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 import { addonRouter } from "./addon.routes";
 import { menuRouter } from "./menu.routes";
@@ -80,11 +122,6 @@ restaurantRouter.post(
 );
 
 restaurantRouter.post(
-	RESTAURANT_ROUTES.REGISTRATION_REFRESH_TOKEN,
-	restaurantAuthController.refreshAccessToken.bind(restaurantAuthController),
-);
-
-restaurantRouter.post(
 	RESTAURANT_ROUTES.ONBOARD,
 	restaurantAuthMiddleware,
 	validateRequestBody(onboardRestaurantSchema),
@@ -110,41 +147,13 @@ restaurantRouter.get(
 	customerRestaurantController.listRestaurants,
 );
 
-const updateStaffProfileChain: express.RequestHandler[] = [
+restaurantRouter.patch(
+	RESTAURANT_ROUTES.STAFF_UPDATE,
 	staffAuthMiddleware,
 	validateRequestParams(updateStaffProfileParamsSchema),
 	validate(updateStaffProfileBodySchema),
 	staffController.updateProfile,
-];
-
-const updateStaffInfoChain: express.RequestHandler[] = [
-	restaurantOwnerAuthMiddleware,
-	validateRequestParams(updateStaffInfoParamsSchema),
-	validate(updateStaffInfoSchema),
-	restaurantStaffManagementController.updateStaffInfo.bind(
-		restaurantStaffManagementController,
-	),
-];
-
-restaurantRouter.patch(RESTAURANT_ROUTES.STAFF_UPDATE, (req, res, next) => {
-	const role = req.headers["x-user-role"];
-	const normalizedRole = (Array.isArray(role) ? role[0] : role)
-		?.toLowerCase()
-		.trim();
-
-	const chain =
-		normalizedRole === "staff" ? updateStaffProfileChain : updateStaffInfoChain;
-
-	let index = 0;
-	const executeChain = (err?: unknown) => {
-		if (err) return next(err);
-		const middleware = chain[index++];
-		if (middleware) {
-			return middleware(req, res, executeChain);
-		}
-	};
-	executeChain();
-});
+);
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.VERIFICATION_STATUS,

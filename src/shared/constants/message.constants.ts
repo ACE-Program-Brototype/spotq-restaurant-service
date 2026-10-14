@@ -123,6 +123,9 @@ export const messages = {
 	INVALID_STAFF_DATA: "Invalid staff data provided",
 	INVALID_RESTAURANT_DATA: "Invalid restaurant data provided",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
+	RESTAURANT_EMAIL_ALREADY_EXISTS: "Restaurant with this email already exists",
+	RESTAURANT_PHONE_ALREADY_EXISTS:
+		"Restaurant with this phone number already exists",
 	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
 	STAFF_ID_REQUIRED: "Staff ID is required",
 	RESTAURANT_ACCOUNT_BLOCKED:
@@ -205,6 +208,7 @@ export const messages = {
 	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
 	RESTAURANT_ALREADY_PROCESSED:
 		"Restaurant application has already been processed.",
+	EVENT_ALREADY_PROCESSED: "Event has already been processed",
 	REJECTION_REASON_REQUIRED: "Rejection reason is required",
 	CANNOT_APPROVE_NON_PENDING_RESTAURANT:
 		"Cannot approve a restaurant that is not in pending status.",
@@ -353,6 +357,23 @@ export const messages = {
 	TABLE_SECTION_CREATE_SUCCESS: "Table Section Created Successfully",
 	TABLE_SECTION_NAME_REQUIRED: "Table Section name required",
 	TABLE_SECTION_NAME_MAX: "Table section name must not exceed 100 characters.",
+	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
+	INVALID_TABLE_SECTION_ID: "Invalid Table section ID",
+
+	// TABLE
+	INVALID_TABLE_CAPACITY: "Table capacity must be greater than 0.",
+	INVALID_TABLE_CODE: "Table code cannot be empty.",
+	TABLE_CODE_MAX: "Table code must not exceed 50 characters.",
+	INVALID_TABLE_SHAPE: "Invalid table shape.",
+	TABLE_NOT_FOUND: "Table not found.",
+	TABLE_ALREADY_EXISTS:
+		"A table with this code already exists in this restaurant.",
+	TABLE_CAPACITY_EXCEEDED: "Current occupancy cannot exceed table capacity.",
+	INVALID_TABLE_OCCUPANCY: "Table occupancy cannot be negative.",
+	TABLE_ALREADY_OCCUPIED: "Table is already occupied.",
+	TABLE_CREATE_SUCCESS: "Table Created successfully",
+	TABLE_CAPACITY_REQUIRED: "Table capacity required",
+	TABLE_CODE_REQUIRED: "Table code required",
 } as const;
 
 export type MessageKey = keyof typeof messages;

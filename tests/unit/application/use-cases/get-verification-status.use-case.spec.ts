@@ -1,6 +1,6 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { GetRestaurantVerificationStatusUseCase } from "@/application/use-cases/get-verification-status.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("GetRestaurantVerificationStatusUseCase", () => {
 	let useCase: GetRestaurantVerificationStatusUseCase;

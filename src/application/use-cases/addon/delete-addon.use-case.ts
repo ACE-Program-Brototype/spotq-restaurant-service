@@ -1,6 +1,5 @@
 import { inject, injectable } from "inversify";
 import type { DeleteAddonInputDto } from "@/application/dtos/addon/delete-addon.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IDeleteAddonUseCase } from "@application/ports/use-cases/addon/delete-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import { AddonNotFoundError } from "@/domain/errors/addon.errors.ts";
@@ -9,6 +8,7 @@ import {
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 /**

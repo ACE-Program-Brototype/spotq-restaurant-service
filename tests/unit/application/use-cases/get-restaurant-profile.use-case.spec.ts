@@ -1,6 +1,6 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
 import { GetRestaurantProfileUseCase } from "@/application/use-cases/get-restaurant-profile.use-case";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("GetRestaurantProfileUseCase", () => {
 	let useCase: GetRestaurantProfileUseCase;
