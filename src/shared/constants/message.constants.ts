@@ -65,6 +65,7 @@ export const messages = {
 	STAFF_RESTAURANT_FORBIDDEN:
 		"Forbidden: Staff does not belong to the specified restaurant",
 	VALIDATION_ERROR: "Validation error occurred",
+	INVALID_VARIANT_ID: "Invalid variant ID",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
 	REVOKED_TOKEN: "Refresh token has been revoked",
@@ -297,6 +298,7 @@ export const messages = {
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",
 	MENU_ITEM_NOT_FOUND: "Menu item not found",
+	MENU_ITEM_VARIANT_NOT_FOUND: "Menu item variant not found",
 	ADDON_NOT_FOUND_FOR_RESTAURANT:
 		"One or more selected add-ons do not belong to this restaurant",
 	DUPLICATE_ADDON_IN_MENU_ITEM:
@@ -312,6 +314,10 @@ export const messages = {
 	PREPARATION_TIME_NEGATIVE: "Preparation time cannot be negative",
 	CALORIES_NEGATIVE: "Calories cannot be negative",
 	INVALID_VARIANT_DATA: "Invalid variant data",
+	AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED:
+		"At least one variant must be available",
+	MENU_ITEM_VARIANT_STATUS_UPDATED_SUCCESS:
+		"Variant status updated successfully",
 	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
 	DUPLICATE_VARIANT_IN_MENU_ITEM:
 		"Duplicate variants are not allowed for a menu item",

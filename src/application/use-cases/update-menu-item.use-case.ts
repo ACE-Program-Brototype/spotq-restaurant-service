@@ -204,6 +204,21 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 				}
 			});
 
+			// At least one variant must be available for menu item.
+			let minOneActiveVariant = false;
+			for (let i = 0; i < preparedVariants.length; i++) {
+				if (preparedVariants[i].isAvailable) {
+					minOneActiveVariant = true;
+					break;
+				}
+			}
+
+			if (!minOneActiveVariant) {
+				throw new InvalidVariantDataError(
+					messages.AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED,
+				);
+			}
+
 			const defaultVariant =
 				preparedVariants.find((v) => v.isDefault) ?? preparedVariants[0];
 			resolvedPrice = defaultVariant.price;

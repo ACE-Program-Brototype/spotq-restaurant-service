@@ -130,6 +130,9 @@ export const TYPES = {
 		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
 		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
 		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
+		UpdateMenuItemVariantStatusUseCase: Symbol.for(
+			"UpdateMenuItemVariantStatusUseCase",
+		),
 
 		// TABLE SECTION
 		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),

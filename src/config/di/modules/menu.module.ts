@@ -1,3 +1,5 @@
+import type { IUpdateMenuItemVariantStatusUseCase } from "@application/ports/use-cases/menu-item/update-menu-item-variant-status.use-case.port";
+import { UpdateMenuItemVariantStatusUseCase } from "@application/use-cases/menu-item/update-menu-item-variant-status.use-case";
 import { ContainerModule } from "inversify";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
@@ -100,6 +102,12 @@ export const menuModule = new ContainerModule(({ bind }) => {
 
 	bind<IUpdateMenuItemStatusUseCase>(TYPES.UseCases.UpdateMenuItemStatusUseCase)
 		.to(UpdateMenuItemStatusUseCase)
+		.inSingletonScope();
+
+	bind<IUpdateMenuItemVariantStatusUseCase>(
+		TYPES.UseCases.UpdateMenuItemVariantStatusUseCase,
+	)
+		.to(UpdateMenuItemVariantStatusUseCase)
 		.inSingletonScope();
 
 	bind(TYPES.Controller.MenuCategoryController)

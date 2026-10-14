@@ -1,13 +1,14 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import type { ICreateAddonUseCase } from "@/application/ports/use-cases/create-addon.use-case.port.ts";
-import type { IDeleteAddonUseCase } from "@/application/ports/use-cases/delete-addon.use-case.port.ts";
-import type { IListRestaurantAddonsUseCase } from "@/application/ports/use-cases/list-restaurant-addons.use-case.port.ts";
-import type { IUpdateAddonUseCase } from "@/application/ports/use-cases/update-addon.use-case.port.ts";
+import type { ICreateAddonUseCase } from "@application/ports/use-cases/addon/create-addon.use-case.port";
+import type { IDeleteAddonUseCase } from "@application/ports/use-cases/addon/delete-addon.use-case.port";
+import type { IListRestaurantAddonsUseCase } from "@application/ports/use-cases/addon/list-restaurant-addons.use-case.port";
+import type { IUpdateAddonUseCase } from "@application/ports/use-cases/addon/update-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import type { AuthenticatedUser } from "@/types/express.d.ts";
 
 @injectable()
 export class AddonController {
@@ -60,6 +61,7 @@ export class AddonController {
 		const restaurantId = String(req.params.restaurantId);
 		const addonId = String(req.params.addonId);
 		const { name, description, price, imageKey, isAvailable } = req.body;
+		const user = req.user as AuthenticatedUser | undefined;
 
 		const result = await this.updateAddonUseCase.execute({
 			restaurantId,
@@ -69,6 +71,8 @@ export class AddonController {
 			price,
 			imageKey,
 			isAvailable,
+			...(user?.userId && { userId: user.userId }),
+			...(user?.role && { userRole: user.role }),
 		});
 
 		sendSuccessResponse(

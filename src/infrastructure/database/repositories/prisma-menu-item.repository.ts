@@ -1,3 +1,4 @@
+import type { UpdateMenuItemVariantStatusOutputDto } from "@application/dtos/menu-item/menu-item-variant.dto";
 import {
 	Prisma,
 	type PrismaClient,
@@ -1007,5 +1008,83 @@ export class PrismaMenuItemRepository
 				total: filteredTotal,
 			};
 		});
+	}
+
+	async updateVariantAvailability(
+		id: string,
+		menuId: string,
+		restaurantId: string,
+		isAvailable: boolean,
+		newDefaultVariantId?: string,
+	): Promise<UpdateMenuItemVariantStatusOutputDto> {
+		try {
+			
+			return await this.prismaClient.$transaction(
+				async (tx: Prisma.TransactionClient) => {
+
+					// build that data object based on the newDefaultVariantId
+					const data: Prisma.MenuItemVariantUpdateInput = {
+						isAvailable,
+					};
+
+					if (newDefaultVariantId) {
+						data.isDefault = false;
+					}
+
+					const updatedMenuItemVariant = await tx.menuItemVariant.update({
+						where: {
+							id,
+							menuItemId: menuId,
+							menuItem: {
+								restaurantId,
+							},
+						},
+						data,
+					});
+
+					if (newDefaultVariantId) {
+						// update the new default variant to isDefault true
+						const newDefaultVariant = await tx.menuItemVariant.update({
+							where: {
+								id: newDefaultVariantId,
+								menuItemId: menuId,
+								menuItem: {
+									restaurantId,
+								},
+							},
+							data: {
+								isDefault: true,
+							},
+						});
+
+						// sync the price shown on the catalog
+						await tx.menuItem.update({
+							where: {
+								id: menuId,
+								restaurantId,
+							},
+							data: {
+								price: Number(newDefaultVariant.price),
+							},
+						});
+					}
+
+					return {
+						id: updatedMenuItemVariant.id,
+						menuItemId: updatedMenuItemVariant.menuItemId,
+						restaurantId,
+						name: updatedMenuItemVariant.name,
+						sku: updatedMenuItemVariant.sku ?? null,
+						price: Number(updatedMenuItemVariant.price),
+						isDefault: updatedMenuItemVariant.isDefault,
+						isAvailable: updatedMenuItemVariant.isAvailable,
+						updatedAt: updatedMenuItemVariant.updatedAt,
+					};
+				},
+			);
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
 	}
 }
