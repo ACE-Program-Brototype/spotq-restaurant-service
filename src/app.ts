@@ -17,6 +17,7 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
 	ADMIN_ROUTES,
+	JWKS_ROUTES,
 	STAFF_ROUTES,
 	STORAGE_ROUTES,
 	TABLE_SECTION_ROUTES,
@@ -32,7 +33,7 @@ app.use(httpLogger);
 app.use(metricsMiddleware);
 
 // JWKS Endpoint
-app.use("/.well-known", jwksRouter);
+app.use(JWKS_ROUTES.BASE, jwksRouter);
 
 app.get("/", (_req, res) => {
 	sendSuccessResponse(
