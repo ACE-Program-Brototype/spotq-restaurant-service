@@ -204,16 +204,16 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 				}
 			});
 
-			// atleast one varient should be avaialble for menuItem.
-			let minOneActiveVarient: boolean = false;
+			// At least one variant must be available for menu item.
+			let minOneActiveVariant = false;
 			for (let i = 0; i < preparedVariants.length; i++) {
 				if (preparedVariants[i].isAvailable) {
-					minOneActiveVarient = true;
+					minOneActiveVariant = true;
 					break;
 				}
 			}
 
-			if (!minOneActiveVarient) {
+			if (!minOneActiveVariant) {
 				throw new InvalidVariantDataError(
 					messages.AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED,
 				);

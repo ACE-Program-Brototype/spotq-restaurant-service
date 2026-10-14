@@ -310,7 +310,8 @@ export const messages = {
 	PREPARATION_TIME_NEGATIVE: "Preparation time cannot be negative",
 	CALORIES_NEGATIVE: "Calories cannot be negative",
 	INVALID_VARIANT_DATA: "Invalid variant data",
-	AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED: "Atleast one varient is required",
+	AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED:
+		"At least one variant must be available",
 	MENU_ITEM_VARIANT_STATUS_UPDATED_SUCCESS:
 		"Variant status updated successfully",
 	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",

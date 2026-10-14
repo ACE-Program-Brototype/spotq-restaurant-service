@@ -197,5 +197,6 @@ export interface IMenuItemRepository extends IBaseRepository<MenuItem, string> {
 		menuId: string,
 		restaurantId: string,
 		isAvailable: boolean,
+		newDefaultVariantId?: string,
 	): Promise<UpdateMenuItemVariantStatusOutputDto>;
 }

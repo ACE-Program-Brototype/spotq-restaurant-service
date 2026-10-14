@@ -1062,8 +1062,66 @@ export class PrismaMenuItemRepository
 		menuId: string,
 		restaurantId: string,
 		isAvailable: boolean,
+		newDefaultVariantId?: string,
 	): Promise<UpdateMenuItemVariantStatusOutputDto> {
 		try {
+			if (newDefaultVariantId) {
+				return await this.prismaClient.$transaction(async (tx: Prisma.TransactionClient) => {
+					// update the menu item variant to isAvailable:false
+					// update the isDefault false
+					const updatedMenuItemVariant = await tx.menuItemVariant.update({
+						where: {
+							id,
+							menuItemId: menuId,
+							menuItem: {
+								restaurantId,
+							},
+						},
+						data: {
+							isAvailable,
+							isDefault: false,
+						},
+					});
+
+					// update the new default variant to isDefault true
+					const newDefaultVariant = await tx.menuItemVariant.update({
+						where: {
+							id: newDefaultVariantId,
+							menuItemId: menuId,
+							menuItem: {
+								restaurantId,
+							},
+						},
+						data: {
+							isDefault: true,
+						},
+					});
+
+					// sync the price shown on the catalog
+					await tx.menuItem.update({
+						where: {
+							id: menuId,
+							restaurantId,
+						},
+						data: {
+							price: Number(newDefaultVariant.price),
+						},
+					});
+
+					return {
+						id: updatedMenuItemVariant.id,
+						menuItemId: updatedMenuItemVariant.menuItemId,
+						restaurantId,
+						name: updatedMenuItemVariant.name,
+						sku: updatedMenuItemVariant.sku ?? null,
+						price: Number(updatedMenuItemVariant.price),
+						isDefault: updatedMenuItemVariant.isDefault,
+						isAvailable: updatedMenuItemVariant.isAvailable,
+						updatedAt: updatedMenuItemVariant.updatedAt,
+					};
+				});
+			}
+
 			const variant = await this.prismaClient.menuItemVariant.update({
 				where: {
 					id,
