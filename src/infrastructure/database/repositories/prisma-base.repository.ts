@@ -159,7 +159,7 @@ export abstract class PrismaBaseRepository<
 			});
 			return this.mapper.toDomain(record);
 		} catch (error) {
-			this.handlePrismaError(error, entity);
+			this.translateError(error);
 			throw error;
 		}
 	}
