@@ -1,3 +1,4 @@
+import type { TableController } from "@presentation/http/controllers/table.controller";
 import type { TableSectionController } from "@presentation/http/controllers/table-section.controller";
 import type { AddonController } from "@/presentation/http/controllers/addon.controller";
 import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
@@ -59,6 +60,11 @@ export const addonController = container.get<AddonController>(
 export const tableSectionController = container.get<TableSectionController>(
 	TYPES.Controller.TableSectionController,
 );
+
+export const tableController = container.get<TableController>(
+	TYPES.Controller.TableController,
+);
+
 export const customerRestaurantController =
 	container.get<CustomerRestaurantController>(
 		TYPES.Controller.CustomerRestaurantController,
