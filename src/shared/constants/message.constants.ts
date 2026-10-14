@@ -342,6 +342,32 @@ export const messages = {
 	MENU_ITEM_DELETED_SUCCESS: "Menu item deleted successfully",
 	MENU_ITEM_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
 	CANNOT_MODIFY_DELETED_MENU_ITEM: "Cannot modify a deleted menu item",
+
+	// TABLE SECTION
+	INVALID_TABLE_SECTION_NAME: "Table section name is invalid",
+	TABLE_SECTION_ALREADY_EXISTS: "Table Section already exists",
+	TABLE_SECTION_NOT_FOUND: "Table Section not found",
+	TABLE_SECTION_ALREADY_EXIST: "Table Section already exists",
+	TABLE_SECTION_CREATE_SUCCESS: "Table Section Created Successfully",
+	TABLE_SECTION_NAME_REQUIRED: "Table Section name required",
+	TABLE_SECTION_NAME_MAX: "Table section name must not exceed 100 characters.",
+	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
+	INVALID_TABLE_SECTION_ID: "Invalid Table section ID",
+
+	// TABLE
+	INVALID_TABLE_CAPACITY: "Table capacity must be greater than 0.",
+	INVALID_TABLE_CODE: "Table number cannot be empty.",
+	TABLE_CODE_MAX: "Table number must not exceed 50 characters.",
+	INVALID_TABLE_SHAPE: "Invalid table shape.",
+	TABLE_NOT_FOUND: "Table not found.",
+	TABLE_ALREADY_EXISTS:
+		"A table with this number already exists in this restaurant.",
+	TABLE_CAPACITY_EXCEEDED: "Current occupancy cannot exceed table capacity.",
+	INVALID_TABLE_OCCUPANCY: "Table occupancy cannot be negative.",
+	TABLE_ALREADY_OCCUPIED: "Table is already occupied.",
+	TABLE_CREATE_SUCCESS: "Table Created successfully",
+	TABLE_CAPACITY_REQUIRED: "Table capacity required",
+	TABLE_CODE_REQUIRED: "Table number required",
 } as const;
 
 export type MessageKey = keyof typeof messages;

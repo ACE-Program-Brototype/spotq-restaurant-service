@@ -8,6 +8,8 @@ import { restaurantAuthModule } from "./modules/restaurant.auth.module";
 import { restaurantModule } from "./modules/restaurant.module";
 import { staffAuthModule } from "./modules/staff.auth.module";
 import { storageModule } from "./modules/storage.module";
+import { tableModule } from "./modules/table.module";
+import { tableSectionModule } from "./modules/table-section.module";
 
 export const container = new Container({
 	defaultScope: "Singleton",
@@ -22,4 +24,6 @@ container.load(
 	adminModule,
 	addonModule,
 	menuModule,
+	tableSectionModule,
+	tableModule,
 );

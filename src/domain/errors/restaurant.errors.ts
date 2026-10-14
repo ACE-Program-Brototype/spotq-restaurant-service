@@ -99,3 +99,10 @@ export class IdempotentEventAlreadyProcessedError extends DomainError {
 		super(message);
 	}
 }
+
+export class RestaurantIdRequiredError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.RESTAURANT_ID_REQUIRED;
+	constructor(message: string = sharedMessages.RESTAURANT_ID_REQUIRED) {
+		super(message);
+	}
+}

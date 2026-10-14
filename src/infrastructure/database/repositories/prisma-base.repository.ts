@@ -1,9 +1,13 @@
 import { Prisma } from "@prisma/client";
 import { injectable } from "inversify";
 import { DomainError } from "@/domain/errors/domain.error.ts";
-import type { IBaseRepository } from "@/domain/repositories/base.repository.interface.ts";
 import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
 import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
+import type {
+	IBaseRepository,
+	PaginatedResult,
+	PaginationOptions,
+} from "@/domain/repositories/base.repository.interface.ts";
 
 export interface IEntityMapper<TDomain, TModel> {
 	toDomain(raw: TModel): TDomain;
@@ -25,6 +29,8 @@ export abstract class PrismaBaseRepository<
 		protected readonly mapper: IEntityMapper<TDomain, TModel>,
 		protected readonly errorMap: PrismaErrorMap = {},
 	) {}
+
+	private static readonly MAX_PAGE_SIZE = 100;
 
 	// biome-ignore lint/suspicious/noExplicitAny: Internal bridge for generic base calls
 	protected get delegate(): any {
@@ -144,6 +150,60 @@ export abstract class PrismaBaseRepository<
 				update: updateData,
 			});
 		});
+	}
+
+	public async create(entity: TDomain): Promise<TDomain> {
+		try {
+			const record = await this.delegate.create({
+				data: this.mapper.toPersistence(entity),
+			});
+			return this.mapper.toDomain(record);
+		} catch (error) {
+			this.handlePrismaError(error, entity);
+			throw error;
+		}
+	}
+
+	public async findPaginated<TWhere = unknown, TOrderBy = unknown>(
+		options: PaginationOptions<TWhere, TOrderBy>,
+	): Promise<PaginatedResult<TDomain>> {
+		try {
+			const { where, orderBy, page, limit } = options;
+			const take = Math.min(
+				Math.max(limit, 1),
+				PrismaBaseRepository.MAX_PAGE_SIZE,
+			);
+			const skip = (Math.max(page, 1) - 1) * take;
+			const [records, total] = await Promise.all([
+				this.delegate.findMany({ where, orderBy, skip, take }) as Promise<
+					TModel[]
+				>,
+				this.delegate.count({ where }) as Promise<number>,
+			]);
+
+			return {
+				items: records.map((r) => this.mapper.toDomain(r)),
+				total,
+			};
+		} catch (error) {
+			this.translateError(error);
+			throw error;
+		}
+	}
+
+	public async findOne<TWhere = unknown>(
+		where: TWhere,
+	): Promise<TDomain | null> {
+		try {
+			const record = (await this.delegate.findFirst({
+				where,
+			})) as TModel | null;
+
+			return record ? this.mapper.toDomain(record) : null;
+		} catch (error) {
+			this.translateError(error);
+			throw error;
+		}
 	}
 
 	public async update(
