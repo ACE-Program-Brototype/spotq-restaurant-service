@@ -8,6 +8,7 @@ import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import type { AuthenticatedUser } from "@/types/express.d.ts";
 
 @injectable()
 export class AddonController {
@@ -60,6 +61,13 @@ export class AddonController {
 		const restaurantId = String(req.params.restaurantId);
 		const addonId = String(req.params.addonId);
 		const { name, description, price, imageKey, isAvailable } = req.body;
+		// to check weather the staff is blocked or not
+		const userRole =
+			(req.user as AuthenticatedUser | undefined)?.role ||
+			(req.headers["x-user-role"] as string | undefined);
+		const userId =
+			(req.user as AuthenticatedUser | undefined)?.userId ||
+			(req.headers["x-user-id"] as string | undefined);
 
 		const result = await this.updateAddonUseCase.execute({
 			restaurantId,
@@ -69,6 +77,8 @@ export class AddonController {
 			price,
 			imageKey,
 			isAvailable,
+			userId,
+			userRole,
 		});
 
 		sendSuccessResponse(

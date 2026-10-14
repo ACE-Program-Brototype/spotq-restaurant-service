@@ -4,7 +4,10 @@ import { DeleteAddonUseCase } from "@/application/use-cases/delete-addon.use-cas
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { AddonNotFoundError } from "@/domain/errors/addon.errors.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 
 describe("DeleteAddonUseCase", () => {
@@ -81,6 +84,23 @@ describe("DeleteAddonUseCase", () => {
 				addonId,
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
+
+		expect(mockAddonRepo.findById).not.toHaveBeenCalled();
+		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+	});
+
+	it("should throw RestaurantAccountBlockedError when restaurant is blocked", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+			isBlocked: true,
+		} as Restaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				addonId,
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
 
 		expect(mockAddonRepo.findById).not.toHaveBeenCalled();
 		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();

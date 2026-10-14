@@ -13,10 +13,17 @@ import {
 	RestaurantAccountBlockedError,
 	RestaurantNotFoundError,
 } from "@domain/errors/restaurant.errors";
+import {
+	StaffForbiddenError,
+	StaffInactiveError,
+	StaffNotFoundError,
+	StaffSuspendedError,
+} from "@domain/errors/staff.errors";
 import type { IMenuItemRepository } from "@domain/repositories/menu-item.repository.interface";
+import type { IRestaurantStaffRepository } from "@domain/repositories/restaurant-staff.repository.interface";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import { messages } from "@shared/constants/message.constants";
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional } from "inversify";
 
 @injectable()
 export class UpdateMenuItemVariantStatusUseCase
@@ -27,6 +34,9 @@ export class UpdateMenuItemVariantStatusUseCase
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Repositories.MenuItemRepository)
 		private readonly menuItemRepository: IMenuItemRepository,
+		@inject(TYPES.RestaurantStaffRepository)
+		@optional()
+		private readonly staffRepository?: IRestaurantStaffRepository,
 	) {}
 
 	async execute(
@@ -43,6 +53,33 @@ export class UpdateMenuItemVariantStatusUseCase
 			throw new RestaurantAccountBlockedError(
 				messages.RESTAURANT_ACCOUNT_BLOCKED,
 			);
+		}
+
+
+		// staff authentication 
+		if (input.userRole?.toLowerCase() === "staff") {
+			if (!input.userId) {
+				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN);
+			}
+
+			if (this.staffRepository) {
+				const staff = await this.staffRepository.findByStaffIdAndRestaurantId(
+					input.userId,
+					input.restaurantId,
+				);
+
+				if (!staff) {
+					throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
+				}
+
+				if (staff.isSuspended()) {
+					throw new StaffSuspendedError(messages.STAFF_ACCOUNT_SUSPENDED);
+				}
+
+				if (!staff.isActive()) {
+					throw new StaffInactiveError(messages.STAFF_ACCOUNT_NOT_ACTIVE);
+				}
+			}
 		}
 
 		const menuItem = await this.menuItemRepository.findByIdAndRestaurantId(

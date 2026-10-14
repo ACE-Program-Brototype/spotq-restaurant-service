@@ -6,8 +6,19 @@ import {
 	AddonAlreadyExistsError,
 	AddonNotFoundError,
 } from "@/domain/errors/addon.errors.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
+import {
+	StaffForbiddenError,
+	StaffInactiveError,
+	StaffNotFoundError,
+	StaffSuspendedError,
+} from "@/domain/errors/staff.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
+import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 
 describe("UpdateAddonUseCase", () => {
 	let useCase: UpdateAddonUseCase;
@@ -91,6 +102,24 @@ describe("UpdateAddonUseCase", () => {
 				name: "New Name",
 			}),
 		).rejects.toThrow(RestaurantNotFoundError);
+
+		expect(mockAddonRepo.findById).not.toHaveBeenCalled();
+		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+	});
+
+	it("should throw RestaurantAccountBlockedError when restaurant is blocked", async () => {
+		mockRestaurantRepo.findById.mockResolvedValueOnce({
+			id: restaurantId,
+			isBlocked: true,
+		} as Restaurant);
+
+		await expect(
+			useCase.execute({
+				restaurantId,
+				addonId,
+				name: "New Name",
+			}),
+		).rejects.toThrow(RestaurantAccountBlockedError);
 
 		expect(mockAddonRepo.findById).not.toHaveBeenCalled();
 		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
@@ -251,5 +280,124 @@ describe("UpdateAddonUseCase", () => {
 		).rejects.toThrow(AddonNotFoundError);
 
 		expect(mockAddonRepo.updateAddon).not.toHaveBeenCalled();
+	});
+
+	describe("staff authorization and status checks", () => {
+		let mockStaffRepo: jest.Mocked<IRestaurantStaffRepository>;
+		const staffUserId = "staff-uuid-123";
+
+		beforeEach(() => {
+			mockStaffRepo = {
+				findByStaffIdAndRestaurantId: jest.fn(),
+			} as unknown as jest.Mocked<IRestaurantStaffRepository>;
+
+			useCase = new UpdateAddonUseCase(
+				mockRestaurantRepo,
+				mockAddonRepo,
+				mockStaffRepo,
+			);
+		});
+
+		it("should throw StaffForbiddenError when userRole is staff but userId is missing", async () => {
+			mockRestaurantRepo.findById.mockResolvedValueOnce({
+				id: restaurantId,
+			} as Restaurant);
+
+			await expect(
+				useCase.execute({
+					restaurantId,
+					addonId,
+					userRole: "staff",
+				}),
+			).rejects.toThrow(StaffForbiddenError);
+		});
+
+		it("should throw StaffNotFoundError when staff is not found in database", async () => {
+			mockRestaurantRepo.findById.mockResolvedValueOnce({
+				id: restaurantId,
+			} as Restaurant);
+			mockStaffRepo.findByStaffIdAndRestaurantId.mockResolvedValueOnce(null);
+
+			await expect(
+				useCase.execute({
+					restaurantId,
+					addonId,
+					userId: staffUserId,
+					userRole: "staff",
+				}),
+			).rejects.toThrow(StaffNotFoundError);
+		});
+
+		it("should throw StaffSuspendedError when staff account is suspended", async () => {
+			mockRestaurantRepo.findById.mockResolvedValueOnce({
+				id: restaurantId,
+			} as Restaurant);
+			mockStaffRepo.findByStaffIdAndRestaurantId.mockResolvedValueOnce({
+				isActive: () => false,
+				isSuspended: () => true,
+			} as RestaurantStaff);
+
+			await expect(
+				useCase.execute({
+					restaurantId,
+					addonId,
+					userId: staffUserId,
+					userRole: "staff",
+				}),
+			).rejects.toThrow(StaffSuspendedError);
+		});
+
+		it("should throw StaffInactiveError when staff account is inactive", async () => {
+			mockRestaurantRepo.findById.mockResolvedValueOnce({
+				id: restaurantId,
+			} as Restaurant);
+			mockStaffRepo.findByStaffIdAndRestaurantId.mockResolvedValueOnce({
+				isActive: () => false,
+				isSuspended: () => false,
+			} as RestaurantStaff);
+
+			await expect(
+				useCase.execute({
+					restaurantId,
+					addonId,
+					userId: staffUserId,
+					userRole: "staff",
+				}),
+			).rejects.toThrow(StaffInactiveError);
+		});
+
+		it("should succeed when staff account is active in database", async () => {
+			mockRestaurantRepo.findById.mockResolvedValueOnce({
+				id: restaurantId,
+			} as Restaurant);
+			mockStaffRepo.findByStaffIdAndRestaurantId.mockResolvedValueOnce({
+				isActive: () => true,
+				isSuspended: () => false,
+			} as RestaurantStaff);
+
+			const existingAddon = Addon.create({
+				id: addonId,
+				restaurantId,
+				name: "Extra Cheese",
+				price: 50.0,
+				isAvailable: true,
+			});
+			mockAddonRepo.findById.mockResolvedValueOnce(existingAddon);
+			mockAddonRepo.updateAddon.mockImplementationOnce(
+				async (entity: Addon) => entity,
+			);
+
+			const result = await useCase.execute({
+				restaurantId,
+				addonId,
+				userId: staffUserId,
+				userRole: "staff",
+				isAvailable: false,
+			});
+
+			expect(result.id).toBe(addonId);
+			expect(result.isAvailable).toBe(false);
+			expect(mockAddonRepo.updateAddon).toHaveBeenCalledTimes(1);
+		});
 	});
 });

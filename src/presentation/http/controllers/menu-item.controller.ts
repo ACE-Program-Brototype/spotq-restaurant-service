@@ -331,11 +331,20 @@ export class MenuItemController {
 		const id = String(req.params.variantId);
 		const restaurantId = String(req.params.restaurantId);
 		const menuItemId = String(req.params.itemId);
+		// to check weather the staff is blocked or not
+		const userRole =
+			(req.user as AuthenticatedUser | undefined)?.role ||
+			(req.headers["x-user-role"] as string | undefined);
+		const userId =
+			(req.user as AuthenticatedUser | undefined)?.userId ||
+			(req.headers["x-user-id"] as string | undefined);
 
 		const result = await this.updateMenuItemVariantStatusUseCase.execute({
 			id,
 			menuItemId,
 			restaurantId,
+			userId,
+			userRole,
 		});
 
 		sendSuccessResponse(

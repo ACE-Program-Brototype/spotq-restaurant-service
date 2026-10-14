@@ -2,6 +2,8 @@ export interface UpdateMenuItemVariantStatusInputDto {
 	id: string;
 	restaurantId: string;
 	menuItemId: string;
+	userId?: string;
+	userRole?: string;
 }
 
 export interface UpdateMenuItemVariantStatusOutputDto {
