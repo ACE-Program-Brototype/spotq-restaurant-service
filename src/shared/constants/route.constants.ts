@@ -86,6 +86,14 @@ export const TABLE_SECTION_ROUTES = {
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
 };
 
+export const TABLE_ROUTES = {
+	BASE: "/",
+	CREATE_TABLE: "/:restaurantId/table",
+};
+
+export type TableRoute =
+	(typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
+
 export type TableSectionRoute =
 	(typeof TABLE_SECTION_ROUTES)[keyof typeof TABLE_SECTION_ROUTES];
 
