@@ -1,7 +1,7 @@
 import type { TableShapeType } from "@domain/constants/table.constants";
 
 export interface ICreateTableInputDTO {
-	name: string;
+	tableNumber: string;
 	restaurantId: string;
 	userId: string;
 	sectionId: string;
@@ -12,7 +12,7 @@ export interface ICreateTableInputDTO {
 export interface ICreateTableOutputDTO {
 	id: string;
 	restaurantId: string;
-	name: string;
+	tableNumber: string;
 	capacity: number;
 	sectionId: string;
 	type: TableShapeType;
