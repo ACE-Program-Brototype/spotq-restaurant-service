@@ -119,9 +119,9 @@ describe("PrismaStaffInvitationRepository", () => {
 			});
 			mockPrisma.staffInvitation.findUnique.mockRejectedValueOnce(p2002);
 
-			await expect(
-				repository.findByTokenHash("hash123"),
-			).rejects.toThrow(StaffInvitationAlreadyPendingError);
+			await expect(repository.findByTokenHash("hash123")).rejects.toThrow(
+				StaffInvitationAlreadyPendingError,
+			);
 		});
 	});
 });

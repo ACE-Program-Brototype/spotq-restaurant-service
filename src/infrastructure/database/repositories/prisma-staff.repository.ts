@@ -9,6 +9,7 @@ import {
 import type { IStaffRepository } from "@/domain/repositories/staff.repository.interface.ts";
 import { StaffGlobalPersistenceMapper } from "@/infrastructure/database/mappers/staff.mapper.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
 @injectable()
@@ -21,8 +22,10 @@ export class PrismaStaffRepository
 		prisma: PrismaClient,
 	) {
 		super(prisma.staff, StaffGlobalPersistenceMapper, {
-			P2002: () => new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS),
-			P2025: () => new StaffNotFoundError(messages.STAFF_NOT_FOUND),
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+				new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS),
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
+				new StaffNotFoundError(messages.STAFF_NOT_FOUND),
 		});
 	}
 

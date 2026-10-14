@@ -1,11 +1,11 @@
 import { TYPES } from "@di/types.ts";
 import { inject, injectable } from "inversify";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type {
 	ActivateSubscriptionInput,
 	IActivateSubscriptionUseCase,
 } from "@/application/ports/use-cases/activate-subscription.use-case.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 @injectable()
 export class ActivateSubscriptionUseCase

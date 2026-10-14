@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { DomainError } from "@/domain/errors/domain.error";
 import {
+	InvalidRestaurantDataError,
 	RestaurantAlreadyExistsError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors";
@@ -72,6 +73,28 @@ describe("RestaurantRepository", () => {
 			).rejects.toThrow(RestaurantAlreadyExistsError);
 		});
 
+		it("should translate P2002 error with phone target to InvalidRestaurantDataError", async () => {
+			const p2002Error = new PrismaClientKnownRequestError(
+				"Unique constraint failed on the fields: (`phone`)",
+				{
+					code: "P2002",
+					clientVersion: "6.19.3",
+					meta: { target: ["phone"] },
+				},
+			);
+			mockPrisma.restaurant.create.mockRejectedValueOnce(p2002Error);
+
+			await expect(
+				repository.create({
+					restaurantName: "Test Restaurant",
+					email: "unique@example.com",
+					phone: "9876543210",
+					ownerName: "John Doe",
+					ownerEmail: "owner@example.com",
+				}),
+			).rejects.toThrow(InvalidRestaurantDataError);
+		});
+
 		it("should translate P2025 error in update to RestaurantNotFoundError", async () => {
 			const p2025Error = new PrismaClientKnownRequestError(
 				"Record to update not found",
@@ -93,9 +116,9 @@ describe("RestaurantRepository", () => {
 			const dbError = new Error("Connection terminated unexpectedly");
 			mockPrisma.restaurant.findUnique.mockRejectedValueOnce(dbError);
 
-			await expect(
-				repository.findByEmail("test@example.com"),
-			).rejects.toThrow(PersistenceError);
+			await expect(repository.findByEmail("test@example.com")).rejects.toThrow(
+				PersistenceError,
+			);
 		});
 
 		it("RestaurantAlreadyExistsError should be an instance of DomainError", () => {

@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { staffAuthMiddleware } from "@presentation/http/middleware/staff.auth.middleware";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ListStaffMenuItemsUseCase } from "@/application/use-cases/list-staff-menu-items.use-case.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";
 import {
@@ -14,7 +15,6 @@ import {
 } from "@/presentation/http/validators/list-staff-menu-items.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { staffAuthMiddleware } from "@presentation/http/middleware/staff.auth.middleware";
 
 describe("GET /restaurants/:restaurantId/staff/menu/items - Integration & Controller Suite", () => {
 	let mockRestaurantRepo: jest.Mocked<IRestaurantRepository>;

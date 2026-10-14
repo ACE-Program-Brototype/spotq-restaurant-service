@@ -1,10 +1,10 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { CreateMenuCategoryUseCase } from "@/application/use-cases/create-menu-category.use-case.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { CategoryAlreadyExistsError } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("CreateMenuCategoryUseCase", () => {
 	let useCase: CreateMenuCategoryUseCase;

@@ -4,7 +4,6 @@ import type {
 	StaffMenuItemsResponseDto,
 } from "@/application/dtos/menu-item/list-staff-menu-items.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { STAFF_MENU_PAGINATION } from "@/domain/constants/menu-item.constants.ts";
@@ -13,6 +12,7 @@ import {
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuItemRepository } from "@/domain/repositories/menu-item.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { MANAGER_ADMIN_ROLES } from "@/shared/constants/auth.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 

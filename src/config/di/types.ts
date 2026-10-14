@@ -131,7 +131,9 @@ export const TYPES = {
 		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
 		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
 
-		ListCustomerRestaurantsUseCase: Symbol.for("ListCustomerRestaurantsUseCase",),
+		ListCustomerRestaurantsUseCase: Symbol.for(
+			"ListCustomerRestaurantsUseCase",
+		),
 	},
 
 	Controller: {

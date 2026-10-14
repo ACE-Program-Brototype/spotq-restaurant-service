@@ -396,7 +396,23 @@ describe("PrismaMenuItemRepository", () => {
 			).rejects.toThrow(InvalidVariantDataError);
 		});
 
-		it("should map P2003 error to RestaurantNotFoundError by default", async () => {
+		it("should map P2003 error for restaurant foreign key to RestaurantNotFoundError", async () => {
+			const p2003Error = new PrismaClientKnownRequestError(
+				"Foreign key constraint failed on the field: restaurantId",
+				{
+					code: "P2003",
+					clientVersion: "6.0.0",
+					meta: { field_name: "menu_items_restaurant_id_fkey" },
+				},
+			);
+			mockPrisma.menuItem.findFirst.mockRejectedValue(p2003Error);
+
+			await expect(
+				repository.findByNameAndRestaurantId(restaurantId, "Burger"),
+			).rejects.toThrow(RestaurantNotFoundError);
+		});
+
+		it("should fall back to PersistenceError on unhandled P2003 foreign key constraint", async () => {
 			const p2003Error = new PrismaClientKnownRequestError(
 				"Foreign key constraint",
 				{
@@ -408,7 +424,7 @@ describe("PrismaMenuItemRepository", () => {
 
 			await expect(
 				repository.findByNameAndRestaurantId(restaurantId, "Burger"),
-			).rejects.toThrow(RestaurantNotFoundError);
+			).rejects.toThrow(PersistenceError);
 		});
 
 		it("should map P2003 error for category foreign key to CategoryNotFoundError", async () => {

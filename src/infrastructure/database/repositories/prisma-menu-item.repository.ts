@@ -30,16 +30,23 @@ import type {
 	MenuItemQueryResult,
 	MenuItemWithRelations,
 	RestaurantMenuStats,
-	UpdateMenuItemRepositoryParams,
 	StaffMenuItemQueryFilterParams,
 	StaffMenuItemQueryResult,
 	StaffMenuItemResultItem,
+	UpdateMenuItemRepositoryParams,
 } from "@/domain/repositories/menu-item.repository.interface.ts";
+import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
+import { UUID_REGEX } from "@/shared/constants/common.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import {
 	MenuItemPersistenceMapper,
 	MenuItemVariantPersistenceMapper,
 } from "../mappers/menu-item.mapper.ts";
+import {
+	extractPrismaFieldName,
+	extractPrismaMetaTarget,
+} from "../utils/prisma-error.util.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
 @injectable()
@@ -56,45 +63,44 @@ export class PrismaMenuItemRepository
 		private readonly prismaClient: PrismaClient,
 	) {
 		super(prismaClient.menuItem, MenuItemPersistenceMapper, {
-			P2002: (error: unknown) => {
-				const meta = (error as { meta?: { target?: string[] | string } })?.meta;
-				const target = Array.isArray(meta?.target)
-					? meta?.target.join(",")
-					: String(meta?.target || "");
-				const targetLower = target.toLowerCase();
-				if (targetLower.includes("addon")) {
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: (error: unknown) => {
+				const target = extractPrismaMetaTarget(error).toLowerCase();
+				if (target.includes("addon")) {
 					return new InvalidMenuItemDataError(
 						messages.DUPLICATE_ADDON_IN_MENU_ITEM,
 					);
 				}
 				if (
-					targetLower.includes("default") ||
-					targetLower.includes("variant") ||
-					targetLower.includes("idx")
+					target.includes("default") ||
+					target.includes("variant") ||
+					target.includes("idx")
 				) {
-					return new InvalidVariantDataError(messages.MULTIPLE_DEFAULT_VARIANTS);
+					return new InvalidVariantDataError(
+						messages.MULTIPLE_DEFAULT_VARIANTS,
+					);
 				}
-				return new MenuItemAlreadyExistsError(messages.MENU_ITEM_ALREADY_EXISTS);
+				return new MenuItemAlreadyExistsError(
+					messages.MENU_ITEM_ALREADY_EXISTS,
+				);
 			},
-			P2003: (error: unknown) => {
-				const field = String(
-					(error as { meta?: { field_name?: string } })?.meta?.field_name || "",
-				).toLowerCase();
-				const message = String(
-					(error as { message?: string })?.message || "",
-				).toLowerCase();
+			[PRISMA_ERROR_CODES.FOREIGN_KEY_CONSTRAINT]: (error: unknown) => {
+				const field = extractPrismaFieldName(error).toLowerCase();
 
-				if (field.includes("category") || message.includes("category")) {
+				if (field.includes("category")) {
 					return new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND);
 				}
-				if (field.includes("addon") || message.includes("addon")) {
+				if (field.includes("addon")) {
 					return new AddonNotFoundForRestaurantError(
 						messages.ADDON_NOT_FOUND_FOR_RESTAURANT,
 					);
 				}
-				return new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+				if (field.includes("restaurant")) {
+					return new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+				}
+				return new PersistenceError("Foreign key constraint failed", error);
 			},
-			P2025: () => new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND),
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
+				new MenuItemNotFoundError(messages.MENU_ITEM_NOT_FOUND),
 		});
 	}
 
@@ -103,13 +109,11 @@ export class PrismaMenuItemRepository
 		restaurantIdOrName: string,
 	): Promise<MenuItem | null> {
 		return this.run(async () => {
-			const uuidRegex =
-				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 			let restaurantId = nameOrRestaurantId;
 			let name = restaurantIdOrName;
 			if (
-				uuidRegex.test(restaurantIdOrName) &&
-				!uuidRegex.test(nameOrRestaurantId)
+				UUID_REGEX.test(restaurantIdOrName) &&
+				!UUID_REGEX.test(nameOrRestaurantId)
 			) {
 				restaurantId = restaurantIdOrName;
 				name = nameOrRestaurantId;

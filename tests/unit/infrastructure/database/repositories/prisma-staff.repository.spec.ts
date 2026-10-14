@@ -115,9 +115,9 @@ describe("PrismaStaffRepository", () => {
 			});
 			mockStaffModel.findUnique.mockRejectedValueOnce(error);
 
-			await expect(
-				repository.findByEmail("test@example.com"),
-			).rejects.toThrow(StaffAlreadyExistsError);
+			await expect(repository.findByEmail("test@example.com")).rejects.toThrow(
+				StaffAlreadyExistsError,
+			);
 		});
 
 		it("should translate P2025 error to StaffNotFoundError", async () => {
@@ -127,9 +127,9 @@ describe("PrismaStaffRepository", () => {
 			});
 			mockStaffModel.findUnique.mockRejectedValueOnce(error);
 
-			await expect(
-				repository.findById("staff-123"),
-			).rejects.toThrow(StaffNotFoundError);
+			await expect(repository.findById("staff-123")).rejects.toThrow(
+				StaffNotFoundError,
+			);
 		});
 	});
 });

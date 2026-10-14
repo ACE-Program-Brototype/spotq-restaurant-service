@@ -18,6 +18,8 @@ import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/u
 import { TYPES } from "@/config/di/types.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import {
+	IdempotentEventAlreadyProcessedError,
+	InvalidRestaurantDataError,
 	RestaurantAlreadyExistsError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
@@ -30,7 +32,9 @@ import type {
 } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
+import { extractPrismaMetaTarget } from "../utils/prisma-error.util.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
 const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
@@ -55,8 +59,17 @@ export class RestaurantRepository
 		private readonly prisma: PrismaClient,
 	) {
 		super(prisma.restaurant, RestaurantPersistenceMapper, {
-			P2002: () => new RestaurantAlreadyExistsError(),
-			P2025: () => new RestaurantNotFoundError(),
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: (error: unknown) => {
+				const target = extractPrismaMetaTarget(error).toLowerCase();
+				if (target.includes("phone")) {
+					return new InvalidRestaurantDataError(
+						"Restaurant with this phone number already exists",
+					);
+				}
+				return new RestaurantAlreadyExistsError();
+			},
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
+				new RestaurantNotFoundError(),
 		});
 	}
 
@@ -541,8 +554,16 @@ export class RestaurantRepository
 		sortOrder: "asc" | "desc";
 	}): Promise<{ restaurants: RestaurantApplicationDetail[]; total: number }> {
 		return this.run(async () => {
-			const { page, limit, status, search, fromDate, toDate, sortBy, sortOrder } =
-				params;
+			const {
+				page,
+				limit,
+				status,
+				search,
+				fromDate,
+				toDate,
+				sortBy,
+				sortOrder,
+			} = params;
 
 			const statusFilter = status
 				? status
@@ -827,7 +848,8 @@ export class RestaurantRepository
 				}
 			});
 
-			const updatedDetails = await this.getRestaurantProfileDetails(restaurantId);
+			const updatedDetails =
+				await this.getRestaurantProfileDetails(restaurantId);
 			if (!updatedDetails) {
 				throw new RestaurantNotFoundError();
 			}
@@ -930,59 +952,65 @@ export class RestaurantRepository
 		eventId: string,
 	): Promise<boolean> {
 		try {
-			return await this.run(async () => {
-				return await (
-					this.prisma as unknown as {
-						$transaction: (
-							fn: (tx: {
-								restaurant: {
-									update: (args: {
-										where: { id: string };
-										data: Record<string, unknown>;
-									}) => Promise<unknown>;
-								};
-								processedEvent: {
-									findUnique: (args: {
-										where: { id: string };
-									}) => Promise<{ id: string } | null>;
-									create: (args: {
-										data: { id: string; eventType: string };
-									}) => Promise<unknown>;
-								};
-							}) => Promise<boolean>,
-						) => Promise<boolean>;
-					}
-				).$transaction(async (tx) => {
-					const alreadyProcessed = await tx.processedEvent.findUnique({
-						where: { id: eventId },
+			return await this.run(
+				async () => {
+					return await (
+						this.prisma as unknown as {
+							$transaction: (
+								fn: (tx: {
+									restaurant: {
+										update: (args: {
+											where: { id: string };
+											data: Record<string, unknown>;
+										}) => Promise<unknown>;
+									};
+									processedEvent: {
+										findUnique: (args: {
+											where: { id: string };
+										}) => Promise<{ id: string } | null>;
+										create: (args: {
+											data: { id: string; eventType: string };
+										}) => Promise<unknown>;
+									};
+								}) => Promise<boolean>,
+							) => Promise<boolean>;
+						}
+					).$transaction(async (tx) => {
+						const alreadyProcessed = await tx.processedEvent.findUnique({
+							where: { id: eventId },
+						});
+
+						if (alreadyProcessed) {
+							return false;
+						}
+
+						await tx.restaurant.update({
+							where: { id: restaurantId },
+							data: {
+								isSubscriptionActive: true,
+								subscriptionPlanCode: planCode,
+								subscriptionEndsAt: currentPeriodEnd,
+								status: "ACTIVE",
+							},
+						});
+
+						await tx.processedEvent.create({
+							data: {
+								id: eventId,
+								eventType: "subscription.activated",
+							},
+						});
+
+						return true;
 					});
-
-					if (alreadyProcessed) {
-						return false;
-					}
-
-					await tx.restaurant.update({
-						where: { id: restaurantId },
-						data: {
-							isSubscriptionActive: true,
-							subscriptionPlanCode: planCode,
-							subscriptionEndsAt: currentPeriodEnd,
-							status: "ACTIVE",
-						},
-					});
-
-					await tx.processedEvent.create({
-						data: {
-							id: eventId,
-							eventType: "subscription.activated",
-						},
-					});
-
-					return true;
-				});
-			});
+				},
+				{
+					[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+						new IdempotentEventAlreadyProcessedError(),
+				},
+			);
 		} catch (error: unknown) {
-			if (error instanceof RestaurantAlreadyExistsError) {
+			if (error instanceof IdempotentEventAlreadyProcessedError) {
 				return false;
 			}
 			throw error;

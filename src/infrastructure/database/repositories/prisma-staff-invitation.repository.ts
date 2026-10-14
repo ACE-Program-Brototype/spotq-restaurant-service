@@ -16,7 +16,9 @@ import type {
 	StaffInvitationFilterParams,
 } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { StaffInvitationPersistenceMapper } from "../mappers/staff-invitation.mapper.ts";
+import { extractPrismaMetaTarget } from "../utils/prisma-error.util.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
 @injectable()
@@ -33,16 +35,9 @@ export class PrismaStaffInvitationRepository
 		private readonly prisma: PrismaClient,
 	) {
 		super(prisma.staffInvitation, StaffInvitationPersistenceMapper, {
-			P2002: (error: unknown) => {
-				const meta = (error as { meta?: { target?: string[] | string } })?.meta;
-				const target = meta?.target;
-				const targetStr = Array.isArray(target)
-					? target.join(",")
-					: String(target ?? "");
-				if (
-					targetStr.includes("staffId") ||
-					targetStr.includes("restaurant_staff")
-				) {
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: (error: unknown) => {
+				const target = extractPrismaMetaTarget(error).toLowerCase();
+				if (target.includes("staffid") || target.includes("restaurant_staff")) {
 					return new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
 				}
 				return new StaffInvitationAlreadyPendingError(
@@ -169,8 +164,8 @@ export class PrismaStaffInvitationRepository
 			...invUpdateData
 		} = invitationData;
 
-		try {
-			await this.run(async () => {
+		return this.run(
+			async () => {
 				await this.prisma.$transaction(async (tx) => {
 					const normalizedEmail = (staff.email || invitation.email)
 						.toLowerCase()
@@ -224,12 +219,11 @@ export class PrismaStaffInvitationRepository
 						update: invUpdateData,
 					});
 				});
-			});
-		} catch (error) {
-			if (error instanceof StaffInvitationAlreadyPendingError) {
-				throw new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS);
-			}
-			throw error;
-		}
+			},
+			{
+				[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+					new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS),
+			},
+		);
 	}
 }

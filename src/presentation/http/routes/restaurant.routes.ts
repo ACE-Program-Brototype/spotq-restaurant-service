@@ -15,7 +15,6 @@ import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middlewa
 import { restaurantOrStaffAuthMiddleware } from "../middleware/restaurant-or-staff.auth.middleware";
 import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.auth.middleware";
 import { staffAuthMiddleware } from "../middleware/staff.auth.middleware";
-import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import {
 	validate,
 	validateRequestBody,
@@ -39,6 +38,7 @@ import { deleteAddonParamsSchema } from "../validators/delete-addon.validator";
 import { deleteMenuCategoryParamsSchema } from "../validators/delete-menu-category.validator";
 import { deleteMenuItemParamsSchema } from "../validators/delete-menu-item.validator";
 import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator";
+import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import { listMenuCategoriesParamSchema } from "../validators/list-menu-categories.validator";
 import {
 	listMenuItemsParamsSchema,
@@ -81,13 +81,13 @@ import {
 	updateMenuCategoryStatusParamsSchema,
 } from "../validators/update-menu-category-status.validator";
 import {
-	updateMenuItemStatusBodySchema,
-	updateMenuItemStatusParamsSchema,
-} from "../validators/update-menu-item-status.validator";
-import {
 	updateMenuItemBodySchema,
 	updateMenuItemParamsSchema,
 } from "../validators/update-menu-item.validator";
+import {
+	updateMenuItemStatusBodySchema,
+	updateMenuItemStatusParamsSchema,
+} from "../validators/update-menu-item-status.validator";
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 
 export const restaurantRouter = express.Router();
@@ -150,9 +150,12 @@ restaurantRouter.patch(
 );
 
 restaurantRouter.get(
-  RESTAURANT_ROUTES.CUSTOMER_LIST,
-  validateRequestQuery(listCustomerRestaurantsQuerySchema, HTTP_STATUS.BAD_REQUEST),
-  customerRestaurantController.listRestaurants,
+	RESTAURANT_ROUTES.CUSTOMER_LIST,
+	validateRequestQuery(
+		listCustomerRestaurantsQuerySchema,
+		HTTP_STATUS.BAD_REQUEST,
+	),
+	customerRestaurantController.listRestaurants,
 );
 
 const updateStaffProfileChain: express.RequestHandler[] = [

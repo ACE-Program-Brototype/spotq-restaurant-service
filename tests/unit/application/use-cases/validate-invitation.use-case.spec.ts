@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IInvitationTokenService } from "@/application/ports/services/invitation-token.service.port.ts";
 import { ValidateInvitationUseCase } from "@/application/use-cases/staff/validate-invitation.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
@@ -8,6 +7,7 @@ import {
 	InvalidInvitationTokenError,
 	InvitationExpiredError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 
 describe("ValidateInvitationUseCase", () => {

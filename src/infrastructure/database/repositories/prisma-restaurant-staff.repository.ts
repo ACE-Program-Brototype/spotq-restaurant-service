@@ -12,6 +12,7 @@ import type {
 	StaffFilterParams,
 } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import {
 	type PrismaRestaurantStaffWithRelations,
 	StaffPersistenceMapper,
@@ -32,8 +33,10 @@ export class PrismaRestaurantStaffRepository
 		private readonly prismaClient: PrismaClient,
 	) {
 		super(prismaClient.restaurantStaff, StaffPersistenceMapper, {
-			P2002: () => new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS),
-			P2025: () => new StaffNotFoundError(messages.STAFF_NOT_FOUND),
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+				new StaffAlreadyExistsError(messages.EMAIL_ALREADY_EXISTS),
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
+				new StaffNotFoundError(messages.STAFF_NOT_FOUND),
 		});
 	}
 

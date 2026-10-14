@@ -3,7 +3,6 @@ import type {
 	ValidateInvitationDTO,
 	ValidateInvitationResponseDTO,
 } from "@/application/dtos/staff/validate-invitation.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IInvitationTokenService } from "@/application/ports/services/invitation-token.service.port.ts";
 import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -11,6 +10,7 @@ import {
 	InvalidInvitationTokenError,
 	InvitationExpiredError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 

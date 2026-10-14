@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { CreateMenuItemUseCase } from "@/application/use-cases/create-menu-item.use-case.ts";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
@@ -13,6 +12,7 @@ import {
 	MenuItemAlreadyExistsError,
 } from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("CreateMenuItemUseCase", () => {
 	let useCase: CreateMenuItemUseCase;

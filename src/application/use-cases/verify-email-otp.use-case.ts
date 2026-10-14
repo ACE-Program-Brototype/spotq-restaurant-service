@@ -1,6 +1,5 @@
 import { inject, injectable } from "inversify";
 import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
 import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
@@ -11,6 +10,7 @@ import {
 	ONBOARDING_NEXT_STEPS,
 	type OnboardingNextStep,
 } from "@/domain/constants/onboarding-step.constants";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { logger } from "@/infrastructure/observability/logger";
 import { OTP_CONFIG } from "@/shared/constants/otp.constants";
 import { getRestaurantEmailOtpKey } from "@/utils/otp.util";

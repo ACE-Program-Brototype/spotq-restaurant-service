@@ -9,6 +9,7 @@ import {
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { AddonPersistenceMapper } from "../mappers/addon.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -22,9 +23,12 @@ export class PrismaAddonRepository
 		prisma: PrismaClient,
 	) {
 		super(prisma.addon, AddonPersistenceMapper, {
-			P2002: () => new AddonAlreadyExistsError(messages.ADDON_ALREADY_EXISTS),
-			P2003: () => new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND),
-			P2025: () => new AddonNotFoundError(messages.ADDON_NOT_FOUND),
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+				new AddonAlreadyExistsError(messages.ADDON_ALREADY_EXISTS),
+			[PRISMA_ERROR_CODES.FOREIGN_KEY_CONSTRAINT]: () =>
+				new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND),
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
+				new AddonNotFoundError(messages.ADDON_NOT_FOUND),
 		});
 	}
 

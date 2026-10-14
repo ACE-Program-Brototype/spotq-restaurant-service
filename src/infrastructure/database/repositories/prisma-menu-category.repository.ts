@@ -14,6 +14,7 @@ import {
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { MenuCategoryPersistenceMapper } from "../mappers/menu-category.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -31,11 +32,11 @@ export class PrismaMenuCategoryRepository
 		private readonly prismaClient: PrismaClient,
 	) {
 		super(prismaClient.menuCategory, MenuCategoryPersistenceMapper, {
-			P2002: () =>
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
 				new CategoryAlreadyExistsError(messages.CATEGORY_ALREADY_EXISTS),
-			P2003: () =>
+			[PRISMA_ERROR_CODES.FOREIGN_KEY_CONSTRAINT]: () =>
 				new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND),
-			P2025: () =>
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
 				new CategoryNotFoundError(messages.CATEGORY_NOT_FOUND),
 		});
 	}

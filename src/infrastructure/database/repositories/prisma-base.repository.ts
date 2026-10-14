@@ -1,7 +1,9 @@
+import { Prisma } from "@prisma/client";
 import { injectable } from "inversify";
 import { DomainError } from "@/domain/errors/domain.error.ts";
 import type { IBaseRepository } from "@/domain/repositories/base.repository.interface.ts";
 import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 
 export interface IEntityMapper<TDomain, TModel> {
 	toDomain(raw: TModel): TDomain;
@@ -32,38 +34,81 @@ export abstract class PrismaBaseRepository<
 	/**
 	 * Executes an asynchronous database operation, translating known Prisma errors
 	 * and wrapping unknown infrastructure failures in a PersistenceError.
+	 * Optionally accepts a method-specific errorMap to override default mappings.
 	 */
-	protected async run<R>(operation: () => Promise<R>): Promise<R> {
+	protected async run<R>(
+		operation: () => Promise<R>,
+		methodErrorMap?: PrismaErrorMap,
+	): Promise<R> {
 		try {
 			return await operation();
 		} catch (error) {
-			throw this.translateError(error);
+			throw this.translateError(error, methodErrorMap);
 		}
 	}
 
 	/**
 	 * Translates database and runtime errors into domain errors or PersistenceError.
+	 * Standard JavaScript programming errors (TypeError, ReferenceError) are not masked.
 	 */
-	protected translateError(error: unknown): Error {
-		if (error instanceof DomainError) {
+	protected translateError(
+		error: unknown,
+		methodErrorMap?: PrismaErrorMap,
+	): Error {
+		if (error instanceof DomainError || error instanceof PersistenceError) {
 			return error;
 		}
 
-		if (error instanceof PersistenceError) {
+		// Never mask programming bugs (e.g. TypeError, ReferenceError) as database persistence errors
+		if (
+			error instanceof TypeError ||
+			error instanceof ReferenceError ||
+			error instanceof RangeError
+		) {
 			return error;
 		}
 
-		const code = (error as { code?: string })?.code;
-		if (code && this.errorMap[code]) {
-			return this.errorMap[code](error);
-		}
-
-		try {
-			this.handlePrismaError(error);
-		} catch (handledError) {
-			if (handledError instanceof Error) {
-				return handledError;
+		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+			const factory = methodErrorMap?.[error.code] ?? this.errorMap[error.code];
+			if (factory) {
+				try {
+					return factory(error);
+				} catch (factoryError) {
+					return new PersistenceError(
+						"Failed to map database error",
+						factoryError,
+					);
+				}
 			}
+
+			const isRetryable =
+				error.code === PRISMA_ERROR_CODES.POOL_TIMEOUT ||
+				error.code === PRISMA_ERROR_CODES.TRANSACTION_TIMEOUT;
+
+			return new PersistenceError(
+				error.message || "Database operation failed",
+				error,
+				"PERSISTENCE_ERROR",
+				isRetryable,
+			);
+		}
+
+		if (error instanceof Prisma.PrismaClientInitializationError) {
+			return new PersistenceError(
+				error.message || "Database initialization failed",
+				error,
+				"PERSISTENCE_ERROR",
+				true,
+			);
+		}
+
+		if (error instanceof Prisma.PrismaClientRustPanicError) {
+			return new PersistenceError(
+				error.message || "Database engine panic",
+				error,
+				"PERSISTENCE_ERROR",
+				false,
+			);
 		}
 
 		return new PersistenceError(
@@ -73,12 +118,12 @@ export abstract class PrismaBaseRepository<
 	}
 
 	public async findById(id: string): Promise<TDomain | null> {
-		return this.run(async () => {
-			const record = (await this.delegate.findUnique({
+		const record = await this.run(async () => {
+			return (await this.delegate.findUnique({
 				where: { id },
 			})) as TModel | null;
-			return record ? this.mapper.toDomain(record) : null;
 		});
+		return record ? this.mapper.toDomain(record) : null;
 	}
 
 	public async exists(id: string): Promise<boolean> {
@@ -89,10 +134,10 @@ export abstract class PrismaBaseRepository<
 	}
 
 	public async save(entity: TDomain): Promise<void> {
-		return this.run(async () => {
-			const data = this.mapper.toPersistence(entity);
-			const { id, createdAt, ...updateData } = data as Record<string, unknown>;
+		const data = this.mapper.toPersistence(entity);
+		const { id, createdAt, ...updateData } = data as Record<string, unknown>;
 
+		await this.run(async () => {
 			await this.delegate.upsert({
 				where: { id: entity.id },
 				create: data,
@@ -105,24 +150,18 @@ export abstract class PrismaBaseRepository<
 		id: string,
 		data: Record<string, unknown>,
 	): Promise<TDomain> {
-		return this.run(async () => {
-			const record = (await this.delegate.update({
+		const record = await this.run(async () => {
+			return (await this.delegate.update({
 				where: { id },
 				data,
 			})) as TModel;
-			return this.mapper.toDomain(record);
 		});
+		return this.mapper.toDomain(record);
 	}
 
 	public async delete(id: string): Promise<void> {
-		return this.run(async () => {
+		await this.run(async () => {
 			await this.delegate.delete({ where: { id } });
 		});
 	}
-
-	/**
-	 * Subclasses can override this hook to translate Prisma errors.
-	 * Prefer configuring errorMap in constructor instead.
-	 */
-	protected handlePrismaError(_error: unknown, _context?: unknown): void {}
 }

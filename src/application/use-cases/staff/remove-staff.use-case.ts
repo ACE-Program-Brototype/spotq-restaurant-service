@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
 import type { RemoveStaffDTO } from "@/application/dtos/staff/remove-staff.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRemoveStaffUseCase } from "@/application/ports/use-cases/remove-staff.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
 	RestaurantNotFoundError,
 	StaffNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
