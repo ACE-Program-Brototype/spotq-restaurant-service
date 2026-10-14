@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ListStaffMenuItemsUseCase } from "@/application/use-cases/list-staff-menu-items.use-case.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";

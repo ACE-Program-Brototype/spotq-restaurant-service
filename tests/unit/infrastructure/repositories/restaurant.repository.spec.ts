@@ -1,6 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
+import { RestaurantRepository } from "@/infrastructure/database/repositories/restaurant.repository";
 
 describe("RestaurantRepository - activateSubscription", () => {
 	let mockPrisma: {

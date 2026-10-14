@@ -6,7 +6,7 @@ import type {
 } from "@/application/dtos/menu-item/create-menu-item.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { ICreateMenuItemUseCase } from "@/application/ports/use-cases/create-menu-item.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";

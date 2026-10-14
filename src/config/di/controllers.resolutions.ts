@@ -1,5 +1,7 @@
+import type { TableSectionController } from "@presentation/http/controllers/table-section.controller";
 import type { AddonController } from "@/presentation/http/controllers/addon.controller";
 import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
+import type { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
 import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
 import type { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller";
 import type { MenuItemController } from "@/presentation/http/controllers/menu-item.controller";
@@ -53,3 +55,11 @@ export const adminRestaurantController =
 export const addonController = container.get<AddonController>(
 	TYPES.Controller.AddonController,
 );
+
+export const tableSectionController = container.get<TableSectionController>(
+	TYPES.Controller.TableSectionController,
+);
+export const customerRestaurantController =
+	container.get<CustomerRestaurantController>(
+		TYPES.Controller.CustomerRestaurantController,
+	);

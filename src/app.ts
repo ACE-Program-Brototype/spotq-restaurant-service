@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { tableSectionRoutes } from "@presentation/http/routes/table-section.routes";
 import cookieParser from "cookie-parser";
 import express from "express";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";
@@ -19,6 +20,7 @@ import {
 	JWKS_ROUTES,
 	STAFF_ROUTES,
 	STORAGE_ROUTES,
+	TABLE_SECTION_ROUTES,
 } from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
 
@@ -49,6 +51,7 @@ app.get("/", (_req, res) => {
 // Mount routes
 app.use(ADMIN_ROUTES.BASE, adminRouter);
 app.use(STAFF_ROUTES.BASE, staffRouter);
+app.use(TABLE_SECTION_ROUTES.BASE, tableSectionRoutes);
 app.use("/", systemRouter);
 app.use("/", restaurantRouter);
 app.use(STORAGE_ROUTES.BASE, storageRouter);

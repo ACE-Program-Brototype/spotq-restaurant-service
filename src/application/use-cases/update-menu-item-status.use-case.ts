@@ -3,7 +3,7 @@ import type { RestaurantOwnerMenuItemDetailsResponseDto } from "@/application/dt
 import type { UpdateMenuItemStatusInputDto } from "@/application/dtos/menu-item/update-menu-item-status.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuItemNotFoundError } from "@/domain/errors/menu-item.errors.ts";

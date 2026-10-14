@@ -5,7 +5,7 @@ import type {
 } from "@/application/dtos/menu-item/get-restaurant-owner-menu-item-details.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuItemNotFoundError } from "@/domain/errors/menu-item.errors.ts";

@@ -4,6 +4,7 @@ import {
 	OnboardingStatus,
 	type Prisma,
 	type PrismaClient,
+	type Restaurant as PrismaRestaurant,
 	RestaurantStatus,
 } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
@@ -15,16 +16,20 @@ import type {
 } from "@/application/dtos/restaurant/restaurant-onboarding.dto.ts";
 import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
 import type { UpdateRestaurantProfileDto } from "@/application/dtos/restaurant/update-restaurant-profile.dto.ts";
+import { TYPES } from "@/config/di/types.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
+import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
+	CustomerRestaurantFilterParams,
+	CustomerRestaurantListItem,
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
 	RestaurantFilterParams,
-} from "@/application/ports/repositories/restaurant.repository.port.ts";
-import { TYPES } from "@/config/di/types.ts";
-import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
+} from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
-import { RestaurantPersistenceMapper } from "@/infrastructure/database/mappers/restaurant.mapper.ts";
+import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
+import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
 const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
 	fssai: DocumentType.FSSAI,
@@ -35,11 +40,41 @@ const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
 };
 
 @injectable()
-export class RestaurantRepository implements IRestaurantRepository {
+export class RestaurantRepository
+	extends PrismaBaseRepository<
+		Restaurant,
+		PrismaRestaurant,
+		PrismaClient["restaurant"]
+	>
+	implements IRestaurantRepository
+{
 	constructor(
 		@inject(TYPES.Database.PrismaClient)
 		private readonly prisma: PrismaClient,
-	) {}
+	) {
+		super(prisma.restaurant, RestaurantPersistenceMapper);
+	}
+
+	protected override handlePrismaError(
+		error: unknown,
+		_context?: unknown,
+	): void {
+		const code = (error as { code?: string })?.code;
+		if (
+			code === "P2025" ||
+			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
+		) {
+			throw new RestaurantNotFoundError();
+		}
+	}
+
+	public override async findById(id: string): Promise<Restaurant | null> {
+		return super.findById(id);
+	}
+
+	public override async save(restaurant: Restaurant): Promise<void> {
+		return super.save(restaurant);
+	}
 
 	async create(data: Partial<Restaurant>): Promise<Restaurant> {
 		const domainEntity = Restaurant.create({
@@ -75,34 +110,36 @@ export class RestaurantRepository implements IRestaurantRepository {
 		return RestaurantPersistenceMapper.toDomain(raw);
 	}
 
-	async update(id: string, data: Partial<Restaurant>): Promise<Restaurant> {
+	public override async update(
+		id: string,
+		data: Partial<Restaurant> | Record<string, unknown>,
+	): Promise<Restaurant> {
 		const updateData: Prisma.RestaurantUpdateInput = {};
+		const d = data as Partial<Restaurant>;
 
-		if (data.restaurantName !== undefined)
-			updateData.restaurantName = data.restaurantName;
-		if (data.email !== undefined) updateData.email = data.email;
-		if (data.phone !== undefined) updateData.phone = data.phone;
-		if (data.ownerName !== undefined) updateData.ownerName = data.ownerName;
-		if (data.ownerEmail !== undefined) updateData.ownerEmail = data.ownerEmail;
-		if (data.status !== undefined)
-			updateData.status = data.status as RestaurantStatus;
-		if (data.onboardingStatus !== undefined)
-			updateData.onboardingStatus = data.onboardingStatus as OnboardingStatus;
-		if (data.emailVerifiedAt !== undefined)
-			updateData.emailVerifiedAt = data.emailVerifiedAt;
-		if (data.rejectionReason !== undefined)
-			updateData.rejectionReason = data.rejectionReason;
-		if (data.isBlocked !== undefined) updateData.isBlocked = data.isBlocked;
-		if (data.blockReason !== undefined)
-			updateData.blockReason = data.blockReason;
-		if (data.lastLoginAt !== undefined)
-			updateData.lastLoginAt = data.lastLoginAt;
-		if (data.isSubscriptionActive !== undefined)
-			updateData.isSubscriptionActive = data.isSubscriptionActive;
-		if (data.subscriptionPlanCode !== undefined)
-			updateData.subscriptionPlanCode = data.subscriptionPlanCode;
-		if (data.subscriptionEndsAt !== undefined)
-			updateData.subscriptionEndsAt = data.subscriptionEndsAt;
+		if (d.restaurantName !== undefined)
+			updateData.restaurantName = d.restaurantName;
+		if (d.email !== undefined) updateData.email = d.email;
+		if (d.phone !== undefined) updateData.phone = d.phone;
+		if (d.ownerName !== undefined) updateData.ownerName = d.ownerName;
+		if (d.ownerEmail !== undefined) updateData.ownerEmail = d.ownerEmail;
+		if (d.status !== undefined)
+			updateData.status = d.status as RestaurantStatus;
+		if (d.onboardingStatus !== undefined)
+			updateData.onboardingStatus = d.onboardingStatus as OnboardingStatus;
+		if (d.emailVerifiedAt !== undefined)
+			updateData.emailVerifiedAt = d.emailVerifiedAt;
+		if (d.rejectionReason !== undefined)
+			updateData.rejectionReason = d.rejectionReason;
+		if (d.isBlocked !== undefined) updateData.isBlocked = d.isBlocked;
+		if (d.blockReason !== undefined) updateData.blockReason = d.blockReason;
+		if (d.lastLoginAt !== undefined) updateData.lastLoginAt = d.lastLoginAt;
+		if (d.isSubscriptionActive !== undefined)
+			updateData.isSubscriptionActive = d.isSubscriptionActive;
+		if (d.subscriptionPlanCode !== undefined)
+			updateData.subscriptionPlanCode = d.subscriptionPlanCode;
+		if (d.subscriptionEndsAt !== undefined)
+			updateData.subscriptionEndsAt = d.subscriptionEndsAt;
 
 		const raw = await this.prisma.restaurant.update({
 			where: { id },
@@ -110,14 +147,6 @@ export class RestaurantRepository implements IRestaurantRepository {
 		});
 
 		return RestaurantPersistenceMapper.toDomain(raw);
-	}
-
-	async findById(id: string): Promise<Restaurant | null> {
-		const raw = await this.prisma.restaurant.findUnique({
-			where: { id },
-		});
-
-		return raw ? RestaurantPersistenceMapper.toDomain(raw) : null;
 	}
 
 	async findCompletedDetailsById(
@@ -430,17 +459,6 @@ export class RestaurantRepository implements IRestaurantRepository {
 			}
 
 			return RestaurantPersistenceMapper.toDomain(updatedRaw);
-		});
-	}
-
-	async save(restaurant: Restaurant): Promise<void> {
-		const rawData = RestaurantPersistenceMapper.toPersistence(restaurant);
-		const { id, createdAt, ...updateData } = rawData;
-
-		await this.prisma.restaurant.upsert({
-			where: { id: restaurant.id },
-			create: rawData,
-			update: updateData,
 		});
 	}
 
@@ -958,4 +976,207 @@ export class RestaurantRepository implements IRestaurantRepository {
 			throw error;
 		}
 	}
+
+	async findCustomerRestaurants(
+		params: CustomerRestaurantFilterParams,
+	): Promise<{
+		restaurants: CustomerRestaurantListItem[];
+		total: number;
+	}> {
+		const {
+			page,
+			limit,
+			search,
+			city,
+			cuisine,
+			foodItem,
+			minPrice,
+			maxPrice,
+			sortBy,
+			sortOrder,
+		} = params;
+
+		let orderBy: Prisma.RestaurantOrderByWithRelationInput;
+
+		switch (sortBy) {
+			case "restaurantName":
+			case "name":
+				orderBy = { restaurantName: sortOrder };
+				break;
+			case "city":
+				orderBy = { address: { city: sortOrder } };
+				break;
+			case "price":
+				orderBy = { profile: { averageCost: sortOrder } };
+				break;
+			default:
+				orderBy = { createdAt: sortOrder };
+				break;
+		}
+
+		const menuItemWhere: Prisma.MenuItemWhereInput = {
+			isDeleted: false,
+			isAvailable: true,
+			...(foodItem && {
+				name: {
+					contains: foodItem,
+					mode: "insensitive",
+				},
+			}),
+			...((minPrice !== undefined || maxPrice !== undefined) && {
+				price: {
+					...(minPrice !== undefined && { gte: minPrice }),
+					...(maxPrice !== undefined && { lte: maxPrice }),
+				},
+			}),
+		};
+
+		const cuisines = cuisine
+			? cuisine
+					.split(",")
+					.map((c) => c.trim())
+					.filter(Boolean)
+			: [];
+
+		const andConditions: Prisma.RestaurantWhereInput[] = [
+			{ status: "ACTIVE" },
+			{ onboardingStatus: "COMPLETED" },
+			{ isBlocked: false },
+			{ isSubscriptionActive: true },
+		];
+
+		if (search) {
+			andConditions.push({
+				OR: [
+					{
+						restaurantName: {
+							contains: search,
+							mode: "insensitive",
+						},
+					},
+					{
+						profile: {
+							is: {
+								description: {
+									contains: search,
+									mode: "insensitive",
+								},
+							},
+						},
+					},
+					{
+						profile: {
+							is: {
+								cuisineType: {
+									contains: search,
+									mode: "insensitive",
+								},
+							},
+						},
+					},
+					{
+						menuItems: {
+							some: {
+								name: {
+									contains: search,
+									mode: "insensitive",
+								},
+								isDeleted: false,
+								isAvailable: true,
+							},
+						},
+					},
+				],
+			});
+		}
+
+		if (city) {
+			andConditions.push({
+				address: {
+					is: {
+						city: {
+							contains: city,
+							mode: "insensitive",
+						},
+					},
+				},
+			});
+		}
+
+		if (cuisines.length > 0) {
+			andConditions.push({
+				OR: cuisines.map((c) => ({
+					profile: {
+						is: {
+							cuisineType: {
+								contains: c,
+								mode: "insensitive",
+							},
+						},
+					},
+				})),
+			});
+		}
+
+		if (foodItem || minPrice !== undefined || maxPrice !== undefined) {
+			andConditions.push({
+				menuItems: {
+					some: menuItemWhere,
+				},
+			});
+		}
+
+		const where: Prisma.RestaurantWhereInput = {
+			AND: andConditions,
+		};
+
+		const skip = (page - 1) * limit;
+
+		const [rawRestaurants, total] = await Promise.all([
+			this.prisma.restaurant.findMany({
+				where,
+				select: {
+					id: true,
+					restaurantName: true,
+					createdAt: true,
+					address: {
+						select: {
+							city: true,
+							state: true,
+						},
+					},
+					profile: {
+						select: {
+							cuisineType: true,
+							averageCost: true,
+						},
+					},
+				},
+				orderBy,
+				skip,
+				take: limit,
+			}),
+
+			this.prisma.restaurant.count({ where }),
+		]);
+
+		const restaurants: CustomerRestaurantListItem[] = rawRestaurants.map(
+			(restaurant) => ({
+				id: restaurant.id,
+				restaurantName: restaurant.restaurantName,
+				city: restaurant.address?.city ?? null,
+				state: restaurant.address?.state ?? null,
+				cuisineType: restaurant.profile?.cuisineType ?? null,
+				averageCost: restaurant.profile?.averageCost ?? null,
+				createdAt: restaurant.createdAt,
+			}),
+		);
+
+		return {
+			restaurants,
+			total,
+		};
+	}
 }
+
+export { RestaurantRepository as PrismaRestaurantRepository };

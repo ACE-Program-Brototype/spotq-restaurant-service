@@ -1,5 +1,4 @@
 import { ContainerModule } from "inversify";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port";
 import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
 import type { IEmailService } from "@/application/ports/services/email-service.port";
 import type { IOtpService } from "@/application/ports/services/otp.service.port";
@@ -28,7 +27,8 @@ import { SendRestaurantEmailOtpUseCase } from "@/application/use-cases/send-emai
 import { UpdateRestaurantProfileUseCase } from "@/application/use-cases/update-restaurant-profile.use-case";
 import { VerifyRestaurantEmailOtpUseCase } from "@/application/use-cases/verify-email-otp.use-case";
 import { TYPES } from "@/config/di/types";
-import { RestaurantRepository } from "@/infrastructure/repositories/restaurant.repository";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
+import { RestaurantRepository } from "@/infrastructure/database/repositories/restaurant.repository";
 import { AuthTokenService } from "@/infrastructure/services/auth-token.service";
 import { BrevoEmailService } from "@/infrastructure/services/brevo-email.service";
 import { OtpService } from "@/infrastructure/services/otp.service";

@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import type { DeleteMenuCategoryInputDto } from "@/application/dtos/menu/delete-menu-category.dto.ts";
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {

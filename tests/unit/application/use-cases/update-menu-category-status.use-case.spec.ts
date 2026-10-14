@@ -1,4 +1,4 @@
-import type { IRestaurantRepository } from "@/application/ports/repositories/restaurant.repository.port.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { UpdateMenuCategoryStatusUseCase } from "@/application/use-cases/update-menu-category-status.use-case.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
