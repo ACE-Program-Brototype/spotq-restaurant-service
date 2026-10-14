@@ -32,6 +32,7 @@ import type {
 } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
 import { extractPrismaMetaTarget } from "../utils/prisma-error.util.ts";
@@ -63,7 +64,7 @@ export class RestaurantRepository
 				const target = extractPrismaMetaTarget(error).toLowerCase();
 				if (target.includes("phone")) {
 					return new InvalidRestaurantDataError(
-						"Restaurant with this phone number already exists",
+						messages.RESTAURANT_PHONE_ALREADY_EXISTS,
 					);
 				}
 				return new RestaurantAlreadyExistsError();

@@ -2,6 +2,7 @@ import type { PrismaClient } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { DomainError } from "@/domain/errors/domain.error";
 import {
+	IdempotentEventAlreadyProcessedError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyExistsError,
 	RestaurantNotFoundError,
@@ -126,6 +127,14 @@ describe("RestaurantRepository", () => {
 			expect(err).toBeInstanceOf(DomainError);
 			expect(err).toBeInstanceOf(Error);
 			expect(err.message).toBe("Restaurant with this email already exists");
+		});
+
+		it("IdempotentEventAlreadyProcessedError should be an instance of DomainError with code and message", () => {
+			const err = new IdempotentEventAlreadyProcessedError();
+			expect(err).toBeInstanceOf(DomainError);
+			expect(err).toBeInstanceOf(Error);
+			expect(err.code).toBe("IDEMPOTENT_EVENT_ALREADY_PROCESSED");
+			expect(err.message).toBe("Event has already been processed");
 		});
 	});
 

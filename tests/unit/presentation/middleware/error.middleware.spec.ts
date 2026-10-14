@@ -5,6 +5,7 @@ import {
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors";
 import { PersistenceError } from "@/infrastructure/errors/persistence.error";
+import { logger } from "@/infrastructure/observability/logger";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware";
 
 describe("error.middleware", () => {
@@ -90,5 +91,36 @@ describe("error.middleware", () => {
 			message: "Internal server error occurred",
 			error: undefined,
 		});
+	});
+
+	it("should serialize Error instances in originalError preserving name, message, and stack", () => {
+		const originalDbError = new Error("Connection terminated unexpectedly");
+		const persistenceError = new PersistenceError(
+			"Database operation failed",
+			originalDbError,
+		);
+		const loggerSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+
+		errorHandler(
+			persistenceError,
+			mockReq as Request,
+			mockRes as Response,
+			mockNext,
+		);
+
+		expect(loggerSpy).toHaveBeenCalledWith(
+			expect.objectContaining({
+				error: expect.objectContaining({
+					originalError: expect.objectContaining({
+						name: "Error",
+						message: "Connection terminated unexpectedly",
+						stack: expect.any(String),
+					}),
+				}),
+			}),
+			expect.any(String),
+		);
+
+		loggerSpy.mockRestore();
 	});
 });

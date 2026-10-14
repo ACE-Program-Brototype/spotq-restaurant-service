@@ -12,6 +12,9 @@ export const messages = {
 	OWNER_EMAIL_REQUIRED: "Valid owner email is required",
 	BLOCK_REASON_REQUIRED: "Block reason is required",
 	RESTAURANT_EMAIL_ALREADY_EXISTS: "Restaurant with this email already exists",
+	RESTAURANT_PHONE_ALREADY_EXISTS:
+		"Restaurant with this phone number already exists",
+	EVENT_ALREADY_PROCESSED: "Event has already been processed",
 };
 
 export class InvalidRestaurantDataError extends DomainError {
@@ -91,8 +94,8 @@ export class RestaurantInactiveError extends DomainError {
 }
 
 export class IdempotentEventAlreadyProcessedError extends DomainError {
-	public readonly code = "IDEMPOTENT_EVENT_ALREADY_PROCESSED";
-	constructor(message = "Event has already been processed") {
+	public readonly code = DOMAIN_ERROR_CODES.IDEMPOTENT_EVENT_ALREADY_PROCESSED;
+	constructor(message: string = sharedMessages.EVENT_ALREADY_PROCESSED) {
 		super(message);
 	}
 }

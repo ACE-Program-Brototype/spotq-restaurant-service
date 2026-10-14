@@ -122,6 +122,9 @@ export const messages = {
 	INVALID_STAFF_DATA: "Invalid staff data provided",
 	INVALID_RESTAURANT_DATA: "Invalid restaurant data provided",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
+	RESTAURANT_EMAIL_ALREADY_EXISTS: "Restaurant with this email already exists",
+	RESTAURANT_PHONE_ALREADY_EXISTS:
+		"Restaurant with this phone number already exists",
 	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
 	STAFF_ID_REQUIRED: "Staff ID is required",
 	RESTAURANT_ACCOUNT_BLOCKED:
@@ -204,6 +207,7 @@ export const messages = {
 	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
 	RESTAURANT_ALREADY_PROCESSED:
 		"Restaurant application has already been processed.",
+	EVENT_ALREADY_PROCESSED: "Event has already been processed",
 	REJECTION_REASON_REQUIRED: "Rejection reason is required",
 	CANNOT_APPROVE_NON_PENDING_RESTAURANT:
 		"Cannot approve a restaurant that is not in pending status.",

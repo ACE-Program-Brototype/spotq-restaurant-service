@@ -23,6 +23,18 @@ import { AppError } from "@/utils/response.model.ts";
 
 export { AppError };
 
+function serializeError(error: unknown): unknown {
+	if (error instanceof Error) {
+		return {
+			name: error.name,
+			message: error.message,
+			stack: error.stack,
+			...(error as unknown as Record<string, unknown>),
+		};
+	}
+	return error;
+}
+
 export const errorHandler: ErrorRequestHandler = (
 	err: Error | DomainError | AppError | ZodError | PersistenceError | unknown,
 	req: Request,
@@ -93,7 +105,7 @@ export const errorHandler: ErrorRequestHandler = (
 				message: errorObj.message,
 				stack: errorObj.stack,
 				...(err instanceof PersistenceError && err.originalError
-					? { originalError: err.originalError }
+					? { originalError: serializeError(err.originalError) }
 					: {}),
 			},
 		},
