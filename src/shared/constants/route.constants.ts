@@ -13,7 +13,6 @@ export const RESTAURANT_ROUTES = {
 	STAFF_STATUS_UPDATE: "/:restaurantId/staff/:staffId/status",
 	STAFF_UPDATE: "/:restaurantId/staff/:staffId",
 	STAFF_LIST: "/:restaurantId/staff",
-	UPDATE_STAFF_PROFILE: "/:restaurantId/staff/:staffId",
 	STATUS: "/me/status",
 	VERIFICATION_STATUS: "/verification-status",
 	STAFF_REMOVE: "/:restaurantId/staff/:staffId",
