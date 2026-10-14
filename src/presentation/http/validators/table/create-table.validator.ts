@@ -14,7 +14,7 @@ export const createTableBodySchema = z
 			.string({ message: messages.TABLE_NUMBER_REQUIRED })
 			.trim()
 			.min(1, { message: messages.INVALID_TABLE_NUMBER })
-			.max(100, { message: messages.TABLE_NUMBER_MAX }),
+			.max(50, { message: messages.TABLE_NUMBER_MAX }),
 		sectionId: z
 			.string({ error: messages.TABLE_SECTION_ID_REQUIRED })
 			.trim()

@@ -55,7 +55,7 @@ export class Table {
 
 		// throw if tableNumber is invalid
 		const tableNumber = props.tableNumber.trim();
-		if (tableNumber.length < 1 || tableNumber.length > 100) {
+		if (tableNumber.length < 1 || tableNumber.length > 50) {
 			throw new InvalidTableNumberError();
 		}
 
