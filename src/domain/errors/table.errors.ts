@@ -10,10 +10,10 @@ export class InvalidTableCapacityError extends DomainError {
 	}
 }
 
-export class InvalidTableNumberError extends DomainError {
-	public readonly code = DOMAIN_ERROR_CODES.INVALID_TABLE_NUMBER;
+export class InvalidTableCodeError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.INVALID_TABLE_CODE;
 
-	constructor(message: string = messages.INVALID_TABLE_NUMBER) {
+	constructor(message: string = messages.INVALID_TABLE_CODE) {
 		super(message);
 	}
 }

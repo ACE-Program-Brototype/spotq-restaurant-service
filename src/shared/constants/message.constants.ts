@@ -356,18 +356,18 @@ export const messages = {
 
 	// TABLE
 	INVALID_TABLE_CAPACITY: "Table capacity must be greater than 0.",
-	INVALID_TABLE_CODE: "Table number cannot be empty.",
-	TABLE_CODE_MAX: "Table number must not exceed 50 characters.",
+	INVALID_TABLE_CODE: "Table code cannot be empty.",
+	TABLE_CODE_MAX: "Table code must not exceed 50 characters.",
 	INVALID_TABLE_SHAPE: "Invalid table shape.",
 	TABLE_NOT_FOUND: "Table not found.",
 	TABLE_ALREADY_EXISTS:
-		"A table with this number already exists in this restaurant.",
+		"A table with this code already exists in this restaurant.",
 	TABLE_CAPACITY_EXCEEDED: "Current occupancy cannot exceed table capacity.",
 	INVALID_TABLE_OCCUPANCY: "Table occupancy cannot be negative.",
 	TABLE_ALREADY_OCCUPIED: "Table is already occupied.",
 	TABLE_CREATE_SUCCESS: "Table Created successfully",
 	TABLE_CAPACITY_REQUIRED: "Table capacity required",
-	TABLE_CODE_REQUIRED: "Table number required",
+	TABLE_CODE_REQUIRED: "Table code required",
 } as const;
 
 export type MessageKey = keyof typeof messages;
