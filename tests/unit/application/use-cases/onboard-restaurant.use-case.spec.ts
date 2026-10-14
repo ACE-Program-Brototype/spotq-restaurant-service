@@ -1,6 +1,6 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { OnboardRestaurantUseCase } from "@/application/use-cases/onboard-restaurant.use-case";
 import { Restaurant } from "@/domain/entities/restaurant.entity";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("OnboardRestaurantUseCase", () => {
 	let useCase: OnboardRestaurantUseCase;

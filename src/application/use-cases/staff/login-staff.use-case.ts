@@ -18,7 +18,6 @@ import type {
 	RestaurantOptionDTO,
 } from "@/application/dtos/staff/staff-response.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IPasswordHasher } from "@/application/ports/services/password-hasher.port.ts";
 import type {
 	ITokenService,
@@ -34,6 +33,7 @@ import {
 	StaffInactiveError,
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { StaffEmail } from "@/domain/value-objects/email.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";

@@ -2,7 +2,6 @@ import { inject, injectable } from "inversify";
 import type { AddonResponseDto } from "@/application/dtos/addon/create-addon.dto.ts";
 import type { UpdateAddonInputDto } from "@/application/dtos/addon/update-addon.dto.ts";
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IUpdateAddonUseCase } from "@/application/ports/use-cases/update-addon.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -11,6 +10,7 @@ import {
 } from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()

@@ -3,7 +3,7 @@ import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-t
 import { OtpCooldownActiveError } from "@/application/errors/otp-cooldown-active.error";
 import { OtpVerificationAttemptsExceededError } from "@/application/errors/otp-verification-attempts-exceeded.error";
 import { RestaurantAccountBlockedError } from "@/application/errors/restaurant-account-blocked.error";
-import { RestaurantAlreadyExistsError } from "@/application/errors/restaurant-already-exists.error";
+import { RestaurantAlreadyExistsError } from "@/domain/errors/restaurant.errors.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 
 type ErrorConstructor = new () => Error;

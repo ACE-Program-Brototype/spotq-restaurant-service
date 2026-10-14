@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { CreateAddonUseCase } from "@/application/use-cases/create-addon.use-case.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("CreateAddonUseCase", () => {
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;

@@ -1,10 +1,10 @@
 import { inject, injectable, optional } from "inversify";
 import type { RestaurantProfileResponseDto } from "@/application/dtos/restaurant/restaurant-profile-response.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import type { IGetRestaurantProfileUseCase } from "@/application/ports/use-cases/get-restaurant-profile.use-case.port.ts";
 import { TYPES } from "@/config/di/types";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 @injectable()
 export class GetRestaurantProfileUseCase

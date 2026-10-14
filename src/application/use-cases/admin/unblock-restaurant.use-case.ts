@@ -3,7 +3,6 @@ import type {
 	UnblockRestaurantDto,
 	UnblockRestaurantResponseDto,
 } from "@/application/dtos/admin/unblock-restaurant.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IUnblockRestaurantUseCase } from "@/application/ports/use-cases/admin/unblock-restaurant.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -12,6 +11,7 @@ import {
 	RestaurantNotBlockedError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 

@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { UpdateMenuItemStatusUseCase } from "@/application/use-cases/update-menu-item-status.use-case.ts";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
@@ -10,6 +9,7 @@ import {
 	RestaurantAccountBlockedError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("UpdateMenuItemStatusUseCase", () => {
 	let useCase: UpdateMenuItemStatusUseCase;
