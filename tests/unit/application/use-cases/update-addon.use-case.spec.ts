@@ -24,6 +24,7 @@ describe("UpdateAddonUseCase", () => {
 	let useCase: UpdateAddonUseCase;
 	let mockRestaurantRepo: jest.Mocked<IRestaurantRepository>;
 	let mockAddonRepo: jest.Mocked<IAddonRepository>;
+	let mockStaffRepo: jest.Mocked<IRestaurantStaffRepository>;
 
 	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
 	const addonId = "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22";
@@ -51,7 +52,15 @@ describe("UpdateAddonUseCase", () => {
 			updateAddon: jest.fn(),
 		} as unknown as jest.Mocked<IAddonRepository>;
 
-		useCase = new UpdateAddonUseCase(mockRestaurantRepo, mockAddonRepo);
+		mockStaffRepo = {
+			findByStaffIdAndRestaurantId: jest.fn(),
+		} as unknown as jest.Mocked<IRestaurantStaffRepository>;
+
+		useCase = new UpdateAddonUseCase(
+			mockRestaurantRepo,
+			mockAddonRepo,
+			mockStaffRepo,
+		);
 	});
 
 	it("should update addon successfully with partial payload", async () => {

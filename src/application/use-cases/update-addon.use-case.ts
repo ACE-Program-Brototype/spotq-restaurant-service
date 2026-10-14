@@ -1,4 +1,4 @@
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 import type { AddonResponseDto } from "@/application/dtos/addon/create-addon.dto.ts";
 import type { UpdateAddonInputDto } from "@/application/dtos/addon/update-addon.dto.ts";
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
@@ -31,8 +31,7 @@ export class UpdateAddonUseCase implements IUpdateAddonUseCase {
 		@inject(TYPES.Repositories.AddonRepository)
 		private readonly addonRepository: IAddonRepository,
 		@inject(TYPES.RestaurantStaffRepository)
-		@optional()
-		private readonly staffRepository?: IRestaurantStaffRepository,
+		private readonly staffRepository: IRestaurantStaffRepository,
 	) {}
 
 	public async execute(input: UpdateAddonInputDto): Promise<AddonResponseDto> {
@@ -55,23 +54,21 @@ export class UpdateAddonUseCase implements IUpdateAddonUseCase {
 				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN);
 			}
 
-			if (this.staffRepository) {
-				const staff = await this.staffRepository.findByStaffIdAndRestaurantId(
-					input.userId,
-					input.restaurantId,
-				);
+			const staff = await this.staffRepository.findByStaffIdAndRestaurantId(
+				input.userId,
+				input.restaurantId,
+			);
 
-				if (!staff) {
-					throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
-				}
+			if (!staff) {
+				throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
+			}
 
-				if (staff.isSuspended()) {
-					throw new StaffSuspendedError(messages.STAFF_ACCOUNT_SUSPENDED);
-				}
+			if (staff.isSuspended()) {
+				throw new StaffSuspendedError(messages.STAFF_ACCOUNT_SUSPENDED);
+			}
 
-				if (!staff.isActive()) {
-					throw new StaffInactiveError(messages.STAFF_ACCOUNT_NOT_ACTIVE);
-				}
+			if (!staff.isActive()) {
+				throw new StaffInactiveError(messages.STAFF_ACCOUNT_NOT_ACTIVE);
 			}
 		}
 

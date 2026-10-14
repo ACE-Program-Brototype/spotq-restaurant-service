@@ -62,12 +62,15 @@ export class AddonController {
 		const addonId = String(req.params.addonId);
 		const { name, description, price, imageKey, isAvailable } = req.body;
 		// to check weather the staff is blocked or not
+		// we need optional chaining in (req.headers?.["x-user-role"] as string | undefined); 
+		// since the x-user-role could be undefined
 		const userRole =
 			(req.user as AuthenticatedUser | undefined)?.role ||
-			(req.headers["x-user-role"] as string | undefined);
+			(req.headers?.["x-user-role"] as string | undefined);
 		const userId =
 			(req.user as AuthenticatedUser | undefined)?.userId ||
-			(req.headers["x-user-id"] as string | undefined);
+			(req.headers?.["x-user-id"] as string | undefined);
+
 
 		const result = await this.updateAddonUseCase.execute({
 			restaurantId,
@@ -77,8 +80,8 @@ export class AddonController {
 			price,
 			imageKey,
 			isAvailable,
-			userId,
-			userRole,
+			...(userId ? { userId } : {}),
+			...(userRole ? { userRole } : {}),
 		});
 
 		sendSuccessResponse(

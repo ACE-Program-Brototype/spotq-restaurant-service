@@ -23,7 +23,7 @@ import type { IMenuItemRepository } from "@domain/repositories/menu-item.reposit
 import type { IRestaurantStaffRepository } from "@domain/repositories/restaurant-staff.repository.interface";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import { messages } from "@shared/constants/message.constants";
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class UpdateMenuItemVariantStatusUseCase
@@ -35,8 +35,7 @@ export class UpdateMenuItemVariantStatusUseCase
 		@inject(TYPES.Repositories.MenuItemRepository)
 		private readonly menuItemRepository: IMenuItemRepository,
 		@inject(TYPES.RestaurantStaffRepository)
-		@optional()
-		private readonly staffRepository?: IRestaurantStaffRepository,
+		private readonly staffRepository: IRestaurantStaffRepository,
 	) {}
 
 	async execute(
@@ -62,23 +61,21 @@ export class UpdateMenuItemVariantStatusUseCase
 				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN);
 			}
 
-			if (this.staffRepository) {
-				const staff = await this.staffRepository.findByStaffIdAndRestaurantId(
-					input.userId,
-					input.restaurantId,
-				);
+			const staff = await this.staffRepository.findByStaffIdAndRestaurantId(
+				input.userId,
+				input.restaurantId,
+			);
 
-				if (!staff) {
-					throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
-				}
+			if (!staff) {
+				throw new StaffNotFoundError(messages.STAFF_NOT_FOUND);
+			}
 
-				if (staff.isSuspended()) {
-					throw new StaffSuspendedError(messages.STAFF_ACCOUNT_SUSPENDED);
-				}
+			if (staff.isSuspended()) {
+				throw new StaffSuspendedError(messages.STAFF_ACCOUNT_SUSPENDED);
+			}
 
-				if (!staff.isActive()) {
-					throw new StaffInactiveError(messages.STAFF_ACCOUNT_NOT_ACTIVE);
-				}
+			if (!staff.isActive()) {
+				throw new StaffInactiveError(messages.STAFF_ACCOUNT_NOT_ACTIVE);
 			}
 		}
 

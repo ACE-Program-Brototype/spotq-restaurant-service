@@ -266,7 +266,7 @@ export class MenuItemController {
 		const query = (res.locals?.query ?? req.query) as ListStaffMenuItemsQuery;
 		const userRole =
 			(req.user as AuthenticatedUser | undefined)?.role ||
-			(req.headers["x-user-role"] as string | undefined);
+			(req.headers?.["x-user-role"] as string | undefined);
 
 		const result = await this.listStaffMenuItemsUseCase.execute({
 			restaurantId,
@@ -332,19 +332,21 @@ export class MenuItemController {
 		const restaurantId = String(req.params.restaurantId);
 		const menuItemId = String(req.params.itemId);
 		// to check weather the staff is blocked or not
+		// we need optional chaining in (req.headers?.["x-user-role"] as string | undefined); 
+		// since the x-user-role could be undefined
 		const userRole =
 			(req.user as AuthenticatedUser | undefined)?.role ||
-			(req.headers["x-user-role"] as string | undefined);
+			(req.headers?.["x-user-role"] as string | undefined);
 		const userId =
 			(req.user as AuthenticatedUser | undefined)?.userId ||
-			(req.headers["x-user-id"] as string | undefined);
+			(req.headers?.["x-user-id"] as string | undefined);
 
 		const result = await this.updateMenuItemVariantStatusUseCase.execute({
 			id,
 			menuItemId,
 			restaurantId,
-			userId,
-			userRole,
+			...(userId ? { userId } : {}),
+			...(userRole ? { userRole } : {}),
 		});
 
 		sendSuccessResponse(
