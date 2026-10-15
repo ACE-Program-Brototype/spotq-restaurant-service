@@ -5,6 +5,7 @@ import type {
 } from "@application/dtos/table/get-table.dto";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import { TYPES } from "@config/di/types";
+import { TABLE_MODE } from "@domain/constants/table.constants";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { ITableRepository } from "@domain/repositories/table.repository.interface";
@@ -30,7 +31,7 @@ export class GetTableUseCase implements IGetTableUseCase {
 		restaurant.ensureAdminAccess(userId);
 
 		if (mode === TABLE_MODE.ADMIN) {
-			const { table, total } = await this.tableRepo.findManyWithFilter({
+			const { tables, total } = await this.tableRepo.findManyWithSection({
 				restaurantId,
 				page,
 				limit,
@@ -39,13 +40,13 @@ export class GetTableUseCase implements IGetTableUseCase {
 			});
 
 			return {
-				tables: table.map((t) => ({
-					id: t.id,
-					tableCode: t.tableCode,
-					capacity: t.capacity,
-					status: t.status,
-					sectionId: t.sectionId,
-					tableShape: t.tableShape,
+				tables: tables.map((t) => ({
+					id: t.table.id,
+					tableCode: t.table.tableCode,
+					capacity: t.table.capacity,
+					status: t.table.status,
+					sectionId: t.table.sectionId,
+					tableShape: t.table.tableShape,
 					sectionName: t.sectionName,
 				})),
 				total,

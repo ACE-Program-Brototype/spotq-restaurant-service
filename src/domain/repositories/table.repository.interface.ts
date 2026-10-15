@@ -13,6 +13,11 @@ export interface TableFilterParams {
 	sortOrder: "asc" | "desc";
 }
 
+export interface TableWithSection {
+	table: Table;
+	sectionName: string;
+}
+
 export type StaffTablesBySection = Record<string, Table[]>;
 
 export interface ITableRepository extends IBaseRepository<Table> {
@@ -70,4 +75,8 @@ export interface ITableRepository extends IBaseRepository<Table> {
 		code: string,
 		restaurantId: string,
 	): Promise<Table | null>;
+
+	findManyWithSection(
+		filter: TableFilterParams,
+	): Promise<{ tables: TableWithSection[]; total: number }>;
 }
