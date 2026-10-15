@@ -1,5 +1,6 @@
 import type { GetTableSectionResponse } from "@application/dtos/table-section/get-table-section.dto";
 import type { IGetTableSectionUseCase } from "@application/ports/use-cases/table-section/get-table-section.use-case.port";
+import { TYPES } from "@config/di/types";
 import {
 	TABLE_SECTION_MODE,
 	type TableSectionMode,
@@ -7,10 +8,13 @@ import {
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { ITableSectionRepository } from "@domain/repositories/table-section.respository.interface";
+import { inject } from "inversify";
 
 export class GetTableSectionUseCase implements IGetTableSectionUseCase {
 	constructor(
+		@inject(TYPES.Repositories.TableSectionRepository)
 		private readonly tableSectionRepo: ITableSectionRepository,
+		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly restaurantRepo: IRestaurantRepository,
 	) {}
 
@@ -26,8 +30,10 @@ export class GetTableSectionUseCase implements IGetTableSectionUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
+		// ensures the user have admin access to the restaurant
 		restaurant.ensureAdminAccess(userId);
 
+		// If 
 		if (mode === TABLE_SECTION_MODE.ALL) {
 			const sections =
 				await this.tableSectionRepo.findAllByRestaurantId(restaurantId);

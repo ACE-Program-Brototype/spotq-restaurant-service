@@ -20,6 +20,7 @@ export class CustomerRestaurantController {
     req: Request,
     res: Response,
   ): Promise<void> => {
+    
     const query = (res.locals?.query ?? req.query) as ListCustomerRestaurantsQuery;
 
     const result = await this.listCustomerRestaurantsUseCase.execute(query);
