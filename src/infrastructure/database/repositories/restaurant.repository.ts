@@ -29,6 +29,7 @@ import type {
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
 	RestaurantFilterParams,
+	RestaurantValidationRecord,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
@@ -1217,6 +1218,33 @@ export class RestaurantRepository
 			return {
 				restaurants,
 				total,
+			};
+		});
+	}
+
+	async findValidationDetailsById(
+		restaurantId: string,
+	): Promise<RestaurantValidationRecord | null> {
+		return this.run(async () => {
+			const raw = await this.delegate.findUnique({
+				where: { id: restaurantId },
+				include: {
+					settings: {
+						select: {
+							acceptsQueue: true,
+						},
+					},
+				},
+			});
+
+			if (!raw) return null;
+
+			const restaurant = this.mapper.toDomain(raw);
+			const acceptsQueue = raw.settings?.acceptsQueue ?? true;
+
+			return {
+				restaurant,
+				acceptsQueue,
 			};
 		});
 	}
