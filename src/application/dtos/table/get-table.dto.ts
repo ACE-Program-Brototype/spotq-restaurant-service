@@ -1,5 +1,4 @@
 import type {
-	TableModeType,
 	TableShapeType,
 	TableStatusType,
 } from "@domain/constants/table.constants";
@@ -9,7 +8,9 @@ export interface IGetTableInputDTO {
 	userId: string;
 	page: number;
 	limit: number;
-	mode: TableModeType;
+	sectionId?: string;
+	status?: TableStatusType;
+	minCapacity?: number;
 }
 
 export interface ITableDTO {

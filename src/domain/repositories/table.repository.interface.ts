@@ -4,9 +4,10 @@ import type { IBaseRepository } from "./base.repository.interface";
 export interface TableFilterParams {
 	page: number;
 	limit: number;
-	search?: string;
+	minCapacity?: number;
 	restaurantId?: string;
 	sectionId?: string;
+	status?: Table['status'],
 	createdFrom?: Date;
 	createdTo?: Date;
 	sortBy: "createdAt" | "tableCode";

@@ -10,7 +10,7 @@ import type {
 	TableFilterParams,
 	TableWithSection,
 } from "@domain/repositories/table.repository.interface";
-import { Prisma, type Table as PrismaTable } from "@prisma/client";
+import type { Prisma, Table as PrismaTable } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client/extension";
 import { inject } from "inversify";
 import { TablePersistenceMapper } from "../mappers/table.mapper";
@@ -92,10 +92,13 @@ export class PrismaTableRepository
 			where.sectionId = filter.sectionId;
 		}
 
-		if (filter.search) {
-			where.tableCode = {
-				contains: filter.search,
-				mode: Prisma.QueryMode.insensitive,
+		if (filter.status) {
+			where.status = filter.status;
+		}
+
+		if (filter.minCapacity !== undefined) {
+			where.capacity = {
+				gte: filter.minCapacity,
 			};
 		}
 
@@ -122,15 +125,36 @@ export class PrismaTableRepository
 	async findAllGroupedBySection(
 		restaurantId: string,
 	): Promise<StaffTablesBySection> {
-		const tables = await this.findAllByRestaurant(restaurantId);
+		const records = await this.run(
+			() =>
+				this.delegate.findMany({
+					where: {
+						restaurantId,
+						isDeleted: false,
+					},
+					include: {
+						section: {
+							select: {
+								sectionName: true,
+							},
+						},
+					},
+					orderBy: [{ tableCode: "asc" }, { id: "asc" }],
+				}) as Promise<TableWithSectionRecord[]>,
+		);
 
-		return tables.reduce<StaffTablesBySection>((grouped, table) => {
-			const sectionId = table.sectionId;
-			if (!grouped[sectionId]) {
-				grouped[sectionId] = [];
+		return records.reduce<StaffTablesBySection>((grouped, record) => {
+			const sectionName = record.section.sectionName;
+
+			if (!grouped[sectionName]) {
+				grouped[sectionName] = [];
 			}
 
-			grouped[sectionId].push(table);
+			// Pass only the scalar table record to the persistence mapper.
+			const { section: _section, ...tableRecord } = record;
+
+			grouped[sectionName].push(this.mapper.toDomain(tableRecord));
+
 			return grouped;
 		}, {});
 	}

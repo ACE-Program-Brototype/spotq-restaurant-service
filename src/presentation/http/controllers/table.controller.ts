@@ -1,7 +1,9 @@
 import type { ICreateTableInputDTO } from "@application/dtos/table/create-table.dto";
 import { UnauthorizedEntityAccessError } from "@application/errors/unauthorized-entity-access.error";
 import type { ICreateTableUseCase } from "@application/ports/use-cases/table/create-table.use-case.port";
+import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import { TYPES } from "@config/di/types";
+import type { TableStatusType } from "@domain/constants/table.constants";
 import { HTTP_STATUS } from "@shared/constants/http.constants";
 import { messages } from "@shared/constants/message.constants";
 import { sendSuccessResponse } from "@shared/response/api-response";
@@ -12,6 +14,8 @@ export class TableController {
 	constructor(
 		@inject(TYPES.UseCases.CreateTableUseCase)
 		private readonly _createTable: ICreateTableUseCase,
+		@inject(TYPES.UseCases.GetTableUseCase)
+		private readonly _getTable: IGetTableUseCase,
 	) {}
 
 	createTable = async (req: Request, res: Response) => {
@@ -39,6 +43,43 @@ export class TableController {
 			result,
 			messages.TABLE_CREATE_SUCCESS,
 			HTTP_STATUS.CREATED,
+		);
+	};
+
+	getTable = async (req: Request, res: Response) => {
+		const userId = req.userId;
+
+		if (!userId) {
+			throw new UnauthorizedEntityAccessError();
+		}
+
+		const { restaurantId } = req.params as { restaurantId: string };
+
+		const { page, limit, sectionId, status, minCapacity } = req.query as {
+			page?: number;
+			limit?: number;
+			sectionId?: string;
+			status?: TableStatusType;
+			minCapacity?: number;
+		};
+
+		const result = await this._getTable.execute({
+			restaurantId,
+			userId,
+			page: page ? Number(page) : 1,
+			limit: limit ? Number(limit) : 10,
+			...(typeof sectionId === "string" && { sectionId }),
+			...(typeof status === "string" && { status }),
+			...(typeof minCapacity === "string" && {
+				minCapacity: Number(minCapacity),
+			}),
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.TABLE_FETCH_SUCCESS,
+			HTTP_STATUS.OK,
 		);
 	};
 }

@@ -89,16 +89,16 @@ export const JWKS_ROUTES = {
 export const TABLE_SECTION_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
-	TABLE_SECTION : "/:restaurantId/table-sections"
+	TABLE_SECTION: "/:restaurantId/table-sections",
 };
 
 export const TABLE_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE: "/:restaurantId/table",
+	TABLE: "/:restaurantId/table",
 };
 
-export type TableRoute =
-	(typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
+export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
 
 export type TableSectionRoute =
 	(typeof TABLE_SECTION_ROUTES)[keyof typeof TABLE_SECTION_ROUTES];
@@ -113,4 +113,3 @@ export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
 export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
 export type JwksRoute = (typeof JWKS_ROUTES)[keyof typeof JWKS_ROUTES];
-
