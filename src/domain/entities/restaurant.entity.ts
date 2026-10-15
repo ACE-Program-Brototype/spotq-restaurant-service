@@ -382,4 +382,53 @@ export class Restaurant {
 
 		this._props.updatedAt = new Date();
 	}
+
+	public isSubscriptionEligible(now: Date = new Date()): boolean {
+		if (!this._props.isSubscriptionActive) {
+			return false;
+		}
+
+		if (
+			this._props.subscriptionEndsAt &&
+			this._props.subscriptionEndsAt <= now
+		) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public hasQueueEntitlement(): boolean {
+		if (!this._props.subscriptionPlanCode) {
+			return false;
+		}
+
+		const normalizedPlan = this._props.subscriptionPlanCode
+			.trim()
+			.toUpperCase();
+		return (
+			normalizedPlan === "QUEUE_PRO" ||
+			normalizedPlan === "SELF_SERVICE_PRO" ||
+			normalizedPlan === "SELF_PRO"
+		);
+	}
+
+	public canAccessQueueService(
+		acceptsQueueSetting: boolean = true,
+		now: Date = new Date(),
+	): boolean {
+		const isActive = this.status === "ACTIVE";
+		const notBlocked = !this.isBlocked;
+		const subscriptionValid = this.isSubscriptionEligible(now);
+		const planEntitled = this.hasQueueEntitlement();
+		const queueEnabled = acceptsQueueSetting;
+
+		return (
+			isActive &&
+			notBlocked &&
+			subscriptionValid &&
+			planEntitled &&
+			queueEnabled
+		);
+	}
 }
