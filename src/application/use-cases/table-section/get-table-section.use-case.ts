@@ -1,10 +1,10 @@
-import type { GetTableSectionResponse } from "@application/dtos/table-section/get-table-section.dto";
+import type {
+	GetTableSectionInputDTO,
+	GetTableSectionOutputDTO,
+} from "@application/dtos/table-section/get-table-section.dto";
 import type { IGetTableSectionUseCase } from "@application/ports/use-cases/table-section/get-table-section.use-case.port";
 import { TYPES } from "@config/di/types";
-import {
-	TABLE_SECTION_MODE,
-	type TableSectionMode,
-} from "@domain/constants/table-section.constants";
+import { TABLE_SECTION_MODE } from "@domain/constants/table-section.constants";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { ITableSectionRepository } from "@domain/repositories/table-section.respository.interface";
@@ -19,12 +19,9 @@ export class GetTableSectionUseCase implements IGetTableSectionUseCase {
 	) {}
 
 	async execute(
-		restaurantId: string,
-		userId: string,
-		mode: TableSectionMode,
-		page = 1,
-		limit = 10,
-	): Promise<GetTableSectionResponse> {
+		dto: GetTableSectionInputDTO,
+	): Promise<GetTableSectionOutputDTO> {
+		const { restaurantId, userId, page, mode, limit } = dto;
 		const restaurant = await this.restaurantRepo.findById(restaurantId);
 		if (!restaurant) {
 			throw new RestaurantNotFoundError();
@@ -33,7 +30,7 @@ export class GetTableSectionUseCase implements IGetTableSectionUseCase {
 		// ensures the user have admin access to the restaurant
 		restaurant.ensureAdminAccess(userId);
 
-		// If 
+		// If
 		if (mode === TABLE_SECTION_MODE.ALL) {
 			const sections =
 				await this.tableSectionRepo.findAllByRestaurantId(restaurantId);

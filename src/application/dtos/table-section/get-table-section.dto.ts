@@ -3,15 +3,15 @@ import type {
 	TableSectionMode,
 } from "@domain/constants/table-section.constants";
 
-export interface GetTableSectionDTO {
+export interface GetTableSectionInputDTO {
 	restaurantId: string;
 	userId: string;
 	mode: TableSectionMode;
-	page?: number;
-	limit?: number;
+	page: number;
+	limit: number;
 }
 
-export type GetTableSectionResponse =
+export type GetTableSectionOutputDTO =
 	| {
 			mode: typeof TABLE_SECTION_MODE.ALL;
 			sections: Array<{ id: string; name: string }>;

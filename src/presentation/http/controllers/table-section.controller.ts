@@ -58,15 +58,13 @@ export class TableSectionController {
 			mode?: TableSectionMode;
 		};
 		const { restaurantId } = req.params as { restaurantId: string };
-		console.log(limit, "---------------------------")
-		const result = await this._getTableSection.execute(
+		const result = await this._getTableSection.execute({
 			restaurantId,
 			userId,
-			mode ?? TABLE_SECTION_MODE.ALL,
-			page ? Number(page) : 1,
-			limit ? Number(limit) : 10,
-		);
-
+			mode: mode ?? TABLE_SECTION_MODE.ALL,
+			page: page ? Number(page) : 1,
+			limit: limit ? Number(limit) : 10,
+		});
 
 		sendSuccessResponse(res, result, messages.TABLE_SECTION_GOT_SUCCESS);
 	};
