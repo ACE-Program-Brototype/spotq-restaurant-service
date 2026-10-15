@@ -89,6 +89,7 @@ export const JWKS_ROUTES = {
 export const TABLE_SECTION_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION : "/:restaurantId/table-sections"
 };
 
 export const TABLE_ROUTES = {

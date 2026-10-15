@@ -67,14 +67,14 @@ export class PrismaTableSectionRepository
 			return await super.create(tableSection);
 		} catch (error) {
 			this.handlePrismaError(error);
-			throw error
+			throw error;
 		}
 	}
 
 	// maps domain field name to prisma field name
 	private static readonly SORT_COLUMNS = {
-		createdAt: "created_at",
-		sectionName: "section_name",
+		createdAt: "createdAt",
+		sectionName: "sectionName",
 	};
 
 	async findManyWithFilter(
@@ -140,13 +140,33 @@ export class PrismaTableSectionRepository
 		}
 	}
 
-	async findBySectionNameAndRestaurant(name: string, restaurantId : string): Promise<TableSection | null> {
+	async findBySectionNameAndRestaurant(
+		name: string,
+		restaurantId: string,
+	): Promise<TableSection | null> {
 		try {
 			return await super.findOne<Prisma.TableSectionWhereInput>({
 				sectionName: name,
-				restaurantId ,
-				isDeleted : false
+				restaurantId,
+				isDeleted: false,
 			});
+		} catch (error) {
+			this.handlePrismaError(error);
+			throw error;
+		}
+	}
+
+	async findAllByRestaurantId(restaurantId: string): Promise<TableSection[]> {
+		try {
+			const records = (await this.delegate.findMany({
+				where: {
+					restaurantId,
+					isDeleted: false,
+				},
+				orderBy: { sectionName: "asc" },
+			})) as PrismaTableSection[];
+
+			return records.map((rec) => this.mapper.toDomain(rec));
 		} catch (error) {
 			this.handlePrismaError(error);
 			throw error;

@@ -48,4 +48,11 @@ export interface ITableSectionRepository extends IBaseRepository<TableSection> {
 		name: string,
 		restaurantId: string,
 	): Promise<TableSection | null>;
+
+	/**
+	 * Get all table sections by restaurant
+	 * @param restaurantId string
+	 * @returns TableSection[]
+	 */
+	findAllByRestaurantId(restaurantId: string): Promise<TableSection[]>;
 }
