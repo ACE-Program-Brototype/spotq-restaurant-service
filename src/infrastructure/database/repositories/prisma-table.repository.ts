@@ -154,7 +154,7 @@ export class PrismaTableRepository
 
 			// Pass only the scalar table record to the persistence mapper.
 			const { section: _section, ...tableRecord } = record;
-
+			console.log(this.mapper.toDomain(tableRecord))
 			grouped[sectionName].push(this.mapper.toDomain(tableRecord));
 
 			return grouped;

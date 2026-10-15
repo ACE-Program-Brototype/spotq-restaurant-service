@@ -38,7 +38,7 @@ export class GetTableAvailabilityUseCase
 			restaurantId: availability.restaurantId,
 			isOpen: settings.isOpened,
 			acceptsQueue: settings.acceptsQueue,
-			isTableAvailable: totalAvailableCount > input.partySize,
+			isTableAvailable: totalAvailableCount >= input.partySize,
 			availableCount,
 		};
 	}

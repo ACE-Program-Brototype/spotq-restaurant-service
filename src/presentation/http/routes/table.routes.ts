@@ -15,10 +15,10 @@ import {
 	createTableParamsSchema,
 } from "../validators/table/create-table.validator";
 import {
+	getTableAvailabilityQuerySchema,
 	getTableParamsSchema,
 	getTableQuerySchema,
 } from "../validators/table/get-table.validator";
-import { getTableAvailabilityQuerySchema } from "../validators/table/get-table.validator";
 
 export const tableRoutes = Router();
 
@@ -35,17 +35,15 @@ tableRoutes.get(
 	restaurantOrStaffAuthMiddleware,
 	validateRequestParams(getTableParamsSchema),
 	validateRequestQuery(getTableQuerySchema),
-	tableController.createTable,
+	tableController.getTable,
 );
 
 tableRoutes.get(
 	TABLE_ROUTES.INTERNAL.AVAILABILITY,
 	authMiddleware({
-		expectedAudience: "queue-service",
+		expectedAudience: "restaurant-service",
 		publicKeys: {
-			"order-service": env.ORDER_SERVICE_PUBLIC_KEY,
-			"restaurant-service": env.RESTAURANT_SERVICE_PUBLIC_KEY,
-			"queue-service": env.QUEUE_SERVICE_PUBLIC_KEY,
+			"queue-service": env.QUEUE_S2S_PUBLIC_KEY,
 		},
 	}),
 	validateRequestParams(getTableParamsSchema),

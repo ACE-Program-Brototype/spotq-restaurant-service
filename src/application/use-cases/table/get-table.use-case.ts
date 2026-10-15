@@ -103,6 +103,22 @@ export class GetTableUseCase implements IGetTableUseCase {
 
 		const sections = await this.tableRepo.findAllGroupedBySection(restaurantId);
 
-		return { sections };
+		return {
+			sections: Object.fromEntries(
+				Object.entries(sections).map(([sectionName, tables]) => [
+					sectionName,
+					tables.map((table) => ({
+						id: table.id,
+						tableCode: table.tableCode,
+						capacity: table.capacity,
+						status: table.status,
+						sectionId: table.sectionId,
+						tableShape: table.tableShape,
+						currentOccupancy: table.currentOccupancy,
+						isActive: table.isActive,
+					})),
+				]),
+			),
+		};
 	}
 }
