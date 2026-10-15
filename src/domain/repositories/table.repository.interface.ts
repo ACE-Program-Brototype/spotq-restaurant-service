@@ -13,7 +13,7 @@ export interface TableFilterParams {
 	sortOrder: "asc" | "desc";
 }
 
-export type StaffTablesBySection = Record<string, string[]>;
+export type StaffTablesBySection = Record<string, Table[]>;
 
 export interface ITableRepository extends IBaseRepository<Table> {
 	/**

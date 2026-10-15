@@ -144,11 +144,11 @@ export class PrismaTableRepository
 
 		return tables.reduce<StaffTablesBySection>((grouped, table) => {
 			const sectionId = table.sectionId;
-			if(!grouped[sectionId]){
-				grouped[sectionId] = []
+			if (!grouped[sectionId]) {
+				grouped[sectionId] = [];
 			}
-			
-			grouped[sectionId].push(table.tableCode);
+
+			grouped[sectionId].push(table);
 			return grouped;
 		}, {});
 	}
