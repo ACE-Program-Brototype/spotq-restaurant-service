@@ -8,70 +8,59 @@ import type {
 	ITableRepository,
 	StaffTablesBySection,
 	TableFilterParams,
+	TableWithSection,
 } from "@domain/repositories/table.repository.interface";
 import { Prisma, type Table as PrismaTable } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client/extension";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject } from "inversify";
 import { TablePersistenceMapper } from "../mappers/table.mapper";
-import { PrismaBaseRepository } from "./prisma-base.repository";
+import {
+	PrismaBaseRepository,
+	type PrismaErrorMap,
+} from "./prisma-base.repository";
+
+type TableWithSectionRecord = Prisma.TableGetPayload<{
+	include: {
+		section: {
+			select: {
+				sectionName: true;
+			};
+		};
+	};
+}>;
 
 export class PrismaTableRepository
 	extends PrismaBaseRepository<Table, PrismaTable, PrismaClient["table"]>
 	implements ITableRepository
 {
+	private static readonly ERROR_MAP: PrismaErrorMap = {
+		P2002: () => new TableAlreadyExistsError(),
+		P2025: () => new TableNotFoundError(),
+	};
 	constructor(
 		@inject(TYPES.PrismaClient)
 		prisma: PrismaClient,
 	) {
-		super(prisma.table, TablePersistenceMapper);
-	}
-
-	protected override handlePrismaError(error: unknown): void {
-		const code = (error as { code?: string })?.code;
-		if (
-			code === "P2002" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
-		) {
-			throw new TableAlreadyExistsError();
-		}
-
-		if (
-			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
-		) {
-			throw new TableNotFoundError();
-		}
+		super(
+			prisma.table,
+			TablePersistenceMapper,
+			PrismaTableRepository.ERROR_MAP,
+		);
 	}
 
 	async findTableById(id: string): Promise<Table | null> {
-		try {
-			return await super.findOne<Prisma.TableWhereInput>({
-				id,
-				isDeleted: false,
-			});
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return await super.findOne<Prisma.TableWhereInput>({
+			id,
+			isDeleted: false,
+		});
 	}
 
 	async createTable(table: Table): Promise<Table> {
-		try {
-			return await super.create(table);
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return await super.create(table);
 	}
 
 	async save(table: Table): Promise<void> {
-		try {
-			await super.save(table);
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		await super.save(table);
 	}
 
 	private static readonly SORT_COLUMNS = {
@@ -82,20 +71,16 @@ export class PrismaTableRepository
 	async findManyWithFilter(
 		filter: TableFilterParams,
 	): Promise<{ table: Table[]; total: number }> {
-		try {
-			const sortColumn = PrismaTableRepository.SORT_COLUMNS[filter.sortBy];
-			const { items, total } = await super.findPaginated({
-				where: this.buildWhere(filter),
-				orderBy: [{ [sortColumn]: filter.sortOrder }, { id: "asc" }],
-				page: filter.page,
-				limit: filter.limit,
-			});
+		const sortColumn = PrismaTableRepository.SORT_COLUMNS[filter.sortBy];
 
-			return { table: items, total };
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		const { items, total } = await super.findPaginated({
+			where: this.buildWhere(filter),
+			orderBy: [{ [sortColumn]: filter.sortOrder }, { id: "asc" }],
+			page: filter.page,
+			limit: filter.limit,
+		});
+
+		return { table: items, total };
 	}
 
 	private buildWhere(filter: TableFilterParams): Prisma.TableWhereInput {
@@ -125,16 +110,13 @@ export class PrismaTableRepository
 	}
 
 	async findAllByRestaurant(restaurantId: string): Promise<Table[]> {
-		try {
-			const records = (await this.delegate.findMany({
+		const records = (await this.run(() =>
+			this.delegate.findMany({
 				where: { restaurantId, isDeleted: false },
 				orderBy: [{ tableCode: "asc" }, { id: "asc" }],
-			})) as PrismaTable[];
-			return records.map((record) => this.mapper.toDomain(record));
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+			}),
+		)) as PrismaTable[];
+		return records.map((record) => this.mapper.toDomain(record));
 	}
 
 	async findAllGroupedBySection(
@@ -154,30 +136,56 @@ export class PrismaTableRepository
 	}
 
 	async deleteTable(id: string): Promise<void> {
-		try {
+		await this.run(async () => {
 			await this.delegate.update({
 				where: { id, isDeleted: false },
 				data: { isDeleted: true },
 			});
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	async findByTableCodeAndRestaurant(
 		name: string,
 		restaurantId: string,
 	): Promise<Table | null> {
-		try {
-			return await super.findOne<Prisma.TableWhereInput>({
-				tableCode: name,
-				restaurantId,
-				isDeleted: false,
-			});
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return await super.findOne<Prisma.TableWhereInput>({
+			tableCode: name,
+			restaurantId,
+			isDeleted: false,
+		});
+	}
+
+	async findManyWithSection(
+		filter: TableFilterParams,
+	): Promise<{ tables: TableWithSection[]; total: number }> {
+		const where = this.buildWhere(filter);
+		const sortColumn = PrismaTableRepository.SORT_COLUMNS[filter.sortBy];
+		const [records, total] = await this.run(
+			async () =>
+				await Promise.all([
+					this.delegate.findMany({
+						where,
+						include: {
+							section: {
+								select: {
+									sectionName: true,
+								},
+							},
+						},
+						orderBy: [{ [sortColumn]: filter.sortOrder }, { id: "asc" }],
+						skip: (filter.page - 1) * filter.limit,
+						take: filter.limit,
+					}) as Promise<TableWithSectionRecord[]>,
+					this.delegate.count({ where }),
+				]),
+		);
+
+		return {
+			tables: records.map((record) => ({
+				table: this.mapper.toDomain(record),
+				sectionName: record.section.sectionName,
+			})),
+			total,
+		};
 	}
 }
