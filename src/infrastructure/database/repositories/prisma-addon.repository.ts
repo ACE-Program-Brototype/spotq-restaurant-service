@@ -1,5 +1,4 @@
 import type { Addon as PrismaAddon, PrismaClient } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
 import type { Addon } from "@/domain/entities/addon.entity.ts";
@@ -10,6 +9,7 @@ import {
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { AddonPersistenceMapper } from "../mappers/addon.mapper.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -22,39 +22,21 @@ export class PrismaAddonRepository
 		@inject(TYPES.PrismaClient)
 		prisma: PrismaClient,
 	) {
-		super(prisma.addon, AddonPersistenceMapper);
-	}
-
-	protected override handlePrismaError(
-		error: unknown,
-		_context?: unknown,
-	): void {
-		const code = (error as { code?: string })?.code;
-		if (
-			code === "P2002" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
-		) {
-			throw new AddonAlreadyExistsError(messages.ADDON_ALREADY_EXISTS);
-		}
-		if (
-			code === "P2003" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2003")
-		) {
-			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
-		}
-		if (
-			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
-		) {
-			throw new AddonNotFoundError(messages.ADDON_NOT_FOUND);
-		}
+		super(prisma.addon, AddonPersistenceMapper, {
+			[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+				new AddonAlreadyExistsError(messages.ADDON_ALREADY_EXISTS),
+			[PRISMA_ERROR_CODES.FOREIGN_KEY_CONSTRAINT]: () =>
+				new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND),
+			[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () =>
+				new AddonNotFoundError(messages.ADDON_NOT_FOUND),
+		});
 	}
 
 	public async findByNameAndRestaurantId(
 		name: string,
 		restaurantId: string,
 	): Promise<Addon | null> {
-		try {
+		return this.run(async () => {
 			const record = await this.dbModel.findFirst({
 				where: {
 					restaurantId,
@@ -66,26 +48,11 @@ export class PrismaAddonRepository
 				},
 			});
 			return record ? this.mapper.toDomain(record) : null;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
-	}
-
-	public async findById(id: string): Promise<Addon | null> {
-		try {
-			const record = await this.dbModel.findUnique({
-				where: { id },
-			});
-			return record ? this.mapper.toDomain(record) : null;
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async findByRestaurantId(restaurantId: string): Promise<Addon[]> {
-		try {
+		return this.run(async () => {
 			const records = await this.dbModel.findMany({
 				where: {
 					restaurantId,
@@ -94,17 +61,14 @@ export class PrismaAddonRepository
 				orderBy: { name: "asc" },
 			});
 			return records.map((r) => this.mapper.toDomain(r));
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async findByIdsAndRestaurantId(
 		ids: string[],
 		restaurantId: string,
 	): Promise<Addon[]> {
-		try {
+		return this.run(async () => {
 			if (ids.length === 0) return [];
 			const records = await this.dbModel.findMany({
 				where: {
@@ -114,25 +78,19 @@ export class PrismaAddonRepository
 				},
 			});
 			return records.map((r) => this.mapper.toDomain(r));
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async create(addon: Addon): Promise<Addon> {
-		try {
+		return this.run(async () => {
 			const data = this.mapper.toPersistence(addon);
 			const created = await this.dbModel.create({ data });
 			return this.mapper.toDomain(created);
-		} catch (error) {
-			this.handlePrismaError(error, addon);
-			throw error;
-		}
+		});
 	}
 
 	public async updateAddon(addon: Addon): Promise<Addon> {
-		try {
+		return this.run(async () => {
 			const data = this.mapper.toPersistence(addon);
 			const updated = await this.dbModel.update({
 				where: { id: data.id },
@@ -146,9 +104,6 @@ export class PrismaAddonRepository
 				},
 			});
 			return this.mapper.toDomain(updated);
-		} catch (error) {
-			this.handlePrismaError(error, addon);
-			throw error;
-		}
+		});
 	}
 }

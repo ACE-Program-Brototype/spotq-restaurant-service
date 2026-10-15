@@ -6,4 +6,6 @@ export interface UpdateAddonInputDto {
 	price?: number;
 	imageKey?: string | null;
 	isAvailable?: boolean;
+	userId?: string;
+	userRole?: string;
 }

@@ -4,9 +4,9 @@ import type {
 	PaginatedRestaurantsResponseDTO,
 } from "@/application/dtos/admin/list-restaurants.dto.ts";
 import { RestaurantMapper } from "@/application/mappers/restaurant.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListRestaurantsUseCase } from "@/application/ports/use-cases/list-restaurants.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;

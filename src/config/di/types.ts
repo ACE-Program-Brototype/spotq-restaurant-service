@@ -130,12 +130,20 @@ export const TYPES = {
 		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
 		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
 		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
+		UpdateMenuItemVariantStatusUseCase: Symbol.for(
+			"UpdateMenuItemVariantStatusUseCase",
+		),
 
 		// TABLE SECTION
 		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
 		GetTableSectionUseCase: Symbol.for("GetTableSectionUseCase"),
 
-		ListCustomerRestaurantsUseCase: Symbol.for("ListCustomerRestaurantsUseCase",),
+		// TABLE
+		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
+
+		ListCustomerRestaurantsUseCase: Symbol.for(
+			"ListCustomerRestaurantsUseCase",
+		),
 	},
 
 	Controller: {
@@ -148,6 +156,7 @@ export const TYPES = {
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
 		TableSectionController: Symbol.for("TableSectionController"),
 		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
+		TableController: Symbol.for("TableController"),
 	},
 
 	Database: {
@@ -160,6 +169,7 @@ export const TYPES = {
 		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
 		MenuItemRepository: Symbol.for("MenuItemRepository"),
 		TableSectionRepository: Symbol.for("TableSectionRepository"),
+		TableRepository: Symbol.for("TableRepository"),
 	},
 
 	Redis: {

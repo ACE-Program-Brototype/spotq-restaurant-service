@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { RemoveStaffUseCase } from "@/application/use-cases/staff/remove-staff.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
@@ -7,6 +6,7 @@ import {
 	RestaurantNotFoundError,
 	StaffNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("RemoveStaffUseCase", () => {

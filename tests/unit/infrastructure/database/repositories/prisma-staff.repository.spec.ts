@@ -107,33 +107,27 @@ describe("PrismaStaffRepository", () => {
 		});
 	});
 
-	describe("handlePrismaError", () => {
-		it("should throw StaffAlreadyExistsError on P2002 duplicate error", () => {
+	describe("error translation", () => {
+		it("should translate P2002 error to StaffAlreadyExistsError", async () => {
 			const error = new PrismaClientKnownRequestError("Duplicate", {
 				code: "P2002",
 				clientVersion: "5.0.0",
 			});
+			mockStaffModel.findUnique.mockRejectedValueOnce(error);
 
-			const repoWithHandler = repository as unknown as {
-				handlePrismaError: (err: unknown, ctx?: unknown) => void;
-			};
-
-			expect(() => repoWithHandler.handlePrismaError(error, "context")).toThrow(
+			await expect(repository.findByEmail("test@example.com")).rejects.toThrow(
 				StaffAlreadyExistsError,
 			);
 		});
 
-		it("should throw StaffNotFoundError on P2025 not found error", () => {
+		it("should translate P2025 error to StaffNotFoundError", async () => {
 			const error = new PrismaClientKnownRequestError("Not found", {
 				code: "P2025",
 				clientVersion: "5.0.0",
 			});
+			mockStaffModel.findUnique.mockRejectedValueOnce(error);
 
-			const repoWithHandler = repository as unknown as {
-				handlePrismaError: (err: unknown, ctx?: unknown) => void;
-			};
-
-			expect(() => repoWithHandler.handlePrismaError(error, "context")).toThrow(
+			await expect(repository.findById("staff-123")).rejects.toThrow(
 				StaffNotFoundError,
 			);
 		});

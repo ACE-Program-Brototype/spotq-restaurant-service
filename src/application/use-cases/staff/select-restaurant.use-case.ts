@@ -14,7 +14,6 @@ import type {
 	SelectRestaurantResponseDTO,
 } from "@/application/dtos/staff/select-restaurant.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type {
 	ITokenService,
 	StaffTokenPayload,
@@ -29,6 +28,7 @@ import {
 	StaffInactiveError,
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 

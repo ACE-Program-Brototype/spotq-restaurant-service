@@ -1,6 +1,5 @@
 import { inject, injectable } from "inversify";
 import type { DeleteMenuCategoryInputDto } from "@/application/dtos/menu/delete-menu-category.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IDeleteMenuCategoryUseCase } from "@/application/ports/use-cases/delete-menu-category.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -9,6 +8,7 @@ import {
 } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 /**

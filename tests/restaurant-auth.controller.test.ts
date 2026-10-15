@@ -543,8 +543,8 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		}
 	});
 
-	test("POST /registration/email-otp returns 200 OK", async () => {
-		const res = await fetch(`${baseUrl}/registration/email-otp`, {
+	test("POST /otp returns 200 OK", async () => {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.EMAIL_OTP}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: "test@restaurant.com" }),
@@ -555,8 +555,8 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.equal(json.success, true);
 	});
 
-	test("POST /registration/email-otp/verify returns token and sets HTTP-only refresh cookie", async () => {
-		const res = await fetch(`${baseUrl}/registration/email-otp/verify`, {
+	test("POST /otp/verify returns token and sets HTTP-only refresh cookie", async () => {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.VERIFY_EMAIL}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ email: "test@restaurant.com", otp: "123456" }),
@@ -576,8 +576,8 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.ok(json.data.accessToken);
 	});
 
-	test("POST /onboard succeeds with x-restaurant-id header", async () => {
-		const res = await fetch(`${baseUrl}/onboard`, {
+	test("POST /onboarding succeeds with x-restaurant-id header", async () => {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -591,13 +591,13 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.equal(json.success, true);
 	});
 
-	test("POST /onboard succeeds with Authorization Bearer JWT token", async () => {
+	test("POST /onboarding succeeds with Authorization Bearer JWT token", async () => {
 		const token = new AuthTokenService().generateAccessToken({
 			restaurantId: "rest-e2e-bearer-200",
 			email: "e2ebearer@restaurant.com",
 		});
 
-		const res = await fetch(`${baseUrl}/onboard`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -612,7 +612,7 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	});
 
 	test("GET /verification-status returns status data", async () => {
-		const res = await fetch(`${baseUrl}/verification-status`, {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.VERIFICATION_STATUS}`, {
 			method: "GET",
 			headers: {
 				"x-restaurant-id": "rest-e2e-100",
@@ -643,8 +643,8 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 		assert.equal(json.data.restaurantId, "rest-e2e-555");
 	});
 
-	test("POST /onboard fails with 401 when no authentication headers or token provided", async () => {
-		const res = await fetch(`${baseUrl}/onboard`, {
+	test("POST /onboarding fails with 401 when no authentication headers or token provided", async () => {
+		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.ONBOARD}`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({ restaurantName: "Unauthorized Diner" }),

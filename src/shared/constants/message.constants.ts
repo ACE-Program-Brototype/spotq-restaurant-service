@@ -65,6 +65,7 @@ export const messages = {
 	STAFF_RESTAURANT_FORBIDDEN:
 		"Forbidden: Staff does not belong to the specified restaurant",
 	VALIDATION_ERROR: "Validation error occurred",
+	INVALID_VARIANT_ID: "Invalid variant ID",
 	INVALID_CREDENTIALS: "Invalid email or password",
 	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
 	REVOKED_TOKEN: "Refresh token has been revoked",
@@ -122,6 +123,9 @@ export const messages = {
 	INVALID_STAFF_DATA: "Invalid staff data provided",
 	INVALID_RESTAURANT_DATA: "Invalid restaurant data provided",
 	RESTAURANT_NOT_FOUND: "Restaurant not found",
+	RESTAURANT_EMAIL_ALREADY_EXISTS: "Restaurant with this email already exists",
+	RESTAURANT_PHONE_ALREADY_EXISTS:
+		"Restaurant with this phone number already exists",
 	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
 	STAFF_ID_REQUIRED: "Staff ID is required",
 	RESTAURANT_ACCOUNT_BLOCKED:
@@ -204,6 +208,7 @@ export const messages = {
 	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
 	RESTAURANT_ALREADY_PROCESSED:
 		"Restaurant application has already been processed.",
+	EVENT_ALREADY_PROCESSED: "Event has already been processed",
 	REJECTION_REASON_REQUIRED: "Rejection reason is required",
 	CANNOT_APPROVE_NON_PENDING_RESTAURANT:
 		"Cannot approve a restaurant that is not in pending status.",
@@ -293,6 +298,7 @@ export const messages = {
 	MENU_ITEM_ALREADY_EXISTS:
 		"A menu item with this name already exists for this restaurant",
 	MENU_ITEM_NOT_FOUND: "Menu item not found",
+	MENU_ITEM_VARIANT_NOT_FOUND: "Menu item variant not found",
 	ADDON_NOT_FOUND_FOR_RESTAURANT:
 		"One or more selected add-ons do not belong to this restaurant",
 	DUPLICATE_ADDON_IN_MENU_ITEM:
@@ -308,6 +314,10 @@ export const messages = {
 	PREPARATION_TIME_NEGATIVE: "Preparation time cannot be negative",
 	CALORIES_NEGATIVE: "Calories cannot be negative",
 	INVALID_VARIANT_DATA: "Invalid variant data",
+	AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED:
+		"At least one variant must be available",
+	MENU_ITEM_VARIANT_STATUS_UPDATED_SUCCESS:
+		"Variant status updated successfully",
 	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
 	DUPLICATE_VARIANT_IN_MENU_ITEM:
 		"Duplicate variants are not allowed for a menu item",
@@ -354,6 +364,23 @@ export const messages = {
 	INVALID_PAGE: "Page must be a positive integer",
 	INVALID_LIMIT: "Limit must be a positive integer",
 	LIMIT_EXCEEDS_MAX: "Limit exceeded",
+	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
+	INVALID_TABLE_SECTION_ID: "Invalid Table section ID",
+
+	// TABLE
+	INVALID_TABLE_CAPACITY: "Table capacity must be greater than 0.",
+	INVALID_TABLE_CODE: "Table code cannot be empty.",
+	TABLE_CODE_MAX: "Table code must not exceed 50 characters.",
+	INVALID_TABLE_SHAPE: "Invalid table shape.",
+	TABLE_NOT_FOUND: "Table not found.",
+	TABLE_ALREADY_EXISTS:
+		"A table with this code already exists in this restaurant.",
+	TABLE_CAPACITY_EXCEEDED: "Current occupancy cannot exceed table capacity.",
+	INVALID_TABLE_OCCUPANCY: "Table occupancy cannot be negative.",
+	TABLE_ALREADY_OCCUPIED: "Table is already occupied.",
+	TABLE_CREATE_SUCCESS: "Table Created successfully",
+	TABLE_CAPACITY_REQUIRED: "Table capacity required",
+	TABLE_CODE_REQUIRED: "Table code required",
 } as const;
 
 export type MessageKey = keyof typeof messages;

@@ -4,7 +4,6 @@ import type {
 	UpdateStaffInfoResponseDTO,
 } from "@/application/dtos/staff/update-staff-info.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IUpdateStaffInfoUseCase } from "@/application/ports/use-cases/update-staff-info.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -12,6 +11,7 @@ import {
 	RestaurantNotFoundError,
 	StaffNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { StaffPhone } from "@/domain/value-objects/phone.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";

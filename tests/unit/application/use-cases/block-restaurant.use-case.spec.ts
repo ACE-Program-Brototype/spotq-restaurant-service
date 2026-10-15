@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { BlockRestaurantUseCase } from "@/application/use-cases/admin/block-restaurant.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import {
@@ -8,6 +7,7 @@ import {
 	RestaurantAlreadyBlockedError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("BlockRestaurantUseCase", () => {
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;

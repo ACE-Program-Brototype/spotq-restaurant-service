@@ -3,7 +3,6 @@ import type { MenuItemResponseDto } from "@/application/dtos/menu-item/create-me
 import type { UpdateMenuItemInputDto } from "@/application/dtos/menu-item/update-menu-item.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IUpdateMenuItemUseCase } from "@/application/ports/use-cases/update-menu-item.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuItemVariant } from "@/domain/entities/menu-item-variant.entity.ts";
@@ -21,6 +20,7 @@ import {
 } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -203,6 +203,21 @@ export class UpdateMenuItemUseCase implements IUpdateMenuItemUseCase {
 					);
 				}
 			});
+
+			// At least one variant must be available for menu item.
+			let minOneActiveVariant = false;
+			for (let i = 0; i < preparedVariants.length; i++) {
+				if (preparedVariants[i].isAvailable) {
+					minOneActiveVariant = true;
+					break;
+				}
+			}
+
+			if (!minOneActiveVariant) {
+				throw new InvalidVariantDataError(
+					messages.AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED,
+				);
+			}
 
 			const defaultVariant =
 				preparedVariants.find((v) => v.isDefault) ?? preparedVariants[0];

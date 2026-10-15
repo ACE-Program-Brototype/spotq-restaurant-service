@@ -1,8 +1,8 @@
+import { ListRestaurantApplicationsUseCase } from "@/application/use-cases/admin/list-restaurant-applications.use-case.ts";
 import type {
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
-import { ListRestaurantApplicationsUseCase } from "@/application/use-cases/admin/list-restaurant-applications.use-case.ts";
 
 describe("ListRestaurantApplicationsUseCase", () => {
 	let useCase: ListRestaurantApplicationsUseCase;

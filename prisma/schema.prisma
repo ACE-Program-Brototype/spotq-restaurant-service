@@ -429,8 +429,8 @@ model TableSection {
 model Table {
   id               String      @id @default(uuid()) @db.Uuid
   restaurantId     String      @map("restaurant_id") @db.Uuid
-  sectionId        String?     @map("section_id") @db.Uuid
-  tableNumber      String      @map("table_number") @db.VarChar(50)
+  sectionId        String     @map("section_id") @db.Uuid
+  tableCode      String      @map("table_code") @db.VarChar(50)
   capacity         Int         @default(2)
   currentOccupancy Int         @default(0) @map("current_occupancy")
   tableShape       TableShape  @default(SQUARE) @map("table_shape")
@@ -442,7 +442,7 @@ model Table {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   restaurant Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  section    TableSection? @relation(fields: [restaurantId, sectionId], references: [restaurantId, id], onDelete: NoAction)
+  section    TableSection @relation(fields: [restaurantId, sectionId], references: [restaurantId, id], onDelete: NoAction)
 
   @@index([restaurantId, status])
   @@index([restaurantId, sectionId])

@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import { tableRoutes } from "@presentation/http/routes/table.routes";
 import { tableSectionRoutes } from "@presentation/http/routes/table-section.routes";
 import cookieParser from "cookie-parser";
 import express from "express";
@@ -17,8 +18,10 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
 	ADMIN_ROUTES,
+	JWKS_ROUTES,
 	STAFF_ROUTES,
 	STORAGE_ROUTES,
+	TABLE_ROUTES,
 	TABLE_SECTION_ROUTES,
 } from "@/shared/constants/route.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
@@ -32,7 +35,7 @@ app.use(httpLogger);
 app.use(metricsMiddleware);
 
 // JWKS Endpoint
-app.use("/.well-known", jwksRouter);
+app.use(JWKS_ROUTES.BASE, jwksRouter);
 
 app.get("/", (_req, res) => {
 	sendSuccessResponse(
@@ -51,6 +54,7 @@ app.get("/", (_req, res) => {
 app.use(ADMIN_ROUTES.BASE, adminRouter);
 app.use(STAFF_ROUTES.BASE, staffRouter);
 app.use(TABLE_SECTION_ROUTES.BASE, tableSectionRoutes);
+app.use(TABLE_ROUTES.BASE, tableRoutes);
 app.use("/", systemRouter);
 app.use("/", restaurantRouter);
 app.use(STORAGE_ROUTES.BASE, storageRouter);

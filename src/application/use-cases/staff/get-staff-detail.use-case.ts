@@ -2,13 +2,13 @@ import { inject, injectable } from "inversify";
 import type { GetStaffDetailDTO } from "@/application/dtos/staff/get-staff-detail.dto.ts";
 import type { StaffDetailResponseDTO } from "@/application/dtos/staff/staff-detail-response.dto.ts";
 import { StaffMapper } from "@/application/mappers/staff.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IGetStaffDetailUseCase } from "@/application/ports/use-cases/get-staff-detail.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
 	RestaurantNotFoundError,
 	StaffNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 

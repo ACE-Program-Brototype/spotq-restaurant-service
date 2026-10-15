@@ -3,7 +3,6 @@ import type {
 	ListStaffInvitationsDTO,
 	PaginatedStaffInvitationsResponseDTO,
 } from "@/application/dtos/staff/list-invitations.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import {
@@ -11,6 +10,7 @@ import {
 	RestaurantInactiveError,
 	RestaurantNotFoundError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
