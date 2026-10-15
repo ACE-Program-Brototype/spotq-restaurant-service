@@ -96,6 +96,9 @@ export const TABLE_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE: "/:restaurantId/table",
 	TABLE: "/:restaurantId/table",
+	INTERNAL: {
+		AVAILABILITY: "/:restaurantId/tables/availability",
+	},
 };
 
 export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];

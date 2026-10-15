@@ -47,6 +47,12 @@ export const getTableQuerySchema = z
 	})
 	.strict();
 
+export const getTableAvailabilityQuerySchema = z
+	.object({
+		partySize: z.coerce.number().int().min(1).max(50),
+	})
+	.strict();
+
 export type GetTableParams = z.infer<typeof getTableParamsSchema>;
 
 export type GetTableQuery = z.infer<typeof getTableQuerySchema>;

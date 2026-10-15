@@ -2,6 +2,7 @@ import type { ICreateTableInputDTO } from "@application/dtos/table/create-table.
 import { UnauthorizedEntityAccessError } from "@application/errors/unauthorized-entity-access.error";
 import type { ICreateTableUseCase } from "@application/ports/use-cases/table/create-table.use-case.port";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
+import type { IGetTableAvailabilityUseCase } from "@application/ports/use-cases/table/get-table-availability.use-case.port";
 import { TYPES } from "@config/di/types";
 import type { TableStatusType } from "@domain/constants/table.constants";
 import { HTTP_STATUS } from "@shared/constants/http.constants";
@@ -16,6 +17,8 @@ export class TableController {
 		private readonly _createTable: ICreateTableUseCase,
 		@inject(TYPES.UseCases.GetTableUseCase)
 		private readonly _getTable: IGetTableUseCase,
+		@inject(TYPES.UseCases.GetTableAvailabilityUseCase)
+		private readonly _getTableAvailability: IGetTableAvailabilityUseCase,
 	) {}
 
 	createTable = async (req: Request, res: Response) => {
@@ -79,6 +82,21 @@ export class TableController {
 			res,
 			result,
 			messages.TABLE_FETCH_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	getAvailability = async (req: Request, res: Response) => {
+		const { restaurantId } = req.params as { restaurantId: string };
+		const partySize = Number(req.query.partySize);
+		const result = await this._getTableAvailability.execute({
+			restaurantId,
+			partySize,
+		});
+		sendSuccessResponse(
+			res,
+			result,
+			"Table availability checked",
 			HTTP_STATUS.OK,
 		);
 	};
