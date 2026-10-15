@@ -376,4 +376,13 @@ export interface IRestaurantRepository
 	findCustomerRestaurants(
 		params: CustomerRestaurantFilterParams,
 	): Promise<{ restaurants: CustomerRestaurantListItem[]; total: number }>;
+
+	findValidationDetailsById(
+		restaurantId: string,
+	): Promise<RestaurantValidationRecord | null>;
+}
+
+export interface RestaurantValidationRecord {
+	restaurant: Restaurant;
+	acceptsQueue: boolean;
 }
