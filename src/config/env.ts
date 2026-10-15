@@ -146,6 +146,28 @@ const envSchema = z.object({
 		z.string().trim().default("spotq-main-key"),
 	),
 
+	QUEUE_S2S_PUBLIC_KEY: z.preprocess((val) => {
+		if (typeof val === "string" && val.trim().length > 0) {
+			return val.replace(/\\n/g, "\n").trim();
+		}
+		if (
+			typeof process.env.S2S_PUBLIC_KEY === "string" &&
+			process.env.S2S_PUBLIC_KEY.trim().length > 0
+		) {
+			return process.env.S2S_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
+		}
+		return getTestKeyPair().publicKey;
+	}, z.string().min(1)),
+
+	ORDER_S2S_PUBLIC_KEY: z.preprocess((val) => {
+		if (typeof val === "string" && val.trim().length > 0) {
+			return val.replace(/\\n/g, "\n").trim();
+		}
+		return undefined;
+	}, z.string().optional()),
+
+	S2S_AUDIENCE: z.string().trim().default("restaurant-service"),
+
 	JWT_KEY_TYPE: z.string().trim().default("RSA"),
 	JWT_KEY_USE: z.string().trim().default("sig"),
 	JWT_ALGORITHM: z.enum(["RS256", "RS384", "RS512"]).default("RS256"),
