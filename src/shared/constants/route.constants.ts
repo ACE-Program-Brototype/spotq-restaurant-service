@@ -42,7 +42,7 @@ export const RESTAURANT_ROUTES = {
 	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
 	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
-	CUSTOMER_LIST: "/api/v1/restaurants",
+	CUSTOMER_LIST: "/customer",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -84,6 +84,7 @@ export const ADMIN_ROUTES = {
 export const TABLE_SECTION_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION : "/:restaurantId/table-sections"
 };
 
 export type TableSectionRoute =
