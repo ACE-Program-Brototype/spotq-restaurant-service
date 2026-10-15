@@ -7,8 +7,8 @@ export interface GetTableSectionInputDTO {
 	restaurantId: string;
 	userId: string;
 	mode: TableSectionMode;
-	page: number;
-	limit: number;
+	page?: number;
+	limit?: number;
 }
 
 export type GetTableSectionOutputDTO =

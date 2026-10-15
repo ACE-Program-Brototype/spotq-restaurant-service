@@ -41,7 +41,11 @@ describe("Table section use cases", () => {
 		sectionRepo.findAllByRestaurantId.mockResolvedValue([section]);
 
 		await expect(
-			getUseCase.execute(restaurantId, restaurantId, TABLE_SECTION_MODE.ALL),
+			getUseCase.execute({
+				userId: restaurantId,
+				restaurantId,
+				mode: TABLE_SECTION_MODE.ALL,
+			}),
 		).resolves.toEqual({
 			mode: TABLE_SECTION_MODE.ALL,
 			sections: [{ id: section.id, name: "Patio" }],
@@ -57,13 +61,13 @@ describe("Table section use cases", () => {
 		});
 
 		await expect(
-			getUseCase.execute(
+			getUseCase.execute({
+				userId: restaurantId,
 				restaurantId,
-				restaurantId,
-				TABLE_SECTION_MODE.PAGINATED,
-				2,
-				5,
-			),
+				mode: TABLE_SECTION_MODE.PAGINATED,
+				page: 2,
+				limit: 5,
+			}),
 		).resolves.toEqual({
 			mode: TABLE_SECTION_MODE.PAGINATED,
 			sections: [{ id: section.id, name: "Patio" }],
@@ -86,7 +90,11 @@ describe("Table section use cases", () => {
 		restaurantRepo.findById.mockResolvedValue(restaurantEntity);
 
 		await expect(
-			getUseCase.execute(restaurantId, "another-user", TABLE_SECTION_MODE.ALL),
+			getUseCase.execute({
+				restaurantId,
+				userId: "another-user",
+				mode: TABLE_SECTION_MODE.ALL,
+			}),
 		).rejects.toThrow(ForbiddenAccessError);
 		expect(restaurantEntity.ensureAdminAccess).toHaveBeenCalledWith(
 			"another-user",
@@ -102,11 +110,13 @@ describe("Table section use cases", () => {
 		restaurantRepo.findById.mockResolvedValue(restaurantEntity);
 
 		await expect(
-			getUseCase.execute(
+			getUseCase.execute({
+				userId: restaurantId,
 				restaurantId,
-				restaurantId,
-				TABLE_SECTION_MODE.PAGINATED,
-			),
+				mode: TABLE_SECTION_MODE.PAGINATED,
+				page: 1,
+				limit: 10,
+			}),
 		).rejects.toThrow(RestaurantAccountBlockedError);
 		expect(sectionRepo.findManyWithFilter).not.toHaveBeenCalled();
 	});
@@ -119,13 +129,13 @@ describe("Table section use cases", () => {
 		});
 
 		await expect(
-			getUseCase.execute(
+			getUseCase.execute({
+				userId: restaurantId,
 				restaurantId,
-				restaurantId,
-				TABLE_SECTION_MODE.PAGINATED,
-				1,
-				10,
-			),
+				mode: TABLE_SECTION_MODE.PAGINATED,
+				page: 1,
+				limit: 10,
+			}),
 		).resolves.toEqual({
 			mode: TABLE_SECTION_MODE.PAGINATED,
 			sections: [],
@@ -136,7 +146,11 @@ describe("Table section use cases", () => {
 	it("rejects a missing restaurant when listing", async () => {
 		restaurantRepo.findById.mockResolvedValue(null);
 		await expect(
-			getUseCase.execute(restaurantId, restaurantId, TABLE_SECTION_MODE.ALL),
+			getUseCase.execute({
+				userId: restaurantId,
+				restaurantId,
+				mode: TABLE_SECTION_MODE.ALL,
+			}),
 		).rejects.toThrow(RestaurantNotFoundError);
 	});
 });

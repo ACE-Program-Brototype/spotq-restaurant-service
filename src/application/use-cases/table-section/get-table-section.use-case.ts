@@ -46,8 +46,8 @@ export class GetTableSectionUseCase implements IGetTableSectionUseCase {
 
 		const result = await this.tableSectionRepo.findManyWithFilter({
 			restaurantId,
-			page,
-			limit,
+			page: page ? Number(page) : 1,
+			limit: limit ? Number(limit) : 10,
 			sortBy: "createdAt",
 			sortOrder: "desc",
 		});
