@@ -7,6 +7,7 @@ import {
 import type {
 	ITableRepository,
 	StaffTablesBySection,
+	TableAvailabilityData,
 	TableFilterParams,
 	TableWithSection,
 } from "@domain/repositories/table.repository.interface";
@@ -18,6 +19,7 @@ import {
 	PrismaBaseRepository,
 	type PrismaErrorMap,
 } from "./prisma-base.repository";
+import { TABLE_STATUS } from "@domain/constants/table.constants";
 
 type TableWithSectionRecord = Prisma.TableGetPayload<{
 	include: {
@@ -39,7 +41,7 @@ export class PrismaTableRepository
 	};
 	constructor(
 		@inject(TYPES.PrismaClient)
-		prisma: PrismaClient,
+		private readonly prisma: PrismaClient,
 	) {
 		super(
 			prisma.table,
@@ -160,12 +162,7 @@ export class PrismaTableRepository
 	}
 
 	async deleteTable(id: string): Promise<void> {
-		await this.run(async () => {
-			await this.delegate.update({
-				where: { id, isDeleted: false },
-				data: { isDeleted: true },
-			});
-		});
+		await this.delete(id);
 	}
 
 	async findByTableCodeAndRestaurant(
@@ -210,6 +207,26 @@ export class PrismaTableRepository
 				sectionName: record.section.sectionName,
 			})),
 			total,
+		};
+	}
+
+	async getAvailability(
+		restaurantId: string,
+	): Promise<TableAvailabilityData> {
+		const availableTables = await this.run<Array<{ capacity: number }>>(() =>
+			this.prisma.table.findMany({
+				where: {
+					restaurantId,
+					isDeleted: false,
+					isActive: true,
+					status: TABLE_STATUS.AVAILABLE,
+				},
+				select: { capacity: true },
+			}),
+		);
+		return {
+			restaurantId,
+			availableTableCapacities: availableTables.map((table) => table.capacity),
 		};
 	}
 }

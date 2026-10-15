@@ -19,6 +19,11 @@ export interface TableWithSection {
 	sectionName: string;
 }
 
+export interface TableAvailabilityData {
+	restaurantId: string;
+	availableTableCapacities: number[];
+}
+
 export type StaffTablesBySection = Record<string, Table[]>;
 
 export interface ITableRepository extends IBaseRepository<Table> {
@@ -80,4 +85,6 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	findManyWithSection(
 		filter: TableFilterParams,
 	): Promise<{ tables: TableWithSection[]; total: number }>;
+
+	getAvailability(restaurantId: string): Promise<TableAvailabilityData>;
 }

@@ -74,6 +74,28 @@ export class RestaurantRepository
 		});
 	}
 
+	async getRestaurantAvailabilitySettings(
+		restaurantId: string,
+	): Promise<{ isOpened: boolean; acceptsQueue: boolean } | null> {
+		return this.run(() =>
+			this.prisma.restaurant.findUnique({
+				where: { id: restaurantId },
+				select: {
+					settings: {
+						select: { isOpened: true, acceptsQueue: true },
+					},
+				},
+			}),
+		).then((record) =>
+			record
+				? {
+						isOpened: record.settings?.isOpened ?? false,
+						acceptsQueue: record.settings?.acceptsQueue ?? false,
+					}
+				: null,
+		);
+	}
+
 	async create(data: Partial<Restaurant>): Promise<Restaurant> {
 		return this.run(async () => {
 			const domainEntity = Restaurant.create({
