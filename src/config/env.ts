@@ -345,6 +345,9 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(60 * 60 * 1000),
+	RESTAURANT_SERVICE_PUBLIC_KEY: z.string().trim(),
+	ORDER_SERVICE_PUBLIC_KEY: z.string().trim(),
+	QUEUE_SERVICE_PUBLIC_KEY: z.string().trim(),
 });
 
 export type Env = z.infer<typeof envSchema>;
