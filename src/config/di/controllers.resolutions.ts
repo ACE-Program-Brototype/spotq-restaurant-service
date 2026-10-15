@@ -69,3 +69,7 @@ export const customerRestaurantController =
 	container.get<CustomerRestaurantController>(
 		TYPES.Controller.CustomerRestaurantController,
 	);
+
+export const internalRestaurantController = container.get<
+	import("@/presentation/http/controllers/internal-restaurant.controller").InternalRestaurantController
+>(TYPES.Controller.InternalRestaurantController);
