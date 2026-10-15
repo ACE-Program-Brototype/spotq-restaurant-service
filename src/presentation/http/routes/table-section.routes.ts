@@ -5,11 +5,16 @@ import { restaurantOwnerAuthMiddleware } from "../middleware/restaurant-owner.au
 import {
 	validateRequestBody,
 	validateRequestParams,
+	validateRequestQuery,
 } from "../middleware/validation.middleware";
 import {
 	createTableSectionBodySchema,
 	createTableSectionParamsSchema,
 } from "../validators/table-sections/create-table-sections.validator";
+import {
+	getTableSectionParamsSchema,
+	getTableSectionQuerySchema,
+} from "../validators/table-sections/get-table-sections.validator";
 
 export const tableSectionRoutes = Router();
 
@@ -19,4 +24,12 @@ tableSectionRoutes.post(
 	validateRequestParams(createTableSectionParamsSchema),
 	validateRequestBody(createTableSectionBodySchema),
 	tableSectionController.createTableSection,
+);
+
+tableSectionRoutes.get(
+	TABLE_SECTION_ROUTES.TABLE_SECTION,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(getTableSectionParamsSchema),
+	validateRequestQuery(getTableSectionQuerySchema),
+	tableSectionController.getTableSection,
 );
