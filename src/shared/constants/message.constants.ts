@@ -387,6 +387,7 @@ export const messages = {
 	INVALID_TABLE_STATUS: "Invalid Table Status",
 	TABLE_IN_USE: "Table In Use",
 	TABLE_DELETE_SUCCESS: "Table deleted Succesfully",
+	TABLE_ID_REQUIRED: "Table ID Required",
 
 	INVALID_PARTY_SIZE: "Invalid Party Size",
 } as const;

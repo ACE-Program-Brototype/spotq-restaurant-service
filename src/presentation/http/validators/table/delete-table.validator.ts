@@ -7,7 +7,7 @@ export const deleteTableParamsSchema = z
 			message: messages.INVALID_RESTAURANT_ID,
 		}),
 		tableId: z.uuid({
-			message: messages.INVALID_RESTAURANT_ID,
+			message: messages.TABLE_ID_REQUIRED,
 		}),
 	})
 	.strict();
