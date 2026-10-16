@@ -8,8 +8,9 @@ import { TABLE_SECTION_MODE } from "@domain/constants/table-section.constants";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { ITableSectionRepository } from "@domain/repositories/table-section.respository.interface";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class GetTableSectionUseCase implements IGetTableSectionUseCase {
 	constructor(
 		@inject(TYPES.Repositories.TableSectionRepository)

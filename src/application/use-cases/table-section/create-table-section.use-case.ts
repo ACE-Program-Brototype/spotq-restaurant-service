@@ -10,8 +10,9 @@ import { ForbiddenAccessError } from "@domain/errors/staff.errors";
 import { TableSectionAlreadyExists } from "@domain/errors/table-section.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { ITableSectionRepository } from "@domain/repositories/table-section.respository.interface";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class CreateTableSectionUseCase implements ICreateTableSectionUseCase {
 	constructor(
 		@inject(TYPES.Repositories.TableSectionRepository)

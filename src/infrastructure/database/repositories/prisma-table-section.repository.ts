@@ -13,100 +13,83 @@ import {
 	type TableSection as PrismaTableSection,
 } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client/extension";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants";
 import { TableSectionPersistenceMapper } from "../mappers/table-section.mapper";
+import type { PrismaErrorMap } from "./prisma-base.repository";
 import { PrismaBaseRepository } from "./prisma-base.repository";
 
+@injectable()
 export class PrismaTableSectionRepository
 	extends PrismaBaseRepository<
 		TableSection,
 		PrismaTableSection,
-		PrismaClient["table_section"]
+		PrismaClient["tableSection"]
 	>
 	implements ITableSectionRepository
 {
+	private static readonly ERROR_MAP: PrismaErrorMap = {
+		[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+			new TableSectionAlreadyExists(),
+		[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () => new TableSectionNotFound(),
+	};
+
+	private static readonly SORT_COLUMNS = {
+		createdAt: "createdAt",
+		sectionName: "sectionName",
+	} as const;
+
 	constructor(
 		@inject(TYPES.PrismaClient)
 		prisma: PrismaClient,
 	) {
-		super(prisma.tableSection, TableSectionPersistenceMapper);
-	}
-
-	protected override handlePrismaError(
-		error: unknown,
-		_context?: unknown,
-	): void {
-		const code = (error as { code?: string })?.code;
-		if (
-			code === "P2002" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2002")
-		) {
-			throw new TableSectionAlreadyExists();
-		}
-
-		if (
-			code === "P2025" ||
-			(error instanceof PrismaClientKnownRequestError && error.code === "P2025")
-		) {
-			throw new TableSectionNotFound();
-		}
+		super(
+			prisma.tableSection,
+			TableSectionPersistenceMapper,
+			PrismaTableSectionRepository.ERROR_MAP,
+		);
 	}
 
 	async findTableSectionById(id: string): Promise<TableSection | null> {
-		try {
-			return await super.findById(id);
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return this.findOne<Prisma.TableSectionWhereInput>({
+			id,
+			isDeleted: false,
+		});
 	}
 
 	async createTableSection(tableSection: TableSection): Promise<TableSection> {
-		try {
-			return await super.create(tableSection);
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return this.create(tableSection);
 	}
-
-	// maps domain field name to prisma field name
-	private static readonly SORT_COLUMNS = {
-		createdAt: "createdAt",
-		sectionName: "sectionName",
-	};
 
 	async findManyWithFilter(
 		filter: TableSectionFilterParams,
 	): Promise<{ tableSections: TableSection[]; total: number }> {
-		try {
-			const sortColumn =
-				PrismaTableSectionRepository.SORT_COLUMNS[filter.sortBy];
+		const sortColumn = PrismaTableSectionRepository.SORT_COLUMNS[filter.sortBy];
 
-			const { items, total } = await super.findPaginated({
-				where: this.buildWhere(filter),
-				orderBy: [{ [sortColumn]: filter.sortOrder }, { id: "asc" }],
-				page: filter.page,
-				limit: filter.limit,
-			});
+		const { items, total } = await this.findPaginated<
+			Prisma.TableSectionWhereInput,
+			Prisma.TableSectionOrderByWithRelationInput[]
+		>({
+			where: this.buildWhere(filter),
+			orderBy: [{ [sortColumn]: filter.sortOrder }, { id: "asc" }],
+			page: filter.page,
+			limit: filter.limit,
+		});
 
-			return { tableSections: items, total };
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return { tableSections: items, total };
 	}
 
 	private buildWhere(
 		filter: TableSectionFilterParams,
 	): Prisma.TableSectionWhereInput {
-		const where: Prisma.TableSectionWhereInput = { isDeleted: false };
+		const where: Prisma.TableSectionWhereInput = {
+			isDeleted: false,
+		};
 
-		// if restaurantId exists filter by it
-		if (filter.restaurantId) where.restaurantId = filter.restaurantId;
+		if (filter.restaurantId) {
+			where.restaurantId = filter.restaurantId;
+		}
 
-		// if search exists search sectionName with it
 		if (filter.search) {
 			where.sectionName = {
 				contains: filter.search,
@@ -114,8 +97,6 @@ export class PrismaTableSectionRepository
 			};
 		}
 
-		// if createdFrom exists look for items gte it
-		// if createdTo existss look for items lte it
 		if (filter.createdFrom || filter.createdTo) {
 			where.createdAt = {
 				...(filter.createdFrom && { gte: filter.createdFrom }),
@@ -127,49 +108,42 @@ export class PrismaTableSectionRepository
 	}
 
 	async deleteTableSection(id: string): Promise<void> {
-		try {
-			// Handled isDelete here instead of baseRepo because softDelete
-			// is not used in BaseRepo
-			return this.delegate.update({
-				where: { id: id },
-				data: { isDeleted: true },
+		await this.run(async () => {
+			await this.delegate.update({
+				where: {
+					id,
+					isDeleted: false,
+				},
+				data: {
+					isDeleted: true,
+				},
 			});
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		});
 	}
 
 	async findBySectionNameAndRestaurant(
 		name: string,
 		restaurantId: string,
 	): Promise<TableSection | null> {
-		try {
-			return await super.findOne<Prisma.TableSectionWhereInput>({
-				sectionName: name,
-				restaurantId,
-				isDeleted: false,
-			});
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return this.findOne<Prisma.TableSectionWhereInput>({
+			sectionName: name,
+			restaurantId,
+			isDeleted: false,
+		});
 	}
 
 	async findAllByRestaurantId(restaurantId: string): Promise<TableSection[]> {
-		try {
-			const records = (await this.delegate.findMany({
-				where: {
-					restaurantId,
-					isDeleted: false,
-				},
-				orderBy: { sectionName: "asc" },
-			})) as PrismaTableSection[];
+		const records = await this.run(
+			() =>
+				this.delegate.findMany({
+					where: {
+						restaurantId,
+						isDeleted: false,
+					},
+					orderBy: { sectionName: "asc" },
+				}) as Promise<PrismaTableSection[]>,
+		);
 
-			return records.map((rec) => this.mapper.toDomain(rec));
-		} catch (error) {
-			this.handlePrismaError(error);
-			throw error;
-		}
+		return records.map((record) => this.mapper.toDomain(record));
 	}
 }
