@@ -14,6 +14,7 @@ import {
 } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client/extension";
 import { inject, injectable } from "inversify";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants";
 import { TableSectionPersistenceMapper } from "../mappers/table-section.mapper";
 import type { PrismaErrorMap } from "./prisma-base.repository";
 import { PrismaBaseRepository } from "./prisma-base.repository";
@@ -28,8 +29,9 @@ export class PrismaTableSectionRepository
 	implements ITableSectionRepository
 {
 	private static readonly ERROR_MAP: PrismaErrorMap = {
-		P2002: () => new TableSectionAlreadyExists(),
-		P2025: () => new TableSectionNotFound(),
+		[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () =>
+			new TableSectionAlreadyExists(),
+		[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () => new TableSectionNotFound(),
 	};
 
 	private static readonly SORT_COLUMNS = {

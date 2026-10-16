@@ -19,13 +19,14 @@ import type {
 	ITableRepository,
 	TableFilterParams,
 } from "@domain/repositories/table.repository.interface";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
 /**
  * Get Tables Data Based for Admin or Staff
  * Admin Would have pagination and will get array of Tables
  * Staff Would get record with key being sectionName and value being array of Table
  */
+@injectable()
 export class GetTableUseCase implements IGetTableUseCase {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantRepository)

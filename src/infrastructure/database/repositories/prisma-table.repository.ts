@@ -1,4 +1,5 @@
 import { TYPES } from "@config/di/types";
+import { TABLE_STATUS } from "@domain/constants/table.constants";
 import type { Table } from "@domain/entities/table.entity";
 import {
 	TableAlreadyExistsError,
@@ -13,13 +14,13 @@ import type {
 } from "@domain/repositories/table.repository.interface";
 import type { Prisma, Table as PrismaTable } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client/extension";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants";
 import { TablePersistenceMapper } from "../mappers/table.mapper";
 import {
 	PrismaBaseRepository,
 	type PrismaErrorMap,
 } from "./prisma-base.repository";
-import { TABLE_STATUS } from "@domain/constants/table.constants";
 
 type TableWithSectionRecord = Prisma.TableGetPayload<{
 	include: {
@@ -31,17 +32,18 @@ type TableWithSectionRecord = Prisma.TableGetPayload<{
 	};
 }>;
 
+@injectable()
 export class PrismaTableRepository
 	extends PrismaBaseRepository<Table, PrismaTable, PrismaClient["table"]>
 	implements ITableRepository
 {
 	private static readonly ERROR_MAP: PrismaErrorMap = {
-		P2002: () => new TableAlreadyExistsError(),
-		P2025: () => new TableNotFoundError(),
+		[PRISMA_ERROR_CODES.UNIQUE_CONSTRAINT]: () => new TableAlreadyExistsError(),
+		[PRISMA_ERROR_CODES.RECORD_NOT_FOUND]: () => new TableNotFoundError(),
 	};
 	constructor(
 		@inject(TYPES.PrismaClient)
-		private readonly prisma: PrismaClient,
+		prisma: PrismaClient,
 	) {
 		super(
 			prisma.table,
@@ -154,7 +156,7 @@ export class PrismaTableRepository
 
 			// Pass only the scalar table record to the persistence mapper.
 			const { section: _section, ...tableRecord } = record;
-			console.log(this.mapper.toDomain(tableRecord))
+
 			grouped[sectionName].push(this.mapper.toDomain(tableRecord));
 
 			return grouped;
@@ -210,11 +212,9 @@ export class PrismaTableRepository
 		};
 	}
 
-	async getAvailability(
-		restaurantId: string,
-	): Promise<TableAvailabilityData> {
+	async getAvailability(restaurantId: string): Promise<TableAvailabilityData> {
 		const availableTables = await this.run<Array<{ capacity: number }>>(() =>
-			this.prisma.table.findMany({
+			this.delegate.findMany({
 				where: {
 					restaurantId,
 					isDeleted: false,

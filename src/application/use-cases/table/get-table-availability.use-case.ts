@@ -3,8 +3,9 @@ import { TYPES } from "@config/di/types";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { ITableRepository } from "@domain/repositories/table.repository.interface";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class GetTableAvailabilityUseCase
 	implements IGetTableAvailabilityUseCase
 {

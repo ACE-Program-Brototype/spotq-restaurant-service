@@ -9,8 +9,9 @@ import { HTTP_STATUS } from "@shared/constants/http.constants";
 import { messages } from "@shared/constants/message.constants";
 import { sendSuccessResponse } from "@shared/response/api-response";
 import type { Request, Response } from "express";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class TableController {
 	constructor(
 		@inject(TYPES.UseCases.CreateTableUseCase)
