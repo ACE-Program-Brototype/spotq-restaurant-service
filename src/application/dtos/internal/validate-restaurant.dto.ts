@@ -1,7 +1,3 @@
-export interface ValidateRestaurantParamsDto {
-	restaurantId: string;
-}
-
 export interface RestaurantValidationResultDto {
 	restaurantId: string;
 	restaurantName: string;

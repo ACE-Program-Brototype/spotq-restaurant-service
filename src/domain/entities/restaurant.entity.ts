@@ -16,6 +16,7 @@ import {
 	ForbiddenAccessError,
 	RestaurantAccountBlockedError,
 } from "@domain/errors/staff.errors";
+import { SubscriptionPlanVO } from "@/domain/value-objects/subscription-plan.vo.ts";
 
 export interface RestaurantProps {
 	id: string;
@@ -403,17 +404,8 @@ export class Restaurant {
 	}
 
 	public hasQueueEntitlement(): boolean {
-		if (!this._props.subscriptionPlanCode) {
-			return false;
-		}
-
-		const normalizedPlan = this._props.subscriptionPlanCode
-			.trim()
-			.toUpperCase();
-		return (
-			normalizedPlan === "QUEUE_PRO" ||
-			normalizedPlan === "SELF_SERVICE_PRO" ||
-			normalizedPlan === "SELF_PRO"
+		return SubscriptionPlanVO.hasQueueEntitlement(
+			this._props.subscriptionPlanCode,
 		);
 	}
 
