@@ -7,6 +7,7 @@ import {
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
+import { RestaurantMapper } from "@/application/mappers/restaurant.mapper.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -40,21 +41,10 @@ export class ValidateRestaurantEligibilityUseCase
 		const { restaurant, acceptsQueue } = record;
 		const now = new Date();
 
-		return {
-			restaurantId: restaurant.id,
-			restaurantName: restaurant.restaurantName,
-			verificationStatus: restaurant.status,
-			isBlocked: restaurant.isBlocked,
-			blockReason: restaurant.blockReason,
-			isSubscriptionActive: restaurant.isSubscriptionEligible(now),
-			subscriptionPlanCode: restaurant.subscriptionPlanCode,
-			subscriptionEndsAt: restaurant.subscriptionEndsAt
-				? restaurant.subscriptionEndsAt.toISOString()
-				: null,
-			canAccessQueueService: restaurant.canAccessQueueService(
-				acceptsQueue,
-				now,
-			),
-		};
+		return RestaurantMapper.toValidationResultDTO(
+			restaurant,
+			acceptsQueue,
+			now,
+		);
 	}
 }

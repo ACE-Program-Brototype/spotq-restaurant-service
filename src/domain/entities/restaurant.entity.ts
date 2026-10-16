@@ -418,7 +418,7 @@ export class Restaurant {
 	}
 
 	public canAccessQueueService(
-		acceptsQueueSetting: boolean = true,
+		acceptsQueueSetting: boolean,
 		now: Date = new Date(),
 	): boolean {
 		const isActive = this.status === "ACTIVE";
@@ -434,6 +434,8 @@ export class Restaurant {
 			planEntitled &&
 			queueEnabled
 		);
+	}
+
 	/**
 	 * Throws error if user doesnt have admin access
 	 * @param userId string

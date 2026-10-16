@@ -38,15 +38,23 @@ async function main() {
 	if (
 		!QUEUE_SERVICE_PRIVATE_KEY ||
 		!keyBody ||
-		QUEUE_SERVICE_PRIVATE_KEY.includes("PASTE_YOUR_QUEUE_SERVICE_PRIVATE_KEY_HERE")
+		QUEUE_SERVICE_PRIVATE_KEY.includes(
+			"PASTE_YOUR_QUEUE_SERVICE_PRIVATE_KEY_HERE",
+		)
 	) {
-		console.error("\n❌ Error: Please paste your Queue Service RSA Private Key into QUEUE_SERVICE_PRIVATE_KEY variable in scripts/generate-s2s-token.ts\n");
+		console.error(
+			"\n❌ Error: Please paste your Queue Service RSA Private Key into QUEUE_SERVICE_PRIVATE_KEY variable in scripts/generate-s2s-token.ts\n",
+		);
 		console.log("Example in scripts/generate-s2s-token.ts:");
-		console.log("-----------------------------------------------------------------");
+		console.log(
+			"-----------------------------------------------------------------",
+		);
 		console.log(`const QUEUE_SERVICE_PRIVATE_KEY = \`-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEA...
 -----END RSA PRIVATE KEY-----\`;`);
-		console.log("-----------------------------------------------------------------\n");
+		console.log(
+			"-----------------------------------------------------------------\n",
+		);
 		process.exit(1);
 	}
 
@@ -57,22 +65,37 @@ MIIEowIBAAKCAQEA...
 			expiresIn: EXPIRATION,
 		});
 
-		console.log("\n=================================================================");
+		console.log(
+			"\n=================================================================",
+		);
 		console.log("🔑 S2S JWT TOKEN GENERATED SUCCESSFULLY");
-		console.log("=================================================================");
+		console.log(
+			"=================================================================",
+		);
 		console.log("\nToken:\n");
 		console.log(token);
-		console.log("\n=================================================================");
+		console.log(
+			"\n=================================================================",
+		);
 		console.log("📋 POSTMAN CONFIGURATION");
-		console.log("=================================================================");
+		console.log(
+			"=================================================================",
+		);
 		console.log("Method:  GET");
-		console.log("URL:     http://localhost:3000/api/internal/v1/restaurants/YOUR_RESTAURANT_UUID/validation");
+		console.log(
+			"URL:     http://localhost:3000/api/internal/v1/restaurants/YOUR_RESTAURANT_UUID/validation",
+		);
 		console.log("\nHeaders (under Headers tab in Postman):");
 		console.log(`  Authorization:    Bearer ${token}`);
 		console.log(`  x-caller-service: ${CALLER_SERVICE}`);
-		console.log("=================================================================\n");
+		console.log(
+			"=================================================================\n",
+		);
 	} catch (error) {
-		console.error("\n❌ Failed to generate token:", error instanceof Error ? error.message : error);
+		console.error(
+			"\n❌ Failed to generate token:",
+			error instanceof Error ? error.message : error,
+		);
 		process.exit(1);
 	}
 }

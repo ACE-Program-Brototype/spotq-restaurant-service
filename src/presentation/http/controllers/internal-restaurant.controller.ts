@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { IValidateRestaurantEligibilityUseCase } from "@/application/ports/use-cases/validate-restaurant-eligibility.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -13,24 +13,19 @@ export class InternalRestaurantController {
 		private readonly validateRestaurantEligibilityUseCase: IValidateRestaurantEligibilityUseCase,
 	) {}
 
-	async validateRestaurant(
+	validateRestaurant = async (
 		req: Request,
 		res: Response,
-		next: NextFunction,
-	): Promise<void> {
-		try {
-			const restaurantId = String(req.params.restaurantId);
-			const validationData =
-				await this.validateRestaurantEligibilityUseCase.execute(restaurantId);
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const validationData =
+			await this.validateRestaurantEligibilityUseCase.execute(restaurantId);
 
-			sendSuccessResponse(
-				res,
-				validationData,
-				messages.RESTAURANT_STATUS_AND_SUBSCRIPTION_VERIFIED,
-				HTTP_STATUS.OK,
-			);
-		} catch (error) {
-			next(error);
-		}
-	}
+		sendSuccessResponse(
+			res,
+			validationData,
+			messages.RESTAURANT_STATUS_AND_SUBSCRIPTION_VERIFIED,
+			HTTP_STATUS.OK,
+		);
+	};
 }
