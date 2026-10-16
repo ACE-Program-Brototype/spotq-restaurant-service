@@ -3,6 +3,7 @@ import { Container } from "inversify";
 import { addonModule } from "./modules/addon.module";
 import { adminModule } from "./modules/admin.module";
 import { commonModule } from "./modules/common.module";
+import { internalModule } from "./modules/internal.module";
 import { menuModule } from "./modules/menu.module";
 import { restaurantAuthModule } from "./modules/restaurant.auth.module";
 import { restaurantModule } from "./modules/restaurant.module";
@@ -26,4 +27,5 @@ container.load(
 	menuModule,
 	tableSectionModule,
 	tableModule,
+	internalModule,
 );

@@ -1,4 +1,5 @@
 import type { RestaurantListItemDTO } from "@/application/dtos/admin/list-restaurants.dto.ts";
+import type { RestaurantValidationResultDto } from "@/application/dtos/internal/validate-restaurant.dto.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 
 export const RestaurantMapper = {
@@ -26,6 +27,26 @@ export const RestaurantMapper = {
 			subscription_ends_at: entity.subscriptionEndsAt
 				? entity.subscriptionEndsAt.toISOString()
 				: null,
+		};
+	},
+
+	toValidationResultDTO(
+		entity: Restaurant,
+		acceptsQueue: boolean,
+		now: Date = new Date(),
+	): RestaurantValidationResultDto {
+		return {
+			restaurantId: entity.id,
+			restaurantName: entity.restaurantName,
+			verificationStatus: entity.status,
+			isBlocked: entity.isBlocked,
+			blockReason: entity.blockReason,
+			isSubscriptionActive: entity.isSubscriptionEligible(now),
+			subscriptionPlanCode: entity.subscriptionPlanCode,
+			subscriptionEndsAt: entity.subscriptionEndsAt
+				? entity.subscriptionEndsAt.toISOString()
+				: null,
+			canAccessQueueService: entity.canAccessQueueService(acceptsQueue, now),
 		};
 	},
 };

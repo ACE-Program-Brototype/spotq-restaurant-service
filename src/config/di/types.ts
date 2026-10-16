@@ -144,6 +144,9 @@ export const TYPES = {
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",
 		),
+		ValidateRestaurantEligibilityUseCase: Symbol.for(
+			"ValidateRestaurantEligibilityUseCase",
+		),
 	},
 
 	Controller: {
@@ -157,6 +160,7 @@ export const TYPES = {
 		TableSectionController: Symbol.for("TableSectionController"),
 		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
 		TableController: Symbol.for("TableController"),
+		InternalRestaurantController: Symbol.for("InternalRestaurantController"),
 	},
 
 	Database: {
