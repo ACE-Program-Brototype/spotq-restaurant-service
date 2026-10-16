@@ -31,13 +31,13 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	 * Creates Table using Table Entity
 	 * @param table Table
 	 */
-	createTable(table: Table): Promise<Table>;
+	create(table: Table): Promise<Table>;
 
 	/**
 	 * Find Table by Id. If not return null
 	 * @param id string
 	 */
-	findTableById(id: string): Promise<Table | null>;
+	findById(id: string): Promise<Table | null>;
 
 	/**
 	 * Save Table to Db
@@ -70,7 +70,7 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	 * Soft Deletes Table by Id
 	 * @param id string
 	 */
-	deleteTable(id: string): Promise<void>;
+	softDelete(id: string): Promise<void>;
 
 	/**
 	 * Find Table by code and Restaurant Id
