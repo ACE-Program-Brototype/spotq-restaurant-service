@@ -325,6 +325,10 @@ export interface UpdateRestaurantProfileData {
 
 export interface IRestaurantRepository
 	extends IBaseRepository<Restaurant, string> {
+	getRestaurantAvailabilitySettings(
+		restaurantId: string,
+	): Promise<{ isOpened: boolean; acceptsQueue: boolean } | null>;
+
 	create(data: Partial<Restaurant>): Promise<Restaurant>;
 
 	createRestaurant(data: CreateRestaurantData): Promise<Restaurant>;
