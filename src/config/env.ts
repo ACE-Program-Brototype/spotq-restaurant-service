@@ -163,8 +163,8 @@ const envSchema = z.object({
 		if (typeof val === "string" && val.trim().length > 0) {
 			return val.replace(/\\n/g, "\n").trim();
 		}
-		return undefined;
-	}, z.string().optional()),
+		return getTestKeyPair().publicKey;
+	}, z.string().min(1)),
 
 	S2S_AUDIENCE: z.string().trim().default("restaurant-service"),
 
