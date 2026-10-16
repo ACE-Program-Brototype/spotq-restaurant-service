@@ -1,4 +1,4 @@
-import type { DeleteTableInput } from "@application/dtos/table/delete-table.dto";
+import type { IDeleteTableInputDTO } from "@application/dtos/table/delete-table.dto";
 import type { IDeleteTableUseCase } from "@application/ports/use-cases/table/delete-table.use-case.port";
 import { TYPES } from "@config/di/types";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
@@ -13,12 +13,12 @@ import { inject, injectable } from "inversify";
 @injectable()
 export class DeleteTableUseCase implements IDeleteTableUseCase {
 	constructor(
-        @inject(TYPES.Repositories.TableRepository)
+		@inject(TYPES.Repositories.TableRepository)
 		private readonly _tableRepository: ITableRepository,
-        @inject(TYPES.Repositories.RestaurantRepository)
+		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly _restaurantRepository: IRestaurantRepository,
 	) {}
-	async execute(input: DeleteTableInput): Promise<void> {
+	async execute(input: IDeleteTableInputDTO): Promise<void> {
 		// Ensure restaurant exists
 		const restaurant = await this._restaurantRepository.findById(
 			input.restaurantId,
