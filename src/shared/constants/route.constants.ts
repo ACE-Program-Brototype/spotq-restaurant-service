@@ -42,7 +42,7 @@ export const RESTAURANT_ROUTES = {
 		"/:restaurantId/menu/items/:itemId/variant/:variantId/status",
 	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
-	CUSTOMER_LIST: "/api/v1/restaurants",
+	CUSTOMER_LIST: "/customers",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -89,6 +89,7 @@ export const JWKS_ROUTES = {
 export const TABLE_SECTION_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION : "/:restaurantId/table-sections"
 };
 
 export const TABLE_ROUTES = {
