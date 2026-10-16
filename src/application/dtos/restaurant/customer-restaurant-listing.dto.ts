@@ -19,6 +19,7 @@ export interface CustomerRestaurantItemDto {
 	state: string | null;
 	cuisineType: string | null;
 	averageCost: number | null;
+	coverImage: string | null;
 	createdAt: Date;
 }
 

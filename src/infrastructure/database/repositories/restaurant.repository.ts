@@ -1191,7 +1191,17 @@ export class RestaurantRepository
 							select: {
 								cuisineType: true,
 								averageCost: true,
+								coverImageKey: true,
 							},
+						},
+						images: {
+							select: {
+								objectKey: true,
+							},
+							orderBy: {
+								displayOrder: "asc",
+							},
+							take: 1,
 						},
 					},
 					orderBy,
@@ -1210,6 +1220,10 @@ export class RestaurantRepository
 					state: restaurant.address?.state ?? null,
 					cuisineType: restaurant.profile?.cuisineType ?? null,
 					averageCost: restaurant.profile?.averageCost ?? null,
+					coverImage:
+						restaurant.profile?.coverImageKey ??
+						restaurant.images?.[0]?.objectKey ??
+						null,
 					createdAt: restaurant.createdAt,
 				}),
 			);
