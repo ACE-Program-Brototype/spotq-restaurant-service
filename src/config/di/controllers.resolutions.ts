@@ -16,46 +16,46 @@ import { container } from "./container";
 import { TYPES } from "./types";
 
 export const menuCategoryController = container.get<MenuCategoryController>(
-	TYPES.Controller.MenuCategoryController,
+  TYPES.Controller.MenuCategoryController,
 );
 
 export const menuItemController = container.get<MenuItemController>(
-	TYPES.Controller.MenuItemController,
+  TYPES.Controller.MenuItemController,
 );
 
 export const restaurantAuthController = container.get<RestaurantAuthController>(
-	TYPES.Controller.RestaurantAuthController,
+  TYPES.Controller.RestaurantAuthController,
 );
 
 export const restaurantStatusController =
-	container.get<RestaurantStatusController>(
-		TYPES.Controller.RestaurantStatusController,
-	);
+  container.get<RestaurantStatusController>(
+    TYPES.Controller.RestaurantStatusController,
+  );
 
 export const storageController = container.get<StorageController>(
-	TYPES.Controller.StorageController,
+  TYPES.Controller.StorageController,
 );
 
 export const staffController = container.get<StaffController>(
-	TYPES.StaffController,
+  TYPES.StaffController,
 );
 
 export const restaurantStaffManagementController =
-	container.get<RestaurantStaffManagementController>(
-		TYPES.RestaurantStaffManagementController,
-	);
+  container.get<RestaurantStaffManagementController>(
+    TYPES.RestaurantStaffManagementController,
+  );
 
 export const jwksController = container.get<JwksController>(
-	TYPES.JWKSController,
+  TYPES.JWKSController,
 );
 
 export const adminRestaurantController =
-	container.get<AdminRestaurantController>(
-		TYPES.Controller.AdminRestaurantController,
-	);
+  container.get<AdminRestaurantController>(
+    TYPES.Controller.AdminRestaurantController,
+  );
 
 export const addonController = container.get<AddonController>(
-	TYPES.Controller.AddonController,
+  TYPES.Controller.AddonController,
 );
 
 export const tableSectionController = container.get<TableSectionController>(
