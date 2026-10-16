@@ -56,5 +56,5 @@ tableRoutes.delete(
 	TABLE_ROUTES.DELETE,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(deleteTableParamsSchema),
-	tableController.getTable,
+	tableController.deleteTable,
 );
