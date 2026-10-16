@@ -15,16 +15,14 @@ import {
 	createTableParamsSchema,
 } from "../validators/table/create-table.validator";
 import {
-<<<<<<< HEAD
-	updateTableBodySchema,
-	updateTableParamsSchema,
-} from "../validators/table/update-table.validator";
-=======
 	getTableAvailabilityQuerySchema,
 	getTableParamsSchema,
 	getTableQuerySchema,
 } from "../validators/table/get-table.validator";
->>>>>>> development
+import {
+	updateTableBodySchema,
+	updateTableParamsSchema,
+} from "../validators/table/update-table.validator";
 
 export const tableRoutes = Router();
 
@@ -42,7 +40,7 @@ tableRoutes.patch(
 	validateRequestParams(updateTableParamsSchema),
 	validateRequestBody(updateTableBodySchema),
 	tableController.updateTable,
-)
+);
 
 tableRoutes.get(
 	TABLE_ROUTES.TABLE,
