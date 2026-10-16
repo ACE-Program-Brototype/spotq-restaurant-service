@@ -1,4 +1,5 @@
 import "reflect-metadata";
+
 import { tableRoutes } from "@presentation/http/routes/table.routes";
 import { tableSectionRoutes } from "@presentation/http/routes/table-section.routes";
 import cookieParser from "cookie-parser";
@@ -8,6 +9,7 @@ import { httpLogger } from "@/presentation/http/middleware/log.middleware.ts";
 import { metricsMiddleware } from "@/presentation/http/middleware/metrics.middleware.ts";
 import { notFoundHandler } from "@/presentation/http/middleware/notfound.middleware.ts";
 import { adminRouter } from "@/presentation/http/routes/admin.routes.ts";
+import { internalRestaurantRouter } from "@/presentation/http/routes/internal-restaurant.routes.ts";
 import jwksRouter from "@/presentation/http/routes/jwks.routes.ts";
 import { restaurantRouter } from "@/presentation/http/routes/restaurant.routes.ts";
 import staffRouter from "@/presentation/http/routes/staff.routes.ts";
@@ -18,6 +20,7 @@ import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import {
 	ADMIN_ROUTES,
+	INTERNAL_ROUTES,
 	JWKS_ROUTES,
 	STAFF_ROUTES,
 	STORAGE_ROUTES,
@@ -52,6 +55,7 @@ app.get("/", (_req, res) => {
 
 // Mount routes
 app.use(ADMIN_ROUTES.BASE, adminRouter);
+app.use(INTERNAL_ROUTES.BASE, internalRestaurantRouter);
 app.use(STAFF_ROUTES.BASE, staffRouter);
 app.use(TABLE_SECTION_ROUTES.BASE, tableSectionRoutes);
 app.use(TABLE_ROUTES.BASE, tableRoutes);

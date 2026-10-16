@@ -29,6 +29,7 @@ import type {
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
 	RestaurantFilterParams,
+	RestaurantValidationRecord,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.ts";
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
@@ -1213,7 +1214,17 @@ export class RestaurantRepository
 							select: {
 								cuisineType: true,
 								averageCost: true,
+								coverImageKey: true,
 							},
+						},
+						images: {
+							select: {
+								objectKey: true,
+							},
+							orderBy: {
+								displayOrder: "asc",
+							},
+							take: 1,
 						},
 					},
 					orderBy,
@@ -1232,6 +1243,10 @@ export class RestaurantRepository
 					state: restaurant.address?.state ?? null,
 					cuisineType: restaurant.profile?.cuisineType ?? null,
 					averageCost: restaurant.profile?.averageCost ?? null,
+					coverImage:
+						restaurant.profile?.coverImageKey ??
+						restaurant.images?.[0]?.objectKey ??
+						null,
 					createdAt: restaurant.createdAt,
 				}),
 			);
@@ -1239,6 +1254,33 @@ export class RestaurantRepository
 			return {
 				restaurants,
 				total,
+			};
+		});
+	}
+
+	async findValidationDetailsById(
+		restaurantId: string,
+	): Promise<RestaurantValidationRecord | null> {
+		return this.run(async () => {
+			const raw = await this.delegate.findUnique({
+				where: { id: restaurantId },
+				include: {
+					settings: {
+						select: {
+							acceptsQueue: true,
+						},
+					},
+				},
+			});
+
+			if (!raw) return null;
+
+			const restaurant = this.mapper.toDomain(raw);
+			const acceptsQueue = raw.settings?.acceptsQueue ?? true;
+
+			return {
+				restaurant,
+				acceptsQueue,
 			};
 		});
 	}

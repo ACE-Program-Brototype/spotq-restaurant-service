@@ -11,6 +11,8 @@ export const messages = {
 	OTP_RESENT_SUCCESS: "OTP resent to your email successfully",
 	PASSWORD_RESET_SUCCESS: "Password reset successfully",
 	RESTAURANT_STATUS_FETCHED: "Restaurant status retrieved successfully",
+	RESTAURANT_STATUS_AND_SUBSCRIPTION_VERIFIED:
+		"Restaurant status and subscription verified successfully",
 
 	STAFF_INVITATION_SENT_SUCCESS: "Staff invitation sent successfully",
 	STAFF_INVITATION_VALID: "Invitation token is valid",

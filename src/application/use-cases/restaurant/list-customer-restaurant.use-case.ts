@@ -54,6 +54,7 @@ export class ListCustomerRestaurantsUseCase {
 			state: restaurant.state,
 			cuisineType: restaurant.cuisineType,
 			averageCost: restaurant.averageCost,
+			coverImage: restaurant.coverImage,
 			createdAt: restaurant.createdAt,
 		}));
 

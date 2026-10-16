@@ -41,7 +41,7 @@ describe("listRestaurantsQuerySchema", () => {
 		}
 	});
 
-	it("should accept valid supported plans (QUEUE_PRO and SELF_SERVICE_PRO) and reject unsupported ones", () => {
+	it("should accept valid supported plans (QUEUE_PRO and SELF_PRO) and reject unsupported ones", () => {
 		const queueProResult = listRestaurantsQuerySchema.safeParse({
 			plan: "QUEUE_PRO",
 		});
@@ -50,12 +50,12 @@ describe("listRestaurantsQuerySchema", () => {
 			expect(queueProResult.data.plan).toBe("QUEUE_PRO");
 		}
 
-		const selfServiceResult = listRestaurantsQuerySchema.safeParse({
-			plan: "SELF_SERVICE_PRO",
+		const selfProResult = listRestaurantsQuerySchema.safeParse({
+			plan: "SELF_PRO",
 		});
-		expect(selfServiceResult.success).toBe(true);
-		if (selfServiceResult.success) {
-			expect(selfServiceResult.data.plan).toBe("SELF_SERVICE_PRO");
+		expect(selfProResult.success).toBe(true);
+		if (selfProResult.success) {
+			expect(selfProResult.data.plan).toBe("SELF_PRO");
 		}
 
 		const lowercasePlanResult = listRestaurantsQuerySchema.safeParse({

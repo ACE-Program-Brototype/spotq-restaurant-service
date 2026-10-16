@@ -37,6 +37,7 @@ export interface CustomerRestaurantListItem {
 	state: string | null;
 	cuisineType: string | null;
 	averageCost: number | null;
+	coverImage: string | null;
 	createdAt: Date;
 }
 
@@ -380,4 +381,13 @@ export interface IRestaurantRepository
 	findCustomerRestaurants(
 		params: CustomerRestaurantFilterParams,
 	): Promise<{ restaurants: CustomerRestaurantListItem[]; total: number }>;
+
+	findValidationDetailsById(
+		restaurantId: string,
+	): Promise<RestaurantValidationRecord | null>;
+}
+
+export interface RestaurantValidationRecord {
+	restaurant: Restaurant;
+	acceptsQueue: boolean;
 }
