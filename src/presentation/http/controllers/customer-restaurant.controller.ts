@@ -1,17 +1,27 @@
+import type { GetCustomerRestaurantDetailsUseCase } from "@application/use-cases/restaurant/get-customer-restaurant-details.use-case";
 import type { ListCustomerRestaurantsUseCase } from "@application/use-cases/restaurant/list-customer-restaurant.use-case";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
+import type {
+	GetCustomerRestaurantDetailsParams,
+	GetCustomerRestaurantDetailsQuery,
+} from "@/presentation/http/validators/get-customer-restaurant-details.validator.ts";
 import type { ListCustomerRestaurantsQuery } from "@/presentation/http/validators/list-customer-restaurants.validator.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
-import { sendPaginatedSuccessResponse } from "@/shared/response/api-response.ts";
+import {
+	sendPaginatedSuccessResponse,
+	sendSuccessResponse,
+} from "@/shared/response/api-response.ts";
 
 @injectable()
 export class CustomerRestaurantController {
 	constructor(
 		@inject(TYPES.UseCases.ListCustomerRestaurantsUseCase)
 		private readonly listCustomerRestaurantsUseCase: ListCustomerRestaurantsUseCase,
+		@inject(TYPES.UseCases.GetCustomerRestaurantDetailsUseCase)
+		private readonly getCustomerRestaurantDetailsUseCase: GetCustomerRestaurantDetailsUseCase,
 	) {}
 
 	public listRestaurants = async (
@@ -35,5 +45,26 @@ export class CustomerRestaurantController {
 			messages.SUCCESS,
 			HTTP_STATUS.OK,
 		);
+	};
+
+	public getRestaurantDetails = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const params = (res.locals?.params ??
+			req.params) as GetCustomerRestaurantDetailsParams;
+		const query = (res.locals?.query ??
+			req.query) as GetCustomerRestaurantDetailsQuery;
+
+		const restaurantId =
+			params?.restaurantId || String(req.params.restaurantId ?? req.params.id);
+
+		const result = await this.getCustomerRestaurantDetailsUseCase.execute({
+			restaurantId,
+			includeMenu: query?.includeMenu,
+			categoryId: query?.categoryId,
+		});
+
+		sendSuccessResponse(res, result, messages.SUCCESS, HTTP_STATUS.OK);
 	};
 }
