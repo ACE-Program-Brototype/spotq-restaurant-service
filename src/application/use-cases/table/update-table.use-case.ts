@@ -61,7 +61,6 @@ export class UpdateTableUseCase implements IUpdateTableUseCase {
 				tableCode,
 				dto.restaurantId,
 			);
-			console.log(11122333, existingTable)
 			if (existingTable && existingTable.id !== dto.tableId) {
 				throw new TableAlreadyExistsError();
 			}
