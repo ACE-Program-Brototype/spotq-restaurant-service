@@ -359,6 +359,13 @@ export const messages = {
 	TABLE_SECTION_CREATE_SUCCESS: "Table Section Created Successfully",
 	TABLE_SECTION_NAME_REQUIRED: "Table Section name required",
 	TABLE_SECTION_NAME_MAX: "Table section name must not exceed 100 characters.",
+	TABLE_SECTION_GOT_SUCCESS: "Table Section Got Successfully",
+	INVALID_TABLE_SECTION_MODE: "Invalid table section mode",
+
+	// PAGINATION ERRORS
+	INVALID_PAGE: "Page must be a positive integer",
+	INVALID_LIMIT: "Limit must be a positive integer",
+	LIMIT_EXCEEDS_MAX: "Limit exceeded",
 	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
 	INVALID_TABLE_SECTION_ID: "Invalid Table section ID",
 

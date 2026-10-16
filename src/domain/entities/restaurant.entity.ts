@@ -12,6 +12,10 @@ import {
 	RestaurantStatusVO,
 } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+import {
+	ForbiddenAccessError,
+	RestaurantAccountBlockedError,
+} from "@domain/errors/staff.errors";
 
 export interface RestaurantProps {
 	id: string;
@@ -430,5 +434,19 @@ export class Restaurant {
 			planEntitled &&
 			queueEnabled
 		);
+	/**
+	 * Throws error if user doesnt have admin access
+	 * @param userId string
+	 */
+	ensureAdminAccess(userId: string) {
+		if (this.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
+		// is user restaurant admin
+		// Checks by checking if restaurant id === dto.userId
+		// In Application Restaurant Id is same as restaurant admins userId from JWT
+		if (this.id !== userId) {
+			throw new ForbiddenAccessError();
+		}
 	}
 }

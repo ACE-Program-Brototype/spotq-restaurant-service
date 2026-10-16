@@ -965,6 +965,7 @@ export class PrismaMenuItemRepository
 					sku?: string | null;
 					price?: unknown;
 					isDefault: boolean;
+					isAvailable: boolean;
 				}>;
 				const defaultVariant = variants.find((v) => v.isDefault);
 				const firstVariantWithSku = variants.find((v) => Boolean(v.sku));
@@ -978,7 +979,7 @@ export class PrismaMenuItemRepository
 							sku: v.sku ?? null,
 							price: Number(v.price),
 							isDefault: v.isDefault,
-							isAvailable: record.isAvailable,
+							isAvailable: v.isAvailable,
 						}))
 					: [];
 

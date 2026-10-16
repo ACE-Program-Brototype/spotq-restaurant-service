@@ -136,6 +136,7 @@ export const TYPES = {
 
 		// TABLE SECTION
 		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
+		GetTableSectionUseCase: Symbol.for("GetTableSectionUseCase"),
 
 		// TABLE
 		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
