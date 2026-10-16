@@ -53,7 +53,8 @@ export class RestaurantRepository
 		PrismaRestaurant,
 		PrismaClient["restaurant"]
 	>
-	implements IRestaurantRepository {
+	implements IRestaurantRepository
+{
 	constructor(
 		@inject(TYPES.Database.PrismaClient)
 		private readonly prisma: PrismaClient,
@@ -207,39 +208,39 @@ export class RestaurantRepository
 				updatedAt: raw.updatedAt,
 				address: raw.address
 					? {
-						id: raw.address.id,
-						addressLine1: raw.address.addressLine1,
-						addressLine2: raw.address.addressLine2,
-						city: raw.address.city,
-						state: raw.address.state,
-						country: raw.address.country,
-						pincode: raw.address.pincode,
-						latitude: Number(raw.address.latitude),
-						longitude: Number(raw.address.longitude),
-					}
+							id: raw.address.id,
+							addressLine1: raw.address.addressLine1,
+							addressLine2: raw.address.addressLine2,
+							city: raw.address.city,
+							state: raw.address.state,
+							country: raw.address.country,
+							pincode: raw.address.pincode,
+							latitude: Number(raw.address.latitude),
+							longitude: Number(raw.address.longitude),
+						}
 					: null,
 				settings: raw.settings
 					? {
-						isOpened: raw.settings.isOpened,
-						isPreorder: raw.settings.isPreorder,
-						isLoyaltyEnabled: raw.settings.isLoyaltyEnabled,
-						cuisineType: raw.settings.cuisineType,
-						seatingCapacity: raw.settings.seatingCapacity,
-						openTime: raw.settings.openTime,
-						closeTime: raw.settings.closeTime,
-					}
+							isOpened: raw.settings.isOpened,
+							isPreorder: raw.settings.isPreorder,
+							isLoyaltyEnabled: raw.settings.isLoyaltyEnabled,
+							cuisineType: raw.settings.cuisineType,
+							seatingCapacity: raw.settings.seatingCapacity,
+							openTime: raw.settings.openTime,
+							closeTime: raw.settings.closeTime,
+						}
 					: null,
 				profile: raw.profile
 					? {
-						coverImage: raw.profile.coverImageKey,
-						avatar: raw.profile.avatarUpdatedAt
-							? `restaurants/${raw.id}/profile/avatar.png`
-							: null,
-						description: raw.profile.description,
-						fssaiNumber: raw.profile.fssaiNumber,
-						registerNumber: raw.profile.registerNumber,
-						gstNumber: raw.profile.gstNumber,
-					}
+							coverImage: raw.profile.coverImageKey,
+							avatar: raw.profile.avatarUpdatedAt
+								? `restaurants/${raw.id}/profile/avatar.png`
+								: null,
+							description: raw.profile.description,
+							fssaiNumber: raw.profile.fssaiNumber,
+							registerNumber: raw.profile.registerNumber,
+							gstNumber: raw.profile.gstNumber,
+						}
 					: null,
 				operatingHours: (raw.operatingHours || []).map((oh) => ({
 					id: oh.id,
@@ -501,19 +502,19 @@ export class RestaurantRepository
 			updatedAt: raw.updatedAt,
 			address: raw.address
 				? {
-					id: raw.address.id,
-					restaurantId: raw.address.restaurantId,
-					addressLine1: raw.address.addressLine1,
-					addressLine2: raw.address.addressLine2,
-					city: raw.address.city,
-					state: raw.address.state,
-					country: raw.address.country,
-					pincode: raw.address.pincode,
-					latitude: Number(raw.address.latitude),
-					longitude: Number(raw.address.longitude),
-					createdAt: raw.address.createdAt,
-					updatedAt: raw.address.updatedAt,
-				}
+						id: raw.address.id,
+						restaurantId: raw.address.restaurantId,
+						addressLine1: raw.address.addressLine1,
+						addressLine2: raw.address.addressLine2,
+						city: raw.address.city,
+						state: raw.address.state,
+						country: raw.address.country,
+						pincode: raw.address.pincode,
+						latitude: Number(raw.address.latitude),
+						longitude: Number(raw.address.longitude),
+						createdAt: raw.address.createdAt,
+						updatedAt: raw.address.updatedAt,
+					}
 				: null,
 			documents: (raw.documents || []).map((doc) => ({
 				id: doc.id,
@@ -587,11 +588,11 @@ export class RestaurantRepository
 				}),
 				...(fromDate || toDate
 					? {
-						createdAt: {
-							...(fromDate && { gte: fromDate }),
-							...(toDate && { lte: toDate }),
-						},
-					}
+							createdAt: {
+								...(fromDate && { gte: fromDate }),
+								...(toDate && { lte: toDate }),
+							},
+						}
 					: {}),
 			};
 
@@ -1074,9 +1075,9 @@ export class RestaurantRepository
 
 			const cuisines = cuisine
 				? cuisine
-					.split(",")
-					.map((c) => c.trim())
-					.filter(Boolean)
+						.split(",")
+						.map((c) => c.trim())
+						.filter(Boolean)
 				: [];
 
 			const andConditions: Prisma.RestaurantWhereInput[] = [
@@ -1193,6 +1194,15 @@ export class RestaurantRepository
 								coverImageKey: true,
 							},
 						},
+						images: {
+							select: {
+								objectKey: true,
+							},
+							orderBy: {
+								displayOrder: "asc",
+							},
+							take: 1,
+						},
 					},
 					orderBy,
 					skip,
@@ -1210,7 +1220,10 @@ export class RestaurantRepository
 					state: restaurant.address?.state ?? null,
 					cuisineType: restaurant.profile?.cuisineType ?? null,
 					averageCost: restaurant.profile?.averageCost ?? null,
-					coverImage: restaurant.profile?.coverImageKey ?? null,
+					coverImage:
+						restaurant.profile?.coverImageKey ??
+						restaurant.images?.[0]?.objectKey ??
+						null,
 					createdAt: restaurant.createdAt,
 				}),
 			);
