@@ -16,9 +16,3 @@ export const TABLE_STATUS = {
 
 export type TableStatusType = (typeof TABLE_STATUS)[keyof typeof TABLE_STATUS];
 
-export const TABLE_MODE = {
-	ADMIN: "ADMIN",
-	STAFF: "STAFF",
-} as const;
-
-export type TableModeType = (typeof TABLE_MODE)[keyof typeof TABLE_MODE];
