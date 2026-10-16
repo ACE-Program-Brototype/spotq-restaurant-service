@@ -118,6 +118,12 @@ export class Table {
 		});
 	}
 
+	isAvailable() {
+		return (
+			this.currentOccupancy === 0 && this.status === TABLE_STATUS.AVAILABLE
+		);
+	}
+
 	get id() {
 		return this.props.id;
 	}
