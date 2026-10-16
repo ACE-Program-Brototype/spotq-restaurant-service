@@ -16,6 +16,7 @@ import {
 	ForbiddenAccessError,
 	RestaurantAccountBlockedError,
 } from "@domain/errors/staff.errors";
+import { SubscriptionPlanVO } from "@/domain/value-objects/subscription-plan.vo.ts";
 
 export interface RestaurantProps {
 	id: string;
@@ -385,6 +386,46 @@ export class Restaurant {
 		}
 
 		this._props.updatedAt = new Date();
+	}
+
+	public isSubscriptionEligible(now: Date = new Date()): boolean {
+		if (!this._props.isSubscriptionActive) {
+			return false;
+		}
+
+		if (
+			this._props.subscriptionEndsAt &&
+			this._props.subscriptionEndsAt <= now
+		) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public hasQueueEntitlement(): boolean {
+		return SubscriptionPlanVO.hasQueueEntitlement(
+			this._props.subscriptionPlanCode,
+		);
+	}
+
+	public canAccessQueueService(
+		acceptsQueueSetting: boolean,
+		now: Date = new Date(),
+	): boolean {
+		const isActive = this.status === "ACTIVE";
+		const notBlocked = !this.isBlocked;
+		const subscriptionValid = this.isSubscriptionEligible(now);
+		const planEntitled = this.hasQueueEntitlement();
+		const queueEnabled = acceptsQueueSetting;
+
+		return (
+			isActive &&
+			notBlocked &&
+			subscriptionValid &&
+			planEntitled &&
+			queueEnabled
+		);
 	}
 
 	/**

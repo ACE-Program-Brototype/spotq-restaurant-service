@@ -98,8 +98,12 @@ export const TABLE_ROUTES = {
 	UPDATE_TABLE : "/:restaurantId/table/:tableId"
 };
 
-export type TableRoute =
-	(typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
+export const INTERNAL_ROUTES = {
+	BASE: "/api/internal/v1",
+	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
+} as const;
+
+export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
 
 export type TableSectionRoute =
 	(typeof TABLE_SECTION_ROUTES)[keyof typeof TABLE_SECTION_ROUTES];
@@ -114,4 +118,5 @@ export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
 export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
 export type JwksRoute = (typeof JWKS_ROUTES)[keyof typeof JWKS_ROUTES];
-
+export type InternalRoute =
+	(typeof INTERNAL_ROUTES)[keyof typeof INTERNAL_ROUTES];
