@@ -4,7 +4,6 @@ import type {
 	PaginatedMenuItemsResponseDto,
 } from "@/application/dtos/menu-item/list-menu-items.dto.ts";
 import { MenuItemMapper } from "@/application/mappers/menu-item.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -17,6 +16,7 @@ import {
 } from "@/domain/constants/menu-item.constants.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuItemRepository } from "@/domain/repositories/menu-item.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 

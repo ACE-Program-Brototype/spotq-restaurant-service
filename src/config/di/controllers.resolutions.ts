@@ -1,5 +1,8 @@
+import type { TableController } from "@presentation/http/controllers/table.controller";
+import type { TableSectionController } from "@presentation/http/controllers/table-section.controller";
 import type { AddonController } from "@/presentation/http/controllers/addon.controller";
 import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
+import type { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
 import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
 import type { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller";
 import type { MenuItemController } from "@/presentation/http/controllers/menu-item.controller";
@@ -8,7 +11,6 @@ import type { RestaurantStaffManagementController } from "@/presentation/http/co
 import type { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
 import type { StaffController } from "@/presentation/http/controllers/staff.controller";
 import type { StorageController } from "@/presentation/http/controllers/storage.controller";
-import type { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
 import { container } from "./container";
 import { TYPES } from "./types";
 
@@ -55,7 +57,15 @@ export const addonController = container.get<AddonController>(
   TYPES.Controller.AddonController,
 );
 
+export const tableSectionController = container.get<TableSectionController>(
+	TYPES.Controller.TableSectionController,
+);
+
+export const tableController = container.get<TableController>(
+	TYPES.Controller.TableController,
+);
+
 export const customerRestaurantController =
-  container.get<CustomerRestaurantController>(
-   TYPES.Controller.CustomerRestaurantController,
-  );
+	container.get<CustomerRestaurantController>(
+		TYPES.Controller.CustomerRestaurantController,
+	);

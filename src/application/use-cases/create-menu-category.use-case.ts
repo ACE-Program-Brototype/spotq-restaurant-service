@@ -3,13 +3,13 @@ import type {
 	CreateMenuCategoryInputDto,
 	MenuCategoryResponseDto,
 } from "@/application/dtos/menu/create-menu-category.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { ICreateMenuCategoryUseCase } from "@/application/ports/use-cases/create-menu-category.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
 import { CategoryAlreadyExistsError } from "@/domain/errors/menu-category.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IMenuCategoryRepository } from "@/domain/repositories/menu-category.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()

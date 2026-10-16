@@ -5,16 +5,14 @@ export const SYSTEM_ROUTES = {
 } as const;
 
 export const RESTAURANT_ROUTES = {
-	EMAIL_OTP: "/registration/email-otp",
-	VERIFY_EMAIL: "/registration/email-otp/verify",
-	RESEND_EMAIL_OTP: "/registration/resend-email-otp",
+	EMAIL_OTP: "/otp",
+	VERIFY_EMAIL: "/otp/verify",
+	RESEND_EMAIL_OTP: "/otp/resend",
 	REFRESH_ACCESS_TOKEN: "/refresh-token",
-	REGISTRATION_REFRESH_TOKEN: "/registration/refresh-token",
-	ONBOARD: "/onboard",
+	ONBOARD: "/onboarding",
 	STAFF_STATUS_UPDATE: "/:restaurantId/staff/:staffId/status",
 	STAFF_UPDATE: "/:restaurantId/staff/:staffId",
 	STAFF_LIST: "/:restaurantId/staff",
-	UPDATE_STAFF_PROFILE: "/:restaurantId/staff/:staffId",
 	STATUS: "/me/status",
 	VERIFICATION_STATUS: "/verification-status",
 	STAFF_REMOVE: "/:restaurantId/staff/:staffId",
@@ -40,9 +38,11 @@ export const RESTAURANT_ROUTES = {
 	STAFF_MENU_CATEGORIES_PREFIX:
 		"/restaurants/:restaurantId/staff/menu/categories",
 	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
+	MENU_ITEM_VARIANT_STATUS_UPDATE:
+		"/:restaurantId/menu/items/:itemId/variant/:variantId/status",
 	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
-	CUSTOMER_LIST: "/api/v1/restaurants",
+	CUSTOMER_LIST: "/customers",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -81,6 +81,28 @@ export const ADMIN_ROUTES = {
 	RESTAURANT_MENU_CATEGORIES: "/restaurants/:restaurantId/menu/categories",
 } as const;
 
+export const JWKS_ROUTES = {
+	BASE: "/.well-known",
+	JWKS: "/jwks.json",
+} as const;
+
+export const TABLE_SECTION_ROUTES = {
+	BASE: "/",
+	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION : "/:restaurantId/table-sections"
+};
+
+export const TABLE_ROUTES = {
+	BASE: "/",
+	CREATE_TABLE: "/:restaurantId/table",
+};
+
+export type TableRoute =
+	(typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
+
+export type TableSectionRoute =
+	(typeof TABLE_SECTION_ROUTES)[keyof typeof TABLE_SECTION_ROUTES];
+
 export type RestaurantRoute =
 	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
 
@@ -90,3 +112,5 @@ export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
 
 export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
 export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
+export type JwksRoute = (typeof JWKS_ROUTES)[keyof typeof JWKS_ROUTES];
+

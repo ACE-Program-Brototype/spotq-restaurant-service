@@ -7,8 +7,9 @@ import type { IGetCustomerMenuItemDetailsUseCase } from "@/application/ports/use
 import type { IGetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-restaurant-owner-menu-item-details.use-case.port.ts";
 import type { IListMenuItemsUseCase } from "@/application/ports/use-cases/list-menu-items.use-case.port.ts";
 import type { IListStaffMenuItemsUseCase } from "@/application/ports/use-cases/list-staff-menu-items.use-case.port.ts";
-import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
 import type { IUpdateMenuItemUseCase } from "@/application/ports/use-cases/update-menu-item.use-case.port.ts";
+import type { IUpdateMenuItemStatusUseCase } from "@/application/ports/use-cases/update-menu-item-status.use-case.port.ts";
+import type { IUpdateMenuItemVariantStatusUseCase } from "@/application/ports/use-cases/menu-item/update-menu-item-variant-status.use-case.port.ts";
 import { MenuItemController } from "@/presentation/http/controllers/menu-item.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
@@ -22,6 +23,7 @@ describe("MenuItemController", () => {
 	let deleteMenuItemUseCase: jest.Mocked<IDeleteMenuItemUseCase>;
 	let updateMenuItemStatusUseCase: jest.Mocked<IUpdateMenuItemStatusUseCase>;
 	let updateMenuItemUseCase: jest.Mocked<IUpdateMenuItemUseCase>;
+	let updateMenuItemVariantStatusUseCase: jest.Mocked<IUpdateMenuItemVariantStatusUseCase>;
 	let controller: MenuItemController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -62,6 +64,10 @@ describe("MenuItemController", () => {
 			execute: jest.fn(),
 		};
 
+		updateMenuItemVariantStatusUseCase = {
+			execute: jest.fn(),
+		};
+
 		controller = new MenuItemController(
 			createMenuItemUseCase,
 			listMenuItemsUseCase,
@@ -71,6 +77,7 @@ describe("MenuItemController", () => {
 			deleteMenuItemUseCase,
 			updateMenuItemStatusUseCase,
 			updateMenuItemUseCase,
+			updateMenuItemVariantStatusUseCase,
 		);
 
 		res = {

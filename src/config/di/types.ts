@@ -130,8 +130,20 @@ export const TYPES = {
 		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
 		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
 		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
+		UpdateMenuItemVariantStatusUseCase: Symbol.for(
+			"UpdateMenuItemVariantStatusUseCase",
+		),
 
-		ListCustomerRestaurantsUseCase: Symbol.for("ListCustomerRestaurantsUseCase",),
+		// TABLE SECTION
+		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
+		GetTableSectionUseCase: Symbol.for("GetTableSectionUseCase"),
+
+		// TABLE
+		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
+
+		ListCustomerRestaurantsUseCase: Symbol.for(
+			"ListCustomerRestaurantsUseCase",
+		),
 	},
 
 	Controller: {
@@ -142,7 +154,9 @@ export const TYPES = {
 		AddonController: Symbol.for("AddonController"),
 		MenuItemController: Symbol.for("MenuItemController"),
 		MenuCategoryController: Symbol.for("MenuCategoryController"),
+		TableSectionController: Symbol.for("TableSectionController"),
 		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
+		TableController: Symbol.for("TableController"),
 	},
 
 	Database: {
@@ -154,6 +168,8 @@ export const TYPES = {
 		AddonRepository: Symbol.for("AddonRepository"),
 		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
 		MenuItemRepository: Symbol.for("MenuItemRepository"),
+		TableSectionRepository: Symbol.for("TableSectionRepository"),
+		TableRepository: Symbol.for("TableRepository"),
 	},
 
 	Redis: {

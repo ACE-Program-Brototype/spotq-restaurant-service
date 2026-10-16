@@ -1,11 +1,11 @@
 import { inject, injectable } from "inversify";
 import type { DeleteMenuItemInputDto } from "@/application/dtos/menu-item/delete-menu-item.dto.ts";
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IDeleteMenuItemUseCase } from "@/application/ports/use-cases/delete-menu-item.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { MenuItemNotFoundError } from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 /**

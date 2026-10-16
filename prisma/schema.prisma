@@ -416,33 +416,34 @@ model TableSection {
   sectionName  String   @map("section_name") @db.VarChar(100)
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  isDeleted    Boolean  @default(false) @map("is_deleted")
 
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   tables     Table[]
 
   @@unique([restaurantId, id])
-  @@index([restaurantId])
+  @@index([restaurantId, isDeleted])
   @@map("table_sections")
 }
 
 model Table {
   id               String      @id @default(uuid()) @db.Uuid
   restaurantId     String      @map("restaurant_id") @db.Uuid
-  sectionId        String?     @map("section_id") @db.Uuid
-  tableNumber      String      @map("table_number") @db.VarChar(50)
+  sectionId        String     @map("section_id") @db.Uuid
+  tableCode      String      @map("table_code") @db.VarChar(50)
   capacity         Int         @default(2)
   currentOccupancy Int         @default(0) @map("current_occupancy")
   tableShape       TableShape  @default(SQUARE) @map("table_shape")
   status           TableStatus @default(AVAILABLE)
   isActive         Boolean     @default(true) @map("is_active")
+  isDeleted        Boolean     @default(false) @map("is_deleted")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   restaurant Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  section    TableSection? @relation(fields: [restaurantId, sectionId], references: [restaurantId, id], onDelete: NoAction)
+  section    TableSection @relation(fields: [restaurantId, sectionId], references: [restaurantId, id], onDelete: NoAction)
 
-  @@unique([restaurantId, tableNumber])
   @@index([restaurantId, status])
   @@index([restaurantId, sectionId])
   @@map("tables")

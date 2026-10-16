@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { IStaffInvitationConfig } from "@/application/ports/config/staff-invitation-config.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IEmailQueuePort } from "@/application/ports/services/email-queue.port.ts";
 import type {
 	GeneratedInvitationToken,
@@ -17,6 +16,7 @@ import {
 	StaffAlreadyExistsError,
 	StaffInvitationAlreadyPendingError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { IStaffInvitationRepository } from "@/domain/repositories/staff-invitation.repository.interface.ts";
 

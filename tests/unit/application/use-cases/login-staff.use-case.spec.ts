@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IPasswordHasher } from "@/application/ports/services/password-hasher.port.ts";
 import type { ITokenService } from "@/application/ports/services/token-service.port.ts";
 import { LoginStaffUseCase } from "@/application/use-cases/staff/login-staff.use-case.ts";
@@ -13,6 +12,7 @@ import {
 	StaffInactiveError,
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 
 describe("LoginStaffUseCase", () => {

@@ -1,11 +1,14 @@
 import { inject, injectable } from "inversify";
 import type { DeleteAddonInputDto } from "@/application/dtos/addon/delete-addon.dto.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
-import type { IDeleteAddonUseCase } from "@/application/ports/use-cases/delete-addon.use-case.port.ts";
+import type { IDeleteAddonUseCase } from "@application/ports/use-cases/addon/delete-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import { AddonNotFoundError } from "@/domain/errors/addon.errors.ts";
-import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import {
+	RestaurantAccountBlockedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 /**
@@ -32,6 +35,10 @@ export class DeleteAddonUseCase implements IDeleteAddonUseCase {
 		);
 		if (!restaurant) {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError(messages.RESTAURANT_ACCOUNT_BLOCKED);
 		}
 
 		const addon = await this.addonRepository.findById(input.addonId);

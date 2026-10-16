@@ -1,10 +1,10 @@
 import type { IMenuItemRepository } from "@/application/ports/repositories/menu-item.repository.port.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { GetRestaurantOwnerMenuItemDetailsUseCase } from "@/application/use-cases/get-restaurant-owner-menu-item-details.use-case.ts";
 import { MenuItem } from "@/domain/entities/menu-item.entity.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { MenuItemNotFoundError } from "@/domain/errors/menu-item.errors.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 describe("GetRestaurantOwnerMenuItemDetailsUseCase", () => {
 	let restaurantRepository: jest.Mocked<IRestaurantRepository>;
