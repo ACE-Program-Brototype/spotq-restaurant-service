@@ -1,9 +1,11 @@
 import type { ICreateTableInputDTO } from "@application/dtos/table/create-table.dto";
+import type { IUpdateTableInputDto } from "@application/dtos/table/update-table.dto";
 import { UnauthorizedEntityAccessError } from "@application/errors/unauthorized-entity-access.error";
 import type { ICreateTableUseCase } from "@application/ports/use-cases/table/create-table.use-case.port";
 import type { IDeleteTableUseCase } from "@application/ports/use-cases/table/delete-table.use-case.port";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import type { IGetTableAvailabilityUseCase } from "@application/ports/use-cases/table/get-table-availability.use-case.port";
+import type { IUpdateTableUseCase } from "@application/ports/use-cases/table/update-table.use-case.port";
 import { TYPES } from "@config/di/types";
 import type { TableStatusType } from "@domain/constants/table.constants";
 import { HTTP_STATUS } from "@shared/constants/http.constants";
@@ -17,6 +19,8 @@ export class TableController {
 	constructor(
 		@inject(TYPES.UseCases.CreateTableUseCase)
 		private readonly _createTableUseCase: ICreateTableUseCase,
+		@inject(TYPES.UseCases.UpdateTableUseCase)
+		private readonly _updateTableUseCase: IUpdateTableUseCase,
 		@inject(TYPES.UseCases.GetTableUseCase)
 		private readonly _getTableUseCase: IGetTableUseCase,
 		@inject(TYPES.UseCases.GetTableAvailabilityUseCase)
@@ -50,6 +54,44 @@ export class TableController {
 			result,
 			messages.TABLE_CREATE_SUCCESS,
 			HTTP_STATUS.CREATED,
+		);
+	};
+
+	updateTable = async (req: Request, res: Response) => {
+		const userId = req.userId;
+		if (!userId) {
+			throw new UnauthorizedEntityAccessError();
+		}
+		const { tableId, restaurantId } = req.params as {
+			tableId: string;
+			restaurantId: string;
+		};
+
+		const { sectionId, tableCode, capacity, type } = req.body;
+
+		const dto: IUpdateTableInputDto = {
+			tableId,
+			restaurantId,
+			userId,
+			sectionId,
+			tableCode,
+			capacity,
+			type,
+		};
+
+		const table = await this._updateTableUseCase.execute(dto);
+
+		sendSuccessResponse(
+			res,
+			{
+				id: table.id,
+				restaurantId: table.restaurantId,
+				tableCode: table.tableCode,
+				capacity: table.capacity,
+				sectionId: table.sectionId,
+				type: table.tableShape,
+			},
+			messages.TABLE_UPDATE_SUCCESS,
 		);
 	};
 
