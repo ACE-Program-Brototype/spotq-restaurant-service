@@ -127,7 +127,6 @@ export class Table {
 			>
 		>,
 	) {
-		console.log(props, "-------------------------")
 		// valide the table code when provided
 		if (props.tableCode !== undefined) {
 			const tableCode = props.tableCode.trim();
@@ -153,7 +152,6 @@ export class Table {
 		}
 
 		if (props.tableShape !== undefined) {
-			console.log(props.tableShape)
 			if (!TABLE_SHAPE_VALUES.includes(props.tableShape)) {
 				throw new InvalidTableShapeError();
 			}
