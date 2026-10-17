@@ -42,6 +42,10 @@ export const messages = {
 		"Presigned upload URL generated successfully.",
 	PRESIGNED_GET_URL_GENERATED_SUCCESS:
 		"Presigned download URL generated successfully.",
+	S3_OBJECT_DELETED_SUCCESS: "S3 object deleted successfully",
+	S3_OBJECT_DELETE_FAILED: "Failed to delete S3 object",
+	STORAGE_KEY_FORBIDDEN:
+		"Forbidden: You are not authorized to delete this storage object",
 
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
