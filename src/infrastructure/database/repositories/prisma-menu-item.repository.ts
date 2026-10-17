@@ -1019,10 +1019,8 @@ export class PrismaMenuItemRepository
 		newDefaultVariantId?: string,
 	): Promise<UpdateMenuItemVariantStatusOutputDto> {
 		try {
-			
 			return await this.prismaClient.$transaction(
 				async (tx: Prisma.TransactionClient) => {
-
 					// build that data object based on the newDefaultVariantId
 					const data: Prisma.MenuItemVariantUpdateInput = {
 						isAvailable,

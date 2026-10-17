@@ -1,4 +1,4 @@
-export interface ListCustomerRestaurantsInputDto {
+export interface ListCustomerRestaurantsInputDTO {
 	page: number;
 	limit: number;
 	search?: string;
@@ -12,7 +12,7 @@ export interface ListCustomerRestaurantsInputDto {
 	sortOrder: "asc" | "desc";
 }
 
-export interface CustomerRestaurantItemDto {
+export interface CustomerRestaurantItemDTO {
 	id: string;
 	restaurantName: string;
 	city: string | null;
@@ -23,8 +23,8 @@ export interface CustomerRestaurantItemDto {
 	createdAt: Date;
 }
 
-export interface PaginatedCustomerRestaurantsOutputDto {
-	data: CustomerRestaurantItemDto[];
+export interface PaginatedCustomerRestaurantsOutputDTO {
+	data: CustomerRestaurantItemDTO[];
 	pagination: {
 		page: number;
 		limit: number;

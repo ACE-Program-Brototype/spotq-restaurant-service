@@ -20,8 +20,8 @@ import {
 	StaffSuspendedError,
 } from "@domain/errors/staff.errors";
 import type { IMenuItemRepository } from "@domain/repositories/menu-item.repository.interface";
-import type { IRestaurantStaffRepository } from "@domain/repositories/restaurant-staff.repository.interface";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
+import type { IRestaurantStaffRepository } from "@domain/repositories/restaurant-staff.repository.interface";
 import { messages } from "@shared/constants/message.constants";
 import { inject, injectable } from "inversify";
 
@@ -54,8 +54,7 @@ export class UpdateMenuItemVariantStatusUseCase
 			);
 		}
 
-
-		// staff authentication 
+		// staff authentication
 		if (input.userRole?.toLowerCase() === "staff") {
 			if (!input.userId) {
 				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN);

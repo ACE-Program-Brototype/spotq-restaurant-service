@@ -49,7 +49,7 @@ export const getTableQuerySchema = z
 export const getTableAvailabilityQuerySchema = z
 	.object({
 		partySize: z.coerce
-			.number({message: messages.INVALID_PARTY_SIZE})
+			.number({ message: messages.INVALID_PARTY_SIZE })
 			.int()
 			.min(1, { message: messages.INVALID_PARTY_SIZE })
 			.max(50, { message: messages.INVALID_PARTY_SIZE }),

@@ -19,7 +19,7 @@ export const createTableBodySchema = z
 			.string({ error: messages.TABLE_SECTION_ID_REQUIRED })
 			.trim()
 			.min(1, { message: messages.TABLE_SECTION_ID_REQUIRED })
-			.uuid({message : messages.INVALID_TABLE_SECTION_ID}),
+			.uuid({ message: messages.INVALID_TABLE_SECTION_ID }),
 		capacity: z
 			.number({ message: messages.TABLE_CAPACITY_REQUIRED })
 			.int()

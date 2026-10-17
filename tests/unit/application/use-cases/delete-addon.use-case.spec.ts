@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { DeleteAddonUseCase } from "@application/use-cases/addon/delete-addon.use-case";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { AddonNotFoundError } from "@/domain/errors/addon.errors.ts";

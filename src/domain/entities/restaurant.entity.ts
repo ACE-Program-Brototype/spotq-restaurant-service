@@ -1,4 +1,8 @@
 import {
+	ForbiddenAccessError,
+	RestaurantAccountBlockedError,
+} from "@domain/errors/staff.errors";
+import {
 	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
@@ -11,12 +15,8 @@ import {
 	type RestaurantStatus,
 	RestaurantStatusVO,
 } from "@/domain/value-objects/restaurant-status.vo.ts";
-import { messages } from "@/shared/constants/message.constants.ts";
-import {
-	ForbiddenAccessError,
-	RestaurantAccountBlockedError,
-} from "@domain/errors/staff.errors";
 import { SubscriptionPlanVO } from "@/domain/value-objects/subscription-plan.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface RestaurantProps {
 	id: string;

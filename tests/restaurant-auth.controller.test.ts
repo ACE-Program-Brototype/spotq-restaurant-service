@@ -612,12 +612,15 @@ describe("End-to-End Restaurant Auth Routes Integration", () => {
 	});
 
 	test("GET /verification-status returns status data", async () => {
-		const res = await fetch(`${baseUrl}${RESTAURANT_ROUTES.VERIFICATION_STATUS}`, {
-			method: "GET",
-			headers: {
-				"x-restaurant-id": "rest-e2e-100",
+		const res = await fetch(
+			`${baseUrl}${RESTAURANT_ROUTES.VERIFICATION_STATUS}`,
+			{
+				method: "GET",
+				headers: {
+					"x-restaurant-id": "rest-e2e-100",
+				},
 			},
-		});
+		);
 
 		assert.equal(res.status, 200);
 		const json = (await res.json()) as {

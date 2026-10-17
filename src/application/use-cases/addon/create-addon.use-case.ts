@@ -1,10 +1,10 @@
+import type { ICreateAddonUseCase } from "@application/ports/use-cases/addon/create-addon.use-case.port";
 import { inject, injectable } from "inversify";
 import type {
 	AddonResponseDto,
 	CreateAddonInputDto,
 } from "@/application/dtos/addon/create-addon.dto.ts";
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
-import type { ICreateAddonUseCase } from "@application/ports/use-cases/addon/create-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import { AddonAlreadyExistsError } from "@/domain/errors/addon.errors.ts";

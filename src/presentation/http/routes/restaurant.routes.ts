@@ -17,6 +17,10 @@ import {
 	validateRequestParams,
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
+import {
+	getCustomerRestaurantDetailsParamsSchema,
+	getCustomerRestaurantDetailsQuerySchema,
+} from "../validators/get-customer-restaurant-details.validator";
 import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import {
 	sendRestaurantEmailOtpSchema,
@@ -135,11 +139,7 @@ restaurantRouter.put(
 );
 
 restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.STAFF_DETAIL,
-		RESTAURANT_ROUTES.STAFF_DETAIL_FULL,
-		RESTAURANT_ROUTES.STAFF_DETAIL_PREFIX,
-	],
+	RESTAURANT_ROUTES.STAFF_DETAIL,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getStaffDetailParamsSchema),
 	restaurantStaffManagementController.getStaffDetail.bind(
@@ -156,10 +156,20 @@ restaurantRouter.delete(
 	),
 );
 
+restaurantRouter.get(
+	RESTAURANT_ROUTES.CUSTOMER_DETAILS,
+	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
+	validateRequestQuery(
+		getCustomerRestaurantDetailsQuerySchema,
+		HTTP_STATUS.BAD_REQUEST,
+	),
+	customerRestaurantController.getRestaurantDetails,
+);
+
 // menu router
 restaurantRouter.use(menuRouter);
 
 // addon router
 restaurantRouter.use(addonRouter);
 
-export { menuRouter, addonRouter };
+export { addonRouter, menuRouter };
