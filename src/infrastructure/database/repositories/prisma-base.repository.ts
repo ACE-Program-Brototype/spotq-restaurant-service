@@ -153,21 +153,18 @@ export abstract class PrismaBaseRepository<
 	}
 
 	public async create(entity: TDomain): Promise<TDomain> {
-		try {
-			const record = await this.delegate.create({
+		const record = await this.run(async () => {
+			return await this.delegate.create({
 				data: this.mapper.toPersistence(entity),
 			});
-			return this.mapper.toDomain(record);
-		} catch (error) {
-			this.translateError(error);
-			throw error;
-		}
+		});
+		return this.mapper.toDomain(record);
 	}
 
 	public async findPaginated<TWhere = unknown, TOrderBy = unknown>(
 		options: PaginationOptions<TWhere, TOrderBy>,
 	): Promise<PaginatedResult<TDomain>> {
-		try {
+		return this.run(async () => {
 			const { where, orderBy, page, limit } = options;
 			const take = Math.min(
 				Math.max(limit, 1),
@@ -185,25 +182,18 @@ export abstract class PrismaBaseRepository<
 				items: records.map((r) => this.mapper.toDomain(r)),
 				total,
 			};
-		} catch (error) {
-			this.translateError(error);
-			throw error;
-		}
+		});
 	}
 
 	public async findOne<TWhere = unknown>(
 		where: TWhere,
 	): Promise<TDomain | null> {
-		try {
-			const record = (await this.delegate.findFirst({
+		const record = await this.run(async () => {
+			return (await this.delegate.findFirst({
 				where,
 			})) as TModel | null;
-
-			return record ? this.mapper.toDomain(record) : null;
-		} catch (error) {
-			this.translateError(error);
-			throw error;
-		}
+		});
+		return record ? this.mapper.toDomain(record) : null;
 	}
 
 	public async update(
@@ -222,6 +212,15 @@ export abstract class PrismaBaseRepository<
 	public async delete(id: string): Promise<void> {
 		await this.run(async () => {
 			await this.delegate.delete({ where: { id } });
+		});
+	}
+
+	public async softDelete(id: string): Promise<void> {
+		await this.run(async () => {
+			await this.delegate.update({
+				where: { id, isDeleted: false },
+				data: { isDeleted: true },
+			});
 		});
 	}
 }
