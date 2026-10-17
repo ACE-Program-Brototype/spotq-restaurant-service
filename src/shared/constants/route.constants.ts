@@ -97,6 +97,7 @@ export const TABLE_ROUTES = {
 	CREATE_TABLE: "/:restaurantId/table",
 	UPDATE_TABLE : "/:restaurantId/table/:tableId",
 	TABLE: "/:restaurantId/table",
+	DELETE: "/:restaurantId/table/:tableId",
 	INTERNAL: {
 		AVAILABILITY: "/internal/:restaurantId/tables/availability",
 	},

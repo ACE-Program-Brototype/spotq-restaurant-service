@@ -14,6 +14,7 @@ import {
 	createTableBodySchema,
 	createTableParamsSchema,
 } from "../validators/table/create-table.validator";
+import { deleteTableParamsSchema } from "../validators/table/delete-table.validator";
 import {
 	getTableAvailabilityQuerySchema,
 	getTableParamsSchema,
@@ -61,4 +62,11 @@ tableRoutes.get(
 	validateRequestParams(getTableParamsSchema),
 	validateRequestQuery(getTableAvailabilityQuerySchema),
 	tableController.getAvailability,
+);
+
+tableRoutes.delete(
+	TABLE_ROUTES.DELETE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteTableParamsSchema),
+	tableController.deleteTable,
 );

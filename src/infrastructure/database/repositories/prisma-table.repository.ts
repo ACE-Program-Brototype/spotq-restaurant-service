@@ -52,20 +52,13 @@ export class PrismaTableRepository
 		);
 	}
 
-	async findTableById(id: string): Promise<Table | null> {
+	async findById(id: string): Promise<Table | null> {
 		return await super.findOne<Prisma.TableWhereInput>({
 			id,
 			isDeleted: false,
 		});
 	}
 
-	async createTable(table: Table): Promise<Table> {
-		return await super.create(table);
-	}
-
-	async save(table: Table): Promise<void> {
-		await super.save(table);
-	}
 
 	private static readonly SORT_COLUMNS = {
 		createdAt: "createdAt",
@@ -163,9 +156,6 @@ export class PrismaTableRepository
 		}, {});
 	}
 
-	async deleteTable(id: string): Promise<void> {
-		await this.delete(id);
-	}
 
 	async findByTableCodeAndRestaurant(
 		name: string,

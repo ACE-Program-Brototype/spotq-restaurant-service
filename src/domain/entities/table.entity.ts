@@ -119,6 +119,12 @@ export class Table {
 		});
 	}
 
+	isAvailable() {
+		return (
+			this.currentOccupancy === 0 && this.status === TABLE_STATUS.AVAILABLE
+		);
+	}
+	
 	public update(
 		props: Partial<
 			Pick<

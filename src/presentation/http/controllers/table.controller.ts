@@ -2,6 +2,7 @@ import type { ICreateTableInputDTO } from "@application/dtos/table/create-table.
 import type { IUpdateTableInputDto } from "@application/dtos/table/update-table.dto";
 import { UnauthorizedEntityAccessError } from "@application/errors/unauthorized-entity-access.error";
 import type { ICreateTableUseCase } from "@application/ports/use-cases/table/create-table.use-case.port";
+import type { IDeleteTableUseCase } from "@application/ports/use-cases/table/delete-table.use-case.port";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import type { IGetTableAvailabilityUseCase } from "@application/ports/use-cases/table/get-table-availability.use-case.port";
 import type { IUpdateTableUseCase } from "@application/ports/use-cases/table/update-table.use-case.port";
@@ -17,13 +18,15 @@ import { inject, injectable } from "inversify";
 export class TableController {
 	constructor(
 		@inject(TYPES.UseCases.CreateTableUseCase)
-		private readonly _createTable: ICreateTableUseCase,
+		private readonly _createTableUseCase: ICreateTableUseCase,
 		@inject(TYPES.UseCases.UpdateTableUseCase)
-		private readonly _updateTable: IUpdateTableUseCase,
+		private readonly _updateTableUseCase: IUpdateTableUseCase,
 		@inject(TYPES.UseCases.GetTableUseCase)
-		private readonly _getTable: IGetTableUseCase,
+		private readonly _getTableUseCase: IGetTableUseCase,
 		@inject(TYPES.UseCases.GetTableAvailabilityUseCase)
-		private readonly _getTableAvailability: IGetTableAvailabilityUseCase,
+		private readonly _getTableAvailabilityUseCase: IGetTableAvailabilityUseCase,
+		@inject(TYPES.UseCases.DeleteTableUseCase)
+		private readonly _deleteTableUseCase: IDeleteTableUseCase,
 	) {}
 
 	createTable = async (req: Request, res: Response) => {
@@ -37,7 +40,7 @@ export class TableController {
 			req.body as ICreateTableInputDTO;
 		const { restaurantId } = req.params as { restaurantId: string };
 
-		const result = await this._createTable.execute({
+		const result = await this._createTableUseCase.execute({
 			restaurantId,
 			tableCode,
 			tableType,
@@ -46,7 +49,7 @@ export class TableController {
 			userId,
 		});
 
-		sendSuccessResponse(
+		return sendSuccessResponse(
 			res,
 			result,
 			messages.TABLE_CREATE_SUCCESS,
@@ -76,7 +79,7 @@ export class TableController {
 			type,
 		};
 
-		const table = await this._updateTable.execute(dto);
+		const table = await this._updateTableUseCase.execute(dto);
 
 		sendSuccessResponse(
 			res,
@@ -102,26 +105,26 @@ export class TableController {
 		const { restaurantId } = req.params as { restaurantId: string };
 
 		const { page, limit, sectionId, status, minCapacity } = req.query as {
-			page?: number;
-			limit?: number;
+			page?: string;
+			limit?: string;
 			sectionId?: string;
 			status?: TableStatusType;
-			minCapacity?: number;
+			minCapacity?: string;
 		};
 
-		const result = await this._getTable.execute({
+		const result = await this._getTableUseCase.execute({
 			restaurantId,
 			userId,
 			page: page ? Number(page) : 1,
 			limit: limit ? Number(limit) : 10,
-			...(typeof sectionId === "string" && { sectionId }),
-			...(typeof status === "string" && { status }),
-			...(typeof minCapacity === "string" && {
+			...(sectionId && { sectionId }),
+			...(status && { status }),
+			...(minCapacity !== undefined && {
 				minCapacity: Number(minCapacity),
 			}),
 		});
 
-		sendSuccessResponse(
+		return sendSuccessResponse(
 			res,
 			result,
 			messages.TABLE_FETCH_SUCCESS,
@@ -132,14 +135,39 @@ export class TableController {
 	getAvailability = async (req: Request, res: Response) => {
 		const { restaurantId } = req.params as { restaurantId: string };
 		const partySize = Number(req.query.partySize);
-		const result = await this._getTableAvailability.execute({
+		const result = await this._getTableAvailabilityUseCase.execute({
 			restaurantId,
 			partySize,
 		});
-		sendSuccessResponse(
+		return sendSuccessResponse(
 			res,
 			result,
 			"Table availability checked",
+			HTTP_STATUS.OK,
+		);
+	};
+
+	deleteTable = async (req: Request, res: Response) => {
+		const userId = req.userId;
+		if (!userId) {
+			throw new UnauthorizedEntityAccessError();
+		}
+
+		const { restaurantId, tableId } = req.params as {
+			restaurantId: string;
+			tableId: string;
+		};
+
+		const response = await this._deleteTableUseCase.execute({
+			restaurantId,
+			tableId,
+			userId,
+		});
+
+		return sendSuccessResponse(
+			res,
+			response,
+			messages.TABLE_DELETE_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};
