@@ -42,3 +42,10 @@ export const TOKEN_TYPES = {
 } as const;
 
 export type TokenType = (typeof TOKEN_TYPES)[keyof typeof TOKEN_TYPES];
+export const S2S_SERVICES = {
+	QUEUE_SERVICE: "queue-service",
+	ORDER_SERVICE: "order-service",
+	RESTAURANT_SERVICE: "restaurant-service",
+} as const;
+
+export type S2SService = (typeof S2S_SERVICES)[keyof typeof S2S_SERVICES];
