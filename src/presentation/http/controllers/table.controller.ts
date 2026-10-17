@@ -3,6 +3,7 @@ import { UnauthorizedEntityAccessError } from "@application/errors/unauthorized-
 import type { ICreateTableUseCase } from "@application/ports/use-cases/table/create-table.use-case.port";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import type { IGetTableAvailabilityUseCase } from "@application/ports/use-cases/table/get-table-availability.use-case.port";
+import type { IUpdateTableStatusUseCase } from "@application/ports/use-cases/table/update-table-status.use-case.port";
 import { TYPES } from "@config/di/types";
 import type { TableStatusType } from "@domain/constants/table.constants";
 import { HTTP_STATUS } from "@shared/constants/http.constants";
@@ -10,6 +11,10 @@ import { messages } from "@shared/constants/message.constants";
 import { sendSuccessResponse } from "@shared/response/api-response";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import type {
+	UpdateTableStatusBody,
+	UpdateTableStatusParams,
+} from "../validators/table/update-table-status.validator";
 
 @injectable()
 export class TableController {
@@ -20,6 +25,8 @@ export class TableController {
 		private readonly _getTable: IGetTableUseCase,
 		@inject(TYPES.UseCases.GetTableAvailabilityUseCase)
 		private readonly _getTableAvailability: IGetTableAvailabilityUseCase,
+		@inject(TYPES.UseCases.UpdateTableStatusUseCase)
+		private readonly _updateTableStatusUseCase: IUpdateTableStatusUseCase,
 	) {}
 
 	createTable = async (req: Request, res: Response) => {
@@ -98,6 +105,31 @@ export class TableController {
 			res,
 			result,
 			"Table availability checked",
+			HTTP_STATUS.OK,
+		);
+	};
+
+	updateTableStatus = async (req: Request, res: Response) => {
+		const userId = req.userId;
+
+		if (!userId) {
+			throw new UnauthorizedEntityAccessError();
+		}
+
+		const { status } = req.body as UpdateTableStatusBody;
+		const { restaurantId, tableId } = req.params as UpdateTableStatusParams;
+
+		const result = await this._updateTableStatusUseCase.execute({
+			status,
+			userId,
+			tableId,
+			restaurantId,
+		});
+
+		return sendSuccessResponse(
+			res,
+			result,
+			messages.TABLE_STATUS_UPDATE_SUCCESS,
 			HTTP_STATUS.OK,
 		);
 	};
