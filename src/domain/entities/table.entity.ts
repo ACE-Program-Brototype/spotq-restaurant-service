@@ -9,6 +9,7 @@ import {
 	InvalidTableCapacityError,
 	InvalidTableCodeError,
 	InvalidTableShapeError,
+	TableInvalidStatusError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 
@@ -116,6 +117,35 @@ export class Table {
 			status: props.status,
 			isDeleted: props.isDeleted,
 		});
+	}
+
+	private static STATUS_TRANSITITON: Record<
+		TableStatusType,
+		TableStatusType[]
+	> = {
+		[TABLE_STATUS.AVAILABLE]: [
+			TABLE_STATUS.MAINTENANCE,
+			TABLE_STATUS.OCCUPIED,
+			TABLE_STATUS.PARTIAL_OCCUPIED,
+		],
+		[TABLE_STATUS.MAINTENANCE]: [TABLE_STATUS.AVAILABLE],
+		[TABLE_STATUS.OCCUPIED]: [
+			TABLE_STATUS.PARTIAL_OCCUPIED,
+			TABLE_STATUS.AVAILABLE,
+		],
+		[TABLE_STATUS.PARTIAL_OCCUPIED]: [
+			TABLE_STATUS.OCCUPIED,
+			TABLE_STATUS.AVAILABLE,
+		],
+	};
+
+	transitionTo(status: TableStatusType) {
+		if (!Table.STATUS_TRANSITITON[this.status].includes(status)) {
+			throw new TableInvalidStatusError();
+		}
+
+		this.props.status = status;
+		this.props.updatedAt = new Date();
 	}
 
 	get id() {
