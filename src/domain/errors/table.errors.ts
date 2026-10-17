@@ -65,3 +65,11 @@ export class TableAlreadyOccupiedError extends DomainError {
 		super(message);
 	}
 }
+
+export class TableInvalidStatusError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.INVALID_TABLE_STATUS;
+
+	constructor(message: string = messages.INVALID_TABLE_STATUS) {
+		super(message);
+	}
+}
