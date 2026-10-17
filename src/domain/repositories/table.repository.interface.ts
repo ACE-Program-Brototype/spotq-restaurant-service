@@ -4,16 +4,27 @@ import type { IBaseRepository } from "./base.repository.interface";
 export interface TableFilterParams {
 	page: number;
 	limit: number;
-	search?: string;
+	minCapacity?: number;
 	restaurantId?: string;
 	sectionId?: string;
+	status?: Table['status'],
 	createdFrom?: Date;
 	createdTo?: Date;
 	sortBy: "createdAt" | "tableCode";
 	sortOrder: "asc" | "desc";
 }
 
-export type StaffTablesBySection = Record<string, string[]>;
+export interface TableWithSection {
+	table: Table;
+	sectionName: string;
+}
+
+export interface TableAvailabilityData {
+	restaurantId: string;
+	availableTableCapacities: number[];
+}
+
+export type StaffTablesBySection = Record<string, Table[]>;
 
 export interface ITableRepository extends IBaseRepository<Table> {
 	/**
@@ -70,4 +81,10 @@ export interface ITableRepository extends IBaseRepository<Table> {
 		code: string,
 		restaurantId: string,
 	): Promise<Table | null>;
+
+	findManyWithSection(
+		filter: TableFilterParams,
+	): Promise<{ tables: TableWithSection[]; total: number }>;
+
+	getAvailability(restaurantId: string): Promise<TableAvailabilityData>;
 }

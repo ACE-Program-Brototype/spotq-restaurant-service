@@ -9,7 +9,7 @@
 		"test:coverage": "jest --coverage --forceExit",
 		"test:load": "k6 run test/load-test.js",
 		"dev": "tsx watch src/server.ts",
-		"dev:watch" : "tsx watch --poll src/server.ts",
+		"dev:watch": "tsx watch --poll src/server.ts",
 		"dev:infisical": "infisical run --env=dev -- pnpm dev",
 		"build": "tsup",
 		"start": "node dist/server.js",
