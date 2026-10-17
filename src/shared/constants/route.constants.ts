@@ -95,6 +95,7 @@ export const TABLE_SECTION_ROUTES = {
 export const TABLE_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE: "/:restaurantId/table",
+	UPDATE_TABLE : "/:restaurantId/table/:tableId",
 	TABLE: "/:restaurantId/table",
 	INTERNAL: {
 		AVAILABILITY: "/internal/:restaurantId/tables/availability",
