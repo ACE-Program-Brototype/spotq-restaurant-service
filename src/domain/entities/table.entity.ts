@@ -10,6 +10,8 @@ import {
 	InvalidTableCodeError,
 	InvalidTableShapeError,
 	TableAlreadyOccupiedError,
+	TableCapacityExceededError,
+	TableNotAvailableError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 
@@ -180,11 +182,17 @@ export class Table {
 		if (!Number.isInteger(count) || count < 1) {
 			throw new InvalidTableCapacityError();
 		}
+		if (
+			this.status !== TABLE_STATUS.AVAILABLE &&
+			this.status !== TABLE_STATUS.PARTIAL_OCCUPIED
+		) {
+			throw new TableNotAvailableError();
+		}
 
 		const newOccupancy = this.props.currentOccupancy + count;
 
 		if (newOccupancy > this.props.capacity) {
-			throw new InvalidTableCapacityError();
+			throw new TableCapacityExceededError();
 		}
 
 		this.props.currentOccupancy = newOccupancy;
