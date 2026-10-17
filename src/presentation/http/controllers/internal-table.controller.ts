@@ -17,7 +17,6 @@ export class InternalTableController {
 		const { restaurantId } = req.params as { restaurantId: string };
 
 		const { tables } = req.body;
-		console.log(restaurantId, '------------------------')
 		await this._assignTableUseCase.execute({
 			restaurantId,
 			tables,

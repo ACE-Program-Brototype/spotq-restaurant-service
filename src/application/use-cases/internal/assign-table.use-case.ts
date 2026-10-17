@@ -19,7 +19,6 @@ export class AssignTableUseCase implements IAssignTableUseCase {
 		private readonly _restaurantRepository: IRestaurantRepository,
 	) {}
 	async execute(input: IAssignTableInputDTO): Promise<void> {
-		console.log(input)
 		const restaurant = await this._restaurantRepository.findById(
 			input.restaurantId,
 		);
