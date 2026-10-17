@@ -1,10 +1,10 @@
-export interface CustomerRestaurantDetailsInputDto {
+export interface CustomerRestaurantDetailsInputDTO {
 	restaurantId: string;
 	includeMenu?: boolean;
 	categoryId?: string;
 }
 
-export interface CustomerRestaurantAddressDto {
+export interface CustomerRestaurantAddressDTO {
 	id: string;
 	addressLine1: string;
 	addressLine2: string | null;
@@ -16,14 +16,14 @@ export interface CustomerRestaurantAddressDto {
 	longitude: number;
 }
 
-export interface CustomerRestaurantSettingsDto {
+export interface CustomerRestaurantSettingsDTO {
 	isOpened: boolean;
 	isPreorder: boolean;
 	acceptsQueue: boolean;
 	acceptsQrOrders: boolean;
 }
 
-export interface CustomerRestaurantOperatingHourDto {
+export interface CustomerRestaurantOperatingHourDTO {
 	id: string;
 	dayOfWeek: number;
 	isOpen: boolean;
@@ -32,13 +32,13 @@ export interface CustomerRestaurantOperatingHourDto {
 	closeTime: string | null;
 }
 
-export interface CustomerRestaurantImageDto {
+export interface CustomerRestaurantImageDTO {
 	id: string;
 	objectKey: string;
 	displayOrder: number;
 }
 
-export interface CustomerRestaurantVariantDto {
+export interface CustomerRestaurantVariantDTO {
 	id: string;
 	sku: string | null;
 	name: string;
@@ -47,7 +47,7 @@ export interface CustomerRestaurantVariantDto {
 	isAvailable: boolean;
 }
 
-export interface CustomerRestaurantAddonDto {
+export interface CustomerRestaurantAddonDTO {
 	id: string;
 	addonId: string;
 	name: string;
@@ -58,13 +58,13 @@ export interface CustomerRestaurantAddonDto {
 	isAvailable: boolean;
 }
 
-export interface CustomerRestaurantMenuItemImageDto {
+export interface CustomerRestaurantMenuItemImageDTO {
 	id: string;
 	objectKey: string;
 	displayOrder: number;
 }
 
-export interface CustomerRestaurantMenuItemDto {
+export interface CustomerRestaurantMenuItemDTO {
 	id: string;
 	name: string;
 	description: string | null;
@@ -74,20 +74,20 @@ export interface CustomerRestaurantMenuItemDto {
 	isVegetarian: boolean;
 	isFeatured: boolean;
 	isAvailable: boolean;
-	images: CustomerRestaurantMenuItemImageDto[];
-	variants: CustomerRestaurantVariantDto[];
-	addons: CustomerRestaurantAddonDto[];
+	images: CustomerRestaurantMenuItemImageDTO[];
+	variants: CustomerRestaurantVariantDTO[];
+	addons: CustomerRestaurantAddonDTO[];
 }
 
-export interface CustomerRestaurantMenuCategoryDto {
+export interface CustomerRestaurantMenuCategoryDTO {
 	id: string;
 	name: string;
 	description: string | null;
 	displayOrder: number;
-	items: CustomerRestaurantMenuItemDto[];
+	items: CustomerRestaurantMenuItemDTO[];
 }
 
-export interface CustomerRestaurantDetailsOutputDto {
+export interface CustomerRestaurantDetailsOutputDTO {
 	id: string;
 	restaurantName: string;
 	phone: string;
@@ -96,9 +96,9 @@ export interface CustomerRestaurantDetailsOutputDto {
 	cuisineType: string | null;
 	averageCost: number | null;
 	coverImage: string | null;
-	address: CustomerRestaurantAddressDto | null;
-	settings: CustomerRestaurantSettingsDto | null;
-	operatingHours: CustomerRestaurantOperatingHourDto[];
-	images: CustomerRestaurantImageDto[];
-	menu: CustomerRestaurantMenuCategoryDto[];
+	address: CustomerRestaurantAddressDTO | null;
+	settings: CustomerRestaurantSettingsDTO | null;
+	operatingHours: CustomerRestaurantOperatingHourDTO[];
+	images: CustomerRestaurantImageDTO[];
+	menu: CustomerRestaurantMenuCategoryDTO[];
 }

@@ -97,13 +97,7 @@ restaurantRouter.patch(
 );
 
 restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.CUSTOMER_LIST,
-		"/api/v1/restaurants/customers",
-		"/restaurants/customers",
-		"/api/v1/restaurants",
-		"/restaurants",
-	],
+	RESTAURANT_ROUTES.CUSTOMER_LIST,
 	validateRequestQuery(
 		listCustomerRestaurantsQuerySchema,
 		HTTP_STATUS.BAD_REQUEST,
@@ -145,11 +139,7 @@ restaurantRouter.put(
 );
 
 restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.STAFF_DETAIL,
-		RESTAURANT_ROUTES.STAFF_DETAIL_FULL,
-		RESTAURANT_ROUTES.STAFF_DETAIL_PREFIX,
-	],
+	RESTAURANT_ROUTES.STAFF_DETAIL,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getStaffDetailParamsSchema),
 	restaurantStaffManagementController.getStaffDetail.bind(
@@ -167,11 +157,7 @@ restaurantRouter.delete(
 );
 
 restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.CUSTOMER_DETAILS,
-		RESTAURANT_ROUTES.CUSTOMER_DETAILS_FULL,
-		RESTAURANT_ROUTES.CUSTOMER_DETAILS_PREFIX,
-	],
+	RESTAURANT_ROUTES.CUSTOMER_DETAILS,
 	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
 	validateRequestQuery(
 		getCustomerRestaurantDetailsQuerySchema,

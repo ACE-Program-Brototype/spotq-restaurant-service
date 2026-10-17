@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import type {
-	CustomerRestaurantDetailsInputDto,
-	CustomerRestaurantDetailsOutputDto,
+	CustomerRestaurantDetailsInputDTO,
+	CustomerRestaurantDetailsOutputDTO,
 } from "@/application/dtos/restaurant/customer-restaurant-details.dto.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
@@ -19,8 +19,8 @@ export class GetCustomerRestaurantDetailsUseCase {
 	) {}
 
 	public async execute(
-		dto: CustomerRestaurantDetailsInputDto,
-	): Promise<CustomerRestaurantDetailsOutputDto> {
+		dto: CustomerRestaurantDetailsInputDTO,
+	): Promise<CustomerRestaurantDetailsOutputDTO> {
 		const includeMenu = dto.includeMenu ?? true;
 
 		const record =
