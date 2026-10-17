@@ -172,10 +172,7 @@ restaurantRouter.get(
 		RESTAURANT_ROUTES.CUSTOMER_DETAILS_FULL,
 		RESTAURANT_ROUTES.CUSTOMER_DETAILS_PREFIX,
 	],
-	validateRequestParams(
-		getCustomerRestaurantDetailsParamsSchema,
-		HTTP_STATUS.BAD_REQUEST,
-	),
+	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
 	validateRequestQuery(
 		getCustomerRestaurantDetailsQuerySchema,
 		HTTP_STATUS.BAD_REQUEST,
