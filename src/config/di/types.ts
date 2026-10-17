@@ -143,7 +143,8 @@ export const TYPES = {
 		UpdateTableUseCase: Symbol.for("UpdateTableUseCase"),
 		GetTableUseCase: Symbol.for("GetTableUseCase"),
 		GetTableAvailabilityUseCase: Symbol.for("GetTableAvailabilityUseCase"),
-		DeleteTableUseCase: Symbol.for('DeleteTableUseCase'),
+		DeleteTableUseCase: Symbol.for("DeleteTableUseCase"),
+		AssignTableUseCase: Symbol.for("AssignTableUseCase"),
 
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",
@@ -165,6 +166,7 @@ export const TYPES = {
 		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
 		TableController: Symbol.for("TableController"),
 		InternalRestaurantController: Symbol.for("InternalRestaurantController"),
+		InternalTableController: Symbol.for("InternalTableController"),
 	},
 
 	Database: {
