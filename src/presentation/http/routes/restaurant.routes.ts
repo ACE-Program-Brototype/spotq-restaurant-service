@@ -97,7 +97,13 @@ restaurantRouter.patch(
 );
 
 restaurantRouter.get(
-	RESTAURANT_ROUTES.CUSTOMER_LIST,
+	[
+		RESTAURANT_ROUTES.CUSTOMER_LIST,
+		"/api/v1/restaurants/customers",
+		"/restaurants/customers",
+		"/api/v1/restaurants",
+		"/restaurants",
+	],
 	validateRequestQuery(
 		listCustomerRestaurantsQuerySchema,
 		HTTP_STATUS.BAD_REQUEST,

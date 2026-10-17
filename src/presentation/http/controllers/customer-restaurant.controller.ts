@@ -59,6 +59,8 @@ export class CustomerRestaurantController {
 		const restaurantId =
 			params?.restaurantId || String(req.params.restaurantId ?? req.params.id);
 
+
+
 		const result = await this.getCustomerRestaurantDetailsUseCase.execute({
 			restaurantId,
 			includeMenu: query?.includeMenu,
