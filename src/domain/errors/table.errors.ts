@@ -73,3 +73,11 @@ export class TableInvalidStatusError extends DomainError {
 		super(message);
 	}
 }
+
+export class TableInvalidTransitionError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.TABLE_INVALID_TRANSITION;
+
+	constructor(message: string = messages.TABLE_INVALID_TRANSITION){
+		super(message)
+	}
+}

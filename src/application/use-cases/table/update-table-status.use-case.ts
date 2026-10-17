@@ -4,6 +4,7 @@ import type {
 } from "@application/dtos/table/update-table-status.dto";
 import type { IUpdateTableStatusUseCase } from "@application/ports/use-cases/table/update-table-status.use-case.port";
 import { TYPES } from "@config/di/types";
+import type { Restaurant } from "@domain/entities/restaurant.entity";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
 import {
 	StaffInactiveError,
@@ -22,7 +23,7 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 		private readonly _tableRepository: ITableRepository,
 		@inject(TYPES.Repositories.RestaurantRepository)
 		private readonly _restaurantRepository: IRestaurantRepository,
-		@inject(TYPES.StaffRepository)
+		@inject(TYPES.RestaurantStaffRepository)
 		private readonly _staffRepository: IRestaurantStaffRepository,
 	) {}
 
@@ -37,20 +38,11 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
-		// Ensure staff exists
-		const staff = await this._staffRepository.findByIdAndRestaurantId(
+		await this._ensureAdminOrActiveStaff(
+			restaurant,
 			input.userId,
 			input.restaurantId,
 		);
-
-		// Ensure staff belongs to the restaurant
-		if (!staff) {
-			throw new StaffNotFoundError();
-		}
-
-		if (!staff.isActive()) {
-			throw new StaffInactiveError();
-		}
 
 		// Ensure table exists
 		const table = await this._tableRepository.findById(input.tableId);
@@ -59,7 +51,7 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 		}
 
 		// Ensure table belongs to the restaurant
-		if (table?.restaurantId !== restaurant.id) {
+		if (table.restaurantId !== restaurant.id) {
 			throw new TableNotFoundError();
 		}
 
@@ -73,5 +65,31 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 			status: table.status,
 			updatedAt: table.updatedAt.toISOString(),
 		};
+	}
+
+	private async _ensureAdminOrActiveStaff(
+		restaurant: Restaurant,
+		userId: string,
+		restaurantId: string,
+	): Promise<void> {
+		if (restaurant.isAdmin(userId)) {
+			restaurant.ensureAdminAccess(userId);
+			return;
+		}
+
+		// Ensure staff exists
+		const staff = await this._staffRepository.findByIdAndRestaurantId(
+			userId,
+			restaurantId,
+		);
+
+		// Ensure staff belongs to the restaurant
+		if (!staff) {
+			throw new StaffNotFoundError();
+		}
+
+		if (!staff.isActive()) {
+			throw new StaffInactiveError();
+		}
 	}
 }

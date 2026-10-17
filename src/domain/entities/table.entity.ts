@@ -10,6 +10,7 @@ import {
 	InvalidTableCodeError,
 	InvalidTableShapeError,
 	TableInvalidStatusError,
+	TableInvalidTransitionError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 
@@ -129,19 +130,13 @@ export class Table {
 			TABLE_STATUS.PARTIAL_OCCUPIED,
 		],
 		[TABLE_STATUS.MAINTENANCE]: [TABLE_STATUS.AVAILABLE],
-		[TABLE_STATUS.OCCUPIED]: [
-			TABLE_STATUS.PARTIAL_OCCUPIED,
-			TABLE_STATUS.AVAILABLE,
-		],
-		[TABLE_STATUS.PARTIAL_OCCUPIED]: [
-			TABLE_STATUS.OCCUPIED,
-			TABLE_STATUS.AVAILABLE,
-		],
+		[TABLE_STATUS.OCCUPIED]: [],
+		[TABLE_STATUS.PARTIAL_OCCUPIED]: [],
 	};
 
 	transitionTo(status: TableStatusType) {
 		if (!Table.STATUS_TRANSITITON[this.status].includes(status)) {
-			throw new TableInvalidStatusError();
+			throw new TableInvalidTransitionError();
 		}
 
 		this.props.status = status;
