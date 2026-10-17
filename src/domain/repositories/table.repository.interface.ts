@@ -37,7 +37,7 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	 * Find Table by Id. If not return null
 	 * @param id string
 	 */
-	findTableById(id: string): Promise<Table | null>;
+	findById(id: string): Promise<Table | null>;
 
 	/**
 	 * Save Table to Db

@@ -385,9 +385,11 @@ export const messages = {
 	TABLE_CODE_REQUIRED: "Table code required",
 	TABLE_FETCH_SUCCESS: "Table Fetched Successfully",
 	INVALID_TABLE_STATUS: "Invalid Table Status",
-
-
-	INVALID_PARTY_SIZE: "Invalid Party Size"
+	TABLE_ID_REQUIRED: "Table Id Required",
+	TABLE_STATUS_UPDATE_SUCCESS: "Table Status update success",
+	TABLE_INVALID_TRANSITION: "Table invalid transition",
+	
+	INVALID_PARTY_SIZE: "Invalid Party Size",
 } as const;
 
 export type MessageKey = keyof typeof messages;

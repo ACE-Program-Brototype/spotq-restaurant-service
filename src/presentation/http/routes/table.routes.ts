@@ -19,6 +19,10 @@ import {
 	getTableParamsSchema,
 	getTableQuerySchema,
 } from "../validators/table/get-table.validator";
+import {
+	updateTableStatusBodySchema,
+	updateTableStatusParamsSchema,
+} from "../validators/table/update-table-status.validator";
 
 export const tableRoutes = Router();
 
@@ -49,4 +53,12 @@ tableRoutes.get(
 	validateRequestParams(getTableParamsSchema),
 	validateRequestQuery(getTableAvailabilityQuerySchema),
 	tableController.getAvailability,
+);
+
+tableRoutes.patch(
+	TABLE_ROUTES.UPDATE_STATUS,
+	restaurantOrStaffAuthMiddleware,
+	validateRequestParams(updateTableStatusParamsSchema),
+	validateRequestBody(updateTableStatusBodySchema),
+	tableController.updateTableStatus,
 );

@@ -99,6 +99,7 @@ export const TABLE_ROUTES = {
 	INTERNAL: {
 		AVAILABILITY: "/internal/:restaurantId/tables/availability",
 	},
+	UPDATE_STATUS: "/:restaurantId/table/:tableId/status",
 };
 
 export const INTERNAL_ROUTES = {
