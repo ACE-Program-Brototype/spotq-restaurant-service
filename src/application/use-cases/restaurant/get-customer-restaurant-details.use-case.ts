@@ -5,7 +5,10 @@ import type {
 } from "@/application/dtos/restaurant/customer-restaurant-details.dto.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
+import type {
+	CustomerRestaurantDetailsRecord,
+	IRestaurantRepository,
+} from "@/domain/repositories/restaurant.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -31,14 +34,7 @@ export class GetCustomerRestaurantDetailsUseCase {
 			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
 		}
 
-		if (
-			record.status !== "ACTIVE" ||
-			record.isBlocked ||
-			!record.isSubscriptionActive ||
-			record.onboardingStatus !== "COMPLETED"
-		) {
-			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
-		}
+		this.ensureRestaurantIsEligible(record);
 
 		const menu = includeMenu
 			? record.menuCategories.map((cat) => ({
@@ -140,5 +136,18 @@ export class GetCustomerRestaurantDetailsUseCase {
 			})),
 			menu,
 		};
+	}
+
+	private ensureRestaurantIsEligible(
+		record: CustomerRestaurantDetailsRecord,
+	): void {
+		if (
+			record.status !== "ACTIVE" ||
+			record.isBlocked ||
+			!record.isSubscriptionActive ||
+			record.onboardingStatus !== "COMPLETED"
+		) {
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
 	}
 }
