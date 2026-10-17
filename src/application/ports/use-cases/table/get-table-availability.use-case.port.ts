@@ -1,8 +1,5 @@
 export interface IGetTableAvailabilityUseCase {
-	execute(input: {
-		restaurantId: string;
-		partySize: number;
-	}): Promise<{
+	execute(input: { restaurantId: string; partySize: number }): Promise<{
 		restaurantId: string;
 		isOpen: boolean;
 		acceptsQueue: boolean;

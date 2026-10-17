@@ -61,6 +61,8 @@ const config: Config = {
 	transformIgnorePatterns: ["node_modules/(?!.*(inversify|@inversifyjs|jose))"],
 	testMatch: ["<rootDir>/tests/**/*.spec.ts", "<rootDir>/tests/**/*.test.ts"],
 	setupFiles: ["<rootDir>/tests/setup.ts"],
+	maxWorkers: "50%",
+	workerIdleMemoryLimit: "512MB",
 };
 
 export default config;

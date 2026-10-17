@@ -1,13 +1,13 @@
 import { Prisma } from "@prisma/client";
 import { injectable } from "inversify";
 import { DomainError } from "@/domain/errors/domain.error.ts";
-import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
-import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import type {
 	IBaseRepository,
 	PaginatedResult,
 	PaginationOptions,
 } from "@/domain/repositories/base.repository.interface.ts";
+import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
+import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 
 export interface IEntityMapper<TDomain, TModel> {
 	toDomain(raw: TModel): TDomain;

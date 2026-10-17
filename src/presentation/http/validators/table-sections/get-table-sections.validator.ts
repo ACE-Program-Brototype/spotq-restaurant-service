@@ -33,10 +33,6 @@ export const getTableSectionQuerySchema = z
 	})
 	.strict();
 
-export type GetTableSectionParams = z.infer<
-	typeof getTableSectionParamsSchema
->;
+export type GetTableSectionParams = z.infer<typeof getTableSectionParamsSchema>;
 
-export type GetTableSectionQuery = z.infer<
-	typeof getTableSectionQuerySchema
->;
+export type GetTableSectionQuery = z.infer<typeof getTableSectionQuerySchema>;

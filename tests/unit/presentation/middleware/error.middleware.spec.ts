@@ -99,7 +99,9 @@ describe("error.middleware", () => {
 			"Database operation failed",
 			originalDbError,
 		);
-		const loggerSpy = jest.spyOn(logger, "error").mockImplementation(() => logger);
+		const loggerSpy = jest
+			.spyOn(logger, "error")
+			.mockImplementation(() => logger);
 
 		errorHandler(
 			persistenceError,

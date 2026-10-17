@@ -1,4 +1,3 @@
-import { ContainerModule } from "inversify";
 import type { ICreateAddonUseCase } from "@application/ports/use-cases/addon/create-addon.use-case.port";
 import type { IDeleteAddonUseCase } from "@application/ports/use-cases/addon/delete-addon.use-case.port";
 import type { IListRestaurantAddonsUseCase } from "@application/ports/use-cases/addon/list-restaurant-addons.use-case.port";
@@ -7,6 +6,7 @@ import { CreateAddonUseCase } from "@application/use-cases/addon/create-addon.us
 import { DeleteAddonUseCase } from "@application/use-cases/addon/delete-addon.use-case";
 import { ListRestaurantAddonsUseCase } from "@application/use-cases/addon/list-restaurant-addons.use-case";
 import { UpdateAddonUseCase } from "@application/use-cases/addon/update-addon.use-case";
+import { ContainerModule } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
 import { PrismaAddonRepository } from "@/infrastructure/database/repositories/prisma-addon.repository.ts";

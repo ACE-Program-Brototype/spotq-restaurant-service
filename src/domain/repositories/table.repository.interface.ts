@@ -7,7 +7,7 @@ export interface TableFilterParams {
 	minCapacity?: number;
 	restaurantId?: string;
 	sectionId?: string;
-	status?: Table['status'],
+	status?: Table["status"];
 	createdFrom?: Date;
 	createdTo?: Date;
 	sortBy: "createdAt" | "tableCode";

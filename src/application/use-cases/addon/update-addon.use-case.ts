@@ -1,10 +1,8 @@
+import type { IUpdateAddonUseCase } from "@application/ports/use-cases/addon/update-addon.use-case.port";
 import { inject, injectable } from "inversify";
 import type { AddonResponseDto } from "@/application/dtos/addon/create-addon.dto.ts";
 import type { UpdateAddonInputDto } from "@/application/dtos/addon/update-addon.dto.ts";
 import { AddonMapper } from "@/application/mappers/addon.mapper.ts";
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
-import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
-import type { IUpdateAddonUseCase } from "@application/ports/use-cases/addon/update-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import {
 	AddonAlreadyExistsError,
@@ -21,6 +19,8 @@ import {
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
+import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()

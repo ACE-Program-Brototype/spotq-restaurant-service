@@ -56,7 +56,8 @@ export class RestaurantRepository
 		PrismaRestaurant,
 		PrismaClient["restaurant"]
 	>
-	implements IRestaurantRepository {
+	implements IRestaurantRepository
+{
 	constructor(
 		@inject(TYPES.Database.PrismaClient)
 		private readonly prisma: PrismaClient,
@@ -91,9 +92,9 @@ export class RestaurantRepository
 		).then((record) =>
 			record
 				? {
-					isOpened: record.settings?.isOpened ?? false,
-					acceptsQueue: record.settings?.acceptsQueue ?? false,
-				}
+						isOpened: record.settings?.isOpened ?? false,
+						acceptsQueue: record.settings?.acceptsQueue ?? false,
+					}
 				: null,
 		);
 	}
@@ -232,39 +233,39 @@ export class RestaurantRepository
 				updatedAt: raw.updatedAt,
 				address: raw.address
 					? {
-						id: raw.address.id,
-						addressLine1: raw.address.addressLine1,
-						addressLine2: raw.address.addressLine2,
-						city: raw.address.city,
-						state: raw.address.state,
-						country: raw.address.country,
-						pincode: raw.address.pincode,
-						latitude: Number(raw.address.latitude),
-						longitude: Number(raw.address.longitude),
-					}
+							id: raw.address.id,
+							addressLine1: raw.address.addressLine1,
+							addressLine2: raw.address.addressLine2,
+							city: raw.address.city,
+							state: raw.address.state,
+							country: raw.address.country,
+							pincode: raw.address.pincode,
+							latitude: Number(raw.address.latitude),
+							longitude: Number(raw.address.longitude),
+						}
 					: null,
 				settings: raw.settings
 					? {
-						isOpened: raw.settings.isOpened,
-						isPreorder: raw.settings.isPreorder,
-						isLoyaltyEnabled: raw.settings.isLoyaltyEnabled,
-						cuisineType: raw.settings.cuisineType,
-						seatingCapacity: raw.settings.seatingCapacity,
-						openTime: raw.settings.openTime,
-						closeTime: raw.settings.closeTime,
-					}
+							isOpened: raw.settings.isOpened,
+							isPreorder: raw.settings.isPreorder,
+							isLoyaltyEnabled: raw.settings.isLoyaltyEnabled,
+							cuisineType: raw.settings.cuisineType,
+							seatingCapacity: raw.settings.seatingCapacity,
+							openTime: raw.settings.openTime,
+							closeTime: raw.settings.closeTime,
+						}
 					: null,
 				profile: raw.profile
 					? {
-						coverImage: raw.profile.coverImageKey,
-						avatar: raw.profile.avatarUpdatedAt
-							? `restaurants/${raw.id}/profile/avatar.png`
-							: null,
-						description: raw.profile.description,
-						fssaiNumber: raw.profile.fssaiNumber,
-						registerNumber: raw.profile.registerNumber,
-						gstNumber: raw.profile.gstNumber,
-					}
+							coverImage: raw.profile.coverImageKey,
+							avatar: raw.profile.avatarUpdatedAt
+								? `restaurants/${raw.id}/profile/avatar.png`
+								: null,
+							description: raw.profile.description,
+							fssaiNumber: raw.profile.fssaiNumber,
+							registerNumber: raw.profile.registerNumber,
+							gstNumber: raw.profile.gstNumber,
+						}
 					: null,
 				operatingHours: (raw.operatingHours || []).map((oh) => ({
 					id: oh.id,
@@ -526,19 +527,19 @@ export class RestaurantRepository
 			updatedAt: raw.updatedAt,
 			address: raw.address
 				? {
-					id: raw.address.id,
-					restaurantId: raw.address.restaurantId,
-					addressLine1: raw.address.addressLine1,
-					addressLine2: raw.address.addressLine2,
-					city: raw.address.city,
-					state: raw.address.state,
-					country: raw.address.country,
-					pincode: raw.address.pincode,
-					latitude: Number(raw.address.latitude),
-					longitude: Number(raw.address.longitude),
-					createdAt: raw.address.createdAt,
-					updatedAt: raw.address.updatedAt,
-				}
+						id: raw.address.id,
+						restaurantId: raw.address.restaurantId,
+						addressLine1: raw.address.addressLine1,
+						addressLine2: raw.address.addressLine2,
+						city: raw.address.city,
+						state: raw.address.state,
+						country: raw.address.country,
+						pincode: raw.address.pincode,
+						latitude: Number(raw.address.latitude),
+						longitude: Number(raw.address.longitude),
+						createdAt: raw.address.createdAt,
+						updatedAt: raw.address.updatedAt,
+					}
 				: null,
 			documents: (raw.documents || []).map((doc) => ({
 				id: doc.id,
@@ -612,11 +613,11 @@ export class RestaurantRepository
 				}),
 				...(fromDate || toDate
 					? {
-						createdAt: {
-							...(fromDate && { gte: fromDate }),
-							...(toDate && { lte: toDate }),
-						},
-					}
+							createdAt: {
+								...(fromDate && { gte: fromDate }),
+								...(toDate && { lte: toDate }),
+							},
+						}
 					: {}),
 			};
 
@@ -1099,9 +1100,9 @@ export class RestaurantRepository
 
 			const cuisines = cuisine
 				? cuisine
-					.split(",")
-					.map((c) => c.trim())
-					.filter(Boolean)
+						.split(",")
+						.map((c) => c.trim())
+						.filter(Boolean)
 				: [];
 
 			const andConditions: Prisma.RestaurantWhereInput[] = [
@@ -1292,149 +1293,254 @@ export class RestaurantRepository
 		return this.run(async () => {
 			const { restaurantId, includeMenu = true, categoryId } = params;
 
-			const raw = await this.prisma.restaurant.findFirst({
-				where: {
-					id: restaurantId,
-					status: "ACTIVE",
-					isBlocked: false,
-					isSubscriptionActive: true,
-					onboardingStatus: "COMPLETED",
+			const baseWhere = {
+				id: restaurantId,
+				status: "ACTIVE" as const,
+				isBlocked: false,
+				isSubscriptionActive: true,
+				onboardingStatus: "COMPLETED" as const,
+			};
+
+			const baseSelect = {
+				id: true,
+				restaurantName: true,
+				email: true,
+				phone: true,
+				status: true,
+				isBlocked: true,
+				isSubscriptionActive: true,
+				onboardingStatus: true,
+				address: {
+					select: {
+						id: true,
+						addressLine1: true,
+						addressLine2: true,
+						city: true,
+						state: true,
+						country: true,
+						pincode: true,
+						latitude: true,
+						longitude: true,
+					},
 				},
+				profile: {
+					select: {
+						description: true,
+						cuisineType: true,
+						averageCost: true,
+						coverImageKey: true,
+					},
+				},
+				settings: {
+					select: {
+						isOpened: true,
+						isPreorder: true,
+						acceptsQueue: true,
+						acceptsQrOrders: true,
+					},
+				},
+				operatingHours: {
+					select: {
+						id: true,
+						dayOfWeek: true,
+						isOpen: true,
+						isClosed: true,
+						openTime: true,
+						closeTime: true,
+					},
+					orderBy: {
+						dayOfWeek: "asc" as const,
+					},
+				},
+				images: {
+					select: {
+						id: true,
+						objectKey: true,
+						displayOrder: true,
+					},
+					orderBy: {
+						displayOrder: "asc" as const,
+					},
+				},
+			};
+
+			const mapBaseRestaurant = (raw: {
+				id: string;
+				restaurantName: string;
+				email: string;
+				phone: string;
+				status: RestaurantStatus;
+				isBlocked: boolean;
+				isSubscriptionActive: boolean;
+				onboardingStatus: OnboardingStatus;
+				address: {
+					id: string;
+					addressLine1: string;
+					addressLine2: string | null;
+					city: string;
+					state: string;
+					country: string;
+					pincode: string;
+					latitude: Prisma.Decimal;
+					longitude: Prisma.Decimal;
+				} | null;
+				profile: {
+					description: string | null;
+					cuisineType: string | null;
+					averageCost: number | null;
+					coverImageKey: string | null;
+				} | null;
+				settings: {
+					isOpened: boolean;
+					isPreorder: boolean;
+					acceptsQueue: boolean;
+					acceptsQrOrders: boolean;
+				} | null;
+				operatingHours: {
+					id: string;
+					dayOfWeek: number;
+					isOpen: boolean;
+					isClosed: boolean;
+					openTime: Date | null;
+					closeTime: Date | null;
+				}[];
+				images: {
+					id: string;
+					objectKey: string;
+					displayOrder: number;
+				}[];
+			}) => ({
+				id: raw.id,
+				restaurantName: raw.restaurantName,
+				email: raw.email,
+				phone: raw.phone,
+				status: raw.status,
+				isBlocked: raw.isBlocked,
+				isSubscriptionActive: raw.isSubscriptionActive,
+				onboardingStatus: raw.onboardingStatus,
+				address: raw.address
+					? {
+							id: raw.address.id,
+							addressLine1: raw.address.addressLine1,
+							addressLine2: raw.address.addressLine2,
+							city: raw.address.city,
+							state: raw.address.state,
+							country: raw.address.country,
+							pincode: raw.address.pincode,
+							latitude: Number(raw.address.latitude),
+							longitude: Number(raw.address.longitude),
+						}
+					: null,
+				profile: raw.profile
+					? {
+							description: raw.profile.description,
+							cuisineType: raw.profile.cuisineType,
+							averageCost: raw.profile.averageCost,
+							coverImageKey: raw.profile.coverImageKey,
+						}
+					: null,
+				settings: raw.settings
+					? {
+							isOpened: raw.settings.isOpened,
+							isPreorder: raw.settings.isPreorder,
+							acceptsQueue: raw.settings.acceptsQueue,
+							acceptsQrOrders: raw.settings.acceptsQrOrders,
+						}
+					: null,
+				operatingHours: raw.operatingHours || [],
+				images: raw.images || [],
+			});
+
+			if (!includeMenu) {
+				const raw = await this.prisma.restaurant.findFirst({
+					where: baseWhere,
+					select: baseSelect,
+				});
+
+				if (!raw) return null;
+
+				return {
+					...mapBaseRestaurant(raw),
+					menuCategories: [],
+				};
+			}
+
+			const raw = await this.prisma.restaurant.findFirst({
+				where: baseWhere,
 				select: {
-					id: true,
-					restaurantName: true,
-					email: true,
-					phone: true,
-					status: true,
-					isBlocked: true,
-					isSubscriptionActive: true,
-					onboardingStatus: true,
-					address: {
-						select: {
-							id: true,
-							addressLine1: true,
-							addressLine2: true,
-							city: true,
-							state: true,
-							country: true,
-							pincode: true,
-							latitude: true,
-							longitude: true,
-						},
-					},
-					profile: {
-						select: {
-							description: true,
-							cuisineType: true,
-							averageCost: true,
-							coverImageKey: true,
-						},
-					},
-					settings: {
-						select: {
-							isOpened: true,
-							isPreorder: true,
-							acceptsQueue: true,
-							acceptsQrOrders: true,
-						},
-					},
-					operatingHours: {
-						select: {
-							id: true,
-							dayOfWeek: true,
-							isOpen: true,
-							isClosed: true,
-							openTime: true,
-							closeTime: true,
-						},
-						orderBy: {
-							dayOfWeek: "asc",
-						},
-					},
-					images: {
-						select: {
-							id: true,
-							objectKey: true,
-							displayOrder: true,
+					...baseSelect,
+					menuCategories: {
+						where: {
+							isDeleted: false,
+							isActive: true,
+							...(categoryId ? { id: categoryId } : {}),
 						},
 						orderBy: {
 							displayOrder: "asc",
 						},
-					},
-					...(includeMenu && {
-						menuCategories: {
-							where: {
-								isDeleted: false,
-								isActive: true,
-								...(categoryId && { id: categoryId }),
-							},
-							orderBy: {
-								displayOrder: "asc",
-							},
-							select: {
-								id: true,
-								name: true,
-								description: true,
-								displayOrder: true,
-								menuItems: {
-									where: {
-										isDeleted: false,
-										isAvailable: true,
+						select: {
+							id: true,
+							name: true,
+							description: true,
+							displayOrder: true,
+							menuItems: {
+								where: {
+									isDeleted: false,
+									isAvailable: true,
+								},
+								select: {
+									id: true,
+									categoryId: true,
+									name: true,
+									description: true,
+									price: true,
+									preparationTime: true,
+									calories: true,
+									isVegetarian: true,
+									isFeatured: true,
+									isAvailable: true,
+									images: {
+										select: {
+											id: true,
+											objectKey: true,
+											displayOrder: true,
+										},
+										orderBy: {
+											displayOrder: "asc",
+										},
 									},
-									select: {
-										id: true,
-										categoryId: true,
-										name: true,
-										description: true,
-										price: true,
-										preparationTime: true,
-										calories: true,
-										isVegetarian: true,
-										isFeatured: true,
-										isAvailable: true,
-										images: {
-											select: {
-												id: true,
-												objectKey: true,
-												displayOrder: true,
-											},
-											orderBy: {
-												displayOrder: "asc",
-											},
+									variants: {
+										where: {
+											isAvailable: true,
 										},
-										variants: {
-											where: {
-												isAvailable: true,
-											},
-											select: {
-												id: true,
-												sku: true,
-												name: true,
-												price: true,
-												isDefault: true,
+										select: {
+											id: true,
+											sku: true,
+											name: true,
+											price: true,
+											isDefault: true,
+											isAvailable: true,
+										},
+									},
+									addons: {
+										where: {
+											addon: {
+												restaurantId,
+												isDeleted: false,
 												isAvailable: true,
 											},
 										},
-										addons: {
-											where: {
-												addon: {
-													restaurantId,
-													isDeleted: false,
+										select: {
+											id: true,
+											priceOverride: true,
+											addon: {
+												select: {
+													id: true,
+													name: true,
+													description: true,
+													price: true,
+													imageKey: true,
 													isAvailable: true,
-												},
-											},
-											select: {
-												id: true,
-												priceOverride: true,
-												addon: {
-													select: {
-														id: true,
-														name: true,
-														description: true,
-														price: true,
-														imageKey: true,
-														isAvailable: true,
-													},
 												},
 											},
 										},
@@ -1442,7 +1548,7 @@ export class RestaurantRepository
 								},
 							},
 						},
-					}),
+					},
 				},
 			});
 
@@ -1488,45 +1594,7 @@ export class RestaurantRepository
 			}));
 
 			return {
-				id: raw.id,
-				restaurantName: raw.restaurantName,
-				email: raw.email,
-				phone: raw.phone,
-				status: raw.status,
-				isBlocked: raw.isBlocked,
-				isSubscriptionActive: raw.isSubscriptionActive,
-				onboardingStatus: raw.onboardingStatus,
-				address: raw.address
-					? {
-						id: raw.address.id,
-						addressLine1: raw.address.addressLine1,
-						addressLine2: raw.address.addressLine2,
-						city: raw.address.city,
-						state: raw.address.state,
-						country: raw.address.country,
-						pincode: raw.address.pincode,
-						latitude: Number(raw.address.latitude),
-						longitude: Number(raw.address.longitude),
-					}
-					: null,
-				profile: raw.profile
-					? {
-						description: raw.profile.description,
-						cuisineType: raw.profile.cuisineType,
-						averageCost: raw.profile.averageCost,
-						coverImageKey: raw.profile.coverImageKey,
-					}
-					: null,
-				settings: raw.settings
-					? {
-						isOpened: raw.settings.isOpened,
-						isPreorder: raw.settings.isPreorder,
-						acceptsQueue: raw.settings.acceptsQueue,
-						acceptsQrOrders: raw.settings.acceptsQrOrders,
-					}
-					: null,
-				operatingHours: raw.operatingHours || [],
-				images: raw.images || [],
+				...mapBaseRestaurant(raw),
 				menuCategories,
 			};
 		});

@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { ListRestaurantAddonsUseCase } from "@application/use-cases/addon/list-restaurant-addons.use-case";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";

@@ -386,8 +386,7 @@ export const messages = {
 	TABLE_FETCH_SUCCESS: "Table Fetched Successfully",
 	INVALID_TABLE_STATUS: "Invalid Table Status",
 
-
-	INVALID_PARTY_SIZE: "Invalid Party Size"
+	INVALID_PARTY_SIZE: "Invalid Party Size",
 } as const;
 
 export type MessageKey = keyof typeof messages;

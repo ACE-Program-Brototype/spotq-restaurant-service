@@ -13,10 +13,7 @@ export class InternalRestaurantController {
 		private readonly validateRestaurantEligibilityUseCase: IValidateRestaurantEligibilityUseCase,
 	) {}
 
-	validateRestaurant = async (
-		req: Request,
-		res: Response,
-	): Promise<void> => {
+	validateRestaurant = async (req: Request, res: Response): Promise<void> => {
 		const restaurantId = String(req.params.restaurantId);
 		const validationData =
 			await this.validateRestaurantEligibilityUseCase.execute(restaurantId);

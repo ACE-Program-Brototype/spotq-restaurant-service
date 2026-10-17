@@ -21,8 +21,8 @@ import type {
 	IMenuItemRepository,
 	MenuItemDetailsAggregate,
 } from "@/domain/repositories/menu-item.repository.interface";
-import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface";
+import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface";
 
 describe("UpdateMenuItemVariantStatusUseCase", () => {
 	let useCase: UpdateMenuItemVariantStatusUseCase;

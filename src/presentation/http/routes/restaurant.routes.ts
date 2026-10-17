@@ -183,4 +183,4 @@ restaurantRouter.use(menuRouter);
 // addon router
 restaurantRouter.use(addonRouter);
 
-export { menuRouter, addonRouter };
+export { addonRouter, menuRouter };

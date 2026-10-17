@@ -15,4 +15,3 @@ export const TABLE_STATUS = {
 } as const;
 
 export type TableStatusType = (typeof TABLE_STATUS)[keyof typeof TABLE_STATUS];
-

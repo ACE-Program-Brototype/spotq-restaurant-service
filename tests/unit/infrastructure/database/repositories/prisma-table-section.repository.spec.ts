@@ -17,16 +17,28 @@ describe("PrismaTableSectionRepository", () => {
 	let repository: PrismaTableSectionRepository;
 	const now = new Date("2026-01-01T00:00:00Z");
 	const rawSection = {
-		id: "section-1", restaurantId: "restaurant-1", sectionName: "Patio",
-		createdAt: now, updatedAt: now, isDeleted: false,
+		id: "section-1",
+		restaurantId: "restaurant-1",
+		sectionName: "Patio",
+		createdAt: now,
+		updatedAt: now,
+		isDeleted: false,
 	};
 
 	beforeEach(() => {
-		mockPrisma = { tableSection: {
-			create: jest.fn(), findUnique: jest.fn(), findFirst: jest.fn(),
-			findMany: jest.fn(), count: jest.fn(), update: jest.fn(),
-		} };
-		repository = new PrismaTableSectionRepository(mockPrisma as unknown as PrismaClient);
+		mockPrisma = {
+			tableSection: {
+				create: jest.fn(),
+				findUnique: jest.fn(),
+				findFirst: jest.fn(),
+				findMany: jest.fn(),
+				count: jest.fn(),
+				update: jest.fn(),
+			},
+		};
+		repository = new PrismaTableSectionRepository(
+			mockPrisma as unknown as PrismaClient,
+		);
 	});
 
 	it("returns all active sections for a restaurant in name order", async () => {
@@ -47,16 +59,20 @@ describe("PrismaTableSectionRepository", () => {
 		mockPrisma.tableSection.count.mockResolvedValue(1);
 
 		const result = await repository.findManyWithFilter({
-			restaurantId: "restaurant-1", page: 1, limit: 10,
-			sortBy: "createdAt", sortOrder: "desc",
+			restaurantId: "restaurant-1",
+			page: 1,
+			limit: 10,
+			sortBy: "createdAt",
+			sortOrder: "desc",
 		});
 
 		expect(result.total).toBe(1);
 		expect(result.tableSections[0]?.sectionName).toBe("Patio");
-		expect(mockPrisma.tableSection.findMany).toHaveBeenCalledWith(expect.objectContaining({
-			where: { isDeleted: false, restaurantId: "restaurant-1" },
-			orderBy: [{ createdAt: "desc" }, { id: "asc" }],
-		}));
+		expect(mockPrisma.tableSection.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: { isDeleted: false, restaurantId: "restaurant-1" },
+				orderBy: [{ createdAt: "desc" }, { id: "asc" }],
+			}),
+		);
 	});
-
 });
