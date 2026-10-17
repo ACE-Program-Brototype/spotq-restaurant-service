@@ -52,8 +52,8 @@ export class PrismaTableRepository
 		);
 	}
 
-	async findTableById(id: string): Promise<Table | null> {
-		return await super.findOne<Prisma.TableWhereInput>({
+	async findById(id: string): Promise<Table | null> {
+		return super.findOne<Prisma.TableWhereInput>({
 			id,
 			isDeleted: false,
 		});

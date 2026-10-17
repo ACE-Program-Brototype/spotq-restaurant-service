@@ -9,7 +9,6 @@ import {
 	InvalidTableCapacityError,
 	InvalidTableCodeError,
 	InvalidTableShapeError,
-	TableInvalidStatusError,
 	TableInvalidTransitionError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
