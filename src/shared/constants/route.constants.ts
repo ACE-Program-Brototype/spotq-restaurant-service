@@ -95,7 +95,7 @@ export const TABLE_SECTION_ROUTES = {
 export const TABLE_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE: "/:restaurantId/table",
-	UPDATE_TABLE : "/:restaurantId/table/:tableId",
+	UPDATE_TABLE: "/:restaurantId/table/:tableId",
 	TABLE: "/:restaurantId/table",
 	DELETE: "/:restaurantId/table/:tableId",
 	INTERNAL: {
@@ -106,6 +106,7 @@ export const TABLE_ROUTES = {
 export const INTERNAL_ROUTES = {
 	BASE: "/api/internal/v1",
 	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
+	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
 } as const;
 
 export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];

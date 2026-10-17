@@ -124,7 +124,7 @@ export class Table {
 			this.currentOccupancy === 0 && this.status === TABLE_STATUS.AVAILABLE
 		);
 	}
-	
+
 	public update(
 		props: Partial<
 			Pick<
@@ -172,6 +172,27 @@ export class Table {
 
 			this.props.sectionId = sectionId;
 		}
+
+		this.props.updatedAt = new Date();
+	}
+
+	assignGuests(count: number) {
+		if (!Number.isInteger(count) || count < 1) {
+			throw new InvalidTableCapacityError();
+		}
+
+		const newOccupancy = this.props.currentOccupancy + count;
+
+		if (newOccupancy > this.props.capacity) {
+			throw new InvalidTableCapacityError();
+		}
+
+		this.props.currentOccupancy = newOccupancy;
+
+		this.props.status =
+			newOccupancy === this.props.capacity
+				? TABLE_STATUS.OCCUPIED
+				: TABLE_STATUS.PARTIAL_OCCUPIED;
 
 		this.props.updatedAt = new Date();
 	}
