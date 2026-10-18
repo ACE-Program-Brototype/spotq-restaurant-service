@@ -3,6 +3,7 @@ import type {
 	IDeleteTableSectionOutputDTO,
 } from "@application/dtos/table-section/delete-table-section.dto";
 import type { IDeleteTableSectionUseCase } from "@application/ports/use-cases/table-section/delete-table-section.use-case.port";
+import { TYPES } from "@config/di/types";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
 import {
 	TableSectionInUseError,
@@ -12,7 +13,6 @@ import type { IRestaurantRepository } from "@domain/repositories/restaurant.repo
 import type { ITableRepository } from "@domain/repositories/table.repository.interface";
 import type { ITableSectionRepository } from "@domain/repositories/table-section.respository.interface";
 import { inject } from "inversify";
-import { TYPES } from "@config/di/types";
 
 export class DeleteTableSectionUseCase implements IDeleteTableSectionUseCase {
 	constructor(
@@ -44,6 +44,10 @@ export class DeleteTableSectionUseCase implements IDeleteTableSectionUseCase {
 			);
 
 		if (!tableSection) {
+			throw new TableSectionNotFound();
+		}
+
+		if (tableSection.restaurantId !== restaurant.id) {
 			throw new TableSectionNotFound();
 		}
 
