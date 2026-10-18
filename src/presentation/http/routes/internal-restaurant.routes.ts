@@ -11,16 +11,16 @@ import { validateRestaurantParamsSchema } from "../validators/internal/validate-
 
 export const internalRestaurantRouter = express.Router();
 
+internalRestaurantRouter.use(internalS2SAuthMiddleware());
+
 internalRestaurantRouter.get(
 	INTERNAL_ROUTES.RESTAURANT_VALIDATION,
-	internalS2SAuthMiddleware(),
 	validateRequestParams(validateRestaurantParamsSchema),
 	internalRestaurantController.validateRestaurant,
 );
 
 internalRestaurantRouter.get(
 	INTERNAL_ROUTES.MENU_ITEM_DETAIL,
-	internalS2SAuthMiddleware(),
 	validateRequestParams(getMenuItemDetailsParamsSchema),
 	menuItemController.getCustomerMenuItemDetails,
 );
