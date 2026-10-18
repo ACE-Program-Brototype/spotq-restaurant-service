@@ -36,7 +36,7 @@ tableSectionRoutes.get(
 );
 
 tableSectionRoutes.delete(
-	TABLE_SECTION_ROUTES.TABL_SECTION_ID,
+	TABLE_SECTION_ROUTES.TABLE_SECTION_ID,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(deleteTableSectionParamsSchema),
 	tableSectionController.deleteTableSection,

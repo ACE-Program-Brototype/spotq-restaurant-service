@@ -90,7 +90,7 @@ export const TABLE_SECTION_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
 	TABLE_SECTION: "/:restaurantId/table-sections",
-	TABL_SECTION_ID: "/:restaurantId/table-sections/:tableSectionId",
+	TABLE_SECTION_ID: "/:restaurantId/table-sections/:tableSectionId",
 };
 
 export const TABLE_ROUTES = {
