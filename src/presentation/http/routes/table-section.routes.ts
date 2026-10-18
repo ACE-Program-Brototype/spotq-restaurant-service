@@ -11,6 +11,7 @@ import {
 	createTableSectionBodySchema,
 	createTableSectionParamsSchema,
 } from "../validators/table-sections/create-table-sections.validator";
+import { deleteTableSectionParamsSchema } from "../validators/table-sections/delete-table-section.validator";
 import {
 	getTableSectionParamsSchema,
 	getTableSectionQuerySchema,
@@ -32,4 +33,11 @@ tableSectionRoutes.get(
 	validateRequestParams(getTableSectionParamsSchema),
 	validateRequestQuery(getTableSectionQuerySchema),
 	tableSectionController.getTableSection,
+);
+
+tableSectionRoutes.delete(
+	TABLE_SECTION_ROUTES.TABL_SECTION_ID,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteTableSectionParamsSchema),
+	tableSectionController.deleteTableSection,
 );
