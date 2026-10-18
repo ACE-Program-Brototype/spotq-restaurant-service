@@ -38,6 +38,7 @@ import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.t
 import { messages } from "@/shared/constants/message.constants.ts";
 import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
+import { CustomerRestaurantDetailsPersistenceMapper } from "../mappers/customer-restaurant-details.mapper.ts";
 import { extractPrismaMetaTarget } from "../utils/prisma-error.util.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -1364,239 +1365,100 @@ export class RestaurantRepository
 				},
 			};
 
-			const mapBaseRestaurant = (raw: {
-				id: string;
-				restaurantName: string;
-				email: string;
-				phone: string;
-				status: RestaurantStatus;
-				isBlocked: boolean;
-				isSubscriptionActive: boolean;
-				onboardingStatus: OnboardingStatus;
-				address: {
-					id: string;
-					addressLine1: string;
-					addressLine2: string | null;
-					city: string;
-					state: string;
-					country: string;
-					pincode: string;
-					latitude: Prisma.Decimal;
-					longitude: Prisma.Decimal;
-				} | null;
-				profile: {
-					description: string | null;
-					cuisineType: string | null;
-					averageCost: number | null;
-					coverImageKey: string | null;
-				} | null;
-				settings: {
-					isOpened: boolean;
-					isPreorder: boolean;
-					acceptsQueue: boolean;
-					acceptsQrOrders: boolean;
-				} | null;
-				operatingHours: {
-					id: string;
-					dayOfWeek: number;
-					isOpen: boolean;
-					isClosed: boolean;
-					openTime: Date | null;
-					closeTime: Date | null;
-				}[];
-				images: {
-					id: string;
-					objectKey: string;
-					displayOrder: number;
-				}[];
-			}) => ({
-				id: raw.id,
-				restaurantName: raw.restaurantName,
-				email: raw.email,
-				phone: raw.phone,
-				status: raw.status,
-				isBlocked: raw.isBlocked,
-				isSubscriptionActive: raw.isSubscriptionActive,
-				onboardingStatus: raw.onboardingStatus,
-				address: raw.address
-					? {
-							id: raw.address.id,
-							addressLine1: raw.address.addressLine1,
-							addressLine2: raw.address.addressLine2,
-							city: raw.address.city,
-							state: raw.address.state,
-							country: raw.address.country,
-							pincode: raw.address.pincode,
-							latitude: Number(raw.address.latitude),
-							longitude: Number(raw.address.longitude),
-						}
-					: null,
-				profile: raw.profile
-					? {
-							description: raw.profile.description,
-							cuisineType: raw.profile.cuisineType,
-							averageCost: raw.profile.averageCost,
-							coverImageKey: raw.profile.coverImageKey,
-						}
-					: null,
-				settings: raw.settings
-					? {
-							isOpened: raw.settings.isOpened,
-							isPreorder: raw.settings.isPreorder,
-							acceptsQueue: raw.settings.acceptsQueue,
-							acceptsQrOrders: raw.settings.acceptsQrOrders,
-						}
-					: null,
-				operatingHours: raw.operatingHours || [],
-				images: raw.images || [],
-			});
-
-			if (!includeMenu) {
 				const raw = await this.prisma.restaurant.findFirst({
 					where: baseWhere,
-					select: baseSelect,
-				});
-
-				if (!raw) return null;
-
-				return {
-					...mapBaseRestaurant(raw),
-					menuCategories: [],
-				};
-			}
-
-			const raw = await this.prisma.restaurant.findFirst({
-				where: baseWhere,
-				select: {
-					...baseSelect,
-					menuCategories: {
-						where: {
-							isDeleted: false,
-							isActive: true,
-							...(categoryId ? { id: categoryId } : {}),
-						},
-						orderBy: {
-							displayOrder: "asc",
-						},
-						select: {
-							id: true,
-							name: true,
-							description: true,
-							displayOrder: true,
-							menuItems: {
-								where: {
-									isDeleted: false,
-									isAvailable: true,
-								},
-								select: {
-									id: true,
-									categoryId: true,
-									name: true,
-									description: true,
-									price: true,
-									preparationTime: true,
-									calories: true,
-									isVegetarian: true,
-									isFeatured: true,
-									isAvailable: true,
-									images: {
-										select: {
-											id: true,
-											objectKey: true,
-											displayOrder: true,
+					select: {
+						...baseSelect,
+						...(includeMenu
+							? {
+									menuCategories: {
+										where: {
+											isDeleted: false,
+											isActive: true,
+											...(categoryId ? { id: categoryId } : {}),
 										},
 										orderBy: {
 											displayOrder: "asc",
 										},
-									},
-									variants: {
-										where: {
-											isAvailable: true,
-										},
 										select: {
 											id: true,
-											sku: true,
 											name: true,
-											price: true,
-											isDefault: true,
-											isAvailable: true,
-										},
-									},
-									addons: {
-										where: {
-											addon: {
-												restaurantId,
-												isDeleted: false,
-												isAvailable: true,
-											},
-										},
-										select: {
-											id: true,
-											priceOverride: true,
-											addon: {
+											description: true,
+											displayOrder: true,
+											menuItems: {
+												where: {
+													isDeleted: false,
+													isAvailable: true,
+												},
 												select: {
 													id: true,
+													categoryId: true,
 													name: true,
 													description: true,
 													price: true,
-													imageKey: true,
+													preparationTime: true,
+													calories: true,
+													isVegetarian: true,
+													isFeatured: true,
 													isAvailable: true,
+													images: {
+														select: {
+															id: true,
+															objectKey: true,
+															displayOrder: true,
+														},
+														orderBy: {
+															displayOrder: "asc",
+														},
+													},
+													variants: {
+														where: {
+															isAvailable: true,
+														},
+														select: {
+															id: true,
+															sku: true,
+															name: true,
+															price: true,
+															isDefault: true,
+															isAvailable: true,
+														},
+													},
+													addons: {
+														where: {
+															addon: {
+																restaurantId,
+																isDeleted: false,
+																isAvailable: true,
+															},
+														},
+														select: {
+															id: true,
+															priceOverride: true,
+															addon: {
+																select: {
+																	id: true,
+																	name: true,
+																	description: true,
+																	price: true,
+																	imageKey: true,
+																	isAvailable: true,
+																},
+															},
+														},
+													},
 												},
 											},
 										},
 									},
-								},
-							},
-						},
+								}
+							: {}),
 					},
-				},
-			});
+				});
 
-			if (!raw) return null;
+				if (!raw) return null;
 
-			const menuCategories = (raw.menuCategories || []).map((cat) => ({
-				id: cat.id,
-				name: cat.name,
-				description: cat.description,
-				displayOrder: cat.displayOrder,
-				menuItems: cat.menuItems.map((item) => ({
-					id: item.id,
-					categoryId: item.categoryId,
-					name: item.name,
-					description: item.description,
-					price: Number(item.price),
-					preparationTime: item.preparationTime,
-					calories: item.calories,
-					isVegetarian: item.isVegetarian,
-					isFeatured: item.isFeatured,
-					isAvailable: item.isAvailable,
-					images: item.images,
-					variants: item.variants.map((v) => ({
-						id: v.id,
-						sku: v.sku,
-						name: v.name,
-						price: Number(v.price),
-						isDefault: v.isDefault,
-						isAvailable: v.isAvailable,
-					})),
-					addons: item.addons.map((a) => ({
-						id: a.id,
-						addonId: a.addon.id,
-						name: a.addon.name,
-						description: a.addon.description,
-						price: Number(a.addon.price),
-						priceOverride:
-							a.priceOverride != null ? Number(a.priceOverride) : null,
-						imageKey: a.addon.imageKey,
-						isAvailable: a.addon.isAvailable,
-					})),
-				})),
-			}));
-
-			return {
-				...mapBaseRestaurant(raw),
-				menuCategories,
-			};
+				return CustomerRestaurantDetailsPersistenceMapper.toRecord(raw);
 		});
 	}
 }

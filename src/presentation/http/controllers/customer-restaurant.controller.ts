@@ -27,13 +27,13 @@ export class CustomerRestaurantController {
 	public listRestaurants = async (
 		req: Request,
 		res: Response,
-	): Promise<void> => {
+	): Promise<Response> => {
 		const query = (res.locals?.query ??
 			req.query) as ListCustomerRestaurantsQuery;
 
 		const result = await this.listCustomerRestaurantsUseCase.execute(query);
 
-		sendPaginatedSuccessResponse(
+		return sendPaginatedSuccessResponse(
 			res,
 			result.data,
 			{
@@ -50,23 +50,18 @@ export class CustomerRestaurantController {
 	public getRestaurantDetails = async (
 		req: Request,
 		res: Response,
-	): Promise<void> => {
-		const params = (res.locals?.params ??
+	): Promise<Response> => {
+		const { restaurantId } = (res.locals?.params ??
 			req.params) as GetCustomerRestaurantDetailsParams;
-		const query = (res.locals?.query ??
+		const { includeMenu, categoryId } = (res.locals?.query ??
 			req.query) as GetCustomerRestaurantDetailsQuery;
-
-		const restaurantId =
-			params?.restaurantId || String(req.params.restaurantId ?? req.params.id);
-
-
 
 		const result = await this.getCustomerRestaurantDetailsUseCase.execute({
 			restaurantId,
-			includeMenu: query?.includeMenu,
-			categoryId: query?.categoryId,
+			includeMenu,
+			categoryId
 		});
 
-		sendSuccessResponse(res, result, messages.SUCCESS, HTTP_STATUS.OK);
+		return sendSuccessResponse(res, result, messages.SUCCESS, HTTP_STATUS.OK);
 	};
 }
