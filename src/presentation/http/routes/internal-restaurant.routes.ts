@@ -1,8 +1,5 @@
 import express from "express";
-import {
-	internalRestaurantController,
-	menuItemController,
-} from "@/config/di/controllers.resolutions.ts";
+import { internalRestaurantController } from "@/config/di/controllers.resolutions.ts";
 import { INTERNAL_ROUTES } from "@/shared/constants/route.constants.ts";
 import { internalS2SAuthMiddleware } from "../middleware/internal-s2s-auth.middleware.ts";
 import { validateRequestParams } from "../middleware/validation.middleware.ts";
@@ -22,5 +19,6 @@ internalRestaurantRouter.get(
 internalRestaurantRouter.get(
 	INTERNAL_ROUTES.MENU_ITEM_DETAIL,
 	validateRequestParams(getMenuItemDetailsParamsSchema),
-	menuItemController.getCustomerMenuItemDetails,
+	internalRestaurantController.getMenuItemDetails,
 );
+
