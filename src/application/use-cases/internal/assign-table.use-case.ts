@@ -38,7 +38,7 @@ export class AssignTableUseCase implements IAssignTableUseCase {
 		);
 
 		if (tables.length !== input.tables.length) {
-			throw new TableNotFoundError();
+			throw new g();
 		}
 
 		for (const requestedTable of input.tables) {
@@ -48,7 +48,7 @@ export class AssignTableUseCase implements IAssignTableUseCase {
 				throw new TableNotFoundError();
 			}
 
-			table.assignGuests(requestedTable.capacity);
+			table.assignGuests(requestedTable.count);
 		}
 
 		await this._tableRepository.updateMany(tables);

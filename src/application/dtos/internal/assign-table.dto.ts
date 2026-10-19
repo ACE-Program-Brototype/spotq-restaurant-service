@@ -1,4 +1,4 @@
 export interface IAssignTableInputDTO {
-	tables: { tableId: string; capacity: number }[];
+	tables: { tableId: string; count: number }[];
 	restaurantId: string;
 }
