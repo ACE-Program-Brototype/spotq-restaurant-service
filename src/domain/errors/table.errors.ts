@@ -75,9 +75,9 @@ export class TableInUseError extends DomainError {
 }
 
 export class TableNotAvailableError extends DomainError {
-	public readonly code = DOMAIN_ERROR_CODES.TABLE_NOT_AVAILABLE
+	public readonly code = DOMAIN_ERROR_CODES.TABLE_NOT_AVAILABLE;
 
-	constructor(message: string = messages.TABLE_NOT_AVAILABLE){
-		super(message)
+	constructor(message: string = messages.TABLE_NOT_AVAILABLE) {
+		super(message);
 	}
 }
