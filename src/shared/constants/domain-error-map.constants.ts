@@ -100,6 +100,8 @@ export const DOMAIN_ERROR_STATUS_MAP: Record<string, HttpStatusCode> = {
 	AddonNotFoundForRestaurantError: HTTP_STATUS.NOT_FOUND,
 	InvalidMenuItemDataError: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 	InvalidVariantDataError: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+
+	[DOMAIN_ERROR_CODES.TABLE_IN_USE]: HTTP_STATUS.CONFLICT,
 };
 
 export function getStatusCodeForDomainError(
