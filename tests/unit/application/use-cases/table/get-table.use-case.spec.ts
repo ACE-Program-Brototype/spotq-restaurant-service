@@ -1,7 +1,7 @@
 import { GetTableUseCase } from "@/application/use-cases/table/get-table.use-case.ts";
 import {
-	TABLE_STATUS,
 	TABLE_SHAPE,
+	TABLE_STATUS,
 } from "@/domain/constants/table.constants.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import type { Table } from "@/domain/entities/table.entity.ts";

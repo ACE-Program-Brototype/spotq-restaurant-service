@@ -1,8 +1,8 @@
 import { inject, injectable } from "inversify";
 
 import type {
-	ListCustomerRestaurantsInputDto,
-	PaginatedCustomerRestaurantsOutputDto,
+	ListCustomerRestaurantsInputDTO,
+	PaginatedCustomerRestaurantsOutputDTO,
 } from "@/application/dtos/restaurant/customer-restaurant-listing.dto.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
@@ -21,8 +21,8 @@ export class ListCustomerRestaurantsUseCase {
 	) {}
 
 	public async execute(
-		dto: ListCustomerRestaurantsInputDto,
-	): Promise<PaginatedCustomerRestaurantsOutputDto> {
+		dto: ListCustomerRestaurantsInputDTO,
+	): Promise<PaginatedCustomerRestaurantsOutputDTO> {
 		const page =
 			Number.isFinite(dto.page) && dto.page > 0
 				? Math.floor(dto.page)

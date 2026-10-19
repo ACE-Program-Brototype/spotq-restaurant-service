@@ -148,6 +148,9 @@ export const TYPES = {
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",
 		),
+		GetCustomerRestaurantDetailsUseCase: Symbol.for(
+			"GetCustomerRestaurantDetailsUseCase",
+		),
 		ValidateRestaurantEligibilityUseCase: Symbol.for(
 			"ValidateRestaurantEligibilityUseCase",
 		),

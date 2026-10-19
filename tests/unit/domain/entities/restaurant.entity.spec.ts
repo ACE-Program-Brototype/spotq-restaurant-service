@@ -3,6 +3,7 @@ import {
 	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
+	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 
 describe("Restaurant Entity", () => {
@@ -210,5 +211,101 @@ describe("Restaurant Entity", () => {
 
 		restaurant.expireSubscription();
 		expect(restaurant.isSubscriptionActive).toBe(false);
+	});
+
+	describe("Customer Eligibility (isEligibleForCustomer, ensureCustomerAccess)", () => {
+		const createEligibleRestaurant = (
+			overrides: {
+				status?: string;
+				isBlocked?: boolean;
+				isSubscriptionActive?: boolean;
+				onboardingStatus?: string;
+				subscriptionEndsAt?: Date | null;
+			} = {},
+		) => {
+			return Restaurant.reconstitute({
+				id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				restaurantName: "Diner Prime",
+				email: "info@dinerprime.com",
+				phone: "+9876543210",
+				ownerName: "John Doe",
+				ownerEmail: "john@dinerprime.com",
+				status: overrides.status ?? "ACTIVE",
+				onboardingStatus: overrides.onboardingStatus ?? "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isSubscriptionActive: overrides.isSubscriptionActive ?? true,
+				subscriptionPlanCode: "QUEUE_PRO",
+				subscriptionEndsAt: overrides.subscriptionEndsAt ?? null,
+				isBlocked: overrides.isBlocked ?? false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			});
+		};
+
+		it("should return true when all eligibility requirements are satisfied", () => {
+			const restaurant = createEligibleRestaurant();
+			expect(restaurant.isEligibleForCustomer()).toBe(true);
+			expect(() => restaurant.ensureCustomerAccess()).not.toThrow();
+		});
+
+		it("should return false and throw RestaurantNotFoundError when status is not ACTIVE", () => {
+			const restaurant = createEligibleRestaurant({ status: "PENDING" });
+			expect(restaurant.isEligibleForCustomer()).toBe(false);
+			expect(() => restaurant.ensureCustomerAccess()).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should return false and throw RestaurantNotFoundError when isBlocked is true", () => {
+			const restaurant = createEligibleRestaurant({ isBlocked: true });
+			expect(restaurant.isEligibleForCustomer()).toBe(false);
+			expect(() => restaurant.ensureCustomerAccess()).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should return false and throw RestaurantNotFoundError when isSubscriptionActive is false", () => {
+			const restaurant = createEligibleRestaurant({
+				isSubscriptionActive: false,
+			});
+			expect(restaurant.isEligibleForCustomer()).toBe(false);
+			expect(() => restaurant.ensureCustomerAccess()).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should return false and throw RestaurantNotFoundError when onboardingStatus is not COMPLETED", () => {
+			const restaurant = createEligibleRestaurant({
+				onboardingStatus: "PENDING",
+			});
+			expect(restaurant.isEligibleForCustomer()).toBe(false);
+			expect(() => restaurant.ensureCustomerAccess()).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should return false and throw RestaurantNotFoundError when subscription has expired", () => {
+			const restaurant = createEligibleRestaurant({
+				subscriptionEndsAt: new Date("2020-01-01T00:00:00.000Z"),
+			});
+			expect(restaurant.isEligibleForCustomer()).toBe(false);
+			expect(() => restaurant.ensureCustomerAccess()).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should work correctly via instance methods on a reconstituted Restaurant entity", () => {
+			const restaurant = createEligibleRestaurant();
+
+			expect(restaurant.isEligibleForCustomer()).toBe(true);
+			expect(() => restaurant.ensureCustomerAccess()).not.toThrow();
+
+			restaurant.block("Violation");
+			expect(restaurant.isEligibleForCustomer()).toBe(false);
+			expect(() => restaurant.ensureCustomerAccess()).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
 	});
 });

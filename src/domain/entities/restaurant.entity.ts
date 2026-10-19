@@ -1,7 +1,12 @@
 import {
+	ForbiddenAccessError,
+	RestaurantAccountBlockedError,
+} from "@domain/errors/staff.errors";
+import {
 	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
+	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import {
 	type OnboardingStatus,
@@ -11,12 +16,15 @@ import {
 	type RestaurantStatus,
 	RestaurantStatusVO,
 } from "@/domain/value-objects/restaurant-status.vo.ts";
-import { messages } from "@/shared/constants/message.constants.ts";
-import {
-	ForbiddenAccessError,
-	RestaurantAccountBlockedError,
-} from "@domain/errors/staff.errors";
 import { SubscriptionPlanVO } from "@/domain/value-objects/subscription-plan.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
+
+export interface RestaurantCustomerEligibilityProps {
+	status: string | RestaurantStatusVO;
+	isBlocked: boolean;
+	isSubscriptionActive: boolean;
+	onboardingStatus: string | OnboardingStatusVO;
+}
 
 export interface RestaurantProps {
 	id: string;
@@ -441,6 +449,24 @@ export class Restaurant {
 		// In Application Restaurant Id is same as restaurant admins userId from JWT
 		if (this.id !== userId) {
 			throw new ForbiddenAccessError();
+		}
+	}
+
+	public isEligibleForCustomer(now:Date = new Date()):boolean{
+		return (
+			this.status === "ACTIVE" &&
+			!this.isBlocked &&
+			this.isSubscriptionEligible(now) && 
+			this.onboardingStatus === "COMPLETED"
+		)
+	}
+
+
+	public ensureCustomerAccess(now: Date =new Date()): void {
+		if(!this.isEligibleForCustomer(now)){
+			throw new RestaurantNotFoundError(
+				messages.RESTAURANT_NOT_FOUND
+			)
 		}
 	}
 }

@@ -1,6 +1,6 @@
+import type { IDeleteAddonUseCase } from "@application/ports/use-cases/addon/delete-addon.use-case.port";
 import { inject, injectable } from "inversify";
 import type { DeleteAddonInputDto } from "@/application/dtos/addon/delete-addon.dto.ts";
-import type { IDeleteAddonUseCase } from "@application/ports/use-cases/addon/delete-addon.use-case.port";
 import { TYPES } from "@/config/di/types.ts";
 import { AddonNotFoundError } from "@/domain/errors/addon.errors.ts";
 import {
@@ -38,7 +38,9 @@ export class DeleteAddonUseCase implements IDeleteAddonUseCase {
 		}
 
 		if (restaurant.isBlocked) {
-			throw new RestaurantAccountBlockedError(messages.RESTAURANT_ACCOUNT_BLOCKED);
+			throw new RestaurantAccountBlockedError(
+				messages.RESTAURANT_ACCOUNT_BLOCKED,
+			);
 		}
 
 		const addon = await this.addonRepository.findById(input.addonId);

@@ -1,7 +1,7 @@
-import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import { UpdateAddonUseCase } from "@application/use-cases/addon/update-addon.use-case";
 import { Addon } from "@/domain/entities/addon.entity.ts";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
+import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 import {
 	AddonAlreadyExistsError,
 	AddonNotFoundError,
@@ -17,8 +17,8 @@ import {
 	StaffSuspendedError,
 } from "@/domain/errors/staff.errors.ts";
 import type { IAddonRepository } from "@/domain/repositories/addon.repository.interface.ts";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
-import type { RestaurantStaff } from "@/domain/entities/restaurant-staff.entity.ts";
 
 describe("UpdateAddonUseCase", () => {
 	let useCase: UpdateAddonUseCase;

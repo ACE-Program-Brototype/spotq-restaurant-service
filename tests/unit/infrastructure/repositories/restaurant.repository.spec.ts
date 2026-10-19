@@ -9,6 +9,7 @@ import {
 } from "@/domain/errors/restaurant.errors";
 import { RestaurantRepository } from "@/infrastructure/database/repositories/restaurant.repository";
 import { PersistenceError } from "@/infrastructure/errors/persistence.error";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 
 describe("RestaurantRepository", () => {
 	let mockPrisma: {
@@ -221,6 +222,212 @@ describe("RestaurantRepository", () => {
 					"evt-err",
 				),
 			).rejects.toThrow("Database connection failure");
+		});
+	});
+
+	describe("findCustomerRestaurantDetails", () => {
+		const restaurantId = "123e4567-e89b-12d3-a456-426614174000";
+
+		it("should query Prisma with restaurantId constraint on addons and active/non-deleted filters", async () => {
+			mockPrisma.restaurant.findFirst.mockResolvedValueOnce({
+				id: restaurantId,
+				restaurantName: "Test Diner",
+				email: "diner@test.com",
+				phone: "+919876543210",
+				ownerName: "John Doe",
+				ownerEmail: "owner@test.com",
+				status: "ACTIVE",
+				isBlocked: false,
+				isSubscriptionActive: true,
+				subscriptionPlanCode: "QUEUE_PRO",
+				subscriptionEndsAt: null,
+				onboardingStatus: "COMPLETED",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				address: {
+					id: "addr-1",
+					addressLine1: "123 Main St",
+					addressLine2: null,
+					city: "Kochi",
+					state: "Kerala",
+					country: "India",
+					pincode: "682001",
+					latitude: 9.9312,
+					longitude: 76.2673,
+				},
+				profile: {
+					description: "Best test diner",
+					cuisineType: "Continental",
+					averageCost: 500,
+					coverImageKey: "covers/diner.jpg",
+				},
+				settings: {
+					isOpened: true,
+					isPreorder: false,
+					acceptsQueue: true,
+					acceptsQrOrders: true,
+				},
+				operatingHours: [],
+				images: [],
+				menuCategories: [
+					{
+						id: "cat-1",
+						name: "Burgers",
+						description: "Delicious burgers",
+						displayOrder: 1,
+						menuItems: [
+							{
+								id: "item-1",
+								categoryId: "cat-1",
+								name: "Cheese Burger",
+								description: "Beef and cheese",
+								price: 200,
+								preparationTime: 15,
+								calories: 500,
+								isVegetarian: false,
+								isFeatured: true,
+								isAvailable: true,
+								images: [],
+								variants: [],
+								addons: [
+									{
+										id: "link-1",
+										priceOverride: 30,
+										addon: {
+											id: "addon-1",
+											name: "Extra Cheese",
+											description: "Melted cheddar",
+											price: 25,
+											imageKey: "addons/cheese.jpg",
+											isAvailable: true,
+										},
+									},
+								],
+							},
+						],
+					},
+				],
+			});
+
+			const result = await repository.findCustomerRestaurantDetails({
+				restaurantId,
+				includeMenu: true,
+			});
+
+			expect(mockPrisma.restaurant.findFirst).toHaveBeenCalledWith(
+				expect.objectContaining({
+					where: {
+						id: restaurantId,
+						status: "ACTIVE",
+						isBlocked: false,
+						isSubscriptionActive: true,
+						onboardingStatus: "COMPLETED",
+					},
+					select: expect.objectContaining({
+						menuCategories: expect.objectContaining({
+							where: {
+								isDeleted: false,
+								isActive: true,
+							},
+							select: expect.objectContaining({
+								menuItems: expect.objectContaining({
+									where: {
+										isDeleted: false,
+										isAvailable: true,
+									},
+									select: expect.objectContaining({
+										addons: expect.objectContaining({
+											where: {
+												addon: {
+													restaurantId,
+													isDeleted: false,
+													isAvailable: true,
+												},
+											},
+										}),
+									}),
+								}),
+							}),
+						}),
+					}),
+				}),
+			);
+
+			expect(result).not.toBeNull();
+			expect(result?.restaurant).toBeInstanceOf(Restaurant);
+			expect(result?.details.menuCategories[0].menuItems[0].addons[0]).toEqual({
+				id: "link-1",
+				addonId: "addon-1",
+				name: "Extra Cheese",
+				description: "Melted cheddar",
+				price: 25,
+				priceOverride: 30,
+				imageKey: "addons/cheese.jpg",
+				isAvailable: true,
+			});
+		});
+
+		it("should filter by categoryId when provided in params", async () => {
+			mockPrisma.restaurant.findFirst.mockResolvedValueOnce(null);
+
+			await repository.findCustomerRestaurantDetails({
+				restaurantId,
+				includeMenu: true,
+				categoryId: "cat-specific-id",
+			});
+
+			expect(mockPrisma.restaurant.findFirst).toHaveBeenCalledWith(
+				expect.objectContaining({
+					select: expect.objectContaining({
+						menuCategories: expect.objectContaining({
+							where: {
+								isDeleted: false,
+								isActive: true,
+								id: "cat-specific-id",
+							},
+						}),
+					}),
+				}),
+			);
+		});
+
+		it("should omit menuCategories from query select when includeMenu is false", async () => {
+			mockPrisma.restaurant.findFirst.mockResolvedValueOnce({
+				id: restaurantId,
+				restaurantName: "Test Diner",
+				email: "diner@test.com",
+				phone: "+919876543210",
+				ownerName: "John Doe",
+				ownerEmail: "owner@test.com",
+				status: "ACTIVE",
+				isBlocked: false,
+				isSubscriptionActive: true,
+				subscriptionPlanCode: "QUEUE_PRO",
+				subscriptionEndsAt: null,
+				onboardingStatus: "COMPLETED",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				address: null,
+				profile: null,
+				settings: null,
+				operatingHours: [],
+				images: [],
+			});
+
+			const result = await repository.findCustomerRestaurantDetails({
+				restaurantId,
+				includeMenu: false,
+			});
+
+			expect(mockPrisma.restaurant.findFirst).toHaveBeenCalledWith(
+				expect.objectContaining({
+					select: expect.not.objectContaining({
+						menuCategories: expect.anything(),
+					}),
+				}),
+			);
+			expect(result?.restaurant).toBeInstanceOf(Restaurant);
+			expect(result?.details.menuCategories).toEqual([]);
 		});
 	});
 });

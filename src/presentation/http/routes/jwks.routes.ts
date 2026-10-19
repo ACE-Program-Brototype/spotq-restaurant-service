@@ -11,4 +11,3 @@ const jwksController = container.get<JwksController>(TYPES.JWKSController);
 jwksRouter.get(JWKS_ROUTES.JWKS, jwksController.getJwks.bind(jwksController));
 
 export default jwksRouter;
-
