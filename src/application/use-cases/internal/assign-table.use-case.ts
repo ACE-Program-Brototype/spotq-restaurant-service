@@ -38,7 +38,7 @@ export class AssignTableUseCase implements IAssignTableUseCase {
 		);
 
 		if (tables.length !== input.tables.length) {
-			throw new g();
+			throw new TableNotFoundError();
 		}
 
 		for (const requestedTable of input.tables) {

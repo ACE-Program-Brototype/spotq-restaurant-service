@@ -98,7 +98,9 @@ export const DOMAIN_ERROR_STATUS_MAP: Record<string, HttpStatusCode> = {
 	InvalidMenuItemDataError: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 	InvalidVariantDataError: HTTP_STATUS.UNPROCESSABLE_ENTITY,
 
+	// TABLE
 	[DOMAIN_ERROR_CODES.TABLE_IN_USE]: HTTP_STATUS.CONFLICT,
+	[DOMAIN_ERROR_CODES.TABLE_NOT_AVAILABLE]: HTTP_STATUS.CONFLICT,
 };
 
 export function getStatusCodeForDomainError(
