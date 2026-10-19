@@ -27,7 +27,6 @@ export class DeleteTableSectionUseCase implements IDeleteTableSectionUseCase {
 	async execute(
 		input: IDeleteTableSectionInputDTO,
 	): Promise<IDeleteTableSectionOutputDTO> {
-		// Ensure restaurant exists
 		const restaurant = await this._restaurantRepository.findById(
 			input.restaurantId,
 		);
@@ -35,10 +34,8 @@ export class DeleteTableSectionUseCase implements IDeleteTableSectionUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
-		// Ensure restaurant have admin access
 		restaurant.ensureAdminAccess(input.userId);
 
-		// Ensure table sectionId exists
 		const tableSection =
 			await this._tableSectionRepository.findTableSectionById(
 				input.tableSectionId,
@@ -52,7 +49,6 @@ export class DeleteTableSectionUseCase implements IDeleteTableSectionUseCase {
 			throw new TableSectionNotFound();
 		}
 
-		// Ensure no tables are there for the section
 		const countTablesWithTheSection =
 			await this._tableRepository.countActiveBySectionId(tableSection.id);
 
