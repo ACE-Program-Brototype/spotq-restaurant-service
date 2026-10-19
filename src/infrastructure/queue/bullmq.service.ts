@@ -3,7 +3,7 @@ import { env } from "@/config/env.ts";
 import { QUEUE_CONFIG, QUEUE_NAMES } from "@/shared/constants/queue.constants";
 
 const isTls = env.REDIS_URL.startsWith("rediss://");
-const parsedUrl = new URL(env.REDIS_URL);
+const parsedUrl = new URL('redis://localhost:6379');
 
 export const bullMQConnection: ConnectionOptions = {
 	host: parsedUrl.hostname,
