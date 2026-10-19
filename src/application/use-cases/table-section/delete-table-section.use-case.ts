@@ -12,8 +12,9 @@ import {
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { ITableRepository } from "@domain/repositories/table.repository.interface";
 import type { ITableSectionRepository } from "@domain/repositories/table-section.respository.interface";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class DeleteTableSectionUseCase implements IDeleteTableSectionUseCase {
 	constructor(
 		@inject(TYPES.Repositories.TableSectionRepository)
