@@ -3,6 +3,7 @@ import {
 	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
+	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 
 describe("Restaurant Entity", () => {
@@ -210,5 +211,81 @@ describe("Restaurant Entity", () => {
 
 		restaurant.expireSubscription();
 		expect(restaurant.isSubscriptionActive).toBe(false);
+	});
+
+	describe("Customer Eligibility (isEligibleForCustomer, ensureCustomerAccess)", () => {
+		const eligibleProps = {
+			status: "ACTIVE",
+			isBlocked: false,
+			isSubscriptionActive: true,
+			onboardingStatus: "COMPLETED",
+		};
+
+		it("should return true when all eligibility requirements are satisfied", () => {
+			expect(Restaurant.isEligibleForCustomer(eligibleProps)).toBe(true);
+			expect(() =>
+				Restaurant.ensureCustomerAccess(eligibleProps),
+			).not.toThrow();
+		});
+
+		it("should return false and throw RestaurantNotFoundError when status is not ACTIVE", () => {
+			const props = { ...eligibleProps, status: "PENDING" };
+			expect(Restaurant.isEligibleForCustomer(props)).toBe(false);
+			expect(() => Restaurant.ensureCustomerAccess(props)).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should return false and throw RestaurantNotFoundError when isBlocked is true", () => {
+			const props = { ...eligibleProps, isBlocked: true };
+			expect(Restaurant.isEligibleForCustomer(props)).toBe(false);
+			expect(() => Restaurant.ensureCustomerAccess(props)).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should return false and throw RestaurantNotFoundError when isSubscriptionActive is false", () => {
+			const props = { ...eligibleProps, isSubscriptionActive: false };
+			expect(Restaurant.isEligibleForCustomer(props)).toBe(false);
+			expect(() => Restaurant.ensureCustomerAccess(props)).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should return false and throw RestaurantNotFoundError when onboardingStatus is not COMPLETED", () => {
+			const props = { ...eligibleProps, onboardingStatus: "PENDING" };
+			expect(Restaurant.isEligibleForCustomer(props)).toBe(false);
+			expect(() => Restaurant.ensureCustomerAccess(props)).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
+
+		it("should work correctly via instance methods on a reconstituted Restaurant entity", () => {
+			const restaurant = Restaurant.reconstitute({
+				id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+				restaurantName: "Diner Prime",
+				email: "info@dinerprime.com",
+				phone: "+9876543210",
+				ownerName: "John Doe",
+				ownerEmail: "john@dinerprime.com",
+				status: "ACTIVE",
+				onboardingStatus: "COMPLETED",
+				emailVerifiedAt: new Date(),
+				isSubscriptionActive: true,
+				isBlocked: false,
+				blockReason: null,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			});
+
+			expect(restaurant.isEligibleForCustomer()).toBe(true);
+			expect(() => restaurant.ensureCustomerAccess()).not.toThrow();
+
+			restaurant.block("Violation");
+			expect(restaurant.isEligibleForCustomer()).toBe(false);
+			expect(() => restaurant.ensureCustomerAccess()).toThrow(
+				RestaurantNotFoundError,
+			);
+		});
 	});
 });

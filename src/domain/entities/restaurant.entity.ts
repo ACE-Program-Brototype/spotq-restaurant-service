@@ -6,6 +6,7 @@ import {
 	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
+	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import {
 	type OnboardingStatus,
@@ -17,6 +18,13 @@ import {
 } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { SubscriptionPlanVO } from "@/domain/value-objects/subscription-plan.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
+
+export interface RestaurantCustomerEligibilityProps {
+	status: string | RestaurantStatusVO;
+	isBlocked: boolean;
+	isSubscriptionActive: boolean;
+	onboardingStatus: string | OnboardingStatusVO;
+}
 
 export interface RestaurantProps {
 	id: string;
@@ -442,5 +450,50 @@ export class Restaurant {
 		if (this.id !== userId) {
 			throw new ForbiddenAccessError();
 		}
+	}
+
+	/**
+	 * Determines whether a restaurant is eligible for customer access.
+	 * Core Domain Rule:
+	 * Must be ACTIVE, not blocked, onboarding completed, and have an active subscription.
+	 */
+	public static isEligibleForCustomer(
+		props: RestaurantCustomerEligibilityProps,
+	): boolean {
+		if (!props) return false;
+
+		const status =
+			typeof props.status === "string" ? props.status : props.status?.value;
+		const onboardingStatus =
+			typeof props.onboardingStatus === "string"
+				? props.onboardingStatus
+				: props.onboardingStatus?.value;
+
+		return (
+			status === "ACTIVE" &&
+			props.isBlocked === false &&
+			props.isSubscriptionActive === true &&
+			onboardingStatus === "COMPLETED"
+		);
+	}
+
+	/**
+	 * Domain guard: Throws RestaurantNotFoundError if restaurant is not customer-accessible.
+	 * Returning not found prevents leaking existence/internal state of inactive/suspended restaurants to customers.
+	 */
+	public static ensureCustomerAccess(
+		props: RestaurantCustomerEligibilityProps,
+	): void {
+		if (!Restaurant.isEligibleForCustomer(props)) {
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+	}
+
+	public isEligibleForCustomer(): boolean {
+		return Restaurant.isEligibleForCustomer(this);
+	}
+
+	public ensureCustomerAccess(): void {
+		Restaurant.ensureCustomerAccess(this);
 	}
 }
