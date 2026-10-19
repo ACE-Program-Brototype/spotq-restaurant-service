@@ -65,3 +65,11 @@ export class TableAlreadyOccupiedError extends DomainError {
 		super(message);
 	}
 }
+
+export class TableInUseError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.TABLE_IN_USE;
+
+	constructor(message: string = messages.TABLE_IN_USE) {
+		super(message);
+	}
+}
