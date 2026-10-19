@@ -1,3 +1,4 @@
+import type { InternalTableController } from "@presentation/http/controllers/internal-table.controller";
 import type { TableController } from "@presentation/http/controllers/table.controller";
 import type { TableSectionController } from "@presentation/http/controllers/table-section.controller";
 import type { AddonController } from "@/presentation/http/controllers/addon.controller";
@@ -14,7 +15,6 @@ import type { StaffController } from "@/presentation/http/controllers/staff.cont
 import type { StorageController } from "@/presentation/http/controllers/storage.controller";
 import { container } from "./container";
 import { TYPES } from "./types";
-import { InternalTableController } from "@presentation/http/controllers/internal-table.controller";
 
 export const menuCategoryController = container.get<MenuCategoryController>(
 	TYPES.Controller.MenuCategoryController,

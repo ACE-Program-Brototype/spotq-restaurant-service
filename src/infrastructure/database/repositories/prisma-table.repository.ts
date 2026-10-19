@@ -43,7 +43,7 @@ export class PrismaTableRepository
 	};
 	constructor(
 		@inject(TYPES.PrismaClient)
-		prisma: PrismaClient,
+		private readonly prisma: PrismaClient,
 	) {
 		super(
 			prisma.table,
@@ -58,7 +58,6 @@ export class PrismaTableRepository
 			isDeleted: false,
 		});
 	}
-
 
 	private static readonly SORT_COLUMNS = {
 		createdAt: "createdAt",
@@ -156,7 +155,6 @@ export class PrismaTableRepository
 		}, {});
 	}
 
-
 	async findByTableCodeAndRestaurant(
 		name: string,
 		restaurantId: string,
@@ -218,5 +216,33 @@ export class PrismaTableRepository
 			restaurantId,
 			availableTableCapacities: availableTables.map((table) => table.capacity),
 		};
+	}
+
+	async findByIds(restaurantId: string, tableIds: string[]): Promise<Table[]> {
+		const records = (await this.run(() =>
+			this.delegate.findMany({
+				where: {
+					restaurantId,
+					id: { in: tableIds },
+					isDeleted: false,
+				},
+			}),
+		)) as PrismaTable[];
+
+		return records.map((record) => this.mapper.toDomain(record));
+	}
+
+	async updateMany(tables: Table[]): Promise<void> {
+		await this.run(async () => {
+			await this.prisma.$transaction(
+				tables.map((table) => {
+					const persistenceData = this.mapper.toPersistence(table);
+					return this.delegate.update({
+						where: { id: table.id },
+						data: persistenceData,
+					});
+				}),
+			);
+		});
 	}
 }

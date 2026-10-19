@@ -10,6 +10,7 @@ import {
 	InvalidTableCodeError,
 	InvalidTableShapeError,
 	TableAlreadyOccupiedError,
+	TableNotAvailableError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 
@@ -124,7 +125,7 @@ export class Table {
 			this.currentOccupancy === 0 && this.status === TABLE_STATUS.AVAILABLE
 		);
 	}
-	
+
 	public update(
 		props: Partial<
 			Pick<
@@ -176,6 +177,33 @@ export class Table {
 		this.props.updatedAt = new Date();
 	}
 
+	releaseGuest(count: number) {
+		if (!Number.isInteger(count) || count < 1) {
+			throw new InvalidTableCapacityError();
+		}
+		if (
+			this.status !== TABLE_STATUS.PARTIAL_OCCUPIED &&
+			this.status !== TABLE_STATUS.OCCUPIED
+		) {
+			throw new TableNotAvailableError();
+		}
+
+		const newOccupancy = this.props.currentOccupancy - count;
+
+		if (newOccupancy < 0) {
+			throw new InvalidTableCapacityError();
+		}
+
+		this.props.currentOccupancy = newOccupancy;
+
+		this.props.status =
+			newOccupancy === 0
+				? TABLE_STATUS.AVAILABLE
+				: TABLE_STATUS.PARTIAL_OCCUPIED;
+
+		this.props.updatedAt = new Date();
+	}
+	
 	get id() {
 		return this.props.id;
 	}
