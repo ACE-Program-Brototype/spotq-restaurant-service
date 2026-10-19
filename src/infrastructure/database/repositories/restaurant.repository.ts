@@ -25,7 +25,7 @@ import {
 } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	CustomerRestaurantDetailsQueryParams,
-	CustomerRestaurantDetailsRecord,
+	CustomerRestaurantDetailsResult,
 	CustomerRestaurantFilterParams,
 	CustomerRestaurantListItem,
 	IRestaurantRepository,
@@ -1290,7 +1290,7 @@ export class RestaurantRepository
 
 	async findCustomerRestaurantDetails(
 		params: CustomerRestaurantDetailsQueryParams,
-	): Promise<CustomerRestaurantDetailsRecord | null> {
+	): Promise<CustomerRestaurantDetailsResult | null> {
 		return this.run(async () => {
 			const { restaurantId, includeMenu = true, categoryId } = params;
 
@@ -1307,10 +1307,16 @@ export class RestaurantRepository
 				restaurantName: true,
 				email: true,
 				phone: true,
+				ownerName: true,
+				ownerEmail: true,
 				status: true,
 				isBlocked: true,
 				isSubscriptionActive: true,
+				subscriptionPlanCode: true,
+				subscriptionEndsAt: true,
 				onboardingStatus: true,
+				createdAt: true,
+				updatedAt: true,
 				address: {
 					select: {
 						id: true,
@@ -1458,7 +1464,33 @@ export class RestaurantRepository
 
 				if (!raw) return null;
 
-				return CustomerRestaurantDetailsPersistenceMapper.toRecord(raw);
+				const restaurant = Restaurant.reconstitute({
+					id: raw.id,
+					restaurantName: raw.restaurantName,
+					email: raw.email,
+					phone: raw.phone,
+					ownerName: raw.ownerName,
+					ownerEmail: raw.ownerEmail,
+					status: raw.status,
+					onboardingStatus: raw.onboardingStatus,
+					emailVerifiedAt: null,
+					rejectionReason: null,
+					lastLoginAt: null,
+					isSubscriptionActive: raw.isSubscriptionActive,
+					subscriptionPlanCode: raw.subscriptionPlanCode,
+					subscriptionEndsAt: raw.subscriptionEndsAt,
+					isBlocked: raw.isBlocked,
+					blockReason: null,
+					createdAt: raw.createdAt,
+					updatedAt: raw.updatedAt,
+				});
+
+				const details = CustomerRestaurantDetailsPersistenceMapper.toRecord(raw);
+
+				return {
+					restaurant,
+					details,
+				};
 		});
 	}
 }

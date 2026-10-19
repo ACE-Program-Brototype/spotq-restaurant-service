@@ -284,6 +284,10 @@ export interface RestaurantProfileBusinessHoursDetails {
 	isClosed: boolean;
 }
 
+export interface CustomerRestaurantDetailsResult {
+	restaurant: Restaurant;
+	details: CustomerRestaurantDetailsRecord;
+}
 export interface RestaurantProfileDetails {
 	restaurant: RestaurantProfileItemDetails;
 	profile: RestaurantProfileSectionDetails;
@@ -388,7 +392,7 @@ export interface IRestaurantRepository
 
 	findCustomerRestaurantDetails(
 		params: CustomerRestaurantDetailsQueryParams,
-	): Promise<CustomerRestaurantDetailsRecord | null>;
+	): Promise<CustomerRestaurantDetailsResult | null>;
 }
 
 export interface CustomerRestaurantDetailsQueryParams {

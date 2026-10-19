@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { GetCustomerRestaurantDetailsUseCase } from "@/application/use-cases/restaurant/get-customer-restaurant-details.use-case.ts";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	CustomerRestaurantDetailsRecord,
+	CustomerRestaurantDetailsResult,
 	IRestaurantRepository,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
 
@@ -112,6 +114,42 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		],
 	};
 
+	const createRestaurantResult = (
+		overrides: {
+			status?: string;
+			isBlocked?: boolean;
+			isSubscriptionActive?: boolean;
+			onboardingStatus?: string;
+			subscriptionEndsAt?: Date | null;
+		} = {},
+	): CustomerRestaurantDetailsResult => {
+		const restaurant = Restaurant.reconstitute({
+			id: mockRecord.id,
+			restaurantName: mockRecord.restaurantName,
+			email: mockRecord.email,
+			phone: mockRecord.phone,
+			ownerName: "Restaurant Owner",
+			ownerEmail: "owner@example.com",
+			status: overrides.status ?? "ACTIVE",
+			onboardingStatus: overrides.onboardingStatus ?? "COMPLETED",
+			emailVerifiedAt: null,
+			rejectionReason: null,
+			lastLoginAt: null,
+			isSubscriptionActive: overrides.isSubscriptionActive ?? true,
+			subscriptionPlanCode: "QUEUE_PRO",
+			subscriptionEndsAt: overrides.subscriptionEndsAt ?? null,
+			isBlocked: overrides.isBlocked ?? false,
+			blockReason: null,
+			createdAt: new Date("2026-01-01T00:00:00.000Z"),
+			updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+		});
+
+		return {
+			restaurant,
+			details: mockRecord,
+		};
+	};
+
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockRestaurantRepository = {
@@ -123,7 +161,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 	it("returns safe customer restaurant details including operating hours, location, images, and menu", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
-			mockRecord,
+			createRestaurantResult(),
 		);
 
 		const result = await useCase.execute({
@@ -192,7 +230,9 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		});
 
 		// Verify isClosed is omitted from operatingHours
-		expect((result.operatingHours[0] as unknown as Record<string, unknown>).isClosed).toBeUndefined();
+		expect(
+			(result.operatingHours[0] as unknown as Record<string, unknown>).isClosed,
+		).toBeUndefined();
 
 		// Verify sensitive internal fields are NOT present on output
 		const rawOutput = result as unknown as Record<string, unknown>;
@@ -210,7 +250,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 	it("omits menu items when includeMenu is false", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
-			mockRecord,
+			createRestaurantResult(),
 		);
 
 		const result = await useCase.execute({
@@ -230,7 +270,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 	it("passes categoryId filter to repository", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
-			mockRecord,
+			createRestaurantResult(),
 		);
 
 		await useCase.execute({
@@ -262,10 +302,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 	it("throws RestaurantNotFoundError (404) if restaurant is not ACTIVE", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
-			{
-				...mockRecord,
-				status: "INACTIVE",
-			},
+			createRestaurantResult({ status: "INACTIVE" }),
 		);
 
 		await expect(
@@ -277,10 +314,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 	it("throws RestaurantNotFoundError (404) if restaurant is blocked", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
-			{
-				...mockRecord,
-				isBlocked: true,
-			},
+			createRestaurantResult({ isBlocked: true }),
 		);
 
 		await expect(
@@ -292,10 +326,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 	it("throws RestaurantNotFoundError (404) if restaurant subscription is inactive", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
-			{
-				...mockRecord,
-				isSubscriptionActive: false,
-			},
+			createRestaurantResult({ isSubscriptionActive: false }),
 		);
 
 		await expect(
@@ -307,10 +338,21 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 	it("throws RestaurantNotFoundError (404) if restaurant onboarding is not COMPLETED", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
-			{
-				...mockRecord,
-				onboardingStatus: "PENDING",
-			},
+			createRestaurantResult({ onboardingStatus: "PENDING" }),
+		);
+
+		await expect(
+			useCase.execute({
+				restaurantId: mockRecord.id,
+			}),
+		).rejects.toThrow(RestaurantNotFoundError);
+	});
+
+	it("throws RestaurantNotFoundError if the subscription has expired", async () => {
+		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
+			createRestaurantResult({
+				subscriptionEndsAt: new Date("2020-01-01T00:00:00.000Z"),
+			}),
 		);
 
 		await expect(

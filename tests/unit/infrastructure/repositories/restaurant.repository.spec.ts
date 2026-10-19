@@ -9,6 +9,7 @@ import {
 } from "@/domain/errors/restaurant.errors";
 import { RestaurantRepository } from "@/infrastructure/database/repositories/restaurant.repository";
 import { PersistenceError } from "@/infrastructure/errors/persistence.error";
+import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 
 describe("RestaurantRepository", () => {
 	let mockPrisma: {
@@ -233,10 +234,16 @@ describe("RestaurantRepository", () => {
 				restaurantName: "Test Diner",
 				email: "diner@test.com",
 				phone: "+919876543210",
+				ownerName: "John Doe",
+				ownerEmail: "owner@test.com",
 				status: "ACTIVE",
 				isBlocked: false,
 				isSubscriptionActive: true,
+				subscriptionPlanCode: "QUEUE_PRO",
+				subscriptionEndsAt: null,
 				onboardingStatus: "COMPLETED",
+				createdAt: new Date(),
+				updatedAt: new Date(),
 				address: {
 					id: "addr-1",
 					addressLine1: "123 Main St",
@@ -347,7 +354,8 @@ describe("RestaurantRepository", () => {
 			);
 
 			expect(result).not.toBeNull();
-			expect(result?.menuCategories[0].menuItems[0].addons[0]).toEqual({
+			expect(result?.restaurant).toBeInstanceOf(Restaurant);
+			expect(result?.details.menuCategories[0].menuItems[0].addons[0]).toEqual({
 				id: "link-1",
 				addonId: "addon-1",
 				name: "Extra Cheese",
@@ -389,10 +397,16 @@ describe("RestaurantRepository", () => {
 				restaurantName: "Test Diner",
 				email: "diner@test.com",
 				phone: "+919876543210",
+				ownerName: "John Doe",
+				ownerEmail: "owner@test.com",
 				status: "ACTIVE",
 				isBlocked: false,
 				isSubscriptionActive: true,
+				subscriptionPlanCode: "QUEUE_PRO",
+				subscriptionEndsAt: null,
 				onboardingStatus: "COMPLETED",
+				createdAt: new Date(),
+				updatedAt: new Date(),
 				address: null,
 				profile: null,
 				settings: null,
@@ -412,7 +426,8 @@ describe("RestaurantRepository", () => {
 					}),
 				}),
 			);
-			expect(result?.menuCategories).toEqual([]);
+			expect(result?.restaurant).toBeInstanceOf(Restaurant);
+			expect(result?.details.menuCategories).toEqual([]);
 		});
 	});
 });

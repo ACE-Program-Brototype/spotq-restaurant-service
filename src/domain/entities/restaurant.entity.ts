@@ -452,48 +452,21 @@ export class Restaurant {
 		}
 	}
 
-	/**
-	 * Determines whether a restaurant is eligible for customer access.
-	 * Core Domain Rule:
-	 * Must be ACTIVE, not blocked, onboarding completed, and have an active subscription.
-	 */
-	public static isEligibleForCustomer(
-		props: RestaurantCustomerEligibilityProps,
-	): boolean {
-		if (!props) return false;
-
-		const status =
-			typeof props.status === "string" ? props.status : props.status?.value;
-		const onboardingStatus =
-			typeof props.onboardingStatus === "string"
-				? props.onboardingStatus
-				: props.onboardingStatus?.value;
-
+	public isEligibleForCustomer(now:Date = new Date()):boolean{
 		return (
-			status === "ACTIVE" &&
-			props.isBlocked === false &&
-			props.isSubscriptionActive === true &&
-			onboardingStatus === "COMPLETED"
-		);
+			this.status === "ACTIVE" &&
+			!this.isBlocked &&
+			this.isSubscriptionEligible(now) && 
+			this.onboardingStatus === "COMPLETED"
+		)
 	}
 
-	/**
-	 * Domain guard: Throws RestaurantNotFoundError if restaurant is not customer-accessible.
-	 * Returning not found prevents leaking existence/internal state of inactive/suspended restaurants to customers.
-	 */
-	public static ensureCustomerAccess(
-		props: RestaurantCustomerEligibilityProps,
-	): void {
-		if (!Restaurant.isEligibleForCustomer(props)) {
-			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+
+	public ensureCustomerAccess(now: Date =new Date()): void {
+		if(!this.isEligibleForCustomer(now)){
+			throw new RestaurantNotFoundError(
+				messages.RESTAURANT_NOT_FOUND
+			)
 		}
-	}
-
-	public isEligibleForCustomer(): boolean {
-		return Restaurant.isEligibleForCustomer(this);
-	}
-
-	public ensureCustomerAccess(): void {
-		Restaurant.ensureCustomerAccess(this);
 	}
 }
