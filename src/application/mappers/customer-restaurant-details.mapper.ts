@@ -75,7 +75,6 @@ export const CustomerRestaurantDetailsMapper = {
 			id: oh.id,
 			dayOfWeek: oh.dayOfWeek,
 			isOpen: oh.isOpen,
-			isClosed: oh.isClosed,
 			openTime:
 				oh.openTime instanceof Date
 					? oh.openTime.toISOString()
@@ -119,7 +118,6 @@ export const CustomerRestaurantDetailsMapper = {
 
 				const variants = (item.variants || []).map((v) => ({
 					id: v.id,
-					sku: v.sku,
 					name: v.name,
 					price: Number(v.price),
 					isDefault: v.isDefault,
@@ -131,9 +129,10 @@ export const CustomerRestaurantDetailsMapper = {
 					addonId: a.addonId,
 					name: a.name,
 					description: a.description,
-					price: Number(a.price),
-					priceOverride:
-						a.priceOverride != null ? Number(a.priceOverride) : null,
+					price:
+						a.priceOverride != null
+							? Number(a.priceOverride)
+							: Number(a.price),
 					imageKey: a.imageKey,
 					isAvailable: a.isAvailable,
 				}));

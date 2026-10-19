@@ -173,7 +173,26 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		expect(result.menu[0].items[0].name).toBe("Chicken Dum Biryani");
 		expect(result.menu[0].items[0].price).toBe(250);
 		expect(result.menu[0].items[0].variants).toHaveLength(1);
+		expect(result.menu[0].items[0].variants[0]).toEqual({
+			id: "var-1",
+			name: "Full Portion",
+			price: 250,
+			isDefault: true,
+			isAvailable: true,
+		});
 		expect(result.menu[0].items[0].addons).toHaveLength(1);
+		expect(result.menu[0].items[0].addons[0]).toEqual({
+			id: "addon-map-1",
+			addonId: "addon-1",
+			name: "Extra Raita",
+			description: "Creamy cucumber raita",
+			price: 30,
+			imageKey: null,
+			isAvailable: true,
+		});
+
+		// Verify isClosed is omitted from operatingHours
+		expect((result.operatingHours[0] as unknown as Record<string, unknown>).isClosed).toBeUndefined();
 
 		// Verify sensitive internal fields are NOT present on output
 		const rawOutput = result as unknown as Record<string, unknown>;

@@ -27,7 +27,6 @@ export interface CustomerRestaurantOperatingHourDTO {
 	id: string;
 	dayOfWeek: number;
 	isOpen: boolean;
-	isClosed: boolean;
 	openTime: string | null;
 	closeTime: string | null;
 }
@@ -40,7 +39,6 @@ export interface CustomerRestaurantImageDTO {
 
 export interface CustomerRestaurantVariantDTO {
 	id: string;
-	sku: string | null;
 	name: string;
 	price: number;
 	isDefault: boolean;
@@ -53,7 +51,6 @@ export interface CustomerRestaurantAddonDTO {
 	name: string;
 	description: string | null;
 	price: number;
-	priceOverride: number | null;
 	imageKey: string | null;
 	isAvailable: boolean;
 }
