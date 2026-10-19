@@ -393,7 +393,8 @@ export const messages = {
 	INVALID_TABLE_ID: "Invalid Table Id",
 	TABLES_REQUIRED: "At least one table must be provided",
 	TABLE_NOT_AVAILABLE: "Table Not Available",
-	
+	DUPLICATE_TABLE_ID: "Duplicate Table id",
+
 	INVALID_PARTY_SIZE: "Invalid Party Size",
 } as const;
 
