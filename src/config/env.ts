@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import fs from "node:fs";
 import { z } from "zod";
 
 let testKeyPair: { privateKey: string; publicKey: string } | null = null;
@@ -43,7 +44,22 @@ const envSchema = z.object({
 			message: "PORT must be an integer between 1 and 65535",
 		}),
 	DATABASE_URL: urlValidator("DATABASE_URL", ["postgres:", "postgresql:"]),
-	REDIS_URL: urlValidator("REDIS_URL", ["redis:", "rediss:"]),
+	REDIS_URL: urlValidator("REDIS_URL", ["redis:", "rediss:"]).transform(
+		(val) => {
+			try {
+				const parsed = new URL(val);
+				if (
+					(fs.existsSync("/.dockerenv") ||
+						process.env.NODE_ENV === "production") &&
+					(parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1")
+				) {
+					parsed.hostname = "redis";
+					return parsed.toString();
+				}
+			} catch {}
+			return val;
+		},
+	),
 	APP_ENV: z.preprocess(
 		(value) => (typeof value === "string" ? value.trim() : value),
 		z.string().min(1).default("development"),
@@ -167,6 +183,7 @@ const envSchema = z.object({
 	}, z.string().min(1)),
 
 	S2S_AUDIENCE: z.string().trim().default("restaurant-service"),
+	SERVICE_NAME: z.string().trim().default("restaurant-service"),
 
 	JWT_KEY_TYPE: z.string().trim().default("RSA"),
 	JWT_KEY_USE: z.string().trim().default("sig"),

@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import type { IGetInternalMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-internal-menu-item-details.use-case.port.ts";
 import type { IValidateRestaurantEligibilityUseCase } from "@/application/ports/use-cases/validate-restaurant-eligibility.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -11,6 +12,8 @@ export class InternalRestaurantController {
 	constructor(
 		@inject(TYPES.UseCases.ValidateRestaurantEligibilityUseCase)
 		private readonly validateRestaurantEligibilityUseCase: IValidateRestaurantEligibilityUseCase,
+		@inject(TYPES.UseCases.GetInternalMenuItemDetailsUseCase)
+		private readonly getInternalMenuItemDetailsUseCase: IGetInternalMenuItemDetailsUseCase,
 	) {}
 
 	validateRestaurant = async (
@@ -28,4 +31,24 @@ export class InternalRestaurantController {
 			HTTP_STATUS.OK,
 		);
 	};
+
+	getMenuItemDetails = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = String(req.params.restaurantId);
+		const menuItemId = String(req.params.menuItemId ?? req.params.id);
+		const result = await this.getInternalMenuItemDetailsUseCase.execute({
+			restaurantId,
+			menuItemId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
 }
+

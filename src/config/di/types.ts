@@ -137,18 +137,24 @@ export const TYPES = {
 		// TABLE SECTION
 		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
 		GetTableSectionUseCase: Symbol.for("GetTableSectionUseCase"),
+		DeleteTableSectionUseCase: Symbol.for("DeleteTableSectionUseCase"),
 
 		// TABLE
 		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
+		UpdateTableUseCase: Symbol.for("UpdateTableUseCase"),
 		GetTableUseCase: Symbol.for("GetTableUseCase"),
 		GetTableAvailabilityUseCase: Symbol.for("GetTableAvailabilityUseCase"),
 		UpdateTableStatusUseCase: Symbol.for("UpdateTableStatusUseCase"),
+		DeleteTableUseCase: Symbol.for("DeleteTableUseCase"),
 
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",
 		),
 		ValidateRestaurantEligibilityUseCase: Symbol.for(
 			"ValidateRestaurantEligibilityUseCase",
+		),
+		GetInternalMenuItemDetailsUseCase: Symbol.for(
+			"GetInternalMenuItemDetailsUseCase",
 		),
 	},
 

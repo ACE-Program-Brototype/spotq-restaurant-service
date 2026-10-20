@@ -368,6 +368,7 @@ export const messages = {
 	LIMIT_EXCEEDS_MAX: "Limit exceeded",
 	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
 	INVALID_TABLE_SECTION_ID: "Invalid Table section ID",
+	TABLE_SECTION_DELETE_SUCCESS: "Table Section Deleted Successfully",
 
 	// TABLE
 	INVALID_TABLE_CAPACITY: "Table capacity must be greater than 0.",
@@ -383,6 +384,7 @@ export const messages = {
 	TABLE_CREATE_SUCCESS: "Table Created successfully",
 	TABLE_CAPACITY_REQUIRED: "Table capacity required",
 	TABLE_CODE_REQUIRED: "Table code required",
+	TABLE_UPDATE_SUCCESS: "Table Updated Successfully",
 	TABLE_FETCH_SUCCESS: "Table Fetched Successfully",
 	INVALID_TABLE_STATUS: "Invalid Table Status",
 	TABLE_ID_REQUIRED: "Table Id Required",
@@ -390,6 +392,9 @@ export const messages = {
 	TABLE_INVALID_TRANSITION: "Table Invalid Transition",
 	TABLE_MUST_BE_UNOCCUPIED: "Table must be Unoccupied",
 	INVALID_TABLE_ID: "Invalid Table Id",
+	TABLE_IN_USE: "Table In Use",
+	TABLE_DELETE_SUCCESS: "Table deleted Succesfully",
+	TABLE_SECTION_IN_USE: "Table Section in use",
 
 	INVALID_PARTY_SIZE: "Invalid Party Size",
 } as const;

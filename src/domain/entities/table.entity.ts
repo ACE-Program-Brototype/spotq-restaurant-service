@@ -9,6 +9,7 @@ import {
 	InvalidTableCapacityError,
 	InvalidTableCodeError,
 	InvalidTableShapeError,
+	TableAlreadyOccupiedError,
 	TableInvalidTransitionError,
 	TableMustBeUnOccupiedError,
 } from "@domain/errors/table.errors";
@@ -130,7 +131,7 @@ export class Table {
 
 	/**
 	 * Changes status to Available to Maintianene or vice versa
-	 * @param status TableStatusType 
+	 * @param status TableStatusType
 	 * @returns void
 	 */
 	transitionTo(status: TableStatusType) {
@@ -145,6 +146,63 @@ export class Table {
 		}
 
 		this.props.status = status;
+		this.props.updatedAt = new Date();
+	}
+
+	isAvailable() {
+		return (
+			this.currentOccupancy === 0 && this.status === TABLE_STATUS.AVAILABLE
+		);
+	}
+
+	public update(
+		props: Partial<
+			Pick<
+				TablePropsType,
+				"sectionId" | "tableCode" | "capacity" | "tableShape"
+			>
+		>,
+	) {
+		// valide the table code when provided
+		if (props.tableCode !== undefined) {
+			const tableCode = props.tableCode.trim();
+			if (tableCode.length < 1 || tableCode.length > 50) {
+				throw new InvalidTableCodeError();
+			}
+			this.props.tableCode = tableCode;
+		}
+
+		if (props.capacity !== undefined) {
+			if (!Number.isInteger(props.capacity) || props.capacity < 1) {
+				throw new InvalidTableCapacityError();
+			}
+
+			// prevent capacity when the table is occupied
+			if (
+				this.props.currentOccupancy > 0 &&
+				props.capacity !== this.props.capacity
+			) {
+				throw new TableAlreadyOccupiedError();
+			}
+			this.props.capacity = props.capacity;
+		}
+
+		if (props.tableShape !== undefined) {
+			if (!TABLE_SHAPE_VALUES.includes(props.tableShape)) {
+				throw new InvalidTableShapeError();
+			}
+			this.props.tableShape = props.tableShape;
+		}
+
+		if (props.sectionId !== undefined) {
+			const sectionId = props.sectionId.trim();
+			if (!sectionId) {
+				throw new TableSectionIdRequiredError();
+			}
+
+			this.props.sectionId = sectionId;
+		}
+
 		this.props.updatedAt = new Date();
 	}
 

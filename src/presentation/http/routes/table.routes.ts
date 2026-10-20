@@ -14,11 +14,16 @@ import {
 	createTableBodySchema,
 	createTableParamsSchema,
 } from "../validators/table/create-table.validator";
+import { deleteTableParamsSchema } from "../validators/table/delete-table.validator";
 import {
 	getTableAvailabilityQuerySchema,
 	getTableParamsSchema,
 	getTableQuerySchema,
 } from "../validators/table/get-table.validator";
+import {
+	updateTableBodySchema,
+	updateTableParamsSchema,
+} from "../validators/table/update-table.validator";
 import {
 	updateTableStatusBodySchema,
 	updateTableStatusParamsSchema,
@@ -32,6 +37,14 @@ tableRoutes.post(
 	validateRequestParams(createTableParamsSchema),
 	validateRequestBody(createTableBodySchema),
 	tableController.createTable,
+);
+
+tableRoutes.patch(
+	TABLE_ROUTES.UPDATE_TABLE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(updateTableParamsSchema),
+	validateRequestBody(updateTableBodySchema),
+	tableController.updateTable,
 );
 
 tableRoutes.get(
@@ -61,4 +74,10 @@ tableRoutes.patch(
 	validateRequestParams(updateTableStatusParamsSchema),
 	validateRequestBody(updateTableStatusBodySchema),
 	tableController.updateTableStatus,
+);
+tableRoutes.delete(
+	TABLE_ROUTES.DELETE,
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(deleteTableParamsSchema),
+	tableController.deleteTable,
 );

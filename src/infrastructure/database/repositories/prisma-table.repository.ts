@@ -53,18 +53,10 @@ export class PrismaTableRepository
 	}
 
 	async findById(id: string): Promise<Table | null> {
-		return super.findOne<Prisma.TableWhereInput>({
+		return await super.findOne<Prisma.TableWhereInput>({
 			id,
 			isDeleted: false,
 		});
-	}
-
-	async createTable(table: Table): Promise<Table> {
-		return await super.create(table);
-	}
-
-	async save(table: Table): Promise<void> {
-		await super.save(table);
 	}
 
 	private static readonly SORT_COLUMNS = {
@@ -163,10 +155,6 @@ export class PrismaTableRepository
 		}, {});
 	}
 
-	async deleteTable(id: string): Promise<void> {
-		await this.delete(id);
-	}
-
 	async findByTableCodeAndRestaurant(
 		name: string,
 		restaurantId: string,
@@ -228,5 +216,16 @@ export class PrismaTableRepository
 			restaurantId,
 			availableTableCapacities: availableTables.map((table) => table.capacity),
 		};
+	}
+
+	async countActiveBySectionId(sectionId: string): Promise<number> {
+		return this.run(async () =>
+			this.delegate.count({
+				where: {
+					sectionId,
+					isDeleted: false,
+				},
+			}),
+		);
 	}
 }
