@@ -11,9 +11,9 @@ import {
 	assignTableParamsSchema,
 } from "../validators/internal/assign-table.validator";
 
-export const internalTableRoute = Router();
+export const internalTableRouter = Router();
 
-internalTableRoute.patch(
+internalTableRouter.patch(
 	INTERNAL_ROUTES.ASSIGN_TABLE,
 	internalS2SAuthMiddleware(),
 	validateRequestParams(assignTableParamsSchema),

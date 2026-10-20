@@ -90,5 +90,5 @@ export interface ITableRepository extends IBaseRepository<Table> {
 
 	findByIds(restaurantId: string, tableIds: string[]): Promise<Table[]>;
 
-	updateMany(table: Table[]): Promise<void>;
+	updateMany(tables: Table[]): Promise<void>;
 }

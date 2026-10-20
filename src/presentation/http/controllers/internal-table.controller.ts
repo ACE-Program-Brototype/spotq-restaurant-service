@@ -5,6 +5,10 @@ import { messages } from "@shared/constants/message.constants";
 import { sendSuccessResponse } from "@shared/response/api-response";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import type {
+	AssignTableBodyDTO,
+	AssignTableParamsDTO,
+} from "../validators/internal/assign-table.validator";
 
 @injectable()
 export class InternalTableController {
@@ -14,9 +18,9 @@ export class InternalTableController {
 	) {}
 
 	assignTable = async (req: Request, res: Response) => {
-		const { restaurantId } = req.params as { restaurantId: string };
+		const { restaurantId } = req.params as AssignTableParamsDTO;
 
-		const { tables } = req.body;
+		const { tables } = req.body as AssignTableBodyDTO;
 		await this._assignTableUseCase.execute({
 			restaurantId,
 			tables,

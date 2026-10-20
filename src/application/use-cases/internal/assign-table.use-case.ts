@@ -43,7 +43,7 @@ export class AssignTableUseCase implements IAssignTableUseCase {
 
 		for (const requestedTable of input.tables) {
 			const table = tables.find((t) => t.id === requestedTable.tableId);
-
+						
 			if (!table) {
 				throw new TableNotFoundError();
 			}

@@ -11,7 +11,7 @@ export const assignTableBodySchema = z
 			.array(
 				z.object({
 					tableId: z.string().uuid(messages.INVALID_TABLE_ID),
-					count: z.number().int().positive(messages.INVALID_TABLE_CAPACITY),
+					count: z.number().int().positive(messages.INVALID_PARTY_SIZE),
 				}),
 			)
 			.min(1, messages.TABLES_REQUIRED),
@@ -31,7 +31,6 @@ export const assignTableBodySchema = z
 			seen.add(table.tableId);
 		});
 	});
-
 
 export type AssignTableParamsDTO = z.infer<typeof assignTableParamsSchema>;
 export type AssignTableBodyDTO = z.infer<typeof assignTableBodySchema>;
