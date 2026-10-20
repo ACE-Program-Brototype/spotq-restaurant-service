@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { GetCustomerRestaurantDetailsUseCase } from "@/application/use-cases/restaurant/get-customer-restaurant-details.use-case.ts";
-import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type {
 	CustomerRestaurantDetailsRecord,
-	CustomerRestaurantDetailsResult,
 	IRestaurantRepository,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
 
@@ -122,31 +120,10 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 			onboardingStatus?: string;
 			subscriptionEndsAt?: Date | null;
 		} = {},
-	): CustomerRestaurantDetailsResult => {
-		const restaurant = Restaurant.reconstitute({
-			id: mockRecord.id,
-			restaurantName: mockRecord.restaurantName,
-			email: mockRecord.email,
-			phone: mockRecord.phone,
-			ownerName: "Restaurant Owner",
-			ownerEmail: "owner@example.com",
-			status: overrides.status ?? "ACTIVE",
-			onboardingStatus: overrides.onboardingStatus ?? "COMPLETED",
-			emailVerifiedAt: null,
-			rejectionReason: null,
-			lastLoginAt: null,
-			isSubscriptionActive: overrides.isSubscriptionActive ?? true,
-			subscriptionPlanCode: "QUEUE_PRO",
-			subscriptionEndsAt: overrides.subscriptionEndsAt ?? null,
-			isBlocked: overrides.isBlocked ?? false,
-			blockReason: null,
-			createdAt: new Date("2026-01-01T00:00:00.000Z"),
-			updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-		});
-
+	): CustomerRestaurantDetailsRecord => {
 		return {
-			restaurant,
-			details: mockRecord,
+			...mockRecord,
+			...overrides,
 		};
 	};
 

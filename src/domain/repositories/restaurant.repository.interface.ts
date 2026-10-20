@@ -284,10 +284,6 @@ export interface RestaurantProfileBusinessHoursDetails {
 	isClosed: boolean;
 }
 
-export interface CustomerRestaurantDetailsResult {
-	restaurant: Restaurant;
-	details: CustomerRestaurantDetailsRecord;
-}
 export interface RestaurantProfileDetails {
 	restaurant: RestaurantProfileItemDetails;
 	profile: RestaurantProfileSectionDetails;
@@ -392,7 +388,7 @@ export interface IRestaurantRepository
 
 	findCustomerRestaurantDetails(
 		params: CustomerRestaurantDetailsQueryParams,
-	): Promise<CustomerRestaurantDetailsResult | null>;
+	): Promise<CustomerRestaurantDetailsRecord | null>;
 }
 
 export interface CustomerRestaurantDetailsQueryParams {
@@ -498,6 +494,7 @@ export interface CustomerRestaurantDetailsRecord {
 	status: string;
 	isBlocked: boolean;
 	isSubscriptionActive: boolean;
+	subscriptionEndsAt?: Date | null;
 	onboardingStatus: string;
 	address: CustomerRestaurantAddressRecord | null;
 	profile: CustomerRestaurantProfileRecord | null;

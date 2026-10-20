@@ -102,6 +102,7 @@ export interface RawCustomerRestaurantDetails {
 	status: string;
 	isBlocked: boolean;
 	isSubscriptionActive: boolean;
+	subscriptionEndsAt?: Date | null;
 	onboardingStatus: string;
 	address?: RawCustomerRestaurantAddress | null;
 	profile?: RawCustomerRestaurantProfile | null;
@@ -192,6 +193,7 @@ export const CustomerRestaurantDetailsPersistenceMapper = {
 			status: raw.status,
 			isBlocked: raw.isBlocked,
 			isSubscriptionActive: raw.isSubscriptionActive,
+			subscriptionEndsAt: raw.subscriptionEndsAt ?? null,
 			onboardingStatus: raw.onboardingStatus,
 			address,
 			profile,
