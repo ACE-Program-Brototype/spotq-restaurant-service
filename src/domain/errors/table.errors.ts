@@ -66,18 +66,18 @@ export class TableAlreadyOccupiedError extends DomainError {
 	}
 }
 
-export class TableInvalidStatusError extends DomainError {
-	public readonly code = DOMAIN_ERROR_CODES.INVALID_TABLE_STATUS;
+export class TableInvalidTransitionError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.TABLE_INVALID_TRANSITION;
 
-	constructor(message: string = messages.INVALID_TABLE_STATUS) {
+	constructor(message: string = messages.TABLE_INVALID_TRANSITION) {
 		super(message);
 	}
 }
 
-export class TableInvalidTransitionError extends DomainError {
-	public readonly code = DOMAIN_ERROR_CODES.TABLE_INVALID_TRANSITION;
+export class TableMustBeUnOccupiedError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.TABLE_MUST_BE_UNOCCUPIED;
 
-	constructor(message: string = messages.TABLE_INVALID_TRANSITION){
-		super(message)
+	constructor(message: string = messages.TABLE_MUST_BE_UNOCCUPIED) {
+		super(message);
 	}
 }

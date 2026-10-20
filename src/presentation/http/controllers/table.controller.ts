@@ -29,7 +29,7 @@ export class TableController {
 		private readonly _updateTableStatusUseCase: IUpdateTableStatusUseCase,
 	) {}
 
-	createTable = async (req: Request, res: Response) => {
+	createTable = async (req: Request, res: Response): Promise<void> => {
 		const userId = req.userId;
 
 		if (!userId) {
@@ -57,7 +57,7 @@ export class TableController {
 		);
 	};
 
-	getTable = async (req: Request, res: Response) => {
+	getTable = async (req: Request, res: Response): Promise<void> => {
 		const userId = req.userId;
 
 		if (!userId) {
@@ -94,7 +94,7 @@ export class TableController {
 		);
 	};
 
-	getAvailability = async (req: Request, res: Response) => {
+	getAvailability = async (req: Request, res: Response): Promise<void> => {
 		const { restaurantId } = req.params as { restaurantId: string };
 		const partySize = Number(req.query.partySize);
 		const result = await this._getTableAvailability.execute({
@@ -109,7 +109,7 @@ export class TableController {
 		);
 	};
 
-	updateTableStatus = async (req: Request, res: Response) => {
+	updateTableStatus = async (req: Request, res: Response): Promise<void> => {
 		const userId = req.userId;
 
 		if (!userId) {
@@ -126,7 +126,7 @@ export class TableController {
 			restaurantId,
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
 			messages.TABLE_STATUS_UPDATE_SUCCESS,

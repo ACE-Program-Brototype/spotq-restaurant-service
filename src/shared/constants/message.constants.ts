@@ -386,9 +386,11 @@ export const messages = {
 	TABLE_FETCH_SUCCESS: "Table Fetched Successfully",
 	INVALID_TABLE_STATUS: "Invalid Table Status",
 	TABLE_ID_REQUIRED: "Table Id Required",
-	TABLE_STATUS_UPDATE_SUCCESS: "Table Status update success",
-	TABLE_INVALID_TRANSITION: "Table invalid transition",
-	
+	TABLE_STATUS_UPDATE_SUCCESS: "Table Status Update Success",
+	TABLE_INVALID_TRANSITION: "Table Invalid Transition",
+	TABLE_MUST_BE_UNOCCUPIED: "Table must be Unoccupied",
+	INVALID_TABLE_ID: "Invalid Table Id",
+
 	INVALID_PARTY_SIZE: "Invalid Party Size",
 } as const;
 

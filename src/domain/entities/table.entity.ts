@@ -10,6 +10,7 @@ import {
 	InvalidTableCodeError,
 	InvalidTableShapeError,
 	TableInvalidTransitionError,
+	TableMustBeUnOccupiedError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
 
@@ -119,23 +120,28 @@ export class Table {
 		});
 	}
 
-	private static STATUS_TRANSITITON: Record<
-		TableStatusType,
-		TableStatusType[]
-	> = {
-		[TABLE_STATUS.AVAILABLE]: [
-			TABLE_STATUS.MAINTENANCE,
-			TABLE_STATUS.OCCUPIED,
-			TABLE_STATUS.PARTIAL_OCCUPIED,
-		],
-		[TABLE_STATUS.MAINTENANCE]: [TABLE_STATUS.AVAILABLE],
-		[TABLE_STATUS.OCCUPIED]: [],
-		[TABLE_STATUS.PARTIAL_OCCUPIED]: [],
-	};
+	private static STATUS_TRANSITION: Record<TableStatusType, TableStatusType[]> =
+		{
+			[TABLE_STATUS.AVAILABLE]: [TABLE_STATUS.MAINTENANCE],
+			[TABLE_STATUS.MAINTENANCE]: [TABLE_STATUS.AVAILABLE],
+			[TABLE_STATUS.OCCUPIED]: [],
+			[TABLE_STATUS.PARTIAL_OCCUPIED]: [],
+		};
 
+	/**
+	 * Changes status to Available to Maintianene or vice versa
+	 * @param status TableStatusType 
+	 * @returns void
+	 */
 	transitionTo(status: TableStatusType) {
-		if (!Table.STATUS_TRANSITITON[this.status].includes(status)) {
+		if (this.status === status) return;
+
+		if (!Table.STATUS_TRANSITION[this.status].includes(status)) {
 			throw new TableInvalidTransitionError();
+		}
+
+		if (this.currentOccupancy !== 0) {
+			throw new TableMustBeUnOccupiedError();
 		}
 
 		this.props.status = status;

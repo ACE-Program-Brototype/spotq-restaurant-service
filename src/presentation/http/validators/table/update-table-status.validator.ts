@@ -5,7 +5,7 @@ import z from "zod";
 export const updateTableStatusParamsSchema = z
 	.object({
 		restaurantId: z.uuid({ message: messages.INVALID_RESTAURANT_ID }),
-		tableId: z.string().trim().min(1, messages.TABLE_ID_REQUIRED),
+		tableId: z.string().trim().uuid({message: messages.INVALID_TABLE_ID}).min(1, messages.TABLE_ID_REQUIRED),
 	})
 	.strict();
 
