@@ -37,6 +37,7 @@ describe("UpdateTableStatusUseCase", () => {
 			id: restaurantId,
 			isAdmin: jest.fn(() => isAdmin),
 			ensureAdminAccess: jest.fn(),
+			ensureOperationalAccess: jest.fn()
 		}) as unknown as Restaurant;
 
 	const table = (overrides: Record<string, unknown> = {}) => {
