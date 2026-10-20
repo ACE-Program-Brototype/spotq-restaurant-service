@@ -144,6 +144,7 @@ export const TYPES = {
 		UpdateTableUseCase: Symbol.for("UpdateTableUseCase"),
 		GetTableUseCase: Symbol.for("GetTableUseCase"),
 		GetTableAvailabilityUseCase: Symbol.for("GetTableAvailabilityUseCase"),
+		UpdateTableStatusUseCase: Symbol.for("UpdateTableStatusUseCase"),
 		DeleteTableUseCase: Symbol.for("DeleteTableUseCase"),
 
 		ListCustomerRestaurantsUseCase: Symbol.for(
@@ -151,6 +152,9 @@ export const TYPES = {
 		),
 		ValidateRestaurantEligibilityUseCase: Symbol.for(
 			"ValidateRestaurantEligibilityUseCase",
+		),
+		GetInternalMenuItemDetailsUseCase: Symbol.for(
+			"GetInternalMenuItemDetailsUseCase",
 		),
 	},
 

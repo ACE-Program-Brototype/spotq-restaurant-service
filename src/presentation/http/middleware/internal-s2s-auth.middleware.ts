@@ -1,19 +1,20 @@
 import { authMiddleware, type TokenVerifierConfig } from "@spotq-org/s2s-core";
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { env } from "@/config/env.ts";
+import { S2S_CALLER_SERVICES } from "@/shared/constants/auth.constants.ts";
 
 export function internalS2SAuthMiddleware(): RequestHandler {
 	const publicKeys: Record<string, string> = {
 		...(env.QUEUE_S2S_PUBLIC_KEY && {
-			"queue-service": env.QUEUE_S2S_PUBLIC_KEY,
+			[S2S_CALLER_SERVICES.QUEUE_SERVICE]: env.QUEUE_S2S_PUBLIC_KEY,
 		}),
 		...(env.ORDER_S2S_PUBLIC_KEY && {
-			"order-service": env.ORDER_S2S_PUBLIC_KEY,
+			[S2S_CALLER_SERVICES.ORDER_SERVICE]: env.ORDER_S2S_PUBLIC_KEY,
 		}),
 	};
 
 	const verifierConfig: TokenVerifierConfig = {
-		expectedAudience: env.S2S_AUDIENCE || "restaurant-service",
+		expectedAudience: env.S2S_AUDIENCE || env.SERVICE_NAME,
 		publicKeys,
 	};
 
