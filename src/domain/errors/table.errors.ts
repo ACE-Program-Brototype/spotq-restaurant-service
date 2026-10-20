@@ -66,6 +66,22 @@ export class TableAlreadyOccupiedError extends DomainError {
 	}
 }
 
+export class TableInvalidTransitionError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.TABLE_INVALID_TRANSITION;
+
+	constructor(message: string = messages.TABLE_INVALID_TRANSITION) {
+		super(message);
+	}
+}
+
+export class TableMustBeUnOccupiedError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.TABLE_MUST_BE_UNOCCUPIED;
+
+	constructor(message: string = messages.TABLE_MUST_BE_UNOCCUPIED) {
+		super(message);
+	}
+}
+
 export class TableInUseError extends DomainError {
 	public readonly code = DOMAIN_ERROR_CODES.TABLE_IN_USE;
 

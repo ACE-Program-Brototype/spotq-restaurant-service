@@ -443,4 +443,19 @@ export class Restaurant {
 			throw new ForbiddenAccessError();
 		}
 	}
+
+	/**
+	 * If is admin return true
+	 * @param userId string
+	 * @returns boolean
+	 */
+	public isAdmin(userId: string): boolean {
+		return this.id === userId;
+	}
+
+	public ensureOperationalAccess(): void {
+		if (this.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
+	}
 }
