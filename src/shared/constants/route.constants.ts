@@ -90,12 +90,13 @@ export const TABLE_SECTION_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
 	TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION_ID: "/:restaurantId/table-sections/:tableSectionId",
 };
 
 export const TABLE_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE: "/:restaurantId/table",
-	UPDATE_TABLE : "/:restaurantId/table/:tableId",
+	UPDATE_TABLE: "/:restaurantId/table/:tableId",
 	TABLE: "/:restaurantId/table",
 	DELETE: "/:restaurantId/table/:tableId",
 	INTERNAL: {

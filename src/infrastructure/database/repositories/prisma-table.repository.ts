@@ -59,7 +59,6 @@ export class PrismaTableRepository
 		});
 	}
 
-
 	private static readonly SORT_COLUMNS = {
 		createdAt: "createdAt",
 		tableCode: "tableCode",
@@ -156,7 +155,6 @@ export class PrismaTableRepository
 		}, {});
 	}
 
-
 	async findByTableCodeAndRestaurant(
 		name: string,
 		restaurantId: string,
@@ -218,5 +216,16 @@ export class PrismaTableRepository
 			restaurantId,
 			availableTableCapacities: availableTables.map((table) => table.capacity),
 		};
+	}
+
+	async countActiveBySectionId(sectionId: string): Promise<number> {
+		return this.run(async () =>
+			this.delegate.count({
+				where: {
+					sectionId,
+					isDeleted: false,
+				},
+			}),
+		);
 	}
 }

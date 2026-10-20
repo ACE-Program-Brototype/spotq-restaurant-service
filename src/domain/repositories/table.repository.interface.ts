@@ -7,7 +7,7 @@ export interface TableFilterParams {
 	minCapacity?: number;
 	restaurantId?: string;
 	sectionId?: string;
-	status?: Table['status'],
+	status?: Table["status"];
 	createdFrom?: Date;
 	createdTo?: Date;
 	sortBy: "createdAt" | "tableCode";
@@ -87,4 +87,11 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	): Promise<{ tables: TableWithSection[]; total: number }>;
 
 	getAvailability(restaurantId: string): Promise<TableAvailabilityData>;
+
+	/**
+	 * Count all non deleted tables by section id
+	 * @param sectionId
+	 * @returns number
+	 */
+	countActiveBySectionId(sectionId: string): Promise<number>;
 }
