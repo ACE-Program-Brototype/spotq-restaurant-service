@@ -46,6 +46,12 @@ export const messages = {
 	S3_OBJECT_DELETE_FAILED: "Failed to delete S3 object",
 	STORAGE_KEY_FORBIDDEN:
 		"Forbidden: You are not authorized to delete this storage object",
+	STORAGE_KEY_PARAM_REQUIRED: "Key is required",
+	STORAGE_OBJECT_KEY_REQUIRED: "Object key is required",
+	STORAGE_KEY_OR_OBJECT_KEY_REQUIRED:
+		"Either 'key' or 'objectKey' must be provided",
+	STORAGE_PATH_TRAVERSAL_NOT_ALLOWED:
+		"Key must not contain path traversal characters ('..')",
 
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",

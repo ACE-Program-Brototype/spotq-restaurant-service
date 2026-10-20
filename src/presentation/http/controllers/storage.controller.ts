@@ -1,15 +1,13 @@
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import type {
-	AuthContext,
-	IGeneratePresignedUrlUseCase,
-} from "@/application/ports/use-cases/generate-presigned-url.use-case.port.ts";
+import type { IGeneratePresignedUrlUseCase } from "@/application/ports/use-cases/generate-presigned-url.use-case.port.ts";
 import type { IGetPresignedUrlUseCase } from "@/application/ports/use-cases/get-presigned-url.use-case.port.ts";
 import type { IDeleteStorageObjectUseCase } from "@/application/ports/use-cases/delete-storage-object.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+import type { AuthContext } from "@/shared/types/auth.types.ts";
 
 @injectable()
 export class StorageController {
@@ -58,20 +56,20 @@ export class StorageController {
 
 	async deleteStorageObject(req: Request, res: Response): Promise<Response> {
 		const userContext = (req as Request & { user?: AuthContext }).user;
-		const rawKey =
-			(req.body?.key as string | undefined) ??
-			(req.body?.objectKey as string | undefined) ??
-			(req.query?.key as string | undefined) ??
-			(req.query?.objectKey as string | undefined);
+		const query = (res.locals.query ?? req.query) as {
+			key?: string;
+			objectKey?: string;
+		};
+		const key = (query.key ?? query.objectKey) as string;
 
-		const result = await this.deleteStorageObjectUseCase.execute(
-			{ key: rawKey as string },
+		await this.deleteStorageObjectUseCase.execute(
+			{ key },
 			userContext,
 		);
 
 		return sendSuccessResponse(
 			res,
-			result,
+			null,
 			messages.S3_OBJECT_DELETED_SUCCESS,
 			HTTP_STATUS.SUCCESS,
 		);

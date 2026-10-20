@@ -1,12 +1,21 @@
 import { z } from "zod";
+import { messages } from "@/shared/constants/message.constants";
 
 export const deleteStorageObjectSchema = z
 	.object({
-		key: z.string().trim().min(1, "Key is required").optional(),
-		objectKey: z.string().trim().min(1, "Object key is required").optional(),
+		key: z
+			.string()
+			.trim()
+			.min(1, messages.STORAGE_KEY_PARAM_REQUIRED)
+			.optional(),
+		objectKey: z
+			.string()
+			.trim()
+			.min(1, messages.STORAGE_OBJECT_KEY_REQUIRED)
+			.optional(),
 	})
 	.refine((data) => Boolean(data.key || data.objectKey), {
-		message: "Either 'key' or 'objectKey' must be provided",
+		message: messages.STORAGE_KEY_OR_OBJECT_KEY_REQUIRED,
 		path: ["key"],
 	})
 	.refine(
@@ -15,11 +24,13 @@ export const deleteStorageObjectSchema = z
 			return val ? !val.includes("..") : true;
 		},
 		{
-			message: "Key must not contain path traversal characters ('..')",
+			message: messages.STORAGE_PATH_TRAVERSAL_NOT_ALLOWED,
 			path: ["key"],
 		},
 	);
 
-export type DeleteStorageObjectInput = z.infer<
+export const deleteStorageObjectQuerySchema = deleteStorageObjectSchema;
+
+export type DeleteStorageObjectQuery = z.infer<
 	typeof deleteStorageObjectSchema
 >;

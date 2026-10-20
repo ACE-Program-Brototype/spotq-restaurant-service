@@ -1,15 +1,11 @@
 import { inject, injectable } from "inversify";
-import type {
-	DeleteStorageObjectDto,
-	DeleteStorageObjectResponseDto,
-} from "@/application/dtos/restaurant/delete-storage-object.dto";
-import type { IStorageAccessValidator } from "@/domain/services/storage-access-validator.service";
+import type { DeleteStorageObjectDto } from "@/application/dtos/restaurant/delete-storage-object.dto";
+import type { IStorageAccessValidator } from "@/application/ports/services/storage-access-validator.service.port";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
-import type { AuthContext } from "@/application/ports/use-cases/generate-presigned-url.use-case.port";
 import type { IDeleteStorageObjectUseCase } from "@/application/ports/use-cases/delete-storage-object.use-case.port";
 import { TYPES } from "@/config/di/types";
 import { StorageKeyVO } from "@/domain/value-objects/storage-key.vo";
-import { messages } from "@/shared/constants/message.constants";
+import type { AuthContext } from "@/shared/types/auth.types";
 
 @injectable()
 export class DeleteStorageObjectUseCase implements IDeleteStorageObjectUseCase {
@@ -23,17 +19,12 @@ export class DeleteStorageObjectUseCase implements IDeleteStorageObjectUseCase {
 	async execute(
 		dto: DeleteStorageObjectDto,
 		authContext?: AuthContext,
-	): Promise<DeleteStorageObjectResponseDto> {
+	): Promise<void> {
 		const storageKey = StorageKeyVO.create(dto.key);
 		const normalizedKey = storageKey.value;
 
 		this.storageAccessValidator.validateOwnership(normalizedKey, authContext);
 
 		await this.storageService.deleteObject(normalizedKey);
-
-		return {
-			success: true,
-			message: messages.S3_OBJECT_DELETED_SUCCESS,
-		};
 	}
 }

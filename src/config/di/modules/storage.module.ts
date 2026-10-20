@@ -8,10 +8,8 @@ import { GeneratePresignedUrlUseCase } from "@/application/use-cases/generate-pr
 import { GetPresignedUrlUseCase } from "@/application/use-cases/get-presigned-url.use-case";
 import { DeleteStorageObjectUseCase } from "@/application/use-cases/delete-storage-object.use-case";
 import { TYPES } from "@/config/di/types";
-import {
-	type IStorageAccessValidator,
-	StorageAccessValidatorService,
-} from "@/domain/services/storage-access-validator.service";
+import type { IStorageAccessValidator } from "@/application/ports/services/storage-access-validator.service.port";
+import { StorageAccessValidatorService } from "@/application/services/storage-access-validator.service";
 import { FilePolicyValidatorService } from "@/infrastructure/services/file-policy-validator.service";
 import { S3StorageService } from "@/infrastructure/services/s3-storage.service";
 import { StorageController } from "@/presentation/http/controllers/storage.controller";

@@ -25,10 +25,9 @@ describe("StorageController", () => {
 		} as unknown as jest.Mocked<IGetPresignedUrlUseCase>;
 
 		mockDeleteStorageObjectUseCase = {
-			execute: jest.fn<IDeleteStorageObjectUseCase["execute"]>().mockResolvedValue({
-				success: true,
-				message: messages.S3_OBJECT_DELETED_SUCCESS,
-			}),
+			execute: jest
+				.fn<IDeleteStorageObjectUseCase["execute"]>()
+				.mockResolvedValue(undefined),
 		} as unknown as jest.Mocked<IDeleteStorageObjectUseCase>;
 
 		controller = new StorageController(
@@ -49,14 +48,17 @@ describe("StorageController", () => {
 		};
 
 		mockRes = {
+			locals: {},
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
 		};
 	});
 
 	describe("deleteStorageObject", () => {
-		it("deletes object when key is passed in body", async () => {
-			mockReq.body = { key: "restaurants/res-1/documents/doc.pdf" };
+		it("deletes object when key is passed via res.locals.query", async () => {
+			mockRes.locals = {
+				query: { key: "restaurants/res-1/documents/doc.pdf" },
+			};
 
 			await controller.deleteStorageObject(
 				mockReq as Request,
@@ -72,16 +74,15 @@ describe("StorageController", () => {
 				expect.objectContaining({
 					success: true,
 					message: messages.S3_OBJECT_DELETED_SUCCESS,
-					data: {
-						success: true,
-						message: messages.S3_OBJECT_DELETED_SUCCESS,
-					},
+					data: null,
 				}),
 			);
 		});
 
-		it("deletes object when objectKey is passed in body", async () => {
-			mockReq.body = { objectKey: "restaurants/res-1/images/img.png" };
+		it("deletes object when objectKey is passed via res.locals.query", async () => {
+			mockRes.locals = {
+				query: { objectKey: "restaurants/res-1/images/img.png" },
+			};
 
 			await controller.deleteStorageObject(
 				mockReq as Request,
@@ -93,10 +94,17 @@ describe("StorageController", () => {
 				mockReq.user,
 			);
 			expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.SUCCESS);
+			expect(mockRes.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.S3_OBJECT_DELETED_SUCCESS,
+					data: null,
+				}),
+			);
 		});
 
-		it("falls back to query parameter when body is empty", async () => {
-			mockReq.body = {};
+		it("falls back to req.query when res.locals.query is absent", async () => {
+			mockRes.locals = {};
 			mockReq.query = { key: "restaurants/res-1/menu/burger.jpg" };
 
 			await controller.deleteStorageObject(
@@ -106,6 +114,29 @@ describe("StorageController", () => {
 
 			expect(mockDeleteStorageObjectUseCase.execute).toHaveBeenCalledWith(
 				{ key: "restaurants/res-1/menu/burger.jpg" },
+				mockReq.user,
+			);
+			expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.SUCCESS);
+			expect(mockRes.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.S3_OBJECT_DELETED_SUCCESS,
+					data: null,
+				}),
+			);
+		});
+
+		it("supports objectKey on req.query when res.locals.query is absent", async () => {
+			mockRes.locals = {};
+			mockReq.query = { objectKey: "restaurants/res-1/menu/pizza.jpg" };
+
+			await controller.deleteStorageObject(
+				mockReq as Request,
+				mockRes as Response,
+			);
+
+			expect(mockDeleteStorageObjectUseCase.execute).toHaveBeenCalledWith(
+				{ key: "restaurants/res-1/menu/pizza.jpg" },
 				mockReq.user,
 			);
 			expect(mockRes.status).toHaveBeenCalledWith(HTTP_STATUS.SUCCESS);

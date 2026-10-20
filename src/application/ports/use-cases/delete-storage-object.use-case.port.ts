@@ -1,12 +1,9 @@
-import type {
-	DeleteStorageObjectDto,
-	DeleteStorageObjectResponseDto,
-} from "@/application/dtos/restaurant/delete-storage-object.dto";
-import type { AuthContext } from "./generate-presigned-url.use-case.port";
+import type { DeleteStorageObjectDto } from "@/application/dtos/restaurant/delete-storage-object.dto";
+import type { AuthContext } from "@/shared/types/auth.types";
 
 export interface IDeleteStorageObjectUseCase {
 	execute(
 		dto: DeleteStorageObjectDto,
 		authContext?: AuthContext,
-	): Promise<DeleteStorageObjectResponseDto>;
+	): Promise<void>;
 }

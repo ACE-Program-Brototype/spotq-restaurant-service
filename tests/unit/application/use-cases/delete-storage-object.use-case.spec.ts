@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { UnauthorizedEntityAccessError } from "@/application/errors/unauthorized-entity-access.error";
 import type { IStorageService } from "@/application/ports/services/storage.service.port";
+import { StorageAccessValidatorService } from "@/application/services/storage-access-validator.service";
 import { DeleteStorageObjectUseCase } from "@/application/use-cases/delete-storage-object.use-case";
-import { InvalidStorageKeyError, StorageOperationFailedError } from "@/domain/errors/storage.errors";
-import { StorageAccessValidatorService } from "@/domain/services/storage-access-validator.service";
-import { messages } from "@/shared/constants/message.constants";
+import {
+	InvalidStorageKeyError,
+	StorageOperationFailedError,
+} from "@/domain/errors/storage.errors";
 
 describe("DeleteStorageObjectUseCase", () => {
 	let useCase: DeleteStorageObjectUseCase;
@@ -19,7 +21,9 @@ describe("DeleteStorageObjectUseCase", () => {
 		mockStorageService = {
 			generatePresignedUploadUrl: jest.fn(),
 			generatePresignedGetUrl: jest.fn(),
-			deleteObject: jest.fn<IStorageService["deleteObject"]>().mockResolvedValue(undefined),
+			deleteObject: jest
+				.fn<IStorageService["deleteObject"]>()
+				.mockResolvedValue(undefined),
 		} as unknown as jest.Mocked<IStorageService>;
 
 		const validator = new StorageAccessValidatorService();
@@ -30,28 +34,17 @@ describe("DeleteStorageObjectUseCase", () => {
 		it("deletes object when key belongs to the authenticated restaurant", async () => {
 			const key = `restaurants/${restaurantId}/documents/fssai.pdf`;
 
-			const result = await useCase.execute(
-				{ key },
-				{ restaurantId, role: "RESTAURANT" },
-			);
+			await useCase.execute({ key }, { restaurantId, role: "RESTAURANT" });
 
 			expect(mockStorageService.deleteObject).toHaveBeenCalledWith(key);
-			expect(result).toEqual({
-				success: true,
-				message: messages.S3_OBJECT_DELETED_SUCCESS,
-			});
 		});
 
 		it("deletes object when key uses singular restaurant/ prefix", async () => {
 			const key = `restaurant/${restaurantId}/menu/item.jpg`;
 
-			const result = await useCase.execute(
-				{ key },
-				{ restaurantId, role: "RESTAURANT" },
-			);
+			await useCase.execute({ key }, { restaurantId, role: "RESTAURANT" });
 
 			expect(mockStorageService.deleteObject).toHaveBeenCalledWith(key);
-			expect(result.success).toBe(true);
 		});
 
 		it("prevents restaurant from deleting another restaurant's object", async () => {
@@ -72,23 +65,16 @@ describe("DeleteStorageObjectUseCase", () => {
 		it("allows user to delete their own profile object", async () => {
 			const key = `users/${userId}/profile/avatar.png`;
 
-			const result = await useCase.execute(
-				{ key },
-				{ userId, role: "CUSTOMER" },
-			);
+			await useCase.execute({ key }, { userId, role: "CUSTOMER" });
 
 			expect(mockStorageService.deleteObject).toHaveBeenCalledWith(key);
-			expect(result.success).toBe(true);
 		});
 
 		it("prevents user from deleting another user's object", async () => {
 			const foreignKey = `users/${otherUserId}/profile/avatar.png`;
 
 			await expect(
-				useCase.execute(
-					{ key: foreignKey },
-					{ userId, role: "CUSTOMER" },
-				),
+				useCase.execute({ key: foreignKey }, { userId, role: "CUSTOMER" }),
 			).rejects.toThrow(UnauthorizedEntityAccessError);
 
 			expect(mockStorageService.deleteObject).not.toHaveBeenCalled();
@@ -98,13 +84,12 @@ describe("DeleteStorageObjectUseCase", () => {
 			const staffId = "staff-user-1";
 			const avatarKey = `restaurants/${restaurantId}/staff/${staffId}/avatar.png`;
 
-			const result = await useCase.execute(
+			await useCase.execute(
 				{ key: avatarKey },
 				{ userId: staffId, restaurantId, role: "STAFF" },
 			);
 
 			expect(mockStorageService.deleteObject).toHaveBeenCalledWith(avatarKey);
-			expect(result.success).toBe(true);
 		});
 
 		it("prevents STAFF from deleting another staff member's avatar", async () => {
@@ -127,13 +112,12 @@ describe("DeleteStorageObjectUseCase", () => {
 		it("allows ADMIN to delete any object key", async () => {
 			const foreignKey = `restaurants/${otherRestaurantId}/documents/fssai.pdf`;
 
-			const result = await useCase.execute(
+			await useCase.execute(
 				{ key: foreignKey },
 				{ userId: "admin-1", role: "ADMIN" },
 			);
 
 			expect(mockStorageService.deleteObject).toHaveBeenCalledWith(foreignKey);
-			expect(result.success).toBe(true);
 		});
 	});
 
@@ -141,15 +125,11 @@ describe("DeleteStorageObjectUseCase", () => {
 		it("strips leading slash and checks ownership correctly", async () => {
 			const key = `/restaurants/${restaurantId}/images/banner.png`;
 
-			const result = await useCase.execute(
-				{ key },
-				{ restaurantId, role: "RESTAURANT" },
-			);
+			await useCase.execute({ key }, { restaurantId, role: "RESTAURANT" });
 
 			expect(mockStorageService.deleteObject).toHaveBeenCalledWith(
 				`restaurants/${restaurantId}/images/banner.png`,
 			);
-			expect(result.success).toBe(true);
 		});
 
 		it("rejects invalid key with path traversal ('..')", async () => {
@@ -165,10 +145,7 @@ describe("DeleteStorageObjectUseCase", () => {
 
 		it("rejects empty key string", async () => {
 			await expect(
-				useCase.execute(
-					{ key: "   " },
-					{ restaurantId, role: "RESTAURANT" },
-				),
+				useCase.execute({ key: "   " }, { restaurantId, role: "RESTAURANT" }),
 			).rejects.toThrow(InvalidStorageKeyError);
 
 			expect(mockStorageService.deleteObject).not.toHaveBeenCalled();
@@ -185,7 +162,9 @@ describe("DeleteStorageObjectUseCase", () => {
 		});
 
 		it("propagates StorageOperationFailedError when storage service fails", async () => {
-			const storageError = new StorageOperationFailedError("Failed to delete S3 object");
+			const storageError = new StorageOperationFailedError(
+				"Failed to delete S3 object",
+			);
 			mockStorageService.deleteObject.mockRejectedValueOnce(storageError);
 
 			await expect(

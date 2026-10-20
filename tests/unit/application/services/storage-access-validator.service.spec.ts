@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "@jest/globals";
 import { UnauthorizedEntityAccessError } from "@/application/errors/unauthorized-entity-access.error";
-import { StorageAccessValidatorService } from "@/domain/services/storage-access-validator.service";
+import { StorageAccessValidatorService } from "@/application/services/storage-access-validator.service";
 
 describe("StorageAccessValidatorService", () => {
 	let validator: StorageAccessValidatorService;
@@ -76,6 +76,30 @@ describe("StorageAccessValidatorService", () => {
 			const avatarKey = `restaurants/${restaurantId}/staff/${otherStaffId}/avatar.png`;
 			expect(() =>
 				validator.validateOwnership(avatarKey, {
+					userId: staffId,
+					restaurantId,
+					role: "STAFF",
+				}),
+			).toThrow(UnauthorizedEntityAccessError);
+		});
+
+		it("throws UnauthorizedEntityAccessError when staff tries to delete restaurant documents", () => {
+			const staffId = "staff-1";
+			const docKey = `restaurants/${restaurantId}/documents/fssai.pdf`;
+			expect(() =>
+				validator.validateOwnership(docKey, {
+					userId: staffId,
+					restaurantId,
+					role: "STAFF",
+				}),
+			).toThrow(UnauthorizedEntityAccessError);
+		});
+
+		it("throws UnauthorizedEntityAccessError when staff tries to delete restaurant menu assets", () => {
+			const staffId = "staff-1";
+			const menuKey = `restaurants/${restaurantId}/menu/item.jpg`;
+			expect(() =>
+				validator.validateOwnership(menuKey, {
 					userId: staffId,
 					restaurantId,
 					role: "STAFF",
