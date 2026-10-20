@@ -32,6 +32,8 @@ type TableWithSectionRecord = Prisma.TableGetPayload<{
 	};
 }>;
 
+type TableStatusCount = Awaited<ReturnType<PrismaClient["table"]["groupBy"]>>;
+
 @injectable()
 export class PrismaTableRepository
 	extends PrismaBaseRepository<Table, PrismaTable, PrismaClient["table"]>
@@ -227,5 +229,39 @@ export class PrismaTableRepository
 				},
 			}),
 		);
+	}
+
+	async getTableStats(restaurantId: string): Promise<{
+		totalTables: number;
+		occupied: number;
+		available: number;
+		maintenance: number;
+	}> {
+		const stats: TableStatusCount[] = await this.run(
+			async () =>
+				await this.delegate.groupBy({
+					by: ["status"],
+					where: {
+						restaurantId,
+						isDeleted: false,
+					},
+					_count: {
+						_all: true,
+					},
+				}),
+		);
+
+		const countByStatus = Object.fromEntries(
+			stats.map((stat) => [stat.status, stat._count._all]),
+		);
+
+		return {
+			totalTables: stats.reduce((total, stat) => total + stat._count._all, 0),
+			occupied:
+				(countByStatus[TABLE_STATUS.OCCUPIED] ?? 0) +
+				(countByStatus[TABLE_STATUS.PARTIAL_OCCUPIED] ?? 0),
+			available: countByStatus[TABLE_STATUS.AVAILABLE] ?? 0,
+			maintenance: countByStatus[TABLE_STATUS.MAINTENANCE] ?? 0,
+		};
 	}
 }

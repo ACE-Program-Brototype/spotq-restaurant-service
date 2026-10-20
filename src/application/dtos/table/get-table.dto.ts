@@ -29,6 +29,12 @@ export interface ITableWithSectionDTO extends ITableDTO {
 export interface IGetTablesOutputDTO {
 	tables: ITableWithSectionDTO[];
 	total: number;
+	stats: {
+		totalTables: number;
+		occupied: number;
+		available: number;
+		maintenance: number;
+	};
 }
 
 export interface IGetTablesGroupedOutputDTO {

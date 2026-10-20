@@ -71,8 +71,10 @@ export class GetTableUseCase implements IGetTableUseCase {
 				...(minCapacity !== undefined && { minCapacity }),
 			};
 
-			const { tables, total } =
-				await this.tableRepo.findManyWithSection(filter);
+			const [{ tables, total }, stats] = await Promise.all([
+				this.tableRepo.findManyWithSection(filter),
+				this.tableRepo.getTableStats(restaurant.id),
+			]);
 
 			return {
 				tables: tables.map((t) => ({
@@ -85,6 +87,7 @@ export class GetTableUseCase implements IGetTableUseCase {
 					sectionName: t.sectionName,
 				})),
 				total,
+				stats,
 			};
 		}
 

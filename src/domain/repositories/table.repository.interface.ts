@@ -94,4 +94,15 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	 * @returns number
 	 */
 	countActiveBySectionId(sectionId: string): Promise<number>;
+
+	/**
+	 * get table stats by restaurant Id
+	 * @param restaurantId 
+	 */
+	getTableStats(restaurantId: string): Promise<{
+		totalTables: number;
+		occupied: number;
+		available: number;
+		maintenance: number;
+	}>;
 }
