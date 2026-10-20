@@ -107,6 +107,7 @@ export const TABLE_ROUTES = {
 export const INTERNAL_ROUTES = {
 	BASE: "/api/internal/v1",
 	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
+	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
 } as const;
 
 export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];

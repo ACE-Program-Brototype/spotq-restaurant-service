@@ -152,6 +152,9 @@ export const TYPES = {
 		ValidateRestaurantEligibilityUseCase: Symbol.for(
 			"ValidateRestaurantEligibilityUseCase",
 		),
+		GetInternalMenuItemDetailsUseCase: Symbol.for(
+			"GetInternalMenuItemDetailsUseCase",
+		),
 	},
 
 	Controller: {
