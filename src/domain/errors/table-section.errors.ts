@@ -34,8 +34,16 @@ export class TableSectionNotFound extends DomainError {
 	}
 }
 
-
 export class TableSectionIdRequiredError extends DomainError {
-	code = DOMAIN_ERROR_CODES.TABLE_SECTION_ID_REQUIRED
-	constructor(message: string = sharedMessage.TABLE_SECTION_ID_REQUIRED) {super(message)}
+	code = DOMAIN_ERROR_CODES.TABLE_SECTION_ID_REQUIRED;
+	constructor(message: string = sharedMessage.TABLE_SECTION_ID_REQUIRED) {
+		super(message);
+	}
+}
+
+export class TableSectionInUseError extends DomainError {
+	code = DOMAIN_ERROR_CODES.TABLE_SECTION_IN_USE;
+	constructor(message: string = sharedMessage.TABLE_SECTION_IN_USE) {
+		super(message);
+	}
 }
