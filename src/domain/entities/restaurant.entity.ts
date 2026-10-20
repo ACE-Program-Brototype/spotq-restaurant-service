@@ -452,4 +452,10 @@ export class Restaurant {
 	public isAdmin(userId: string): boolean {
 		return this.id === userId;
 	}
+
+	public ensureOperationalAccess(): void {
+		if (this.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
+	}
 }

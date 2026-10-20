@@ -38,11 +38,9 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
-		await this._ensureAdminOrActiveStaff(
-			restaurant,
-			input.userId,
-			input.restaurantId,
-		);
+		restaurant.ensureOperationalAccess()
+
+		await this._ensureAdminOrActiveStaff(restaurant, input.userId);
 
 		// Ensure table exists
 		const table = await this._tableRepository.findById(input.tableId);
@@ -70,7 +68,6 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 	private async _ensureAdminOrActiveStaff(
 		restaurant: Restaurant,
 		userId: string,
-		restaurantId: string,
 	): Promise<void> {
 		if (restaurant.isAdmin(userId)) {
 			restaurant.ensureAdminAccess(userId);
@@ -80,7 +77,7 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 		// Ensure staff exists
 		const staff = await this._staffRepository.findByIdAndRestaurantId(
 			userId,
-			restaurantId,
+			restaurant.id,
 		);
 
 		// Ensure staff belongs to the restaurant
