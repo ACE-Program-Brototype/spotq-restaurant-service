@@ -51,8 +51,7 @@ export class CustomerRestaurantController {
 		req: Request,
 		res: Response,
 	): Promise<Response> => {
-		const { restaurantId } = (res.locals?.params ??
-			req.params) as GetCustomerRestaurantDetailsParams;
+		const { restaurantId } = (req.params) as GetCustomerRestaurantDetailsParams;
 		const { includeMenu, categoryId } = (res.locals?.query ??
 			req.query) as GetCustomerRestaurantDetailsQuery;
 

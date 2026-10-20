@@ -161,7 +161,6 @@ restaurantRouter.get(
 	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
 	validateRequestQuery(
 		getCustomerRestaurantDetailsQuerySchema,
-		HTTP_STATUS.BAD_REQUEST,
 	),
 	customerRestaurantController.getRestaurantDetails,
 );

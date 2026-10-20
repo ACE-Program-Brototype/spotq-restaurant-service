@@ -7,16 +7,7 @@ export const getCustomerRestaurantDetailsParamsSchema = z
 		restaurantId: z
 			.string()
 			.uuid({ message: messages.INVALID_RESTAURANT_ID })
-			.optional(),
-		id: z.string().uuid({ message: messages.INVALID_RESTAURANT_ID }).optional(),
 	})
-	.refine((data) => Boolean(data.restaurantId || data.id), {
-		message: messages.INVALID_RESTAURANT_ID,
-		path: ["restaurantId"],
-	})
-	.transform((data) => ({
-		restaurantId: (data.restaurantId ?? data.id) as string,
-	}));
 
 export const getCustomerRestaurantDetailsQuerySchema = z.object({
 	includeMenu: z.preprocess(parseBooleanFilter, z.boolean()).default(true),
