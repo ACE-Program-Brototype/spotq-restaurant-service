@@ -1,6 +1,7 @@
 import type { ICreateTableSectionInputDTO } from "@application/dtos/table-section/create-table-section.dto";
 import { UnauthorizedEntityAccessError } from "@application/errors/unauthorized-entity-access.error";
 import type { ICreateTableSectionUseCase } from "@application/ports/use-cases/table-section/create-table-section.use-case.port";
+import type { IDeleteTableSectionUseCase } from "@application/ports/use-cases/table-section/delete-table-section.use-case.port";
 import type { IGetTableSectionUseCase } from "@application/ports/use-cases/table-section/get-table-section.use-case.port";
 import { TYPES } from "@config/di/types";
 import {
@@ -12,14 +13,17 @@ import { messages } from "@shared/constants/message.constants";
 import { sendSuccessResponse } from "@shared/response/api-response";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import type { DeleteTableSectionParams } from "../validators/table-sections/delete-table-section.validator";
 
 @injectable()
 export class TableSectionController {
 	constructor(
 		@inject(TYPES.UseCases.CreateTableSectionUseCase)
-		private readonly _createTableSection: ICreateTableSectionUseCase,
+		private readonly _createTableSectionUseCase: ICreateTableSectionUseCase,
 		@inject(TYPES.UseCases.GetTableSectionUseCase)
-		private readonly _getTableSection: IGetTableSectionUseCase,
+		private readonly _getTableSectionUseCase: IGetTableSectionUseCase,
+		@inject(TYPES.UseCases.DeleteTableSectionUseCase)
+		private readonly _deleteTableSectionUseCase: IDeleteTableSectionUseCase,
 	) {}
 
 	createTableSection = async (req: Request, res: Response) => {
@@ -32,7 +36,7 @@ export class TableSectionController {
 		const { name } = req.body as ICreateTableSectionInputDTO;
 		const { restaurantId } = req.params as { restaurantId: string };
 
-		const result = await this._createTableSection.execute({
+		const result = await this._createTableSectionUseCase.execute({
 			restaurantId,
 			name,
 			userId,
@@ -59,7 +63,7 @@ export class TableSectionController {
 			mode?: TableSectionMode;
 		};
 		const { restaurantId } = req.params as { restaurantId: string };
-		const result = await this._getTableSection.execute({
+		const result = await this._getTableSectionUseCase.execute({
 			restaurantId,
 			userId,
 			mode: mode ?? TABLE_SECTION_MODE.ALL,
@@ -68,5 +72,27 @@ export class TableSectionController {
 		});
 
 		sendSuccessResponse(res, result, messages.TABLE_SECTION_GOT_SUCCESS);
+	};
+
+	deleteTableSection = async (req: Request, res: Response) => {
+		const userId = req.userId;
+		if (!userId) {
+			throw new UnauthorizedEntityAccessError();
+		}
+
+		const { restaurantId, tableSectionId } =
+			req.params as DeleteTableSectionParams;
+
+		const response = await this._deleteTableSectionUseCase.execute({
+			restaurantId,
+			tableSectionId,
+			userId,
+		});
+
+		return sendSuccessResponse(
+			res,
+			response,
+			messages.TABLE_SECTION_DELETE_SUCCESS,
+		);
 	};
 }
