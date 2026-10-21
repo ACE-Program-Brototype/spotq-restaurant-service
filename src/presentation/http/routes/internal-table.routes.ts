@@ -1,7 +1,7 @@
 import { internalTableController } from "@config/di/controllers.resolutions";
+import { internalS2SAuthMiddleware } from "@presentation/http/middleware/internal-s2s-auth.middleware";
 import { INTERNAL_ROUTES } from "@shared/constants/route.constants";
 import { Router } from "express";
-import { internalS2SAuthMiddleware } from "../middleware/internal-s2s-auth.middleware";
 import {
 	validateRequestBody,
 	validateRequestParams,

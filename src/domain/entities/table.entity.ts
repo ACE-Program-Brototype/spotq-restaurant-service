@@ -178,7 +178,6 @@ export class Table {
 	}
 
 	releaseGuest(count: number) {
-		console.log(count, '--------------------')
 		if (!Number.isInteger(count) || count < 1) {
 			throw new InvalidTableCapacityError();
 		}
@@ -190,7 +189,6 @@ export class Table {
 		}
 
 		const newOccupancy = this.props.currentOccupancy - count;
-		console.log(newOccupancy, '______')
 		if (newOccupancy < 0) {
 			throw new InvalidTableCapacityError();
 		}
