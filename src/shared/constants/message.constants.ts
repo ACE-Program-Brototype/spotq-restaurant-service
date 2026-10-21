@@ -404,6 +404,10 @@ export const messages = {
 	INVALID_TABLE_ID: "Invalid Table Id",
 	TABLE_IN_USE: "Table In Use",
 	TABLE_DELETE_SUCCESS: "Table deleted Succesfully",
+	TABLE_ASSIGN_SUCCESS: "Table Assigned Successfully",
+	TABLES_REQUIRED: "At least one table must be provided",
+	TABLE_NOT_AVAILABLE: "Table Not Available",
+	DUPLICATE_TABLE_ID: "Duplicate Table Id",
 	TABLE_SECTION_IN_USE: "Table Section in use",
 
 	INVALID_PARTY_SIZE: "Invalid Party Size",
