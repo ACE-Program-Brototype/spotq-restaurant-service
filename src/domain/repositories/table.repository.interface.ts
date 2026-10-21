@@ -91,4 +91,10 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	findByIds(restaurantId: string, tableIds: string[]): Promise<Table[]>;
 
 	updateMany(tables: Table[]): Promise<void>;
+	/**
+	 * Count all non deleted tables by section id
+	 * @param sectionId
+	 * @returns number
+	 */
+	countActiveBySectionId(sectionId: string): Promise<number>;
 }
