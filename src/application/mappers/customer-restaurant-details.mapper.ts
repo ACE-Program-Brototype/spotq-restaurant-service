@@ -109,7 +109,6 @@ export const CustomerRestaurantDetailsMapper = {
 			description: cat.description,
 			displayOrder: cat.displayOrder,
 			items: (cat.menuItems || []).map((item): CustomerRestaurantMenuItemDTO => {
-				// Jassy's suggestion: clean variable extraction
 				const itemImages = (item.images || []).map((img) => ({
 					id: img.id,
 					objectKey: img.objectKey,

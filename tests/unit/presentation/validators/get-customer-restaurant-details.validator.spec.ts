@@ -21,17 +21,6 @@ describe("GetCustomerRestaurantDetails Validator", () => {
 			}
 		});
 
-		it("should validate successfully with valid id parameter alias", () => {
-			const result = getCustomerRestaurantDetailsParamsSchema.safeParse({
-				id: validUuid,
-			});
-
-			expect(result.success).toBe(true);
-			if (result.success) {
-				expect(result.data.restaurantId).toBe(validUuid);
-			}
-		});
-
 		it("should fail validation with malformed restaurantId UUID", () => {
 			const result = getCustomerRestaurantDetailsParamsSchema.safeParse({
 				restaurantId: "not-a-valid-uuid",
@@ -45,7 +34,7 @@ describe("GetCustomerRestaurantDetails Validator", () => {
 			}
 		});
 
-		it("should fail validation when neither restaurantId nor id is provided", () => {
+		it("should fail validation when restaurantId is not provided", () => {
 			const result = getCustomerRestaurantDetailsParamsSchema.safeParse({});
 
 			expect(result.success).toBe(false);

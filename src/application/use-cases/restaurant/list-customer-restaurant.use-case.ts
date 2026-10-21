@@ -1,10 +1,9 @@
-import { inject, injectable, optional } from "inversify";
+import { inject, injectable } from "inversify";
 
 import type {
 	ListCustomerRestaurantsInputDTO,
 	PaginatedCustomerRestaurantsOutputDTO,
 } from "@/application/dtos/restaurant/customer-restaurant-listing.dto.ts";
-import type { IStorageService } from "@/application/ports/services/storage.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
 
@@ -19,10 +18,6 @@ export class ListCustomerRestaurantsUseCase {
 	constructor(
 		@inject(TYPES.RestaurantRepository)
 		private readonly restaurantRepository: IRestaurantRepository,
-
-		@inject(TYPES.Services.Storage)
-		@optional()
-		private readonly storageService?: IStorageService,
 	) {}
 
 	public async execute(
@@ -52,18 +47,16 @@ export class ListCustomerRestaurantsUseCase {
 
 		const totalPages = Math.ceil(total / limit);
 
-		const data = await Promise.all(
-			restaurants.map(async (restaurant) => ({
-				id: restaurant.id,
-				restaurantName: restaurant.restaurantName,
-				city: restaurant.city,
-				state: restaurant.state,
-				cuisineType: restaurant.cuisineType,
-				averageCost: restaurant.averageCost,
-				coverImage: (await this.presignUrl(restaurant.coverImage)) ?? restaurant.coverImage,
-				createdAt: restaurant.createdAt,
-			}))
-		);
+		const data = restaurants.map((restaurant) => ({
+			id: restaurant.id,
+			restaurantName: restaurant.restaurantName,
+			city: restaurant.city,
+			state: restaurant.state,
+			cuisineType: restaurant.cuisineType,
+			averageCost: restaurant.averageCost,
+			coverImage: restaurant.coverImage,
+			createdAt: restaurant.createdAt,
+		}));
 
 		return {
 			data,
@@ -74,15 +67,5 @@ export class ListCustomerRestaurantsUseCase {
 				totalPages,
 			},
 		};
-	}
-
-	private async presignUrl(key: string | null): Promise<string | null> {
-		if (!key || key.startsWith("http") || !this.storageService) return key;
-		try {
-			const { downloadUrl } = await this.storageService.generatePresignedGetUrl({ key });
-			return downloadUrl;
-		} catch {
-			return key;
-		}
 	}
 }
