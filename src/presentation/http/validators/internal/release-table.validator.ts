@@ -11,7 +11,10 @@ export const releaseTableBodySchema = z
 			.array(
 				z.object({
 					tableId: z.string().uuid(messages.INVALID_TABLE_ID),
-					count: z.number().int().positive(messages.INVALID_TABLE_CAPACITY),
+					occupancyToRelease: z
+						.number()
+						.int()
+						.positive(messages.INVALID_TABLE_CAPACITY),
 				}),
 			)
 			.min(1, messages.TABLES_REQUIRED),

@@ -1,3 +1,6 @@
+import type { IReleaseTableUseCase } from "@application/ports/use-cases/internal/release-table.use-case.port";
+import { ReleaseTableUseCase } from "@application/use-cases/internal/release-table.use-case";
+import { InternalTableController } from "@presentation/http/controllers/internal-table.controller";
 import { ContainerModule } from "inversify";
 import type { IValidateRestaurantEligibilityUseCase } from "@/application/ports/use-cases/validate-restaurant-eligibility.use-case.port.ts";
 import { ValidateRestaurantEligibilityUseCase } from "@/application/use-cases/internal/validate-restaurant-eligibility.use-case.ts";
@@ -15,5 +18,13 @@ export const internalModule = new ContainerModule(({ bind }) => {
 		TYPES.Controller.InternalRestaurantController,
 	)
 		.to(InternalRestaurantController)
+		.inSingletonScope();
+
+	bind<IReleaseTableUseCase>(TYPES.UseCases.ReleaseTableUseCase)
+		.to(ReleaseTableUseCase)
+		.inSingletonScope();
+
+	bind<InternalTableController>(TYPES.Controller.InternalTableController)
+		.to(InternalTableController)
 		.inSingletonScope();
 });
