@@ -3,12 +3,8 @@ import type {
 	GeneratePresignedUrlResponseDto,
 } from "@/application/dtos/restaurant/generate-presigned-url.dto";
 
-export interface AuthContext {
-	userId?: string;
-	restaurantId?: string;
-	email?: string;
-	role?: string;
-}
+import type { AuthContext } from "@/shared/types/auth.types";
+export type { AuthContext };
 
 export interface IGeneratePresignedUrlUseCase {
 	execute(

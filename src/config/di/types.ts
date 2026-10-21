@@ -91,6 +91,7 @@ export const TYPES = {
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
 		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
+		DeleteStorageObjectUseCase: Symbol.for("DeleteStorageObjectUseCase"),
 		ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
 		RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
 		ListRestaurantApplicationsUseCase: Symbol.for(
@@ -200,6 +201,7 @@ export const TYPES = {
 		OtpHashService: Symbol.for("OtpHashService"),
 		Storage: Symbol.for("StorageService"),
 		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
+		StorageAccessValidator: Symbol.for("StorageAccessValidator"),
 		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 	},
 

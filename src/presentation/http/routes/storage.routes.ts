@@ -5,6 +5,7 @@ import {
 	validate,
 	validateRequestQuery,
 } from "@/presentation/http/middleware/validation.middleware.ts";
+import { deleteStorageObjectQuerySchema } from "@/presentation/http/validators/delete-storage-object.validator.ts";
 import { generatePresignedUrlSchema } from "@/presentation/http/validators/generate-presigned-url.validator.ts";
 import { getPresignedUrlQuerySchema } from "@/presentation/http/validators/get-presigned-url.validator.ts";
 import { STORAGE_ROUTES } from "@/shared/constants/route.constants.ts";
@@ -23,4 +24,11 @@ storageRouter.get(
 	storageAuthMiddleware,
 	validateRequestQuery(getPresignedUrlQuerySchema),
 	storageController.getPresignedUrl.bind(storageController),
+);
+
+storageRouter.delete(
+	STORAGE_ROUTES.S3_OBJECT,
+	storageAuthMiddleware,
+	validateRequestQuery(deleteStorageObjectQuerySchema),
+	storageController.deleteStorageObject.bind(storageController),
 );
