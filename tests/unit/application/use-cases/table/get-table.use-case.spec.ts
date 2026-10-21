@@ -59,7 +59,7 @@ describe("GetTableUseCase", () => {
 			status: TABLE_STATUS.AVAILABLE,
 			sectionId: "section-1",
 			tableShape: TABLE_SHAPE.SQUARE,
-			currentOccupancy: 0,
+			currentOccupancy: 2,
 			isActive: true,
 			...overrides,
 		}) as unknown as Table;
@@ -97,6 +97,7 @@ describe("GetTableUseCase", () => {
 					sectionId: "section-1",
 					tableShape: TABLE_SHAPE.SQUARE,
 					sectionName: "Patio",
+					currentOccupancy: 2
 				},
 			],
 			total: 1,
@@ -138,8 +139,7 @@ describe("GetTableUseCase", () => {
 						status: TABLE_STATUS.AVAILABLE,
 						sectionId: "section-1",
 						tableShape: TABLE_SHAPE.SQUARE,
-						currentOccupancy: 0,
-						isActive: true,
+						currentOccupancy: 2,
 					},
 				],
 			},
