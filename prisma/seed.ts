@@ -25,7 +25,7 @@ async function main() {
 			phone: "+1234567801",
 			ownerName: "John Owner",
 			ownerEmail: "owner@spotq.com",
-			status: RestaurantStatus.APPROVED,
+			status: RestaurantStatus.ACTIVE,
 			onboardingStatus: OnboardingStatus.COMPLETED,
 			isSubscriptionActive: true,
 			isBlocked: false,
@@ -38,7 +38,20 @@ async function main() {
 			phone: "+1234567802",
 			ownerName: "Sarah Owner",
 			ownerEmail: "sarah.owner@spotq.com",
-			status: RestaurantStatus.APPROVED,
+			status: RestaurantStatus.ACTIVE,
+			onboardingStatus: OnboardingStatus.COMPLETED,
+			isSubscriptionActive: true,
+			isBlocked: false,
+			emailVerifiedAt: new Date(),
+		},
+		{
+			id: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			restaurantName: "The Rustic Table",
+			email: "rustictable@spotq.com",
+			phone: "+919876543299",
+			ownerName: "Rustic Owner",
+			ownerEmail: "owner.rustic@spotq.com",
+			status: RestaurantStatus.ACTIVE,
 			onboardingStatus: OnboardingStatus.COMPLETED,
 			isSubscriptionActive: true,
 			isBlocked: false,
@@ -67,6 +80,190 @@ async function main() {
 		console.log(
 			`[RESTAURANT] Seeded: ${seededRest.restaurantName} (ID: ${seededRest.id})`,
 		);
+	}
+
+	// 1.1 Seed Restaurant Profiles, Addresses, and Settings
+	const restaurantProfiles = [
+		{
+			restaurantId: "a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+			description: "Fine dining bistro offering artisanal wood-fired pizzas, handcrafted pastas, and prime Wagyu burgers.",
+			cuisineType: "Continental, Italian, Bistro",
+			averageCost: 800,
+			coverImageKey: "restaurants/a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/cover/the-grand-pavilion.jpg",
+			city: "Bangalore",
+			state: "Karnataka",
+			addressLine1: "100 Feet Road, Indiranagar",
+			latitude: 12.9716,
+			longitude: 77.5946,
+		},
+		{
+			restaurantId: "a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
+			description: "Authentic clay-oven tandoori grills, aromatic dum biryanis, and rich Mughlai gravies.",
+			cuisineType: "North Indian, Biryani, Mughlai",
+			averageCost: 650,
+			coverImageKey: "restaurants/a2eebc99-9c0b-4ef8-bb6d-6bb9bd380a12/cover/copper-chimney-bbq.jpg",
+			city: "Kochi",
+			state: "Kerala",
+			addressLine1: "Marine Drive Walkway",
+			latitude: 9.9816,
+			longitude: 76.2799,
+		},
+		{
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			description: "Rustic ambiance serving gourmet smash burgers, sourdough pizzas, and cold brew coffees.",
+			cuisineType: "Burgers, Fast Food, Pizza",
+			averageCost: 550,
+			coverImageKey: "restaurants/ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24/cover/the-rustic-table.jpg",
+			city: "Bangalore",
+			state: "Karnataka",
+			addressLine1: "Koramangala 4th Block",
+			latitude: 12.9352,
+			longitude: 77.6245,
+		},
+		// Existing Cloud DB Restaurants Profile Updates
+		{
+			restaurantId: "e2f4104e-97af-4ed2-88ad-92beef8f159d",
+			description: "Authentic multi-cuisine delicacies, tandoor specials, and wood-fired pizzas.",
+			cuisineType: "Multi-Cuisine, Biryani, Pizza",
+			averageCost: 600,
+			coverImageKey: "restaurants/a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/cover/the-grand-pavilion.jpg",
+			city: "Bangalore",
+			state: "Karnataka",
+			addressLine1: "MG Road",
+			latitude: 12.9756,
+			longitude: 77.6066,
+		},
+		{
+			restaurantId: "2fb6cd24-f91a-495d-b0cc-749fdb3d8abe",
+			description: "Warm rustic dining offering artisan burgers, fries, and shakes.",
+			cuisineType: "Burgers, Fast Food",
+			averageCost: 450,
+			coverImageKey: "restaurants/ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24/cover/the-rustic-table.jpg",
+			city: "Hyderabad",
+			state: "Telangana",
+			addressLine1: "Hitech City Road",
+			latitude: 17.4483,
+			longitude: 78.3915,
+		},
+		{
+			restaurantId: "7837b94b-d0c4-4e94-9eb9-81a1d4116701",
+			description: "Fresh coastal seafood delicacies and authentic spiced curries.",
+			cuisineType: "Seafood, Coastal",
+			averageCost: 700,
+			coverImageKey: "restaurants/a5eebc99-9c0b-4ef8-bb6d-6bb9bd380a15/cover/fishermans-wharf.jpg",
+			city: "Kochi",
+			state: "Kerala",
+			addressLine1: "Fort Kochi Beach",
+			latitude: 9.9656,
+			longitude: 76.2421,
+		},
+		{
+			restaurantId: "3dc35af0-3ff5-4ee9-a60a-fbb47124731b",
+			description: "Traditional Malabar dum biryanis, roasted chicken, and Kerala porottas.",
+			cuisineType: "Biryani, South Indian",
+			averageCost: 400,
+			coverImageKey: "restaurants/a7eebc99-9c0b-4ef8-bb6d-6bb9bd380a17/cover/malabar-spice-route.jpg",
+			city: "Aluva",
+			state: "Kerala",
+			addressLine1: "Bank Junction",
+			latitude: 10.1076,
+			longitude: 76.3516,
+		},
+		{
+			restaurantId: "23193584-340b-40bf-963e-ac67cbbebd08",
+			description: "Asian street food, wok-tossed noodles, and dim sum specials.",
+			cuisineType: "Chinese, Asian",
+			averageCost: 500,
+			coverImageKey: "restaurants/a6eebc99-9c0b-4ef8-bb6d-6bb9bd380a16/cover/mainland-dynasty.jpg",
+			city: "Ernakulam",
+			state: "Kerala",
+			addressLine1: "Palarivattom Bypass",
+			latitude: 9.9982,
+			longitude: 76.3075,
+		},
+	];
+
+	for (const p of restaurantProfiles) {
+		await prisma.restaurantProfile.upsert({
+			where: { restaurantId: p.restaurantId },
+			update: {
+				description: p.description,
+				cuisineType: p.cuisineType,
+				averageCost: p.averageCost,
+				coverImageKey: p.coverImageKey,
+			},
+			create: {
+				restaurantId: p.restaurantId,
+				description: p.description,
+				cuisineType: p.cuisineType,
+				averageCost: p.averageCost,
+				coverImageKey: p.coverImageKey,
+			},
+		});
+
+		await prisma.restaurantAddress.upsert({
+			where: { restaurantId: p.restaurantId },
+			update: {
+				addressLine1: p.addressLine1,
+				city: p.city,
+				state: p.state,
+				country: "India",
+				pincode: "560001",
+				latitude: p.latitude,
+				longitude: p.longitude,
+			},
+			create: {
+				restaurantId: p.restaurantId,
+				addressLine1: p.addressLine1,
+				city: p.city,
+				state: p.state,
+				country: "India",
+				pincode: "560001",
+				latitude: p.latitude,
+				longitude: p.longitude,
+			},
+		});
+
+		await prisma.restaurantSettings.upsert({
+			where: { restaurantId: p.restaurantId },
+			update: {
+				isOpened: true,
+				isPreorder: true,
+				acceptsQueue: true,
+				acceptsQrOrders: true,
+			},
+			create: {
+				restaurantId: p.restaurantId,
+				isOpened: true,
+				isPreorder: true,
+				acceptsQueue: true,
+				acceptsQrOrders: true,
+			},
+		});
+
+		// Seed 7 days operating hours
+		for (let day = 0; day <= 6; day++) {
+			await prisma.restaurantOperatingHours.upsert({
+				where: {
+					restaurantId_dayOfWeek: {
+						restaurantId: p.restaurantId,
+						dayOfWeek: day,
+					},
+				},
+				update: {
+					isOpen: true,
+					openTime: new Date("1970-01-01T10:00:00Z"),
+					closeTime: new Date("1970-01-01T23:00:00Z"),
+				},
+				create: {
+					restaurantId: p.restaurantId,
+					dayOfWeek: day,
+					isOpen: true,
+					openTime: new Date("1970-01-01T10:00:00Z"),
+					closeTime: new Date("1970-01-01T23:00:00Z"),
+				},
+			});
+		}
 	}
 
 	const bistroId = sampleRestaurants[0].id;
@@ -349,6 +546,31 @@ async function main() {
 			restaurantId: spiceLoungeId,
 			name: "Biryani Specials",
 			description: "Slow-cooked dum biryanis with fragrant long-grain basmati",
+			displayOrder: 2,
+			isActive: true,
+		},
+		// The Rustic Table Categories
+		{
+			id: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380c01",
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			name: "Burgers & Sandwiches",
+			description: "Gourmet patties grilled to perfection on brioche",
+			displayOrder: 0,
+			isActive: true,
+		},
+		{
+			id: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380c02",
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			name: "Artisan Pizzas",
+			description: "Slow-fermented sourdough crust with premium toppings",
+			displayOrder: 1,
+			isActive: true,
+		},
+		{
+			id: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380c03",
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			name: "Cold Brews & Shakes",
+			description: "Handcrafted chilled beverages and specialty coffee",
 			displayOrder: 2,
 			isActive: true,
 		},
@@ -767,6 +989,100 @@ async function main() {
 			variants: [],
 			addons: [],
 		},
+
+		// Rustic Table Items
+		{
+			id: "93d96ad9-f563-4e98-baff-d7d8c49f5f64",
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			categoryId: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380c01",
+			name: "Crispy Farmhouse Veg Burger",
+			description: "Golden spiced vegetable patty with crisp lettuce, heirloom tomato, and house special secret sauce",
+			price: 14.5,
+			preparationTime: 12,
+			calories: 520,
+			isVegetarian: true,
+			isFeatured: true,
+			isAvailable: true,
+			isDeleted: false,
+			images: [
+				{
+					id: "10ca9b27-21f3-4a00-af76-e90679ad9752",
+					objectKey: "menu/bistro/wagyu-burger-1.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+		{
+			id: "6d1f29cd-7f7d-4de6-9038-80a7e44bc355",
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			categoryId: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380c01",
+			name: "Smoked BBQ Chicken Smashed Burger",
+			description: "Double smashed chicken patties with smoky BBQ glaze, pickled jalapenos, and melted pepper jack cheese",
+			price: 17.5,
+			preparationTime: 15,
+			calories: 680,
+			isVegetarian: false,
+			isFeatured: true,
+			isAvailable: true,
+			isDeleted: false,
+			images: [
+				{
+					id: "3962b3a1-3265-46d2-8e09-f798127ea0e8",
+					objectKey: "menu/bistro/wagyu-burger-2.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+		{
+			id: "ab74597f-2928-489e-b5d6-985818cf6041",
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			categoryId: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380c02",
+			name: "Classic Sourdough Margherita",
+			description: "San Marzano tomato sugo, fresh buffalo mozzarella, extra virgin olive oil, and sweet torn basil",
+			price: 16.0,
+			preparationTime: 18,
+			calories: 710,
+			isVegetarian: true,
+			isFeatured: true,
+			isAvailable: true,
+			isDeleted: false,
+			images: [
+				{
+					id: "f56e7bae-852f-4fee-81e7-450074c9a043",
+					objectKey: "menu/bistro/margherita.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
+		{
+			id: "129d159b-a160-41b0-893b-d371d3333291",
+			restaurantId: "ba5ebc99-9c0b-4ef8-bb6d-6bb9bd380a24",
+			categoryId: "b3eebc99-9c0b-4ef8-bb6d-6bb9bd380c03",
+			name: "Artisanal Cold Brew Coffee",
+			description: "18-hour slow-steeped single-origin Arabica cold brew served over crystal clear ice spheres",
+			price: 5.5,
+			preparationTime: 3,
+			calories: 15,
+			isVegetarian: true,
+			isFeatured: false,
+			isAvailable: true,
+			isDeleted: false,
+			images: [
+				{
+					id: "6f4e8ed2-eeda-48e7-a61a-99aab93c09c5",
+					objectKey: "menu/bistro/berry-sparkler.jpg",
+					displayOrder: 0,
+				},
+			],
+			variants: [],
+			addons: [],
+		},
 	];
 
 	for (const item of sampleMenuItems) {
@@ -854,6 +1170,20 @@ async function main() {
 			`   ${statusTag.padEnd(14)} ${seededItem.name.padEnd(30)} | $${Number(seededItem.price).toFixed(2).padStart(5)} | Prep: ${String(seededItem.preparationTime).padStart(2)}m | Cal: ${String(seededItem.calories).padStart(3)} | Rest: ${seededItem.restaurantId.slice(-6)}`,
 		);
 	}
+
+	// 7. Normalize any lingering legacy screenshot menu item images to valid S3 assets
+	await prisma.menuItemImage.updateMany({
+		where: {
+			OR: [
+				{ objectKey: { contains: "Screenshot" } },
+				{ objectKey: { contains: "redis-why" } },
+				{ objectKey: { contains: "redis-whiy" } },
+			],
+		},
+		data: {
+			objectKey: "menu/bistro/wagyu-burger-1.jpg",
+		},
+	});
 
 	console.log("\n[SUCCESS] Seeding completed successfully!");
 	console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
