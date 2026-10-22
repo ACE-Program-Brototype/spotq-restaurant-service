@@ -42,6 +42,16 @@ export const messages = {
 		"Presigned upload URL generated successfully.",
 	PRESIGNED_GET_URL_GENERATED_SUCCESS:
 		"Presigned download URL generated successfully.",
+	S3_OBJECT_DELETED_SUCCESS: "S3 object deleted successfully",
+	S3_OBJECT_DELETE_FAILED: "Failed to delete S3 object",
+	STORAGE_KEY_FORBIDDEN:
+		"Forbidden: You are not authorized to delete this storage object",
+	STORAGE_KEY_PARAM_REQUIRED: "Key is required",
+	STORAGE_OBJECT_KEY_REQUIRED: "Object key is required",
+	STORAGE_KEY_OR_OBJECT_KEY_REQUIRED:
+		"Either 'key' or 'objectKey' must be provided",
+	STORAGE_PATH_TRAVERSAL_NOT_ALLOWED:
+		"Key must not contain path traversal characters ('..')",
 
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
@@ -394,6 +404,10 @@ export const messages = {
 	INVALID_TABLE_ID: "Invalid Table Id",
 	TABLE_IN_USE: "Table In Use",
 	TABLE_DELETE_SUCCESS: "Table deleted Succesfully",
+	TABLE_ASSIGN_SUCCESS: "Table Assigned Successfully",
+	TABLES_REQUIRED: "At least one table must be provided",
+	TABLE_NOT_AVAILABLE: "Table Not Available",
+	DUPLICATE_TABLE_ID: "Duplicate Table Id",
 	TABLE_SECTION_IN_USE: "Table Section in use",
 
 	INVALID_PARTY_SIZE: "Invalid Party Size",

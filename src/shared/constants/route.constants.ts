@@ -66,6 +66,7 @@ export const STAFF_ROUTES = {
 export const STORAGE_ROUTES = {
 	BASE: "/storage",
 	PRESIGNED_URL: "/presigned-url",
+	S3_OBJECT: "/s3-object",
 } as const;
 
 export const ADMIN_ROUTES = {
@@ -108,6 +109,7 @@ export const TABLE_ROUTES = {
 export const INTERNAL_ROUTES = {
 	BASE: "/api/internal/v1",
 	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
+	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
 	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
 } as const;
 

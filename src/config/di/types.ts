@@ -91,6 +91,7 @@ export const TYPES = {
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
 		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
+		DeleteStorageObjectUseCase: Symbol.for("DeleteStorageObjectUseCase"),
 		ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
 		RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
 		ListRestaurantApplicationsUseCase: Symbol.for(
@@ -144,6 +145,7 @@ export const TYPES = {
 		UpdateTableUseCase: Symbol.for("UpdateTableUseCase"),
 		GetTableUseCase: Symbol.for("GetTableUseCase"),
 		GetTableAvailabilityUseCase: Symbol.for("GetTableAvailabilityUseCase"),
+		AssignTableUseCase: Symbol.for("AssignTableUseCase"),
 		UpdateTableStatusUseCase: Symbol.for("UpdateTableStatusUseCase"),
 		DeleteTableUseCase: Symbol.for("DeleteTableUseCase"),
 
@@ -170,6 +172,7 @@ export const TYPES = {
 		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
 		TableController: Symbol.for("TableController"),
 		InternalRestaurantController: Symbol.for("InternalRestaurantController"),
+		InternalTableController: Symbol.for("InternalTableController"),
 	},
 
 	Database: {
@@ -198,6 +201,7 @@ export const TYPES = {
 		OtpHashService: Symbol.for("OtpHashService"),
 		Storage: Symbol.for("StorageService"),
 		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
+		StorageAccessValidator: Symbol.for("StorageAccessValidator"),
 		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 	},
 

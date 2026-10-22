@@ -46,7 +46,7 @@ export class PrismaTableRepository
 	};
 	constructor(
 		@inject(TYPES.PrismaClient)
-		prisma: PrismaClient,
+		private readonly prisma: PrismaClient,
 	) {
 		super(
 			prisma.table,
@@ -221,6 +221,34 @@ export class PrismaTableRepository
 		};
 	}
 
+	async findByIds(restaurantId: string, tableIds: string[]): Promise<Table[]> {
+		const records = (await this.run(() =>
+			this.delegate.findMany({
+				where: {
+					restaurantId,
+					id: { in: tableIds },
+					isDeleted: false,
+				},
+			}),
+		)) as PrismaTable[];
+
+		return records.map((record) => this.mapper.toDomain(record));
+	}
+
+	async updateMany(tables: Table[]): Promise<void> {
+		await this.run(async () => {
+			await this.prisma.$transaction(
+				tables.map((table) => {
+					const persistenceData = this.mapper.toPersistence(table);
+					return this.delegate.update({
+						where: { id: table.id },
+						data: persistenceData,
+					});
+				}),
+			);
+		});
+	}
+	
 	async countActiveBySectionId(sectionId: string): Promise<number> {
 		return this.run(async () =>
 			this.delegate.count({
