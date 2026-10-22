@@ -2,7 +2,7 @@ import type {
 	TableShapeType,
 	TableStatusType,
 } from "@domain/constants/table.constants";
-import { TableStats } from "@domain/repositories/table.repository.interface";
+import type { TableStats } from "@domain/repositories/table.repository.interface";
 
 export interface IGetTableInputDTO {
 	restaurantId: string;

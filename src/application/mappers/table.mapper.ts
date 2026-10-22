@@ -20,7 +20,7 @@ export const TableMapper = {
 
 	toWithSectionDTO(record: TableWithSection): ITableWithSectionDTO {
 		return {
-			...this.toDTO(record.table),
+			...TableMapper.toDTO(record.table),
 			sectionName: record.sectionName,
 		};
 	},
