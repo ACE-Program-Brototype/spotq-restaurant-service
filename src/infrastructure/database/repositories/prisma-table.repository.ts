@@ -59,6 +59,31 @@ export class PrismaTableRepository
 		});
 	}
 
+	async findByIdWithSectionName(id: string): Promise<TableWithSection | null> {
+		const record: TableWithSectionRecord | null = await this.run(() =>
+			this.delegate.findFirst({
+				where: { id, isDeleted: false },
+				include: {
+					section: {
+						select: {
+							sectionName: true,
+						},
+					},
+				},
+			}),
+		);
+
+		if (!record) {
+			return null;
+		}
+
+		const { section, ...tableRecord } = record;
+		return {
+			table: this.mapper.toDomain(tableRecord),
+			sectionName: section.sectionName,
+		};
+	}
+
 	private static readonly SORT_COLUMNS = {
 		createdAt: "createdAt",
 		tableCode: "tableCode",
@@ -245,7 +270,7 @@ export class PrismaTableRepository
 			);
 		});
 	}
-	
+
 	async countActiveBySectionId(sectionId: string): Promise<number> {
 		return this.run(async () =>
 			this.delegate.count({

@@ -40,6 +40,12 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	findById(id: string): Promise<Table | null>;
 
 	/**
+	 * Find a table by Id with its section name. Deleted tables are excluded.
+	 * @param id string
+	 */
+	findByIdWithSectionName(id: string): Promise<TableWithSection | null>;
+
+	/**
 	 * Save Table to Db
 	 * @param table Table
 	 */
