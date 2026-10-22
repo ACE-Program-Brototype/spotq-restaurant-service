@@ -95,6 +95,7 @@ export const TABLE_SECTION_ROUTES = {
 
 export const TABLE_ROUTES = {
 	BASE: "/",
+	TABLE_ID: "/:restaurantId/table/:tableId",
 	CREATE_TABLE: "/:restaurantId/table",
 	UPDATE_TABLE: "/:restaurantId/table/:tableId",
 	TABLE: "/:restaurantId/table",
