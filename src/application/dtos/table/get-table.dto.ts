@@ -2,6 +2,7 @@ import type {
 	TableShapeType,
 	TableStatusType,
 } from "@domain/constants/table.constants";
+import { TableStats } from "@domain/repositories/table.repository.interface";
 
 export interface IGetTableInputDTO {
 	restaurantId: string;
@@ -19,22 +20,18 @@ export interface ITableDTO {
 	tableShape: TableShapeType;
 	capacity: number;
 	status: TableStatusType;
+	currentOccupancy: number;
+	sectionId: string;
 }
 
 export interface ITableWithSectionDTO extends ITableDTO {
-	sectionId: string;
 	sectionName: string;
 }
 
 export interface IGetTablesOutputDTO {
 	tables: ITableWithSectionDTO[];
 	total: number;
-	stats: {
-		totalTables: number;
-		occupied: number;
-		available: number;
-		maintenance: number;
-	};
+	stats: TableStats;
 }
 
 export interface IGetTablesGroupedOutputDTO {

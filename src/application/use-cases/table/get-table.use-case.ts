@@ -3,6 +3,7 @@ import type {
 	IGetTablesGroupedOutputDTO,
 	IGetTablesOutputDTO,
 } from "@application/dtos/table/get-table.dto";
+import { TableMapper } from "@application/mappers/table.mapper";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import { TYPES } from "@config/di/types";
 import {
@@ -77,16 +78,7 @@ export class GetTableUseCase implements IGetTableUseCase {
 			]);
 
 			return {
-				tables: tables.map((t) => ({
-					id: t.table.id,
-					tableCode: t.table.tableCode,
-					capacity: t.table.capacity,
-					status: t.table.status,
-					sectionId: t.table.sectionId,
-					tableShape: t.table.tableShape,
-					sectionName: t.sectionName,
-					currentOccupancy: t.table.currentOccupancy,
-				})),
+				tables: tables.map(TableMapper.toWithSectionDTO),
 				total,
 				stats,
 			};
@@ -112,15 +104,7 @@ export class GetTableUseCase implements IGetTableUseCase {
 			sections: Object.fromEntries(
 				Object.entries(sections).map(([sectionName, tables]) => [
 					sectionName,
-					tables.map((table) => ({
-						id: table.id,
-						tableCode: table.tableCode,
-						capacity: table.capacity,
-						status: table.status,
-						sectionId: table.sectionId,
-						tableShape: table.tableShape,
-						currentOccupancy: table.currentOccupancy,
-					})),
+					tables.map(TableMapper.toDTO),
 				]),
 			),
 		};
