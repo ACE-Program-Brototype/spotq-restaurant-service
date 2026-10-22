@@ -24,6 +24,13 @@ export interface TableAvailabilityData {
 	availableTableCapacities: number[];
 }
 
+export interface TableStats {
+	totalTables: number;
+	occupied: number;
+	available: number;
+	maintenance: number;
+}
+
 export type StaffTablesBySection = Record<string, Table[]>;
 
 export interface ITableRepository extends IBaseRepository<Table> {
@@ -97,4 +104,11 @@ export interface ITableRepository extends IBaseRepository<Table> {
 	 * @returns number
 	 */
 	countActiveBySectionId(sectionId: string): Promise<number>;
+
+	/**
+	 * get table stats by restaurantId
+	 * @param restaurantId
+	 * @returns TableStats
+	 */
+	getTableStats(restaurantId: string): Promise<TableStats>;
 }

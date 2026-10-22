@@ -10,6 +10,7 @@ import type {
 	StaffTablesBySection,
 	TableAvailabilityData,
 	TableFilterParams,
+	TableStats,
 	TableWithSection,
 } from "@domain/repositories/table.repository.interface";
 import type { Prisma, Table as PrismaTable } from "@prisma/client";
@@ -31,6 +32,8 @@ type TableWithSectionRecord = Prisma.TableGetPayload<{
 		};
 	};
 }>;
+
+type TableStatusCount = Prisma.TableGroupByOutputType;
 
 @injectable()
 export class PrismaTableRepository
@@ -255,5 +258,36 @@ export class PrismaTableRepository
 				},
 			}),
 		);
+	}
+
+	async getTableStats(restaurantId: string): Promise<TableStats> {
+		const stats = (await this.run(async () =>
+			this.delegate.groupBy({
+				by: ["status"],
+				where: {
+					restaurantId,
+					isDeleted: false,
+				},
+				_count: {
+					_all: true,
+				},
+			}),
+		)) as TableStatusCount[];
+
+		const countByStatus = Object.fromEntries(
+			stats.map((stat) => [stat.status, stat._count?._all ?? 0]),
+		);
+
+		return {
+			totalTables: stats.reduce(
+				(total, stat) => total + (stat._count?._all ?? 0),
+				0,
+			),
+			occupied:
+				(countByStatus[TABLE_STATUS.OCCUPIED] ?? 0) +
+				(countByStatus[TABLE_STATUS.PARTIAL_OCCUPIED] ?? 0),
+			available: countByStatus[TABLE_STATUS.AVAILABLE] ?? 0,
+			maintenance: countByStatus[TABLE_STATUS.MAINTENANCE] ?? 0,
+		};
 	}
 }

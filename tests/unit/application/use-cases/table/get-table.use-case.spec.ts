@@ -32,6 +32,7 @@ describe("GetTableUseCase", () => {
 		tableRepository = {
 			findManyWithSection: jest.fn(),
 			findAllGroupedBySection: jest.fn(),
+			getTableStats: jest.fn(),
 		} as unknown as jest.Mocked<ITableRepository>;
 		staffRepository = {
 			findByStaffIdAndRestaurantId: jest.fn(),
@@ -58,7 +59,7 @@ describe("GetTableUseCase", () => {
 			status: TABLE_STATUS.AVAILABLE,
 			sectionId: "section-1",
 			tableShape: TABLE_SHAPE.SQUARE,
-			currentOccupancy: 0,
+			currentOccupancy: 2,
 			isActive: true,
 			...overrides,
 		}) as unknown as Table;
@@ -77,6 +78,12 @@ describe("GetTableUseCase", () => {
 			tables: [{ table: table(), sectionName: "Patio" }],
 			total: 1,
 		});
+		tableRepository.getTableStats.mockResolvedValue({
+			totalTables: 3,
+			occupied: 1,
+			available: 1,
+			maintenance: 1,
+		});
 
 		await expect(
 			useCase.execute(input({ sectionId: "section-1", minCapacity: 3 })),
@@ -90,9 +97,16 @@ describe("GetTableUseCase", () => {
 					sectionId: "section-1",
 					tableShape: TABLE_SHAPE.SQUARE,
 					sectionName: "Patio",
+					currentOccupancy: 2
 				},
 			],
 			total: 1,
+			stats: {
+				totalTables: 3,
+				occupied: 1,
+				available: 1,
+				maintenance: 1,
+			},
 		});
 		expect(tableRepository.findManyWithSection).toHaveBeenCalledWith({
 			restaurantId,
@@ -103,6 +117,7 @@ describe("GetTableUseCase", () => {
 			sectionId: "section-1",
 			minCapacity: 3,
 		});
+		expect(tableRepository.getTableStats).toHaveBeenCalledWith(restaurantId);
 	});
 
 	it("returns grouped tables for an active staff member", async () => {
@@ -124,8 +139,7 @@ describe("GetTableUseCase", () => {
 						status: TABLE_STATUS.AVAILABLE,
 						sectionId: "section-1",
 						tableShape: TABLE_SHAPE.SQUARE,
-						currentOccupancy: 0,
-						isActive: true,
+						currentOccupancy: 2,
 					},
 				],
 			},
