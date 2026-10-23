@@ -1,8 +1,8 @@
 import {
 	StaffInactiveError,
 	StaffNotFoundError,
-} from "@/domain/errors/staff.errors.ts";
-import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
+} from "@/domain/errors/staff.errors";
+import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface";
 
 /**
  * Throws an error if the staff don't have access to the restaurant

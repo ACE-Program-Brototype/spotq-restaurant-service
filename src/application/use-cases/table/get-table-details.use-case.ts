@@ -10,8 +10,9 @@ import { TableNotFoundError } from "@domain/errors/table.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { IRestaurantStaffRepository } from "@domain/repositories/restaurant-staff.repository.interface";
 import type { ITableRepository } from "@domain/repositories/table.repository.interface";
-import { inject } from "inversify";
+import { inject, injectable } from "inversify";
 
+@injectable()
 export class GetTableDetailsUseCase implements IGetTableDetailsUseCase {
 	constructor(
 		@inject(TYPES.Repositories.TableRepository)

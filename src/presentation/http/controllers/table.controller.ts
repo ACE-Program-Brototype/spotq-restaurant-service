@@ -135,7 +135,7 @@ export class TableController {
 			}),
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
 			messages.TABLE_FETCH_SUCCESS,
@@ -158,7 +158,7 @@ export class TableController {
 		);
 	};
 
-	deleteTable = async (req: Request, res: Response) => {
+	deleteTable = async (req: Request, res: Response): Promise<void> => {
 		const userId = req.userId;
 
 		if (!userId) {
@@ -175,7 +175,7 @@ export class TableController {
 			userId,
 		});
 
-		return sendSuccessResponse(res, response, messages.TABLE_DELETE_SUCCESS);
+		sendSuccessResponse(res, response, messages.TABLE_DELETE_SUCCESS);
 	};
 
 	updateTableStatus = async (req: Request, res: Response): Promise<void> => {
@@ -202,7 +202,7 @@ export class TableController {
 		);
 	};
 
-	getTableDetails = async (req: Request, res: Response) => {
+	getTableDetails = async (req: Request, res: Response): Promise<void> => {
 		const userId = req.userId;
 
 		if (!userId) {
@@ -216,6 +216,6 @@ export class TableController {
 			userId,
 		});
 
-		return sendSuccessResponse(res, response, messages.TABLE_FETCH_SUCCESS);
+		sendSuccessResponse(res, response, messages.TABLE_FETCH_SUCCESS, HTTP_STATUS.OK);
 	};
 }
