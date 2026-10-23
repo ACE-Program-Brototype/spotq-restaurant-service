@@ -1,4 +1,5 @@
 import {
+	TABLE_CAPACITY_MIN,
 	TABLE_SHAPE_VALUES,
 	TABLE_STATUS,
 	type TableShapeType,
@@ -8,11 +9,13 @@ import { RestaurantIdRequiredError } from "@domain/errors/restaurant.errors";
 import {
 	InvalidTableCapacityError,
 	InvalidTableCodeError,
+	InvalidTableOccupancyError,
 	InvalidTableShapeError,
 	TableAlreadyOccupiedError,
 	TableNotAvailableError,
 } from "@domain/errors/table.errors";
 import { TableSectionIdRequiredError } from "@domain/errors/table-section.errors";
+import { messages } from "@shared/constants/message.constants";
 
 export interface TablePropsType {
 	id: string;
@@ -51,8 +54,11 @@ export class Table {
 	static create(props: CreateTablePropsType) {
 		// throw if capacity is less than 1
 		const capacity = props.capacity;
-		if (!Number.isInteger(capacity) || capacity < 1) {
+		if (!Number.isInteger(capacity)) {
 			throw new InvalidTableCapacityError();
+		}
+		if (capacity < TABLE_CAPACITY_MIN) {
+			throw new InvalidTableCapacityError(messages.TABLE_CAPACITY_MIN);
 		}
 
 		// throw if tableCode is invalid
@@ -144,8 +150,11 @@ export class Table {
 		}
 
 		if (props.capacity !== undefined) {
-			if (!Number.isInteger(props.capacity) || props.capacity < 1) {
+			if (!Number.isInteger(props.capacity)) {
 				throw new InvalidTableCapacityError();
+			}
+			if (props.capacity < TABLE_CAPACITY_MIN) {
+				throw new InvalidTableCapacityError(messages.TABLE_CAPACITY_MIN);
 			}
 
 			// prevent capacity when the table is occupied
@@ -188,10 +197,11 @@ export class Table {
 			throw new TableNotAvailableError();
 		}
 
-		const newOccupancy = this.props.currentOccupancy - count;
-		if (newOccupancy < 0) {
-			throw new InvalidTableCapacityError();
+		if (count > this.props.currentOccupancy) {
+			throw new InvalidTableOccupancyError();
 		}
+
+		const newOccupancy = this.props.currentOccupancy - count;
 
 		this.props.currentOccupancy = newOccupancy;
 
@@ -202,7 +212,7 @@ export class Table {
 
 		this.props.updatedAt = new Date();
 	}
-	
+
 	get id() {
 		return this.props.id;
 	}
