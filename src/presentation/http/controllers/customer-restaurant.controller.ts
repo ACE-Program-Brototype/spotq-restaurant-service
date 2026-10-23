@@ -22,7 +22,7 @@ export class CustomerRestaurantController {
 		private readonly listCustomerRestaurantsUseCase: ListCustomerRestaurantsUseCase,
 		@inject(TYPES.UseCases.GetCustomerRestaurantDetailsUseCase)
 		private readonly getCustomerRestaurantDetailsUseCase: GetCustomerRestaurantDetailsUseCase,
-	) {}
+	) { }
 
 	public listRestaurants = async (
 		req: Request,
@@ -52,8 +52,8 @@ export class CustomerRestaurantController {
 		res: Response,
 	): Promise<Response> => {
 		const { restaurantId } = (req.params) as GetCustomerRestaurantDetailsParams;
-		const { includeMenu, categoryId } = (res.locals?.query ??
-			req.query) as GetCustomerRestaurantDetailsQuery;
+		const { includeMenu, categoryId } =
+			req.query as unknown as GetCustomerRestaurantDetailsQuery;
 
 		const result = await this.getCustomerRestaurantDetailsUseCase.execute({
 			restaurantId,
@@ -63,4 +63,4 @@ export class CustomerRestaurantController {
 
 		return sendSuccessResponse(res, result, messages.SUCCESS, HTTP_STATUS.OK);
 	};
-}
+} 
