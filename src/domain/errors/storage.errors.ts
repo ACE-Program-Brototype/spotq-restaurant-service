@@ -8,3 +8,10 @@ export class InvalidStorageKeyError extends DomainError {
 		super(message);
 	}
 }
+
+export class StorageOperationFailedError extends DomainError {
+	public readonly code = DOMAIN_ERROR_CODES.STORAGE_OPERATION_FAILED;
+	constructor(message: string = sharedMessages.S3_OBJECT_DELETE_FAILED) {
+		super(message);
+	}
+}

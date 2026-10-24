@@ -66,6 +66,7 @@ export const STAFF_ROUTES = {
 export const STORAGE_ROUTES = {
 	BASE: "/storage",
 	PRESIGNED_URL: "/presigned-url",
+	S3_OBJECT: "/s3-object",
 } as const;
 
 export const ADMIN_ROUTES = {

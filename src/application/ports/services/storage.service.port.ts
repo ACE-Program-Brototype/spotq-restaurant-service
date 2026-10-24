@@ -27,4 +27,6 @@ export interface IStorageService {
 	generatePresignedGetUrl(
 		params: GeneratePresignedGetUrlInput,
 	): Promise<GeneratePresignedGetUrlResult>;
+
+	deleteObject(key: string): Promise<void>;
 }
