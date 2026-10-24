@@ -1,4 +1,7 @@
-import { TABLE_SHAPE_VALUES } from "@domain/constants/table.constants";
+import {
+	TABLE_CAPACITY_MIN,
+	TABLE_SHAPE_VALUES,
+} from "@domain/constants/table.constants";
 import { messages } from "@shared/constants/message.constants";
 import z from "zod";
 
@@ -22,8 +25,8 @@ export const createTableBodySchema = z
 			.uuid({message : messages.INVALID_TABLE_SECTION_ID}),
 		capacity: z
 			.number({ message: messages.TABLE_CAPACITY_REQUIRED })
-			.int()
-			.positive({ message: messages.INVALID_TABLE_CAPACITY }),
+			.int({ message: messages.INVALID_TABLE_CAPACITY })
+			.min(TABLE_CAPACITY_MIN, { message: messages.TABLE_CAPACITY_MIN }),
 		tableType: z.enum(TABLE_SHAPE_VALUES, {
 			message: messages.INVALID_TABLE_SHAPE,
 		}),

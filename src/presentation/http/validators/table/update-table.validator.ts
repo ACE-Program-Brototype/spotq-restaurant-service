@@ -1,4 +1,7 @@
-import { TABLE_SHAPE_VALUES } from "@domain/constants/table.constants";
+import {
+	TABLE_CAPACITY_MIN,
+	TABLE_SHAPE_VALUES,
+} from "@domain/constants/table.constants";
 import { messages } from "@shared/constants/message.constants";
 import { z } from "zod";
 
@@ -11,7 +14,11 @@ export const updateTableBodySchema = z
 	.object({
 		sectionId: z.string().trim().uuid().min(1).optional(),
 		tableCode: z.string().trim().min(1).max(50).optional(),
-		capacity: z.number().int().min(1).optional(),
+		capacity: z
+			.number({ message: messages.INVALID_TABLE_CAPACITY })
+			.int({ message: messages.INVALID_TABLE_CAPACITY })
+			.min(TABLE_CAPACITY_MIN, { message: messages.TABLE_CAPACITY_MIN })
+			.optional(),
 		type: z.enum(TABLE_SHAPE_VALUES).optional(),
 	})
 	.strict()

@@ -7,6 +7,8 @@ export type TableShapeType = (typeof TABLE_SHAPE)[keyof typeof TABLE_SHAPE];
 
 export const TABLE_SHAPE_VALUES = Object.values(TABLE_SHAPE);
 
+export const TABLE_CAPACITY_MIN = 1;
+
 export const TABLE_STATUS = {
 	AVAILABLE: "AVAILABLE",
 	OCCUPIED: "OCCUPIED",

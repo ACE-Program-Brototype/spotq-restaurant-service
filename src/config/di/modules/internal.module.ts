@@ -1,5 +1,7 @@
 import type { IAssignTableUseCase } from "@application/ports/use-cases/internal/assign-table.use-case.port";
+import type { IReleaseTableUseCase } from "@application/ports/use-cases/internal/release-table.use-case.port";
 import { AssignTableUseCase } from "@application/use-cases/internal/assign-table.use-case";
+import { ReleaseTableUseCase } from "@application/use-cases/internal/release-table.use-case";
 import { InternalTableController } from "@presentation/http/controllers/internal-table.controller";
 import { ContainerModule } from "inversify";
 import type { IGetInternalMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-internal-menu-item-details.use-case.port.ts";
@@ -27,6 +29,10 @@ export const internalModule = new ContainerModule(({ bind }) => {
 	)
 		.to(InternalRestaurantController)
 		.inSingletonScope();
+
+	bind<IReleaseTableUseCase>(TYPES.UseCases.ReleaseTableUseCase).to(
+		ReleaseTableUseCase,
+	);
 
 	bind<IAssignTableUseCase>(TYPES.UseCases.AssignTableUseCase)
 		.to(AssignTableUseCase)
