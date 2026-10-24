@@ -144,6 +144,7 @@ export const TYPES = {
 		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
 		UpdateTableUseCase: Symbol.for("UpdateTableUseCase"),
 		GetTableUseCase: Symbol.for("GetTableUseCase"),
+		GetTableDetailsUseCase: Symbol.for("GetTableDetailsUseCase"),
 		GetTableAvailabilityUseCase: Symbol.for("GetTableAvailabilityUseCase"),
 		DeleteTableUseCase: Symbol.for("DeleteTableUseCase"),
 		ReleaseTableUseCase: Symbol.for("ReleaseTableUseCase"),
