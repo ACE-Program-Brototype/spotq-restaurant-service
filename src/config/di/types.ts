@@ -91,6 +91,7 @@ export const TYPES = {
 		),
 		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
 		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
+		DeleteStorageObjectUseCase: Symbol.for("DeleteStorageObjectUseCase"),
 		ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
 		RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
 		ListRestaurantApplicationsUseCase: Symbol.for(
@@ -137,6 +138,7 @@ export const TYPES = {
 		// TABLE SECTION
 		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
 		GetTableSectionUseCase: Symbol.for("GetTableSectionUseCase"),
+		DeleteTableSectionUseCase: Symbol.for("DeleteTableSectionUseCase"),
 
 		// TABLE
 		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
@@ -145,12 +147,17 @@ export const TYPES = {
 		GetTableAvailabilityUseCase: Symbol.for("GetTableAvailabilityUseCase"),
 		DeleteTableUseCase: Symbol.for("DeleteTableUseCase"),
 		ReleaseTableUseCase: Symbol.for("ReleaseTableUseCase"),
+		AssignTableUseCase: Symbol.for("AssignTableUseCase"),
+		UpdateTableStatusUseCase: Symbol.for("UpdateTableStatusUseCase"),
 
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",
 		),
 		ValidateRestaurantEligibilityUseCase: Symbol.for(
 			"ValidateRestaurantEligibilityUseCase",
+		),
+		GetInternalMenuItemDetailsUseCase: Symbol.for(
+			"GetInternalMenuItemDetailsUseCase",
 		),
 	},
 
@@ -195,6 +202,7 @@ export const TYPES = {
 		OtpHashService: Symbol.for("OtpHashService"),
 		Storage: Symbol.for("StorageService"),
 		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
+		StorageAccessValidator: Symbol.for("StorageAccessValidator"),
 		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 	},
 

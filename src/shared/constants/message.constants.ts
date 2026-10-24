@@ -42,6 +42,16 @@ export const messages = {
 		"Presigned upload URL generated successfully.",
 	PRESIGNED_GET_URL_GENERATED_SUCCESS:
 		"Presigned download URL generated successfully.",
+	S3_OBJECT_DELETED_SUCCESS: "S3 object deleted successfully",
+	S3_OBJECT_DELETE_FAILED: "Failed to delete S3 object",
+	STORAGE_KEY_FORBIDDEN:
+		"Forbidden: You are not authorized to delete this storage object",
+	STORAGE_KEY_PARAM_REQUIRED: "Key is required",
+	STORAGE_OBJECT_KEY_REQUIRED: "Object key is required",
+	STORAGE_KEY_OR_OBJECT_KEY_REQUIRED:
+		"Either 'key' or 'objectKey' must be provided",
+	STORAGE_PATH_TRAVERSAL_NOT_ALLOWED:
+		"Key must not contain path traversal characters ('..')",
 
 	SERVICE_RUNNING: "Service is running",
 	SERVICE_HEALTHY: "Service health check successful",
@@ -368,6 +378,7 @@ export const messages = {
 	LIMIT_EXCEEDS_MAX: "Limit exceeded",
 	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
 	INVALID_TABLE_SECTION_ID: "Invalid Table section ID",
+	TABLE_SECTION_DELETE_SUCCESS: "Table Section Deleted Successfully",
 
 	// TABLE
 	TABLE_CAPACITY_MIN: "Table capacity must be at least 1.",
@@ -388,15 +399,19 @@ export const messages = {
 	TABLE_UPDATE_SUCCESS: "Table Updated Successfully",
 	TABLE_FETCH_SUCCESS: "Table Fetched Successfully",
 	INVALID_TABLE_STATUS: "Invalid Table Status",
+	TABLE_ID_REQUIRED: "Table Id Required",
+	TABLE_STATUS_UPDATE_SUCCESS: "Table Status Update Success",
+	TABLE_INVALID_TRANSITION: "Table Invalid Transition",
+	TABLE_MUST_BE_UNOCCUPIED: "Table must be Unoccupied",
+	INVALID_TABLE_ID: "Invalid Table Id",
 	TABLE_IN_USE: "Table In Use",
 	TABLE_DELETE_SUCCESS: "Table deleted Succesfully",
-	TABLE_ID_REQUIRED: "Table ID Required",
-	TABLE_ASSIGN_SUCCESS: "Table Assigned Successfully",
 	TABLE_RELEASE_SUCCESS: "Table Released Successfully",
-	INVALID_TABLE_ID: "Invalid Table Id",
+	TABLE_ASSIGN_SUCCESS: "Table Assigned Successfully",
 	TABLES_REQUIRED: "At least one table must be provided",
 	TABLE_NOT_AVAILABLE: "Table Not Available",
 	DUPLICATE_TABLE_ID: "Duplicate Table Id",
+	TABLE_SECTION_IN_USE: "Table Section in use",
 
 	INVALID_PARTY_SIZE: "Invalid Party Size",
 } as const;

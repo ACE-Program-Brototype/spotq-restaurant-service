@@ -1,8 +1,12 @@
+import type { IAssignTableUseCase } from "@application/ports/use-cases/internal/assign-table.use-case.port";
 import type { IReleaseTableUseCase } from "@application/ports/use-cases/internal/release-table.use-case.port";
+import { AssignTableUseCase } from "@application/use-cases/internal/assign-table.use-case";
 import { ReleaseTableUseCase } from "@application/use-cases/internal/release-table.use-case";
 import { InternalTableController } from "@presentation/http/controllers/internal-table.controller";
 import { ContainerModule } from "inversify";
+import type { IGetInternalMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-internal-menu-item-details.use-case.port.ts";
 import type { IValidateRestaurantEligibilityUseCase } from "@/application/ports/use-cases/validate-restaurant-eligibility.use-case.port.ts";
+import { GetInternalMenuItemDetailsUseCase } from "@/application/use-cases/internal/get-internal-menu-item-details.use-case.ts";
 import { ValidateRestaurantEligibilityUseCase } from "@/application/use-cases/internal/validate-restaurant-eligibility.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { InternalRestaurantController } from "@/presentation/http/controllers/internal-restaurant.controller.ts";
@@ -14,14 +18,24 @@ export const internalModule = new ContainerModule(({ bind }) => {
 		.to(ValidateRestaurantEligibilityUseCase)
 		.inSingletonScope();
 
+	bind<IGetInternalMenuItemDetailsUseCase>(
+		TYPES.UseCases.GetInternalMenuItemDetailsUseCase,
+	)
+		.to(GetInternalMenuItemDetailsUseCase)
+		.inSingletonScope();
+
 	bind<InternalRestaurantController>(
 		TYPES.Controller.InternalRestaurantController,
 	)
 		.to(InternalRestaurantController)
 		.inSingletonScope();
 
-	bind<IReleaseTableUseCase>(TYPES.UseCases.ReleaseTableUseCase)
-		.to(ReleaseTableUseCase)
+	bind<IReleaseTableUseCase>(TYPES.UseCases.ReleaseTableUseCase).to(
+		ReleaseTableUseCase,
+	);
+
+	bind<IAssignTableUseCase>(TYPES.UseCases.AssignTableUseCase)
+		.to(AssignTableUseCase)
 		.inSingletonScope();
 
 	bind<InternalTableController>(TYPES.Controller.InternalTableController)

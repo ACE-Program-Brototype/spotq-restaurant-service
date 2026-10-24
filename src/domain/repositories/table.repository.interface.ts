@@ -88,7 +88,14 @@ export interface ITableRepository extends IBaseRepository<Table> {
 
 	getAvailability(restaurantId: string): Promise<TableAvailabilityData>;
 
-	findByIds(restaurantId: string, ids: string[]): Promise<Table[]>;
 
 	updateMany(tables: Table[]): Promise<void>;
+	findByIds(restaurantId: string, tableIds: string[]): Promise<Table[]>;
+
+	/**
+	 * Count all non deleted tables by section id
+	 * @param sectionId
+	 * @returns number
+	 */
+	countActiveBySectionId(sectionId: string): Promise<number>;
 }

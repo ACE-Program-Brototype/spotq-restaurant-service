@@ -66,6 +66,7 @@ export const STAFF_ROUTES = {
 export const STORAGE_ROUTES = {
 	BASE: "/storage",
 	PRESIGNED_URL: "/presigned-url",
+	S3_OBJECT: "/s3-object",
 } as const;
 
 export const ADMIN_ROUTES = {
@@ -90,23 +91,27 @@ export const TABLE_SECTION_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
 	TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION_ID: "/:restaurantId/table-sections/:tableSectionId",
 };
 
 export const TABLE_ROUTES = {
 	BASE: "/",
 	CREATE_TABLE: "/:restaurantId/table",
-	UPDATE_TABLE : "/:restaurantId/table/:tableId",
+	UPDATE_TABLE: "/:restaurantId/table/:tableId",
 	TABLE: "/:restaurantId/table",
 	DELETE: "/:restaurantId/table/:tableId",
 	INTERNAL: {
 		AVAILABILITY: "/internal/:restaurantId/tables/availability",
 	},
+	UPDATE_STATUS: "/:restaurantId/table/:tableId/status",
 };
 
 export const INTERNAL_ROUTES = {
 	BASE: "/api/internal/v1",
 	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
-	RELEASE_TABLE: "/restaurants/:restaurantId/tables/release"
+	RELEASE_TABLE: "/restaurants/:restaurantId/tables/release",
+	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
+	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
 } as const;
 
 export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];

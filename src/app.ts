@@ -1,6 +1,6 @@
 import "reflect-metadata";
 
-import { internalTableRoute } from "@presentation/http/routes/internal-table.routes";
+import { internalTableRouter } from "@presentation/http/routes/internal-table.routes";
 import { tableRoutes } from "@presentation/http/routes/table.routes";
 import { tableSectionRoutes } from "@presentation/http/routes/table-section.routes";
 import cookieParser from "cookie-parser";
@@ -57,7 +57,7 @@ app.get("/", (_req, res) => {
 // Mount routes
 app.use(ADMIN_ROUTES.BASE, adminRouter);
 app.use(INTERNAL_ROUTES.BASE, internalRestaurantRouter);
-app.use(INTERNAL_ROUTES.BASE, internalTableRoute);
+app.use(INTERNAL_ROUTES.BASE, internalTableRouter);
 app.use(STAFF_ROUTES.BASE, staffRouter);
 app.use(TABLE_SECTION_ROUTES.BASE, tableSectionRoutes);
 app.use(TABLE_ROUTES.BASE, tableRoutes);
