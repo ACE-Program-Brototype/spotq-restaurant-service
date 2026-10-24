@@ -3,6 +3,7 @@ import type {
 	GetTableDetailsOutputDTO,
 } from "@application/dtos/table/get-table-details.dto";
 import { ensureActiveRestaurantStaff } from "@application/helpers/ensure-active-restaurant-staff";
+import { GetTableDetailsMapper } from "@application/mappers/table/table-details/get-table-details.mapper";
 import type { IGetTableDetailsUseCase } from "@application/ports/use-cases/table/get-table-details.use-case.port";
 import { TYPES } from "@config/di/types";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
@@ -58,17 +59,6 @@ export class GetTableDetailsUseCase implements IGetTableDetailsUseCase {
 			throw new TableNotFoundError();
 		}
 
-		return {
-			tableId: table.id,
-			restaurantId: table.restaurantId,
-			sectionId: table.sectionId,
-			sectionName,
-			tableCode: table.tableCode,
-			capacity: table.capacity,
-			shape: table.tableShape,
-			currentOccupancy: table.currentOccupancy,
-			status: table.status,
-			createdAt: table.createdAt.toISOString(),
-		};
+		return GetTableDetailsMapper.toResponseDTO(table, sectionName);
 	}
 }
