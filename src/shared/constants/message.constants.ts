@@ -381,7 +381,8 @@ export const messages = {
 	TABLE_SECTION_DELETE_SUCCESS: "Table Section Deleted Successfully",
 
 	// TABLE
-	INVALID_TABLE_CAPACITY: "Table capacity must be greater than 0.",
+	TABLE_CAPACITY_MIN: "Table capacity must be at least 1.",
+	INVALID_TABLE_CAPACITY: "Table capacity must be a valid integer.",
 	INVALID_TABLE_CODE: "Table code cannot be empty.",
 	TABLE_CODE_MAX: "Table code must not exceed 50 characters.",
 	INVALID_TABLE_SHAPE: "Invalid table shape.",
@@ -389,7 +390,8 @@ export const messages = {
 	TABLE_ALREADY_EXISTS:
 		"A table with this code already exists in this restaurant.",
 	TABLE_CAPACITY_EXCEEDED: "Current occupancy cannot exceed table capacity.",
-	INVALID_TABLE_OCCUPANCY: "Table occupancy cannot be negative.",
+	INVALID_TABLE_OCCUPANCY:
+		"Guest count must be a positive integer and cannot exceed current table occupancy.",
 	TABLE_ALREADY_OCCUPIED: "Table is already occupied.",
 	TABLE_CREATE_SUCCESS: "Table Created successfully",
 	TABLE_CAPACITY_REQUIRED: "Table capacity required",
@@ -404,6 +406,7 @@ export const messages = {
 	INVALID_TABLE_ID: "Invalid Table Id",
 	TABLE_IN_USE: "Table In Use",
 	TABLE_DELETE_SUCCESS: "Table deleted Succesfully",
+	TABLE_RELEASE_SUCCESS: "Table Released Successfully",
 	TABLE_ASSIGN_SUCCESS: "Table Assigned Successfully",
 	TABLES_REQUIRED: "At least one table must be provided",
 	TABLE_NOT_AVAILABLE: "Table Not Available",

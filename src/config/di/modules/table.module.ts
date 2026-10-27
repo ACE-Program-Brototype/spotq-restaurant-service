@@ -2,12 +2,14 @@ import type { ICreateTableUseCase } from "@application/ports/use-cases/table/cre
 import type { IDeleteTableUseCase } from "@application/ports/use-cases/table/delete-table.use-case.port";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import type { IGetTableAvailabilityUseCase } from "@application/ports/use-cases/table/get-table-availability.use-case.port";
+import type { IGetTableDetailsUseCase } from "@application/ports/use-cases/table/get-table-details.use-case.port";
 import type { IUpdateTableUseCase } from "@application/ports/use-cases/table/update-table.use-case.port";
 import type { IUpdateTableStatusUseCase } from "@application/ports/use-cases/table/update-table-status.use-case.port";
 import { CreateTableUseCase } from "@application/use-cases/table/create-table.use-case";
 import { DeleteTableUseCase } from "@application/use-cases/table/delete-table.use-case";
 import { GetTableUseCase } from "@application/use-cases/table/get-table.use-case";
 import { GetTableAvailabilityUseCase } from "@application/use-cases/table/get-table-availability.use-case";
+import { GetTableDetailsUseCase } from "@application/use-cases/table/get-table-details.use-case";
 import { UpdateTableUseCase } from "@application/use-cases/table/update-table.use-case";
 import { UpdateTableStatusUseCase } from "@application/use-cases/table/update-table-status.use-case";
 import type { ITableRepository } from "@domain/repositories/table.repository.interface";
@@ -45,6 +47,10 @@ export const tableModule = new ContainerModule(({ bind }) => {
 
 	bind<IDeleteTableUseCase>(TYPES.UseCases.DeleteTableUseCase)
 		.to(DeleteTableUseCase)
+		.inSingletonScope();
+
+	bind<IGetTableDetailsUseCase>(TYPES.UseCases.GetTableDetailsUseCase)
+		.to(GetTableDetailsUseCase)
 		.inSingletonScope();
 
 	// controller

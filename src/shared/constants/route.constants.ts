@@ -96,6 +96,7 @@ export const TABLE_SECTION_ROUTES = {
 
 export const TABLE_ROUTES = {
 	BASE: "/",
+	TABLE_ID: "/:restaurantId/table/:tableId",
 	CREATE_TABLE: "/:restaurantId/table",
 	UPDATE_TABLE: "/:restaurantId/table/:tableId",
 	TABLE: "/:restaurantId/table",
@@ -109,6 +110,7 @@ export const TABLE_ROUTES = {
 export const INTERNAL_ROUTES = {
 	BASE: "/api/internal/v1",
 	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
+	RELEASE_TABLE: "/restaurants/:restaurantId/tables/release",
 	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
 	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
 } as const;

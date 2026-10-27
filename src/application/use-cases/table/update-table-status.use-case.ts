@@ -2,14 +2,10 @@ import type {
 	IUpdateTableStatusInputDTO,
 	IUpdateTableStatusOutputDTO,
 } from "@application/dtos/table/update-table-status.dto";
+import { ensureActiveRestaurantStaff } from "@application/helpers/ensure-active-restaurant-staff";
 import type { IUpdateTableStatusUseCase } from "@application/ports/use-cases/table/update-table-status.use-case.port";
 import { TYPES } from "@config/di/types";
-import type { Restaurant } from "@domain/entities/restaurant.entity";
 import { RestaurantNotFoundError } from "@domain/errors/restaurant.errors";
-import {
-	StaffInactiveError,
-	StaffNotFoundError,
-} from "@domain/errors/staff.errors";
 import { TableNotFoundError } from "@domain/errors/table.errors";
 import type { IRestaurantRepository } from "@domain/repositories/restaurant.repository.interface";
 import type { IRestaurantStaffRepository } from "@domain/repositories/restaurant-staff.repository.interface";
@@ -38,9 +34,17 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 			throw new RestaurantNotFoundError();
 		}
 
-		restaurant.ensureOperationalAccess()
+		restaurant.ensureOperationalAccess();
 
-		await this._ensureAdminOrActiveStaff(restaurant, input.userId);
+		if (restaurant.isAdmin(input.userId)) {
+			restaurant.ensureAdminAccess(input.userId);
+		} else {
+			await ensureActiveRestaurantStaff(
+				this._staffRepository,
+				input.userId,
+				input.restaurantId,
+			);
+		}
 
 		// Ensure table exists
 		const table = await this._tableRepository.findById(input.tableId);
@@ -63,30 +67,5 @@ export class UpdateTableStatusUseCase implements IUpdateTableStatusUseCase {
 			status: table.status,
 			updatedAt: table.updatedAt.toISOString(),
 		};
-	}
-
-	private async _ensureAdminOrActiveStaff(
-		restaurant: Restaurant,
-		userId: string,
-	): Promise<void> {
-		if (restaurant.isAdmin(userId)) {
-			restaurant.ensureAdminAccess(userId);
-			return;
-		}
-
-		// Ensure staff exists
-		const staff = await this._staffRepository.findByIdAndRestaurantId(
-			userId,
-			restaurant.id,
-		);
-
-		// Ensure staff belongs to the restaurant
-		if (!staff) {
-			throw new StaffNotFoundError();
-		}
-
-		if (!staff.isActive()) {
-			throw new StaffInactiveError();
-		}
 	}
 }

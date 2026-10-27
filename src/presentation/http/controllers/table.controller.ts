@@ -5,6 +5,7 @@ import type { ICreateTableUseCase } from "@application/ports/use-cases/table/cre
 import type { IDeleteTableUseCase } from "@application/ports/use-cases/table/delete-table.use-case.port";
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import type { IGetTableAvailabilityUseCase } from "@application/ports/use-cases/table/get-table-availability.use-case.port";
+import type { IGetTableDetailsUseCase } from "@application/ports/use-cases/table/get-table-details.use-case.port";
 import type { IUpdateTableUseCase } from "@application/ports/use-cases/table/update-table.use-case.port";
 import type { IUpdateTableStatusUseCase } from "@application/ports/use-cases/table/update-table-status.use-case.port";
 import { TYPES } from "@config/di/types";
@@ -14,6 +15,7 @@ import { messages } from "@shared/constants/message.constants";
 import { sendSuccessResponse } from "@shared/response/api-response";
 import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import type { GetTableDetailsParams } from "../validators/table/get-table-details.validator";
 import type {
 	UpdateTableStatusBody,
 	UpdateTableStatusParams,
@@ -34,6 +36,8 @@ export class TableController {
 		private readonly _updateTableStatusUseCase: IUpdateTableStatusUseCase,
 		@inject(TYPES.UseCases.DeleteTableUseCase)
 		private readonly _deleteTableUseCase: IDeleteTableUseCase,
+		@inject(TYPES.UseCases.GetTableDetailsUseCase)
+		private readonly _getTableDetailsUseCase: IGetTableDetailsUseCase,
 	) {}
 
 	createTable = async (req: Request, res: Response): Promise<void> => {
@@ -131,7 +135,7 @@ export class TableController {
 			}),
 		});
 
-		return sendSuccessResponse(
+		sendSuccessResponse(
 			res,
 			result,
 			messages.TABLE_FETCH_SUCCESS,
@@ -154,7 +158,7 @@ export class TableController {
 		);
 	};
 
-	deleteTable = async (req: Request, res: Response) => {
+	deleteTable = async (req: Request, res: Response): Promise<void> => {
 		const userId = req.userId;
 
 		if (!userId) {
@@ -171,7 +175,7 @@ export class TableController {
 			userId,
 		});
 
-		return sendSuccessResponse(res, response, messages.TABLE_DELETE_SUCCESS);
+		sendSuccessResponse(res, response, messages.TABLE_DELETE_SUCCESS);
 	};
 
 	updateTableStatus = async (req: Request, res: Response): Promise<void> => {
@@ -196,5 +200,22 @@ export class TableController {
 
 			HTTP_STATUS.OK,
 		);
+	};
+
+	getTableDetails = async (req: Request, res: Response): Promise<void> => {
+		const userId = req.userId;
+
+		if (!userId) {
+			throw new UnauthorizedEntityAccessError();
+		}
+		const { restaurantId, tableId } = req.params as GetTableDetailsParams;
+
+		const response = await this._getTableDetailsUseCase.execute({
+			restaurantId,
+			tableId,
+			userId,
+		});
+
+		sendSuccessResponse(res, response, messages.TABLE_FETCH_SUCCESS, HTTP_STATUS.OK);
 	};
 }
