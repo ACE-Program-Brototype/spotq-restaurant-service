@@ -47,16 +47,22 @@ export class ListCustomerRestaurantsUseCase {
 
 		const totalPages = Math.ceil(total / limit);
 
-		const data = restaurants.map((restaurant) => ({
-			id: restaurant.id,
-			restaurantName: restaurant.restaurantName,
-			city: restaurant.city,
-			state: restaurant.state,
-			cuisineType: restaurant.cuisineType,
-			averageCost: restaurant.averageCost,
-			coverImage: restaurant.coverImage,
-			createdAt: restaurant.createdAt,
-		}));
+		const data = restaurants.map((restaurant) => {
+			const coverImageKey =
+				restaurant.coverImageKey ?? restaurant.coverImage ?? null;
+
+			return {
+				id: restaurant.id,
+				restaurantName: restaurant.restaurantName,
+				city: restaurant.city,
+				state: restaurant.state,
+				cuisineType: restaurant.cuisineType,
+				averageCost: restaurant.averageCost,
+				coverImageKey,
+				coverImage: coverImageKey,
+				createdAt: restaurant.createdAt,
+			};
+		});
 
 		return {
 			data,

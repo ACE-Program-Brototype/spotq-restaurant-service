@@ -15,7 +15,7 @@ describe("ListCustomerRestaurantsUseCase", () => {
 		useCase = new ListCustomerRestaurantsUseCase(mockRestaurantRepository);
 	});
 
-	it("returns exact restaurant data with live S3 coverImage or null, never generating fallback mock images", async () => {
+	it("returns exact restaurant data with live S3 coverImageKey or null, never generating fallback mock images", async () => {
 		const mockRestaurants = [
 			{
 				id: "res-1",
@@ -24,6 +24,7 @@ describe("ListCustomerRestaurantsUseCase", () => {
 				state: "Kerala",
 				cuisineType: "Mandi",
 				averageCost: 500,
+				coverImageKey: "restaurants/res-1/covers/hero.jpg",
 				coverImage: "restaurants/res-1/covers/hero.jpg",
 				createdAt: new Date("2026-10-15T10:00:00.000Z"),
 			},
@@ -34,6 +35,7 @@ describe("ListCustomerRestaurantsUseCase", () => {
 				state: "Kerala",
 				cuisineType: "North Indian",
 				averageCost: 350,
+				coverImageKey: null,
 				coverImage: null,
 				createdAt: new Date("2026-10-15T11:00:00.000Z"),
 			},
@@ -54,6 +56,8 @@ describe("ListCustomerRestaurantsUseCase", () => {
 		});
 
 		expect(result.data).toHaveLength(2);
+		expect(result.data[0].coverImageKey).toBe("restaurants/res-1/covers/hero.jpg");
+		expect(result.data[1].coverImageKey).toBeNull();
 		expect(result.data[0].coverImage).toBe("restaurants/res-1/covers/hero.jpg");
 		expect(result.data[1].coverImage).toBeNull();
 		expect(result.data[0].restaurantName).toBe("Biryani Palace");

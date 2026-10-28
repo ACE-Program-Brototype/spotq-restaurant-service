@@ -1241,19 +1241,24 @@ export class RestaurantRepository
 			]);
 
 			const restaurants: CustomerRestaurantListItem[] = rawRestaurants.map(
-				(restaurant) => ({
-					id: restaurant.id,
-					restaurantName: restaurant.restaurantName,
-					city: restaurant.address?.city ?? null,
-					state: restaurant.address?.state ?? null,
-					cuisineType: restaurant.profile?.cuisineType ?? null,
-					averageCost: restaurant.profile?.averageCost ?? null,
-					coverImage:
+				(restaurant) => {
+					const coverImageKey =
 						restaurant.profile?.coverImageKey ??
 						restaurant.images?.[0]?.objectKey ??
-						null,
-					createdAt: restaurant.createdAt,
-				}),
+						null;
+
+					return {
+						id: restaurant.id,
+						restaurantName: restaurant.restaurantName,
+						city: restaurant.address?.city ?? null,
+						state: restaurant.address?.state ?? null,
+						cuisineType: restaurant.profile?.cuisineType ?? null,
+						averageCost: restaurant.profile?.averageCost ?? null,
+						coverImageKey,
+						coverImage: coverImageKey,
+						createdAt: restaurant.createdAt,
+					};
+				},
 			);
 
 			return {

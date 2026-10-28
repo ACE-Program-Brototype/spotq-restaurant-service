@@ -33,7 +33,7 @@ describe("CustomerRestaurantController", () => {
 		};
 	});
 
-	it("returns 200 with paginated exact data from backend including live coverImage or null", async () => {
+	it("returns 200 with paginated exact data from backend including live coverImageKey or null", async () => {
 		const mockResponse = {
 			data: [
 				{
@@ -43,6 +43,7 @@ describe("CustomerRestaurantController", () => {
 					state: "Kerala",
 					cuisineType: "Mandi",
 					averageCost: 400,
+					coverImageKey: "restaurants/res-uuid-1/cover.jpg",
 					coverImage: "restaurants/res-uuid-1/cover.jpg",
 					createdAt: new Date("2026-10-15T00:00:00.000Z"),
 				},
@@ -53,6 +54,7 @@ describe("CustomerRestaurantController", () => {
 					state: "Kerala",
 					cuisineType: "South Indian",
 					averageCost: 250,
+					coverImageKey: null,
 					coverImage: null,
 					createdAt: new Date("2026-10-15T00:00:00.000Z"),
 				},
@@ -92,12 +94,16 @@ describe("CustomerRestaurantController", () => {
 		);
 		// Verify exact data from backend is unmodified and not injected with mock photos
 		const jsonCall = (res.json as jest.Mock).mock.calls[0][0] as {
-			data: Array<{ id: string; coverImage: string | null }>;
+			data: Array<{
+				id: string;
+				coverImageKey: string | null;
+				coverImage?: string | null;
+			}>;
 		};
-		expect(jsonCall.data[0].coverImage).toBe(
+		expect(jsonCall.data[0].coverImageKey).toBe(
 			"restaurants/res-uuid-1/cover.jpg",
 		);
-		expect(jsonCall.data[1].coverImage).toBeNull();
+		expect(jsonCall.data[1].coverImageKey).toBeNull();
 	});
 
 	describe("getRestaurantDetails", () => {
