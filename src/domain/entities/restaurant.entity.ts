@@ -2,6 +2,7 @@ import {
 	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
+	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import {
 	type OnboardingStatus,
@@ -457,5 +458,20 @@ export class Restaurant {
 		if (this.isBlocked) {
 			throw new RestaurantAccountBlockedError();
 		}
+	}
+
+	public ensureCustomerAccess(now: Date = new Date()): void {
+		if (!this.isEligibleForCustomer(now)) {
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+	}
+
+	public isEligibleForCustomer(now: Date = new Date()): boolean {
+		return (
+			this.status === "ACTIVE" &&
+			!this.isBlocked &&
+			this.isSubscriptionEligible(now) &&
+			this.onboardingStatus === "COMPLETED"
+		);
 	}
 }

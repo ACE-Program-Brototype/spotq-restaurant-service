@@ -17,6 +17,10 @@ import {
 	validateRequestParams,
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
+import {
+	getCustomerRestaurantDetailsParamsSchema,
+	getCustomerRestaurantDetailsQuerySchema,
+} from "../validators/get-customer-restaurant-details.validator";
 import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import {
 	sendRestaurantEmailOtpSchema,
@@ -154,6 +158,13 @@ restaurantRouter.delete(
 	restaurantStaffManagementController.removeStaff.bind(
 		restaurantStaffManagementController,
 	),
+);
+
+restaurantRouter.get(
+	RESTAURANT_ROUTES.CUSTOMER_DETAILS,
+	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
+	validateRequestQuery(getCustomerRestaurantDetailsQuerySchema),
+	customerRestaurantController.getRestaurantDetails,
 );
 
 // menu router

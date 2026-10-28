@@ -154,6 +154,9 @@ export const TYPES = {
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",
 		),
+		GetCustomerRestaurantDetailsUseCase: Symbol.for(
+			"GetCustomerRestaurantDetailsUseCase",
+		),
 		ValidateRestaurantEligibilityUseCase: Symbol.for(
 			"ValidateRestaurantEligibilityUseCase",
 		),
@@ -205,6 +208,7 @@ export const TYPES = {
 		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
 		StorageAccessValidator: Symbol.for("StorageAccessValidator"),
 		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
+		QueueService: Symbol.for("QueueService"),
 	},
 
 	Logger: {

@@ -384,6 +384,11 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(60 * 60 * 1000),
+	QUEUE_SERVICE_URL: z
+		.string()
+		.trim()
+		.default("http://spotq-queue-service:3004"),
+	QUEUE_SERVICE_NAME: z.string().trim().default("queue-service"),
 });
 
 export type Env = z.infer<typeof envSchema>;

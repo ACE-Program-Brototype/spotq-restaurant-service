@@ -385,6 +385,120 @@ export interface IRestaurantRepository
 	findValidationDetailsById(
 		restaurantId: string,
 	): Promise<RestaurantValidationRecord | null>;
+
+	findCustomerRestaurantDetails(
+		params: CustomerRestaurantDetailsQueryParams,
+	): Promise<CustomerRestaurantDetailsRecord | null >;
+}
+
+export interface CustomerRestaurantDetailsQueryParams {
+	restaurantId: string;
+	includeMenu?: boolean;
+	categoryId?: string;
+}
+
+export interface CustomerRestaurantAddressRecord {
+	id: string;
+	addressLine1: string;
+	addressLine2: string | null;
+	city: string;
+	state: string;
+	country: string;
+	pincode: string;
+	latitude: unknown;
+	longitude: unknown;
+}
+
+export interface CustomerRestaurantProfileRecord {
+	description: string | null;
+	cuisineType: string | null;
+	averageCost: number | null;
+	coverImageKey: string | null;
+}
+
+export interface CustomerRestaurantSettingsRecord {
+	isOpened: boolean;
+	isPreorder: boolean;
+	acceptsQueue: boolean;
+	acceptsQrOrders: boolean;
+}
+
+export interface CustomerRestaurantOperatingHourRecord {
+	id: string;
+	dayOfWeek: number;
+	isOpen: boolean;
+	isClosed: boolean;
+	openTime: string | null;
+	closeTime: string | null;
+}
+
+export interface CustomerRestaurantImageRecord {
+	id: string;
+	objectKey: string;
+	displayOrder: number;
+}
+
+export interface CustomerRestaurantVariantRecord {
+	id: string;
+	sku: string;
+	name: string;
+	price: unknown;
+	isDefault: boolean;
+	isAvailable: boolean;
+}
+
+export interface CustomerRestaurantAddonRecord {
+	id: string;
+	addonId: string;
+	name: string;
+	description: string | null;
+	price: unknown;
+	priceOverride: unknown | null;
+	imageKey: string | null;
+	isAvailable: boolean;
+}
+
+export interface CustomerRestaurantMenuItemRecord {
+	id: string;
+	categoryId: string;
+	name: string;
+	description: string | null;
+	price: unknown;
+	preparationTime: number | null;
+	calories: number | null;
+	isVegetarian: boolean;
+	isFeatured: boolean;
+	isAvailable: boolean;
+	images: CustomerRestaurantImageRecord[];
+	variants: CustomerRestaurantVariantRecord[];
+	addons: CustomerRestaurantAddonRecord[];
+}
+
+export interface CustomerRestaurantMenuCategoryRecord {
+	id: string;
+	name: string;
+	description: string | null;
+	displayOrder: number;
+	menuItems: CustomerRestaurantMenuItemRecord[];
+}
+
+export interface CustomerRestaurantDetailsRecord {
+	id: string;
+	restaurantName: string;
+	email: string;
+	phone: string;
+	status: string;
+	isBlocked: boolean;
+	isSubscriptionActive: boolean;
+	subscriptionEndsAt: Date | null;
+	onboardingStatus: string;
+	restaurant: Restaurant;
+	address: CustomerRestaurantAddressRecord | null;
+	profile: CustomerRestaurantProfileRecord | null;
+	settings: CustomerRestaurantSettingsRecord | null;
+	operatingHours: CustomerRestaurantOperatingHourRecord[];
+	images: CustomerRestaurantImageRecord[];
+	menuCategories: CustomerRestaurantMenuCategoryRecord[];
 }
 
 export interface RestaurantValidationRecord {
