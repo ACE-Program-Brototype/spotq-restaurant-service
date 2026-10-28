@@ -42,7 +42,7 @@ export class GetCustomerRestaurantDetailsUseCase
 		record.restaurant.ensureCustomerAccess(new Date());
 
 		let queueStatus: CustomerRestaurantQueueStatusDTO | null = null;
-		if (record.settings?.acceptsQueue) {
+		if (dto.userId && record.settings?.acceptsQueue) {
 			try {
 				queueStatus = await this.queueService.getQueueStatus({
 					restaurantId: dto.restaurantId,

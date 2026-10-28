@@ -41,6 +41,7 @@ import {
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 import { addonRouter } from "./addon.routes";
 import { menuRouter } from "./menu.routes";
+import { customerOptionalAuthMiddleware } from "@/presentation/http/middleware/customer-optional-auth.middleware.ts";
 
 export const restaurantRouter = express.Router();
 
@@ -162,6 +163,7 @@ restaurantRouter.delete(
 
 restaurantRouter.get(
 	RESTAURANT_ROUTES.CUSTOMER_DETAILS,
+	customerOptionalAuthMiddleware,
 	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
 	validateRequestQuery(getCustomerRestaurantDetailsQuerySchema),
 	customerRestaurantController.getRestaurantDetails,

@@ -39,3 +39,10 @@ declare global {
 		}
 	}
 }
+
+export interface AuthenticatedCustomer {
+	userId: string;
+	email?: string;
+	role?: string;
+}
+
