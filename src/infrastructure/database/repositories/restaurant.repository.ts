@@ -38,6 +38,10 @@ import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.t
 import { messages } from "@/shared/constants/message.constants.ts";
 import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
 import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
+import {
+	CustomerRestaurantDetailsPersistenceMapper,
+	type RawCustomerRestaurantDetails,
+} from "../mappers/customer-restaurant-details.mapper.ts";
 import { extractPrismaMetaTarget } from "../utils/prisma-error.util.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -1428,7 +1432,7 @@ export class RestaurantRepository
 											},
 											variants: {
 												where: {
-													isDeleted: false,
+													isAvailable: true,
 												},
 												orderBy: {
 													price: "asc" as const,
@@ -1444,7 +1448,9 @@ export class RestaurantRepository
 											},
 											addons: {
 												where: {
-													isDeleted: false,
+													addon: {
+														isDeleted: false,
+													},
 												},
 												select: {
 													id: true,
@@ -1478,53 +1484,10 @@ export class RestaurantRepository
 				raw as unknown as PrismaRestaurant,
 			);
 
-			return {
-				id: raw.id,
-				restaurantName: raw.restaurantName,
-				email: raw.email,
-				phone: raw.phone,
-				status: raw.status,
-				isBlocked: raw.isBlocked,
-				isSubscriptionActive: raw.isSubscriptionActive,
-				subscriptionEndsAt: raw.subscriptionEndsAt,
-				onboardingStatus: raw.onboardingStatus,
-				restaurant: restaurantEntity,
-				address: raw.address,
-				profile: raw.profile,
-				settings: raw.settings,
-				operatingHours: raw.operatingHours,
-				images: raw.images,
-				menuCategories: (raw.menuCategories || []).map((cat) => ({
-					id: cat.id,
-					name: cat.name,
-					description: cat.description,
-					displayOrder: cat.displayOrder,
-					menuItems: (cat.menuItems || []).map((item) => ({
-						id: item.id,
-						categoryId: item.categoryId,
-						name: item.name,
-						description: item.description,
-						price: item.price,
-						preparationTime: item.preparationTime,
-						calories: item.calories,
-						isVegetarian: item.isVegetarian,
-						isFeatured: item.isFeatured,
-						isAvailable: item.isAvailable,
-						images: item.images,
-						variants: item.variants,
-						addons: (item.addons || []).map((a) => ({
-							id: a.id,
-							addonId: a.addon?.id ?? a.addonId,
-							name: a.addon?.name ?? "",
-							description: a.addon?.description ?? null,
-							price: a.addon?.price ?? 0,
-							priceOverride: a.priceOverride,
-							imageKey: a.addon?.imageKey ?? null,
-							isAvailable: a.addon?.isAvailable ?? true,
-						})),
-					})),
-				})),
-			};
+			return CustomerRestaurantDetailsPersistenceMapper.toRecord(
+				raw as unknown as RawCustomerRestaurantDetails,
+				restaurantEntity,
+			);
 		});
 	}
 }

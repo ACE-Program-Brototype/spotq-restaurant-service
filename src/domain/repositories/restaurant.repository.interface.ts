@@ -388,7 +388,7 @@ export interface IRestaurantRepository
 
 	findCustomerRestaurantDetails(
 		params: CustomerRestaurantDetailsQueryParams,
-	): Promise<CustomerRestaurantDetailsRecord | null >;
+	): Promise<CustomerRestaurantDetailsRecord | null>;
 }
 
 export interface CustomerRestaurantDetailsQueryParams {
@@ -440,7 +440,7 @@ export interface CustomerRestaurantImageRecord {
 
 export interface CustomerRestaurantVariantRecord {
 	id: string;
-	sku: string;
+	sku: string | null;
 	name: string;
 	price: unknown;
 	isDefault: boolean;

@@ -345,7 +345,9 @@ describe("RestaurantRepository", () => {
 									select: expect.objectContaining({
 										addons: expect.objectContaining({
 											where: {
-												isDeleted: false,
+												addon: {
+													isDeleted: false,
+												},
 											},
 										}),
 									}),
