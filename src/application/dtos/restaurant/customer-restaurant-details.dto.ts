@@ -98,10 +98,9 @@ export interface CustomerRestaurantQueueMembershipDTO {
 }
 
 export interface CustomerRestaurantQueueStatusDTO {
-	isOpen: boolean;
-	activeWaiters: number;
-	estimatedWaitMinutes: number;
-	membership?: CustomerRestaurantQueueMembershipDTO | null;
+	isGuestUser: boolean;
+	hasJoinedAnyQueue: boolean;
+	hasJoinedThisRestaurantQueue: boolean
 }
 
 export interface CustomerRestaurantDetailsOutputDTO {

@@ -38,7 +38,11 @@ export const CustomerRestaurantDetailsMapper = {
 			operatingHours: this.mapOperatingHours(record.operatingHours),
 			images: this.mapImages(record.images),
 			menu: includeMenu ? this.mapMenu(record.menuCategories) : [],
-			queue: queueStatus,
+			queue: queueStatus ?? {
+				hasJoinedAnyQueue: false,
+				hasJoinedThisRestaurantQueue: false,
+				isGuestUser: true,
+			},
 		};
 	},
 
@@ -78,8 +82,8 @@ export const CustomerRestaurantDetailsMapper = {
 			id: h.id,
 			dayOfWeek: h.dayOfWeek,
 			isOpen: h.isOpen,
-			openTime: h.openTime != null ? String(h.openTime) : null,
-			closeTime: h.closeTime != null ? String(h.closeTime) : null,
+			openTime: h.openTime ?? null,
+			closeTime: h.closeTime ?? null,
 		}));
 	},
 

@@ -1,3 +1,4 @@
+import type { ILogger } from "@application/ports/services/logger.interface";
 import { inject, injectable } from "inversify";
 import type {
 	CustomerRestaurantDetailsInputDTO,
@@ -21,13 +22,14 @@ export class GetCustomerRestaurantDetailsUseCase
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Services.QueueService)
 		private readonly queueService: IQueueService,
+		@inject(TYPES.Logger.PinoClient)
+		private readonly logger: ILogger,
 	) {}
 
 	public async execute(
 		dto: CustomerRestaurantDetailsInputDTO,
 	): Promise<CustomerRestaurantDetailsOutputDTO> {
 		const includeMenu = dto.includeMenu ?? true;
-
 		const record =
 			await this.restaurantRepository.findCustomerRestaurantDetails({
 				restaurantId: dto.restaurantId,
@@ -40,8 +42,12 @@ export class GetCustomerRestaurantDetailsUseCase
 		}
 
 		record.restaurant.ensureCustomerAccess(new Date());
+		let queueStatus: CustomerRestaurantQueueStatusDTO = {
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
+			isGuestUser: !dto.userId,
+		};
 
-		let queueStatus: CustomerRestaurantQueueStatusDTO | null = null;
 		if (dto.userId) {
 			try {
 				const status = await this.queueService.getQueueStatus({
@@ -49,18 +55,11 @@ export class GetCustomerRestaurantDetailsUseCase
 					userId: dto.userId,
 				});
 				if (status) {
-					queueStatus = {
-						...status,
-						isOpen: record.settings?.acceptsQueue ?? status.isOpen,
-					};
+					queueStatus = status;
 				}
 			} catch {
-				queueStatus = {
-					isOpen: record.settings?.acceptsQueue ?? false,
-					activeWaiters: 0,
-					estimatedWaitMinutes: 0,
-					membership: null,
-				};
+				// Preserve default queue status when the queue service is unavailable.
+				this.logger.error("[ERROR]: QUEUE SERVICE ERROR");
 			}
 		}
 
