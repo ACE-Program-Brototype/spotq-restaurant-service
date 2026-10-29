@@ -2,69 +2,104 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "@config/env.ts";
 
-function getHeaderValue(header: string | string[] | undefined): string | undefined {
-	if (Array.isArray(header)) {
-		return header[0];
-	}
-	return header;
+interface CustomerJwtPayload extends jwt.JwtPayload {
+	sub?: string;
+	id?: string;
+	userId?: string;
+	email?: string;
+	role?: string;
+}
+
+function getHeaderValue(
+	header: string | string[] | undefined,
+): string | undefined {
+	return Array.isArray(header) ? header[0] : header;
 }
 
 export function customerOptionalAuthMiddleware(
 	req: Request,
-	_res: Response,
+	res: Response,
 	next: NextFunction,
 ): void {
-	const headerUserId = getHeaderValue(req.headers["x-user-id"]);
-	const headerEmail = getHeaderValue(req.headers["x-user-email"]);
-	const headerRole = getHeaderValue(req.headers["x-user-role"]);
-	if (headerUserId) {
-		req.userId = headerUserId;
-		req.user = {
-			userId: headerUserId,
-			email: headerEmail ?? "",
-			role: headerRole ?? "CUSTOMER",
-		};
-		next();
-		return;
-	}
-
-	// No token provided -> Continue as guest
 	const authHeader = getHeaderValue(req.headers.authorization);
-	if (!authHeader?.startsWith("Bearer ")) {
+
+	// No Authorization header means the request can continue as a guest.
+	if (!authHeader) {
+		req.userId = undefined;
+		req.user = undefined;
 		next();
 		return;
 	}
 
-	const token = authHeader.substring(7).trim();
+	// If Authorization is provided, it must contain a Bearer token.
+	if (!authHeader.startsWith("Bearer ")) {
+		res.status(401).json({
+			success: false,
+			message: "Invalid authorization format",
+			statusCode: 401,
+		});
+		return;
+	}
+
+	const token = authHeader.slice(7).trim();
+
 	if (!token) {
-		next();
+		res.status(401).json({
+			success: false,
+			message: "Access token is required",
+			statusCode: 401,
+		});
+		return;
+	}
+
+	const publicKey = env.JWT_PUBLIC_KEY || env.JWT_ACCESS_PUBLIC_KEY;
+
+	// Never decode a token and treat its claims as authenticated.
+	if (!publicKey) {
+		next(new Error("JWT public key is not configured"));
 		return;
 	}
 
 	try {
-		const publicKey = env.JWT_PUBLIC_KEY || env.JWT_ACCESS_PUBLIC_KEY;
 		const algorithm = (env.JWT_ALGORITHM || "RS256") as jwt.Algorithm;
-		let decoded: jwt.JwtPayload;
-		if (publicKey) {
-			decoded = jwt.verify(token, publicKey, {
-				algorithms: [algorithm],
-			}) as jwt.JwtPayload;
-		} else {
-			decoded = jwt.decode(token) as jwt.JwtPayload;
-		}
-		const resolvedUserId = (decoded?.sub ?? decoded?.id ?? decoded?.userId) as string | undefined;
-		if (resolvedUserId) {
-			req.userId = resolvedUserId;
-			req.user = {
-				userId: resolvedUserId,
-				email: (decoded?.email as string) ?? "",
-				role: (decoded?.role as string) ?? "CUSTOMER",
-			};
-		}
-	} catch {
-		req.userId = undefined;
-		req.user = undefined;
-	}
 
-	next();
+		const decoded = jwt.verify(token, publicKey, {
+			algorithms: [algorithm],
+		}) as CustomerJwtPayload;
+
+		const userId = decoded.sub ?? decoded.id ?? decoded.userId;
+
+		if (!userId || typeof userId !== "string") {
+			res.status(401).json({
+				success: false,
+				message: "Invalid access token",
+				statusCode: 401,
+			});
+			return;
+		}
+
+		req.userId = userId;
+		req.user = {
+			userId,
+			email: typeof decoded.email === "string" ? decoded.email : "",
+			role: typeof decoded.role === "string" ? decoded.role : "CUSTOMER",
+		};
+
+		next();
+	} catch (error: unknown) {
+		if (
+			error instanceof jwt.TokenExpiredError ||
+			error instanceof jwt.JsonWebTokenError ||
+			error instanceof jwt.NotBeforeError
+		) {
+			res.status(401).json({
+				success: false,
+				message: "Invalid or expired access token",
+				statusCode: 401,
+			});
+			return;
+		}
+
+		next(error);
+	}
 }

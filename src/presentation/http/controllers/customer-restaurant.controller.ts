@@ -51,24 +51,28 @@ export class CustomerRestaurantController {
 		req: Request,
 		res: Response,
 	): Promise<Response> => {
-		const { restaurantId } = req.params as GetCustomerRestaurantDetailsParams;
-		const { includeMenu, categoryId } = (res.locals?.query ??
-			req.query) as GetCustomerRestaurantDetailsQuery;
+		const { restaurantId } =
+			req.params as GetCustomerRestaurantDetailsParams;
 
-		const userId =
-			(req.headers["x-user-id"] as string | undefined) ??
-			(req.user as { id?: string; userId?: string } | undefined)?.id ??
-			(req.user as { id?: string; userId?: string } | undefined)?.userId ??
-			(req as unknown as { userId?: string }).userId ??
-			res.locals?.user?.id;
+		const { includeMenu, categoryId } = (
+			res.locals?.query ?? req.query
+		) as GetCustomerRestaurantDetailsQuery;
 
-		const result = await this.getCustomerRestaurantDetailsUseCase.execute({
-			restaurantId,
-			includeMenu,
-			categoryId,
-			userId,
-		});
+		const userId = req.userId;
 
-		return sendSuccessResponse(res, result, messages.SUCCESS, HTTP_STATUS.OK);
+		const result =
+			await this.getCustomerRestaurantDetailsUseCase.execute({
+				restaurantId,
+				includeMenu,
+				categoryId,
+				userId,
+			});
+
+		return sendSuccessResponse(
+			res,
+			result,
+			messages.SUCCESS,
+			HTTP_STATUS.OK,
+		);
 	};
 }

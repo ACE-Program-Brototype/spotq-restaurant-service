@@ -12,21 +12,12 @@ import { env } from "@/config/env.ts";
 
 interface InternalActiveQueueResponse {
 	success?: boolean;
-	data?: {
-		hasActiveQueue: boolean;
-		queueEntry: {
-			queueEntryId: string;
-			restaurantId: string;
-			userId: string | null;
-			queueNumber: string;
-			partySize: number;
-			status: string;
-			position: number | null;
-			estimatedWaitMinutes: number | null;
-			joinedAt: string | Date;
-		} | null;
-	};
 	message?: string;
+	data?: {
+		restaurantId: string;
+		queueEntryId: string;
+	} | null;
+	statusCode?: number;
 }
 
 @injectable()
@@ -50,25 +41,33 @@ export class QueueService implements IQueueService {
 	}
 
 	private getInternalHeaders(): Record<string, string> {
-		const headers: Record<string, string> = {
-			Accept: "application/json",
-			"x-caller-service": this.serviceName,
-		};
-
-		if (this.privateKey) {
-			try {
-				const issuerConfig: TokenIssuerConfig = {
-					serviceName: this.serviceName,
-					privateKey: this.privateKey,
-				};
-				const token = generateToken(this.targetServiceName, issuerConfig);
-				headers.Authorization = `Bearer ${token}`;
-			} catch {
-				// S2S token generation failure logged silently to avoid crashing caller
-			}
+		if (!this.privateKey) {
+			throw new Error(
+				"Missing private key for service-to-service authentication",
+			);
 		}
 
-		return headers;
+		const issuerConfig: TokenIssuerConfig = {
+			serviceName: this.serviceName,
+			privateKey: this.privateKey,
+		};
+
+		const token = generateToken(this.targetServiceName, issuerConfig);
+
+		return {
+			Accept: "application/json",
+			"x-caller-service": this.serviceName,
+			Authorization: `Bearer ${token}`,
+		};
+	}
+
+	private getUnavailableStatus(): CustomerRestaurantQueueStatusDTO {
+		return {
+			isOpen: true,
+			activeWaiters: 0,
+			estimatedWaitMinutes: 0,
+			membership: null,
+		};
 	}
 
 	public async getQueueStatus(
@@ -85,14 +84,14 @@ export class QueueService implements IQueueService {
 			};
 		}
 
-		try {
-			const controller = new AbortController();
-			const timeoutId = setTimeout(
-				() => controller.abort(),
-				QueueService.REQUEST_TIMEOUT_MS,
-			);
+		const controller = new AbortController();
+		const timeoutId = setTimeout(
+			() => controller.abort(),
+			QueueService.REQUEST_TIMEOUT_MS,
+		);
 
-			const url = `${this.baseUrl}/api/internal/v1/restaurants/${encodeURIComponent(restaurantId)}/queue/users/${encodeURIComponent(userId)}/active`;
+		try {
+			const url = `${this.baseUrl}/api/internal/v1/queue-entries/${encodeURIComponent(userId)}/status`;
 
 			const response = await fetch(url, {
 				method: "GET",
@@ -100,68 +99,60 @@ export class QueueService implements IQueueService {
 				signal: controller.signal,
 			});
 
-			clearTimeout(timeoutId);
-
 			if (!response.ok) {
-				return {
-					isOpen: true,
-					activeWaiters: 0,
-					estimatedWaitMinutes: 0,
-					membership: null,
-				};
+				return this.getUnavailableStatus();
 			}
 
 			const payload = (await response.json()) as InternalActiveQueueResponse;
-			const queueData = payload.data;
 
-			if (!queueData) {
-				return {
-					isOpen: true,
-					activeWaiters: 0,
-					estimatedWaitMinutes: 0,
-					membership: null,
-				};
+			if (
+				!payload ||
+				typeof payload !== "object" ||
+				payload.success !== true ||
+				payload.data === undefined
+			) {
+				return this.getUnavailableStatus();
 			}
 
-			let membership: CustomerRestaurantQueueMembershipDTO | null = null;
-			if (queueData.hasActiveQueue && queueData.queueEntry) {
-				const entry = queueData.queueEntry;
+			const queueData = payload.data;
+
+			if (queueData !== null) {
+				if (
+					typeof queueData !== "object" ||
+					typeof queueData.restaurantId !== "string" ||
+					typeof queueData.queueEntryId !== "string"
+				) {
+					return this.getUnavailableStatus();
+				}
+			}
+
+			let membership: CustomerRestaurantQueueMembershipDTO;
+
+			if (queueData) {
 				membership = {
 					hasActiveQueue: true,
-					queueEntryId: entry.queueEntryId,
-					queueNumber: entry.queueNumber,
-					partySize: entry.partySize,
-					status: entry.status,
-					position: entry.position,
-					estimatedWaitMinutes: entry.estimatedWaitMinutes,
-					joinedAt: entry.joinedAt,
+					queueEntryId: queueData.queueEntryId,
+					isCurrentRestaurantQueue:
+						queueData.restaurantId === restaurantId,
 				};
 			} else {
 				membership = {
 					hasActiveQueue: false,
 					queueEntryId: null,
-					queueNumber: null,
-					partySize: null,
-					status: null,
-					position: null,
-					estimatedWaitMinutes: null,
-					joinedAt: null,
+					isCurrentRestaurantQueue: false,
 				};
 			}
 
 			return {
 				isOpen: true,
-				activeWaiters: membership?.position ?? 0,
-				estimatedWaitMinutes: membership?.estimatedWaitMinutes ?? 0,
+				activeWaiters: 0,
+				estimatedWaitMinutes: 0,
 				membership,
 			};
 		} catch {
-			return {
-				isOpen: true,
-				activeWaiters: 0,
-				estimatedWaitMinutes: 0,
-				membership: null,
-			};
+			return this.getUnavailableStatus();
+		} finally {
+			clearTimeout(timeoutId);
 		}
 	}
 }

@@ -179,15 +179,13 @@ describe("CustomerRestaurantController", () => {
 			);
 		});
 
-		it("passes userId from x-user-id header to use case", async () => {
+		it("passes verified userId from req.userId to use case", async () => {
 			getCustomerRestaurantDetailsUseCase.execute.mockResolvedValueOnce(
 				{} as never,
 			);
 
 			req = {
-				headers: {
-					"x-user-id": "usr-456",
-				},
+				userId: "usr-456",
 				params: {
 					restaurantId: "res-uuid-1",
 				},
@@ -218,6 +216,41 @@ describe("CustomerRestaurantController", () => {
 					data: {},
 				}),
 			);
+		});
+
+		it("does not trust raw x-user-id header when req.userId is undefined", async () => {
+			getCustomerRestaurantDetailsUseCase.execute.mockResolvedValueOnce(
+				{} as never,
+			);
+
+			req = {
+				headers: {
+					"x-user-id": "untrusted-spoofed-user",
+				},
+				params: {
+					restaurantId: "res-uuid-1",
+				},
+				query: {} as never,
+			};
+
+			res.locals = {
+				params: {
+					restaurantId: "res-uuid-1",
+				},
+				query: {
+					includeMenu: true,
+				},
+			};
+
+			await controller.getRestaurantDetails(req as Request, res as Response);
+
+			expect(getCustomerRestaurantDetailsUseCase.execute).toHaveBeenCalledWith({
+				restaurantId: "res-uuid-1",
+				includeMenu: true,
+				categoryId: undefined,
+				userId: undefined,
+			});
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		});
 	});
 });

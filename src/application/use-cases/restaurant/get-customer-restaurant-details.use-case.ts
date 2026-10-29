@@ -42,15 +42,21 @@ export class GetCustomerRestaurantDetailsUseCase
 		record.restaurant.ensureCustomerAccess(new Date());
 
 		let queueStatus: CustomerRestaurantQueueStatusDTO | null = null;
-		if (dto.userId && record.settings?.acceptsQueue) {
+		if (dto.userId) {
 			try {
-				queueStatus = await this.queueService.getQueueStatus({
+				const status = await this.queueService.getQueueStatus({
 					restaurantId: dto.restaurantId,
 					userId: dto.userId,
 				});
+				if (status) {
+					queueStatus = {
+						...status,
+						isOpen: record.settings?.acceptsQueue ?? status.isOpen,
+					};
+				}
 			} catch {
 				queueStatus = {
-					isOpen: record.settings.acceptsQueue,
+					isOpen: record.settings?.acceptsQueue ?? false,
 					activeWaiters: 0,
 					estimatedWaitMinutes: 0,
 					membership: null,

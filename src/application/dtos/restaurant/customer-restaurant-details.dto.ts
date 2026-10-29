@@ -87,6 +87,7 @@ export interface CustomerRestaurantMenuCategoryDTO {
 
 export interface CustomerRestaurantQueueMembershipDTO {
 	hasActiveQueue: boolean;
+	isCurrentRestaurantQueue: boolean;
 	queueEntryId?: string | null;
 	queueNumber?: string | null;
 	partySize?: number | null;

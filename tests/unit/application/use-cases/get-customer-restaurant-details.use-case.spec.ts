@@ -388,6 +388,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 			estimatedWaitMinutes: 15,
 			membership: {
 				hasActiveQueue: true,
+				isCurrentRestaurantQueue: true,
 				queueEntryId: "entry-1",
 				queueNumber: "A-01",
 				partySize: 2,
