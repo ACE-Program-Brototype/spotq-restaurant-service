@@ -1,3 +1,5 @@
+import { formatTime } from "@utils/date.util";
+import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import type {
 	CustomerRestaurantAddonRecord,
 	CustomerRestaurantDetailsRecord,
@@ -7,7 +9,6 @@ import type {
 	CustomerRestaurantOperatingHourRecord,
 	CustomerRestaurantVariantRecord,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
-import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 
 export interface RawCustomerRestaurantAddon {
 	id: string;
@@ -112,6 +113,7 @@ export const CustomerRestaurantDetailsPersistenceMapper = {
 		raw: RawCustomerRestaurantDetails,
 		restaurantEntity: Restaurant,
 	): CustomerRestaurantDetailsRecord {
+		console.log(raw.operatingHours);
 		return {
 			id: raw.id,
 			restaurantName: raw.restaurantName,
@@ -158,8 +160,8 @@ export const CustomerRestaurantDetailsPersistenceMapper = {
 					dayOfWeek: oh.dayOfWeek,
 					isOpen: oh.isOpen,
 					isClosed: oh.isClosed,
-					openTime: oh.openTime != null ? String(oh.openTime) : null,
-					closeTime: oh.closeTime != null ? String(oh.closeTime) : null,
+					openTime: formatTime(oh.openTime),
+					closeTime: formatTime(oh.closeTime),
 				}),
 			),
 			images: (raw.images || []).map(
@@ -217,4 +219,3 @@ export const CustomerRestaurantDetailsPersistenceMapper = {
 		};
 	},
 };
-

@@ -1,9 +1,6 @@
 import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
 import { injectable } from "inversify";
-import type {
-	CustomerRestaurantQueueMembershipDTO,
-	CustomerRestaurantQueueStatusDTO,
-} from "@/application/dtos/restaurant/customer-restaurant-details.dto.ts";
+import type { CustomerRestaurantQueueStatusDTO } from "@/application/dtos/restaurant/customer-restaurant-details.dto.ts";
 import type {
 	GetRestaurantQueueStatusParams,
 	IQueueService,
@@ -12,12 +9,15 @@ import { env } from "@/config/env.ts";
 
 interface InternalActiveQueueResponse {
 	success?: boolean;
-	message?: string;
 	data?: {
 		restaurantId: string;
 		queueEntryId: string;
 	} | null;
-	statusCode?: number;
+}
+
+interface ActiveQueueData {
+	restaurantId: string;
+	queueEntryId: string;
 }
 
 @injectable()
@@ -25,7 +25,7 @@ export class QueueService implements IQueueService {
 	private readonly baseUrl: string;
 	private readonly serviceName: string;
 	private readonly targetServiceName: string;
-	private readonly privateKey?: string;
+	private readonly privateKey: string;
 	private static readonly REQUEST_TIMEOUT_MS = 2500;
 
 	constructor(
@@ -37,53 +37,47 @@ export class QueueService implements IQueueService {
 		this.baseUrl = baseUrl.replace(/\/$/, "");
 		this.serviceName = serviceName;
 		this.targetServiceName = targetServiceName;
-		this.privateKey = privateKey ?? env.JWT_PRIVATE_KEY;
+		this.privateKey = privateKey ?? env.S2S_PRIVATE_KEY;
 	}
 
 	private getInternalHeaders(): Record<string, string> {
-		if (!this.privateKey) {
-			throw new Error(
-				"Missing private key for service-to-service authentication",
-			);
-		}
 
 		const issuerConfig: TokenIssuerConfig = {
 			serviceName: this.serviceName,
 			privateKey: this.privateKey,
 		};
-
 		const token = generateToken(this.targetServiceName, issuerConfig);
 
 		return {
 			Accept: "application/json",
-			"x-caller-service": this.serviceName,
+			"X-Caller-Service": this.serviceName,
 			Authorization: `Bearer ${token}`,
 		};
 	}
 
-	private getUnavailableStatus(): CustomerRestaurantQueueStatusDTO {
+	private getUnavailableStatus(
+		isGuestUser = false,
+	): CustomerRestaurantQueueStatusDTO {
 		return {
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		};
 	}
 
-	public async getQueueStatus(
-		params: GetRestaurantQueueStatusParams,
-	): Promise<CustomerRestaurantQueueStatusDTO | null> {
-		const { restaurantId, userId } = params;
-
-		if (!userId) {
-			return {
-				isOpen: true,
-				activeWaiters: 0,
-				estimatedWaitMinutes: 0,
-				membership: null,
-			};
+	private isActiveQueueData(data: unknown): data is ActiveQueueData {
+		if (!data || typeof data !== "object") {
+			return false;
 		}
 
+		const queue = data as Partial<ActiveQueueData>;
+		return (
+			typeof queue.restaurantId === "string" &&
+			typeof queue.queueEntryId === "string"
+		);
+	}
+
+	private async fetchQueueStatus(userId: string): Promise<unknown> {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(
 			() => controller.abort(),
@@ -92,7 +86,6 @@ export class QueueService implements IQueueService {
 
 		try {
 			const url = `${this.baseUrl}/api/internal/v1/queue-entries/${encodeURIComponent(userId)}/status`;
-
 			const response = await fetch(url, {
 				method: "GET",
 				headers: this.getInternalHeaders(),
@@ -100,59 +93,60 @@ export class QueueService implements IQueueService {
 			});
 
 			if (!response.ok) {
-				return this.getUnavailableStatus();
+				return null;
 			}
 
-			const payload = (await response.json()) as InternalActiveQueueResponse;
+			return await response.json();
+		} finally {
+			clearTimeout(timeoutId);
+		}
+	}
 
-			if (
-				!payload ||
-				typeof payload !== "object" ||
-				payload.success !== true ||
-				payload.data === undefined
-			) {
+	public async getQueueStatus(
+		params: GetRestaurantQueueStatusParams,
+	): Promise<CustomerRestaurantQueueStatusDTO | null> {
+		const { restaurantId, userId } = params;
+		if (!userId) {
+			return this.getUnavailableStatus(true);
+		}
+
+		try {
+			const payload: unknown = await this.fetchQueueStatus(userId);
+			if (!this.isSuccessfulResponse(payload)) {
 				return this.getUnavailableStatus();
 			}
 
 			const queueData = payload.data;
-
-			if (queueData !== null) {
-				if (
-					typeof queueData !== "object" ||
-					typeof queueData.restaurantId !== "string" ||
-					typeof queueData.queueEntryId !== "string"
-				) {
-					return this.getUnavailableStatus();
-				}
+			if (queueData !== null && !this.isActiveQueueData(queueData)) {
+				return this.getUnavailableStatus();
 			}
 
-			let membership: CustomerRestaurantQueueMembershipDTO;
-
-			if (queueData) {
-				membership = {
-					hasActiveQueue: true,
-					queueEntryId: queueData.queueEntryId,
-					isCurrentRestaurantQueue:
-						queueData.restaurantId === restaurantId,
-				};
-			} else {
-				membership = {
-					hasActiveQueue: false,
-					queueEntryId: null,
-					isCurrentRestaurantQueue: false,
-				};
-			}
-
-			return {
-				isOpen: true,
-				activeWaiters: 0,
-				estimatedWaitMinutes: 0,
-				membership,
-			};
+			return this.toQueueStatus(queueData, restaurantId);
 		} catch {
 			return this.getUnavailableStatus();
-		} finally {
-			clearTimeout(timeoutId);
 		}
+	}
+
+	private isSuccessfulResponse(
+		payload: unknown,
+	): payload is InternalActiveQueueResponse & { success: true; data: ActiveQueueData | null } {
+		return (
+			payload !== null &&
+			typeof payload === "object" &&
+			(payload as InternalActiveQueueResponse).success === true &&
+			"data" in payload
+		);
+	}
+
+	private toQueueStatus(
+		queueData: ActiveQueueData | null,
+		restaurantId: string,
+	): CustomerRestaurantQueueStatusDTO {
+		return {
+			isGuestUser: false,
+			hasJoinedAnyQueue: queueData !== null,
+			hasJoinedThisRestaurantQueue:
+				queueData?.restaurantId === restaurantId,
+		};
 	}
 }

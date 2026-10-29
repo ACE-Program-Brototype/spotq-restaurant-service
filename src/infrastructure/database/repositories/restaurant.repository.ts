@@ -37,11 +37,11 @@ import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.t
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
-import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
 import {
 	CustomerRestaurantDetailsPersistenceMapper,
 	type RawCustomerRestaurantDetails,
 } from "../mappers/customer-restaurant-details.mapper.ts";
+import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
 import { extractPrismaMetaTarget } from "../utils/prisma-error.util.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
 
@@ -60,7 +60,8 @@ export class RestaurantRepository
 		PrismaRestaurant,
 		PrismaClient["restaurant"]
 	>
-	implements IRestaurantRepository {
+	implements IRestaurantRepository
+{
 	constructor(
 		@inject(TYPES.Database.PrismaClient)
 		private readonly prisma: PrismaClient,
@@ -95,9 +96,9 @@ export class RestaurantRepository
 		).then((record) =>
 			record
 				? {
-					isOpened: record.settings?.isOpened ?? false,
-					acceptsQueue: record.settings?.acceptsQueue ?? false,
-				}
+						isOpened: record.settings?.isOpened ?? false,
+						acceptsQueue: record.settings?.acceptsQueue ?? false,
+					}
 				: null,
 		);
 	}
@@ -236,39 +237,39 @@ export class RestaurantRepository
 				updatedAt: raw.updatedAt,
 				address: raw.address
 					? {
-						id: raw.address.id,
-						addressLine1: raw.address.addressLine1,
-						addressLine2: raw.address.addressLine2,
-						city: raw.address.city,
-						state: raw.address.state,
-						country: raw.address.country,
-						pincode: raw.address.pincode,
-						latitude: Number(raw.address.latitude),
-						longitude: Number(raw.address.longitude),
-					}
+							id: raw.address.id,
+							addressLine1: raw.address.addressLine1,
+							addressLine2: raw.address.addressLine2,
+							city: raw.address.city,
+							state: raw.address.state,
+							country: raw.address.country,
+							pincode: raw.address.pincode,
+							latitude: Number(raw.address.latitude),
+							longitude: Number(raw.address.longitude),
+						}
 					: null,
 				settings: raw.settings
 					? {
-						isOpened: raw.settings.isOpened,
-						isPreorder: raw.settings.isPreorder,
-						isLoyaltyEnabled: raw.settings.isLoyaltyEnabled,
-						cuisineType: raw.settings.cuisineType,
-						seatingCapacity: raw.settings.seatingCapacity,
-						openTime: raw.settings.openTime,
-						closeTime: raw.settings.closeTime,
-					}
+							isOpened: raw.settings.isOpened,
+							isPreorder: raw.settings.isPreorder,
+							isLoyaltyEnabled: raw.settings.isLoyaltyEnabled,
+							cuisineType: raw.settings.cuisineType,
+							seatingCapacity: raw.settings.seatingCapacity,
+							openTime: raw.settings.openTime,
+							closeTime: raw.settings.closeTime,
+						}
 					: null,
 				profile: raw.profile
 					? {
-						coverImage: raw.profile.coverImageKey,
-						avatar: raw.profile.avatarUpdatedAt
-							? `restaurants/${raw.id}/profile/avatar.png`
-							: null,
-						description: raw.profile.description,
-						fssaiNumber: raw.profile.fssaiNumber,
-						registerNumber: raw.profile.registerNumber,
-						gstNumber: raw.profile.gstNumber,
-					}
+							coverImage: raw.profile.coverImageKey,
+							avatar: raw.profile.avatarUpdatedAt
+								? `restaurants/${raw.id}/profile/avatar.png`
+								: null,
+							description: raw.profile.description,
+							fssaiNumber: raw.profile.fssaiNumber,
+							registerNumber: raw.profile.registerNumber,
+							gstNumber: raw.profile.gstNumber,
+						}
 					: null,
 				operatingHours: (raw.operatingHours || []).map((oh) => ({
 					id: oh.id,
@@ -530,19 +531,19 @@ export class RestaurantRepository
 			updatedAt: raw.updatedAt,
 			address: raw.address
 				? {
-					id: raw.address.id,
-					restaurantId: raw.address.restaurantId,
-					addressLine1: raw.address.addressLine1,
-					addressLine2: raw.address.addressLine2,
-					city: raw.address.city,
-					state: raw.address.state,
-					country: raw.address.country,
-					pincode: raw.address.pincode,
-					latitude: Number(raw.address.latitude),
-					longitude: Number(raw.address.longitude),
-					createdAt: raw.address.createdAt,
-					updatedAt: raw.address.updatedAt,
-				}
+						id: raw.address.id,
+						restaurantId: raw.address.restaurantId,
+						addressLine1: raw.address.addressLine1,
+						addressLine2: raw.address.addressLine2,
+						city: raw.address.city,
+						state: raw.address.state,
+						country: raw.address.country,
+						pincode: raw.address.pincode,
+						latitude: Number(raw.address.latitude),
+						longitude: Number(raw.address.longitude),
+						createdAt: raw.address.createdAt,
+						updatedAt: raw.address.updatedAt,
+					}
 				: null,
 			documents: (raw.documents || []).map((doc) => ({
 				id: doc.id,
@@ -616,11 +617,11 @@ export class RestaurantRepository
 				}),
 				...(fromDate || toDate
 					? {
-						createdAt: {
-							...(fromDate && { gte: fromDate }),
-							...(toDate && { lte: toDate }),
-						},
-					}
+							createdAt: {
+								...(fromDate && { gte: fromDate }),
+								...(toDate && { lte: toDate }),
+							},
+						}
 					: {}),
 			};
 
@@ -1103,9 +1104,9 @@ export class RestaurantRepository
 
 			const cuisines = cuisine
 				? cuisine
-					.split(",")
-					.map((c) => c.trim())
-					.filter(Boolean)
+						.split(",")
+						.map((c) => c.trim())
+						.filter(Boolean)
 				: [];
 
 			const andConditions: Prisma.RestaurantWhereInput[] = [
@@ -1303,10 +1304,10 @@ export class RestaurantRepository
 
 			const baseWhere = {
 				id: restaurantId,
-				status: "ACTIVE" as const,
+				status: RESTAURANT_STATUS.ACTIVE,
 				isBlocked: false,
 				isSubscriptionActive: true,
-				onboardingStatus: "COMPLETED" as const,
+				onboardingStatus: ONBOARDING_STATUS.COMPLETED,
 				OR: [
 					{ subscriptionEndsAt: null },
 					{ subscriptionEndsAt: { gt: new Date() } },
@@ -1392,83 +1393,84 @@ export class RestaurantRepository
 					...baseSelect,
 					...(includeMenu
 						? {
-							menuCategories: {
-								where: {
-									isDeleted: false,
-									isActive: true,
-									...(categoryId ? { id: categoryId } : {}),
-								},
-								orderBy: {
-									displayOrder: "asc" as const,
-								},
-								select: {
-									id: true,
-									name: true,
-									description: true,
-									displayOrder: true,
-									menuItems: {
-										where: {
-											isDeleted: false,
-											isAvailable: true,
-										},
-										orderBy: {
-											createdAt: "asc" as const,
-										},
-										select: {
-											id: true,
-											categoryId: true,
-											name: true,
-											description: true,
-											price: true,
-											preparationTime: true,
-											calories: true,
-											isVegetarian: true,
-											isFeatured: true,
-											isAvailable: true,
-											images: {
-												select: {
-													id: true,
-													objectKey: true,
-													displayOrder: true,
-												},
-												orderBy: {
-													displayOrder: "asc" as const,
-												},
+								menuCategories: {
+									where: {
+										isDeleted: false,
+										isActive: true,
+										...(categoryId ? { id: categoryId } : {}),
+									},
+									orderBy: {
+										displayOrder: "asc" as const,
+									},
+									select: {
+										id: true,
+										name: true,
+										description: true,
+										displayOrder: true,
+										menuItems: {
+											where: {
+												isDeleted: false,
+												isAvailable: true,
 											},
-											variants: {
-												where: {
-													isAvailable: true,
-												},
-												orderBy: {
-													price: "asc" as const,
-												},
-												select: {
-													id: true,
-													sku: true,
-													name: true,
-													price: true,
-													isDefault: true,
-													isAvailable: true,
-												},
+											orderBy: {
+												createdAt: "asc" as const,
 											},
-											addons: {
-												where: {
-													addon: {
-														isDeleted: false,
+											select: {
+												id: true,
+												categoryId: true,
+												name: true,
+												description: true,
+												price: true,
+												preparationTime: true,
+												calories: true,
+												isVegetarian: true,
+												isFeatured: true,
+												isAvailable: true,
+												images: {
+													select: {
+														id: true,
+														objectKey: true,
+														displayOrder: true,
+													},
+													orderBy: {
+														displayOrder: "asc" as const,
 													},
 												},
-												select: {
-													id: true,
-													addonId: true,
-													priceOverride: true,
-													addon: {
-														select: {
-															id: true,
-															name: true,
-															description: true,
-															price: true,
-															imageKey: true,
-															isAvailable: true,
+												variants: {
+													where: {
+														isAvailable: true,
+													},
+													orderBy: {
+														price: "asc" as const,
+													},
+													select: {
+														id: true,
+														sku: true,
+														name: true,
+														price: true,
+														isDefault: true,
+														isAvailable: true,
+													},
+												},
+												addons: {
+													where: {
+														addon: {
+															isDeleted: false,
+														},
+													},
+													select: {
+														id: true,
+														addonId: true,
+														priceOverride: true,
+														addon: {
+															select: {
+																id: true,
+																name: true,
+																description: true,
+																price: true,
+																imageKey: true,
+																isAvailable: true,
+															},
 														},
 													},
 												},
@@ -1476,8 +1478,7 @@ export class RestaurantRepository
 										},
 									},
 								},
-							},
-						}
+							}
 						: {}),
 				},
 			});
