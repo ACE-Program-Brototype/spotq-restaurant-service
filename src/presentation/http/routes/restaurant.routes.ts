@@ -6,6 +6,7 @@ import {
 	restaurantStatusController,
 	staffController,
 } from "@/config/di/controllers.resolutions";
+import { customerOptionalAuthMiddleware } from "@/presentation/http/middleware/customer-optional-auth.middleware.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
@@ -41,7 +42,6 @@ import {
 import { updateRestaurantProfileSchema } from "../validators/update-restaurant-profile.validator";
 import { addonRouter } from "./addon.routes";
 import { menuRouter } from "./menu.routes";
-import { customerOptionalAuthMiddleware } from "@/presentation/http/middleware/customer-optional-auth.middleware.ts";
 
 export const restaurantRouter = express.Router();
 
@@ -175,4 +175,4 @@ restaurantRouter.use(menuRouter);
 // addon router
 restaurantRouter.use(addonRouter);
 
-export { menuRouter, addonRouter };
+export { addonRouter, menuRouter };
