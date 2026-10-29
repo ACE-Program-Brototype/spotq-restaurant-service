@@ -1,4 +1,4 @@
-import { formatTime } from "@utils/date.util";
+import { formatTime } from "@utils/time.util";
 import type { Restaurant } from "@/domain/entities/restaurant.entity.ts";
 import type {
 	CustomerRestaurantAddonRecord,
