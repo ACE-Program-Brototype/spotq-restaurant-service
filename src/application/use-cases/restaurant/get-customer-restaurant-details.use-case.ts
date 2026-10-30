@@ -1,4 +1,5 @@
 import type { ILogger } from "@application/ports/services/logger.interface";
+import { SUBSCRIPTION_PLAN } from "@domain/value-objects/subscription-plan.vo";
 import { inject, injectable } from "inversify";
 import type {
 	CustomerRestaurantDetailsInputDTO,
@@ -46,20 +47,30 @@ export class GetCustomerRestaurantDetailsUseCase
 			hasJoinedAnyQueue: false,
 			hasJoinedThisRestaurantQueue: false,
 			isGuestUser: !dto.userId,
+			isQueueStatusAvailable: true,
 		};
 
-		if (dto.userId) {
+		if (
+			dto.userId &&
+			record.restaurant.subscriptionPlanCode === SUBSCRIPTION_PLAN.QUEUE_PRO
+		) {
 			try {
 				const status = await this.queueService.getQueueStatus({
 					restaurantId: dto.restaurantId,
 					userId: dto.userId,
 				});
 				if (status) {
-					queueStatus = status;
+					queueStatus = { ...status, isQueueStatusAvailable: true };
 				}
 			} catch {
 				// Preserve default queue status when the queue service is unavailable.
 				this.logger.error("[ERROR]: QUEUE SERVICE ERROR");
+				queueStatus = {
+					hasJoinedAnyQueue: null,
+					hasJoinedThisRestaurantQueue: null,
+					isGuestUser: false,
+					isQueueStatusAvailable: false,
+				};
 			}
 		}
 

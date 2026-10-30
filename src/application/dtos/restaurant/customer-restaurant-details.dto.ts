@@ -98,9 +98,10 @@ export interface CustomerRestaurantQueueMembershipDTO {
 }
 
 export interface CustomerRestaurantQueueStatusDTO {
+	hasJoinedAnyQueue: boolean | null;
+	hasJoinedThisRestaurantQueue: boolean | null;
 	isGuestUser: boolean;
-	hasJoinedAnyQueue: boolean;
-	hasJoinedThisRestaurantQueue: boolean;
+	isQueueStatusAvailable: boolean;
 }
 
 export interface CustomerRestaurantDetailsOutputDTO {
