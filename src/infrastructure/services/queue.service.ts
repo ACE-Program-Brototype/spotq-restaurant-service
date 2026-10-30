@@ -41,7 +41,6 @@ export class QueueService implements IQueueService {
 	}
 
 	private getInternalHeaders(): Record<string, string> {
-
 		const issuerConfig: TokenIssuerConfig = {
 			serviceName: this.serviceName,
 			privateKey: this.privateKey,
@@ -60,8 +59,9 @@ export class QueueService implements IQueueService {
 	): CustomerRestaurantQueueStatusDTO {
 		return {
 			isGuestUser,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		};
 	}
 
@@ -129,7 +129,10 @@ export class QueueService implements IQueueService {
 
 	private isSuccessfulResponse(
 		payload: unknown,
-	): payload is InternalActiveQueueResponse & { success: true; data: ActiveQueueData | null } {
+	): payload is InternalActiveQueueResponse & {
+		success: true;
+		data: ActiveQueueData | null;
+	} {
 		return (
 			payload !== null &&
 			typeof payload === "object" &&
@@ -145,8 +148,8 @@ export class QueueService implements IQueueService {
 		return {
 			isGuestUser: false,
 			hasJoinedAnyQueue: queueData !== null,
-			hasJoinedThisRestaurantQueue:
-				queueData?.restaurantId === restaurantId,
+			hasJoinedThisRestaurantQueue: queueData?.restaurantId === restaurantId,
+			isQueueStatusAvailable: true,
 		};
 	}
 }

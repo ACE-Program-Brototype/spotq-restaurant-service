@@ -60,7 +60,7 @@ export class GetCustomerRestaurantDetailsUseCase
 					userId: dto.userId,
 				});
 				if (status) {
-					queueStatus = { ...status, isQueueStatusAvailable: true };
+					queueStatus = status;
 				}
 			} catch {
 				// Preserve default queue status when the queue service is unavailable.
