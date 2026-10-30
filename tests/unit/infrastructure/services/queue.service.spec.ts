@@ -6,11 +6,17 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
+import crypto from "node:crypto";
 import { QueueService } from "@/infrastructure/services/queue.service.ts";
 
 describe("QueueService", () => {
 	let queueService: QueueService;
 	const originalFetch = global.fetch;
+	const { privateKey } = crypto.generateKeyPairSync("rsa", {
+		modulusLength: 2048,
+		privateKeyEncoding: { type: "pkcs8", format: "pem" },
+		publicKeyEncoding: { type: "spki", format: "pem" },
+	});
 
 	beforeEach(() => {
 		jest.clearAllMocks();
@@ -18,6 +24,7 @@ describe("QueueService", () => {
 			"http://queue-service:3004",
 			"restaurant-service",
 			"queue-service",
+		privateKey,
 		);
 	});
 
@@ -34,14 +41,13 @@ describe("QueueService", () => {
 
 		expect(global.fetch).not.toHaveBeenCalled();
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: true,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
-	it("returns active queue membership with isCurrentRestaurantQueue: true when restaurantId matches", async () => {
+	it("reports queue membership when queue-service returns an active entry for this restaurant", async () => {
 		const mockResponse = {
 			success: true,
 			data: {
@@ -61,18 +67,13 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: {
-				hasActiveQueue: true,
-				queueEntryId: "entry-1",
-				isCurrentRestaurantQueue: true,
-			},
+			isGuestUser: false,
+			hasJoinedAnyQueue: true,
+			hasJoinedThisRestaurantQueue: true,
 		});
 	});
 
-	it("returns active queue membership with isCurrentRestaurantQueue: false when restaurantId differs", async () => {
+	it("reports queue membership for another restaurant without marking this restaurant joined", async () => {
 		const mockResponse = {
 			success: true,
 			data: {
@@ -92,14 +93,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: {
-				hasActiveQueue: true,
-				queueEntryId: "entry-99",
-				isCurrentRestaurantQueue: false,
-			},
+			isGuestUser: false,
+			hasJoinedAnyQueue: true,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
@@ -120,14 +116,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: {
-				hasActiveQueue: false,
-				queueEntryId: null,
-				isCurrentRestaurantQueue: false,
-			},
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
@@ -143,10 +134,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
@@ -162,10 +152,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
@@ -181,10 +170,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
@@ -203,10 +191,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
@@ -221,10 +208,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 
@@ -242,10 +228,9 @@ describe("QueueService", () => {
 		});
 
 		expect(result).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
 	});
 });

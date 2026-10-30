@@ -11,6 +11,7 @@ import type {
 describe("GetCustomerRestaurantDetailsUseCase", () => {
 	let mockRestaurantRepository: jest.Mocked<IRestaurantRepository>;
 	let mockQueueService: jest.Mocked<IQueueService>;
+	let mockLogger: { error: jest.Mock };
 	let useCase: GetCustomerRestaurantDetailsUseCase;
 
 	const mockRecord: CustomerRestaurantDetailsRecord = {
@@ -167,10 +168,12 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		mockQueueService = {
 			getQueueStatus: jest.fn().mockResolvedValue(null),
 		} as unknown as jest.Mocked<IQueueService>;
+		mockLogger = { error: jest.fn() };
 
 		useCase = new GetCustomerRestaurantDetailsUseCase(
 			mockRestaurantRepository,
 			mockQueueService,
+			mockLogger as never,
 		);
 	});
 
@@ -428,11 +431,11 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		});
 
 		expect(result.queue).toEqual({
-			isOpen: true,
-			activeWaiters: 0,
-			estimatedWaitMinutes: 0,
-			membership: null,
+			isGuestUser: false,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
 		});
+		expect(mockLogger.error).toHaveBeenCalledWith("[ERROR]: QUEUE SERVICE ERROR");
 	});
 
 	it("skips queue service when restaurant settings indicate acceptsQueue is false", async () => {
@@ -453,6 +456,10 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		});
 
 		expect(mockQueueService.getQueueStatus).not.toHaveBeenCalled();
-		expect(result.queue).toBeNull();
+		expect(result.queue).toEqual({
+			isGuestUser: true,
+			hasJoinedAnyQueue: false,
+			hasJoinedThisRestaurantQueue: false,
+		});
 	});
 });
