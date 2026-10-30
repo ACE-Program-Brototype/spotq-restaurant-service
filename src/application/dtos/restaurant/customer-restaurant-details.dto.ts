@@ -100,7 +100,7 @@ export interface CustomerRestaurantQueueMembershipDTO {
 export interface CustomerRestaurantQueueStatusDTO {
 	isGuestUser: boolean;
 	hasJoinedAnyQueue: boolean;
-	hasJoinedThisRestaurantQueue: boolean
+	hasJoinedThisRestaurantQueue: boolean;
 }
 
 export interface CustomerRestaurantDetailsOutputDTO {
@@ -108,6 +108,7 @@ export interface CustomerRestaurantDetailsOutputDTO {
 	restaurantName: string;
 	phone: string;
 	email: string;
+	type: string;
 	description: string | null;
 	cuisineType: string | null;
 	averageCost: number | null;

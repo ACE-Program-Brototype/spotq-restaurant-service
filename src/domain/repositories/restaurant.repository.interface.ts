@@ -491,6 +491,7 @@ export interface CustomerRestaurantDetailsRecord {
 	status: string;
 	isBlocked: boolean;
 	isSubscriptionActive: boolean;
+	subscriptionPlanCode: string;
 	subscriptionEndsAt: Date | null;
 	onboardingStatus: string;
 	restaurant: Restaurant;

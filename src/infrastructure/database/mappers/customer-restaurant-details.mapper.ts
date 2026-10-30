@@ -73,6 +73,7 @@ export interface RawCustomerRestaurantDetails {
 	isSubscriptionActive: boolean;
 	subscriptionEndsAt: Date | null;
 	onboardingStatus: string;
+	subscriptionPlanCode: string;
 	address?: {
 		id: string;
 		addressLine1: string;
@@ -113,11 +114,12 @@ export const CustomerRestaurantDetailsPersistenceMapper = {
 		raw: RawCustomerRestaurantDetails,
 		restaurantEntity: Restaurant,
 	): CustomerRestaurantDetailsRecord {
-		console.log(raw.operatingHours);
+
 		return {
 			id: raw.id,
 			restaurantName: raw.restaurantName,
 			email: raw.email,
+			subscriptionPlanCode: raw.subscriptionPlanCode,
 			phone: raw.phone,
 			status: raw.status,
 			isBlocked: raw.isBlocked,
