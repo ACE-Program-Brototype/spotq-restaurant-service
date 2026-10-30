@@ -21,6 +21,10 @@ export interface CustomerRestaurantItemDto {
 	averageCost: number | null;
 	coverImageKey: string | null;
 	coverImage?: string | null;
+	isOpened: boolean;
+	isPreorder: boolean;
+	acceptsQueue: boolean;
+	subscriptionType: string | null;
 	createdAt: Date;
 }
 

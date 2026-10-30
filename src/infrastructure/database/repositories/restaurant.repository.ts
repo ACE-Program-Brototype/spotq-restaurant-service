@@ -1210,6 +1210,14 @@ export class RestaurantRepository
 						id: true,
 						restaurantName: true,
 						createdAt: true,
+						subscriptionPlanCode: true,
+						settings: {
+							select: {
+								isOpened: true,
+								isPreorder: true,
+								acceptsQueue: true,
+							},
+						},
 						address: {
 							select: {
 								city: true,
@@ -1257,6 +1265,10 @@ export class RestaurantRepository
 						averageCost: restaurant.profile?.averageCost ?? null,
 						coverImageKey,
 						coverImage: coverImageKey,
+						isOpened: restaurant.settings?.isOpened ?? false,
+						isPreorder: restaurant.settings?.isPreorder ?? false,
+						acceptsQueue: restaurant.settings?.acceptsQueue ?? false,
+						subscriptionType: restaurant.subscriptionPlanCode,
 						createdAt: restaurant.createdAt,
 					};
 				},

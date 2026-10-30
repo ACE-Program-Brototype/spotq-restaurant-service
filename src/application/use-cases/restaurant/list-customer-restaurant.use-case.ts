@@ -49,7 +49,7 @@ export class ListCustomerRestaurantsUseCase {
 
 		const data = restaurants.map((restaurant) => {
 			const coverImageKey =
-				restaurant.coverImageKey ?? restaurant.coverImage ?? null;
+				restaurant.coverImageKey ?? null;
 
 			return {
 				id: restaurant.id,
@@ -60,6 +60,10 @@ export class ListCustomerRestaurantsUseCase {
 				averageCost: restaurant.averageCost,
 				coverImageKey,
 				coverImage: coverImageKey,
+				isOpened: restaurant.isOpened,
+				isPreorder: restaurant.isPreorder,
+				acceptsQueue: restaurant.acceptsQueue,
+				subscriptionType: restaurant.subscriptionType,
 				createdAt: restaurant.createdAt,
 			};
 		});

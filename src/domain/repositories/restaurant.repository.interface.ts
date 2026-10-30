@@ -38,6 +38,10 @@ export interface CustomerRestaurantListItem {
 	cuisineType: string | null;
 	averageCost: number | null;
 	coverImageKey: string | null;
+	isOpened: boolean;
+	isPreorder: boolean;
+	acceptsQueue: boolean;
+	subscriptionType: string | null;
 	createdAt: Date;
 }
 
