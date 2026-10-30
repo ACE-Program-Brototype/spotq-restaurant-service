@@ -1,4 +1,6 @@
+import { QUEUE_SERVICE_ROUTES } from "@shared/constants/route.constants";
 import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
+import axios from "axios";
 import { injectable } from "inversify";
 import type { CustomerRestaurantQueueStatusDTO } from "@/application/dtos/restaurant/customer-restaurant-details.dto.ts";
 import type {
@@ -6,7 +8,6 @@ import type {
 	IQueueService,
 } from "@/application/ports/services/queue.service.port.ts";
 import { env } from "@/config/env.ts";
-import { QUEUE_SERVICE_ROUTES } from "@shared/constants/route.constants";
 
 interface InternalActiveQueueResponse {
 	success?: boolean;
@@ -87,17 +88,13 @@ export class QueueService implements IQueueService {
 
 		try {
 			const url = `${this.baseUrl}${QUEUE_SERVICE_ROUTES.CUSTOMER_STATUS(userId)}`;
-			const response = await fetch(url, {
+			const response = await axios.get(url, {
 				method: "GET",
 				headers: this.getInternalHeaders(),
 				signal: controller.signal,
 			});
 
-			if (!response.ok) {
-				return null;
-			}
-
-			return await response.json();
+			return response.data;
 		} finally {
 			clearTimeout(timeoutId);
 		}
@@ -112,7 +109,7 @@ export class QueueService implements IQueueService {
 		}
 
 		try {
-			const payload: unknown = await this.fetchQueueStatus(userId);
+			const payload = await this.fetchQueueStatus(userId);
 			if (!this.isSuccessfulResponse(payload)) {
 				return this.getUnavailableStatus();
 			}

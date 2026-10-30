@@ -38,7 +38,6 @@ export interface CustomerRestaurantListItem {
 	cuisineType: string | null;
 	averageCost: number | null;
 	coverImageKey: string | null;
-	coverImage?: string | null;
 	createdAt: Date;
 }
 

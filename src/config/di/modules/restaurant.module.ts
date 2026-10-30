@@ -1,10 +1,10 @@
-import type { IGetCustomerRestaurantDetailsUseCase } from "@/application/ports/use-cases/restaurant/get-customer-restaurant-details.use-case.port.ts";
-import type { IQueueService } from "@/application/ports/services/queue.service.port.ts";
 import { GetCustomerRestaurantDetailsUseCase } from "@application/use-cases/restaurant/get-customer-restaurant-details.use-case";
 import { ListCustomerRestaurantsUseCase } from "@application/use-cases/restaurant/list-customer-restaurant.use-case";
+import { QueueService } from "@infrastructure/external/queue.service";
 import { ContainerModule } from "inversify";
+import type { IQueueService } from "@/application/ports/services/queue.service.port.ts";
+import type { IGetCustomerRestaurantDetailsUseCase } from "@/application/ports/use-cases/restaurant/get-customer-restaurant-details.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
-import { QueueService } from "@/infrastructure/services/queue.service.ts";
 import { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
 
 export const restaurantModule = new ContainerModule(({ bind }) => {

@@ -1,17 +1,17 @@
+import crypto from "node:crypto";
+import axios from "axios";
+import { QueueService } from "@infrastructure/external/queue.service";
 import {
-	afterEach,
 	beforeEach,
 	describe,
 	expect,
 	it,
 	jest,
 } from "@jest/globals";
-import crypto from "node:crypto";
-import { QueueService } from "@/infrastructure/services/queue.service.ts";
 
 describe("QueueService", () => {
 	let queueService: QueueService;
-	const originalFetch = global.fetch;
+	let axiosGetSpy: ReturnType<typeof jest.spyOn>;
 	const { privateKey } = crypto.generateKeyPairSync("rsa", {
 		modulusLength: 2048,
 		privateKeyEncoding: { type: "pkcs8", format: "pem" },
@@ -20,26 +20,21 @@ describe("QueueService", () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		axiosGetSpy = jest.spyOn(axios, "get");
 		queueService = new QueueService(
 			"http://queue-service:3004",
 			"restaurant-service",
 			"queue-service",
-		privateKey,
+			privateKey,
 		);
 	});
 
-	afterEach(() => {
-		global.fetch = originalFetch;
-	});
-
 	it("returns default queue status without calling fetch when userId is not provided", async () => {
-		global.fetch = jest.fn() as typeof fetch;
-
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
 		});
 
-		expect(global.fetch).not.toHaveBeenCalled();
+		expect(axiosGetSpy).not.toHaveBeenCalled();
 		expect(result).toEqual({
 			isGuestUser: true,
 			hasJoinedAnyQueue: null,
@@ -57,10 +52,7 @@ describe("QueueService", () => {
 			},
 		};
 
-		global.fetch = jest.fn().mockResolvedValue({
-			ok: true,
-			json: async () => mockResponse,
-		} as Response) as typeof fetch;
+		axiosGetSpy.mockResolvedValue({ data: mockResponse } as never);
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
@@ -84,10 +76,7 @@ describe("QueueService", () => {
 			},
 		};
 
-		global.fetch = jest.fn().mockResolvedValue({
-			ok: true,
-			json: async () => mockResponse,
-		} as Response) as typeof fetch;
+		axiosGetSpy.mockResolvedValue({ data: mockResponse } as never);
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
@@ -108,10 +97,7 @@ describe("QueueService", () => {
 			data: null,
 		};
 
-		global.fetch = jest.fn().mockResolvedValue({
-			ok: true,
-			json: async () => mockResponse,
-		} as Response) as typeof fetch;
+		axiosGetSpy.mockResolvedValue({ data: mockResponse } as never);
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
@@ -127,10 +113,7 @@ describe("QueueService", () => {
 	});
 
 	it("returns unavailable status when queue-service returns HTTP error", async () => {
-		global.fetch = jest.fn().mockResolvedValue({
-			ok: false,
-			status: 500,
-		} as Response) as typeof fetch;
+		axiosGetSpy.mockRejectedValue(new Error("HTTP 500"));
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
@@ -146,10 +129,9 @@ describe("QueueService", () => {
 	});
 
 	it("returns unavailable status when queue-service payload success is false or malformed", async () => {
-		global.fetch = jest.fn().mockResolvedValue({
-			ok: true,
-			json: async () => ({ success: false, data: null }),
-		} as Response) as typeof fetch;
+		axiosGetSpy.mockResolvedValue({
+			data: { success: false, data: null },
+		} as never);
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
@@ -165,10 +147,7 @@ describe("QueueService", () => {
 	});
 
 	it("returns unavailable status when queue-service response omits data property", async () => {
-		global.fetch = jest.fn().mockResolvedValue({
-			ok: true,
-			json: async () => ({ success: true }),
-		} as Response) as typeof fetch;
+		axiosGetSpy.mockResolvedValue({ data: { success: true } } as never);
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
@@ -184,13 +163,12 @@ describe("QueueService", () => {
 	});
 
 	it("returns unavailable status when queue-service data has invalid schema", async () => {
-		global.fetch = jest.fn().mockResolvedValue({
-			ok: true,
-			json: async () => ({
+		axiosGetSpy.mockResolvedValue({
+			data: {
 				success: true,
 				data: { restaurantId: 123, queueEntryId: true },
-			}),
-		} as Response) as typeof fetch;
+			},
+		} as never);
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
@@ -206,9 +184,7 @@ describe("QueueService", () => {
 	});
 
 	it("gracefully catches network timeout or abort without throwing", async () => {
-		global.fetch = jest
-			.fn()
-			.mockRejectedValue(new Error("Network Error")) as typeof fetch;
+		axiosGetSpy.mockRejectedValue(new Error("Network Error"));
 
 		const result = await queueService.getQueueStatus({
 			restaurantId: "rest-1",
