@@ -1,4 +1,4 @@
-import { AUTH_ROLES, CUSTOMER_ROLE } from "@shared/constants/auth.constants";
+import { CUSTOMER_ROLE } from "@shared/constants/auth.constants";
 import type { NextFunction, Request, Response } from "express";
 
 function getHeaderValue(
