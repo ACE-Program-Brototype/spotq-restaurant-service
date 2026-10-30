@@ -432,10 +432,13 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 		expect(result.queue).toEqual({
 			isGuestUser: false,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
-		expect(mockLogger.error).toHaveBeenCalledWith("[ERROR]: QUEUE SERVICE ERROR");
+		expect(mockLogger.error).toHaveBeenCalledWith(
+			"[ERROR]: Cannot connect to Queue Service",
+		);
 	});
 
 	it("skips queue service when restaurant settings indicate acceptsQueue is false", async () => {
@@ -456,10 +459,6 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		});
 
 		expect(mockQueueService.getQueueStatus).not.toHaveBeenCalled();
-		expect(result.queue).toEqual({
-			isGuestUser: true,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
-		});
+		expect(result.queue).toBeNull();
 	});
 });

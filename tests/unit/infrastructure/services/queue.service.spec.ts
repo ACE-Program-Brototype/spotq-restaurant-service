@@ -42,8 +42,9 @@ describe("QueueService", () => {
 		expect(global.fetch).not.toHaveBeenCalled();
 		expect(result).toEqual({
 			isGuestUser: true,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
 	});
 
@@ -70,6 +71,7 @@ describe("QueueService", () => {
 			isGuestUser: false,
 			hasJoinedAnyQueue: true,
 			hasJoinedThisRestaurantQueue: true,
+			isQueueStatusAvailable: true,
 		});
 	});
 
@@ -96,10 +98,11 @@ describe("QueueService", () => {
 			isGuestUser: false,
 			hasJoinedAnyQueue: true,
 			hasJoinedThisRestaurantQueue: false,
+			isQueueStatusAvailable: true,
 		});
 	});
 
-	it("returns hasActiveQueue: false and isCurrentRestaurantQueue: false when data is null", async () => {
+	it("returns available empty membership when data is null", async () => {
 		const mockResponse = {
 			success: true,
 			data: null,
@@ -119,6 +122,7 @@ describe("QueueService", () => {
 			isGuestUser: false,
 			hasJoinedAnyQueue: false,
 			hasJoinedThisRestaurantQueue: false,
+			isQueueStatusAvailable: true,
 		});
 	});
 
@@ -135,8 +139,9 @@ describe("QueueService", () => {
 
 		expect(result).toEqual({
 			isGuestUser: false,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
 	});
 
@@ -153,8 +158,9 @@ describe("QueueService", () => {
 
 		expect(result).toEqual({
 			isGuestUser: false,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
 	});
 
@@ -171,8 +177,9 @@ describe("QueueService", () => {
 
 		expect(result).toEqual({
 			isGuestUser: false,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
 	});
 
@@ -192,8 +199,9 @@ describe("QueueService", () => {
 
 		expect(result).toEqual({
 			isGuestUser: false,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
 	});
 
@@ -209,8 +217,9 @@ describe("QueueService", () => {
 
 		expect(result).toEqual({
 			isGuestUser: false,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
 	});
 
@@ -229,8 +238,9 @@ describe("QueueService", () => {
 
 		expect(result).toEqual({
 			isGuestUser: false,
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isQueueStatusAvailable: false,
 		});
 	});
 });
