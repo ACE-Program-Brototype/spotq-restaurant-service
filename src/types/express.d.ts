@@ -34,6 +34,7 @@ declare global {
 				| AuthenticatedRestaurant
 				| AuthenticatedOwner
 				| AuthenticatedUser
+				| AuthenticatedCustomer
 				| jwt.JwtPayload
 				| string;
 		}
@@ -45,4 +46,3 @@ export interface AuthenticatedCustomer {
 	email?: string;
 	role?: string;
 }
-

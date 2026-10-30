@@ -406,8 +406,8 @@ export interface CustomerRestaurantAddressRecord {
 	state: string;
 	country: string;
 	pincode: string;
-	latitude: unknown;
-	longitude: unknown;
+	latitude: number | null;
+	longitude: number | null;
 }
 
 export interface CustomerRestaurantProfileRecord {

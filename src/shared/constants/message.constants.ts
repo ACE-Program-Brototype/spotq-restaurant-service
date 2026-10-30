@@ -414,6 +414,9 @@ export const messages = {
 	TABLE_SECTION_IN_USE: "Table Section in use",
 
 	INVALID_PARTY_SIZE: "Invalid Party Size",
+
+	// CUSTOMER
+	QUEUE_SERVICE_CONNECTION_ERROR: "[ERROR]: Cannot connect to Queue Service",
 } as const;
 
 export type MessageKey = keyof typeof messages;

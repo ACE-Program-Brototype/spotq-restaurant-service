@@ -13,8 +13,8 @@ export interface CustomerRestaurantAddressDTO {
 	state: string;
 	country: string;
 	pincode: string;
-	latitude: number;
-	longitude: number;
+	latitude: number | null;
+	longitude: number | null;
 }
 
 export interface CustomerRestaurantSettingsDTO {
@@ -83,18 +83,6 @@ export interface CustomerRestaurantMenuCategoryDTO {
 	description: string | null;
 	displayOrder: number;
 	items: CustomerRestaurantMenuItemDTO[];
-}
-
-export interface CustomerRestaurantQueueMembershipDTO {
-	hasActiveQueue: boolean;
-	isCurrentRestaurantQueue: boolean;
-	queueEntryId?: string | null;
-	queueNumber?: string | null;
-	partySize?: number | null;
-	status?: string | null;
-	position?: number | null;
-	estimatedWaitMinutes?: number | null;
-	joinedAt?: Date | string | null;
 }
 
 export interface CustomerRestaurantQueueStatusDTO {

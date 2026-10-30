@@ -116,6 +116,11 @@ export const INTERNAL_ROUTES = {
 	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
 } as const;
 
+export const QUEUE_SERVICE_ROUTES = {
+	CUSTOMER_STATUS: (userId: string) =>
+		`/api/internal/v1/queue-entries/${encodeURIComponent(userId)}/status`,
+};
+
 export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
 
 export type TableSectionRoute =

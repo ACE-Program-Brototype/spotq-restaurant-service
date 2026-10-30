@@ -1485,7 +1485,6 @@ export class RestaurantRepository
 
 			if (!raw) return null;
 
-			// Reconstitute the domain entity
 			const restaurantEntity = RestaurantPersistenceMapper.toDomain(
 				raw as unknown as PrismaRestaurant,
 			);

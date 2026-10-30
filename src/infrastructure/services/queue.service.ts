@@ -6,6 +6,7 @@ import type {
 	IQueueService,
 } from "@/application/ports/services/queue.service.port.ts";
 import { env } from "@/config/env.ts";
+import { QUEUE_SERVICE_ROUTES } from "@shared/constants/route.constants";
 
 interface InternalActiveQueueResponse {
 	success?: boolean;
@@ -85,7 +86,7 @@ export class QueueService implements IQueueService {
 		);
 
 		try {
-			const url = `${this.baseUrl}/api/internal/v1/queue-entries/${encodeURIComponent(userId)}/status`;
+			const url = `${this.baseUrl}${QUEUE_SERVICE_ROUTES.CUSTOMER_STATUS(userId)}`;
 			const response = await fetch(url, {
 				method: "GET",
 				headers: this.getInternalHeaders(),

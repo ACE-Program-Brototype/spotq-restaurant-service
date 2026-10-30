@@ -43,17 +43,19 @@ export class GetCustomerRestaurantDetailsUseCase
 		}
 
 		record.restaurant.ensureCustomerAccess(new Date());
-		let queueStatus: CustomerRestaurantQueueStatusDTO = {
-			hasJoinedAnyQueue: false,
-			hasJoinedThisRestaurantQueue: false,
-			isGuestUser: !dto.userId,
-			isQueueStatusAvailable: true,
-		};
+		let queueStatus: CustomerRestaurantQueueStatusDTO | null = null;
 
 		if (
-			dto.userId &&
 			record.restaurant.subscriptionPlanCode === SUBSCRIPTION_PLAN.QUEUE_PRO
 		) {
+			queueStatus = {
+				hasJoinedAnyQueue: null,
+				hasJoinedThisRestaurantQueue: null,
+				isGuestUser: true,
+				isQueueStatusAvailable: true,
+			};
+		}
+		if (dto.userId) {
 			try {
 				const status = await this.queueService.getQueueStatus({
 					restaurantId: dto.restaurantId,
@@ -64,7 +66,7 @@ export class GetCustomerRestaurantDetailsUseCase
 				}
 			} catch {
 				// Preserve default queue status when the queue service is unavailable.
-				this.logger.error("[ERROR]: QUEUE SERVICE ERROR");
+				this.logger.error(messages.QUEUE_SERVICE_CONNECTION_ERROR);
 				queueStatus = {
 					hasJoinedAnyQueue: null,
 					hasJoinedThisRestaurantQueue: null,

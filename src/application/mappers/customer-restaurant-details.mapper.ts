@@ -39,11 +39,7 @@ export const CustomerRestaurantDetailsMapper = {
 			operatingHours: this.mapOperatingHours(record.operatingHours),
 			images: this.mapImages(record.images),
 			menu: includeMenu ? this.mapMenu(record.menuCategories) : [],
-			queue: queueStatus ?? {
-				hasJoinedAnyQueue: false,
-				hasJoinedThisRestaurantQueue: false,
-				isGuestUser: true,
-			},
+			queue: queueStatus,
 		};
 	},
 
@@ -59,8 +55,8 @@ export const CustomerRestaurantDetailsMapper = {
 			state: address.state,
 			country: address.country,
 			pincode: address.pincode,
-			latitude: Number(address.latitude),
-			longitude: Number(address.longitude),
+			latitude: address.latitude ? Number(address.latitude) : null,
+			longitude: address.longitude ? Number(address.longitude) : null,
 		};
 	},
 
