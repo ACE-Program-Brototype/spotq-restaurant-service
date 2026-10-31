@@ -8,6 +8,8 @@ export const AUTH_ROLES = {
 	STAFF: "staff",
 } as const;
 
+export const CUSTOMER_ROLE = "CUSTOMER";
+
 export type AuthRole = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
 
 export const ALLOWED_OWNER_ROLES: ReadonlySet<string> = new Set([

@@ -183,6 +183,13 @@ const envSchema = z.object({
 	}, z.string().min(1)),
 
 	S2S_AUDIENCE: z.string().trim().default("restaurant-service"),
+	S2S_PRIVATE_KEY: z.preprocess((val) => {
+		const key =
+			typeof val === "string" && val.trim().length > 0
+				? val
+				: process.env.S2S_PRIVATE_KEY;
+		return typeof key === "string" ? key.replace(/\\n/g, "\n").trim() : "";
+	}, z.string().default("")),
 	SERVICE_NAME: z.string().trim().default("restaurant-service"),
 
 	JWT_KEY_TYPE: z.string().trim().default("RSA"),
@@ -384,6 +391,11 @@ const envSchema = z.object({
 		.number()
 		.positive()
 		.default(60 * 60 * 1000),
+	QUEUE_SERVICE_URL: z
+		.string()
+		.trim()
+		.default("http://spotq-queue-service:3004"),
+	QUEUE_SERVICE_NAME: z.string().trim().default("queue-service"),
 });
 
 export type Env = z.infer<typeof envSchema>;

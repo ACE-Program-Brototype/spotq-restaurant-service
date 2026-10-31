@@ -6,6 +6,7 @@ import {
 	restaurantStatusController,
 	staffController,
 } from "@/config/di/controllers.resolutions";
+import { customerOptionalAuthMiddleware } from "@/presentation/http/middleware/customer-optional-auth.middleware.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants";
 import { RESTAURANT_ROUTES } from "@/shared/constants/route.constants";
 import { restaurantAuthMiddleware } from "../middleware/restaurant.auth.middleware";
@@ -17,6 +18,10 @@ import {
 	validateRequestParams,
 	validateRequestQuery,
 } from "../middleware/validation.middleware";
+import {
+	getCustomerRestaurantDetailsParamsSchema,
+	getCustomerRestaurantDetailsQuerySchema,
+} from "../validators/get-customer-restaurant-details.validator";
 import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
 import {
 	sendRestaurantEmailOtpSchema,
@@ -156,10 +161,18 @@ restaurantRouter.delete(
 	),
 );
 
+restaurantRouter.get(
+	RESTAURANT_ROUTES.CUSTOMER_DETAILS,
+	customerOptionalAuthMiddleware,
+	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
+	validateRequestQuery(getCustomerRestaurantDetailsQuerySchema),
+	customerRestaurantController.getRestaurantDetails,
+);
+
 // menu router
 restaurantRouter.use(menuRouter);
 
 // addon router
 restaurantRouter.use(addonRouter);
 
-export { menuRouter, addonRouter };
+export { addonRouter, menuRouter };

@@ -24,6 +24,8 @@ import {
 	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import type {
+	CustomerRestaurantDetailsQueryParams,
+	CustomerRestaurantDetailsRecord,
 	CustomerRestaurantFilterParams,
 	CustomerRestaurantListItem,
 	IRestaurantRepository,
@@ -35,6 +37,10 @@ import { ONBOARDING_STATUS } from "@/domain/value-objects/onboarding-status.vo.t
 import { RESTAURANT_STATUS } from "@/domain/value-objects/restaurant-status.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { PRISMA_ERROR_CODES } from "../constants/prisma-error-codes.constants.ts";
+import {
+	CustomerRestaurantDetailsPersistenceMapper,
+	type RawCustomerRestaurantDetails,
+} from "../mappers/customer-restaurant-details.mapper.ts";
 import { RestaurantPersistenceMapper } from "../mappers/restaurant.mapper.ts";
 import { extractPrismaMetaTarget } from "../utils/prisma-error.util.ts";
 import { PrismaBaseRepository } from "./prisma-base.repository.ts";
@@ -1204,6 +1210,14 @@ export class RestaurantRepository
 						id: true,
 						restaurantName: true,
 						createdAt: true,
+						subscriptionPlanCode: true,
+						settings: {
+							select: {
+								isOpened: true,
+								isPreorder: true,
+								acceptsQueue: true,
+							},
+						},
 						address: {
 							select: {
 								city: true,
@@ -1236,19 +1250,28 @@ export class RestaurantRepository
 			]);
 
 			const restaurants: CustomerRestaurantListItem[] = rawRestaurants.map(
-				(restaurant) => ({
-					id: restaurant.id,
-					restaurantName: restaurant.restaurantName,
-					city: restaurant.address?.city ?? null,
-					state: restaurant.address?.state ?? null,
-					cuisineType: restaurant.profile?.cuisineType ?? null,
-					averageCost: restaurant.profile?.averageCost ?? null,
-					coverImage:
+				(restaurant) => {
+					const coverImageKey =
 						restaurant.profile?.coverImageKey ??
 						restaurant.images?.[0]?.objectKey ??
-						null,
-					createdAt: restaurant.createdAt,
-				}),
+						null;
+
+					return {
+						id: restaurant.id,
+						restaurantName: restaurant.restaurantName,
+						city: restaurant.address?.city ?? null,
+						state: restaurant.address?.state ?? null,
+						cuisineType: restaurant.profile?.cuisineType ?? null,
+						averageCost: restaurant.profile?.averageCost ?? null,
+						coverImageKey,
+						coverImage: coverImageKey,
+						isOpened: restaurant.settings?.isOpened ?? false,
+						isPreorder: restaurant.settings?.isPreorder ?? false,
+						acceptsQueue: restaurant.settings?.acceptsQueue ?? false,
+						subscriptionType: restaurant.subscriptionPlanCode,
+						createdAt: restaurant.createdAt,
+					};
+				},
 			);
 
 			return {
@@ -1282,6 +1305,206 @@ export class RestaurantRepository
 				restaurant,
 				acceptsQueue,
 			};
+		});
+	}
+
+	async findCustomerRestaurantDetails(
+		params: CustomerRestaurantDetailsQueryParams,
+	): Promise<CustomerRestaurantDetailsRecord | null> {
+		return this.run(async () => {
+			const { restaurantId, includeMenu = true, categoryId } = params;
+
+			const baseWhere = {
+				id: restaurantId,
+				status: RESTAURANT_STATUS.ACTIVE,
+				isBlocked: false,
+				isSubscriptionActive: true,
+				onboardingStatus: ONBOARDING_STATUS.COMPLETED,
+				OR: [
+					{ subscriptionEndsAt: null },
+					{ subscriptionEndsAt: { gt: new Date() } },
+				],
+			};
+
+			const baseSelect = {
+				id: true,
+				restaurantName: true,
+				email: true,
+				phone: true,
+				ownerName: true,
+				ownerEmail: true,
+				status: true,
+				isBlocked: true,
+				isSubscriptionActive: true,
+				subscriptionEndsAt: true,
+				onboardingStatus: true,
+				emailVerifiedAt: true,
+				rejectionReason: true,
+				lastLoginAt: true,
+				subscriptionPlanCode: true,
+				blockReason: true,
+				createdAt: true,
+				updatedAt: true,
+				address: {
+					select: {
+						id: true,
+						addressLine1: true,
+						addressLine2: true,
+						city: true,
+						state: true,
+						country: true,
+						pincode: true,
+						latitude: true,
+						longitude: true,
+					},
+				},
+				profile: {
+					select: {
+						description: true,
+						cuisineType: true,
+						averageCost: true,
+						coverImageKey: true,
+					},
+				},
+				settings: {
+					select: {
+						isOpened: true,
+						isPreorder: true,
+						acceptsQueue: true,
+						acceptsQrOrders: true,
+					},
+				},
+				operatingHours: {
+					select: {
+						id: true,
+						dayOfWeek: true,
+						isOpen: true,
+						isClosed: true,
+						openTime: true,
+						closeTime: true,
+					},
+					orderBy: {
+						dayOfWeek: "asc" as const,
+					},
+				},
+				images: {
+					select: {
+						id: true,
+						objectKey: true,
+						displayOrder: true,
+					},
+					orderBy: {
+						displayOrder: "asc" as const,
+					},
+				},
+			};
+
+			const raw = await this.prisma.restaurant.findFirst({
+				where: baseWhere,
+				select: {
+					...baseSelect,
+					...(includeMenu
+						? {
+								menuCategories: {
+									where: {
+										isDeleted: false,
+										isActive: true,
+										...(categoryId ? { id: categoryId } : {}),
+									},
+									orderBy: {
+										displayOrder: "asc" as const,
+									},
+									select: {
+										id: true,
+										name: true,
+										description: true,
+										displayOrder: true,
+										menuItems: {
+											where: {
+												isDeleted: false,
+												isAvailable: true,
+											},
+											orderBy: {
+												createdAt: "asc" as const,
+											},
+											select: {
+												id: true,
+												categoryId: true,
+												name: true,
+												description: true,
+												price: true,
+												preparationTime: true,
+												calories: true,
+												isVegetarian: true,
+												isFeatured: true,
+												isAvailable: true,
+												images: {
+													select: {
+														id: true,
+														objectKey: true,
+														displayOrder: true,
+													},
+													orderBy: {
+														displayOrder: "asc" as const,
+													},
+												},
+												variants: {
+													where: {
+														isAvailable: true,
+													},
+													orderBy: {
+														price: "asc" as const,
+													},
+													select: {
+														id: true,
+														sku: true,
+														name: true,
+														price: true,
+														isDefault: true,
+														isAvailable: true,
+													},
+												},
+												addons: {
+													where: {
+														addon: {
+															isDeleted: false,
+														},
+													},
+													select: {
+														id: true,
+														addonId: true,
+														priceOverride: true,
+														addon: {
+															select: {
+																id: true,
+																name: true,
+																description: true,
+																price: true,
+																imageKey: true,
+																isAvailable: true,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							}
+						: {}),
+				},
+			});
+
+			if (!raw) return null;
+
+			const restaurantEntity = RestaurantPersistenceMapper.toDomain(
+				raw as unknown as PrismaRestaurant,
+			);
+
+			return CustomerRestaurantDetailsPersistenceMapper.toRecord(
+				raw as unknown as RawCustomerRestaurantDetails,
+				restaurantEntity,
+			);
 		});
 	}
 }

@@ -1,7 +1,16 @@
 import {
+	ONBOARDING_STATUS,
+	RESTAURANT_STATUS,
+} from "@domain/enums/restaurant-status.enum";
+import {
+	ForbiddenAccessError,
+	RestaurantAccountBlockedError,
+} from "@domain/errors/staff.errors";
+import {
 	InvalidOnboardingStatusError,
 	InvalidRestaurantDataError,
 	RestaurantAlreadyProcessedError,
+	RestaurantNotFoundError,
 } from "@/domain/errors/restaurant.errors.ts";
 import {
 	type OnboardingStatus,
@@ -11,12 +20,8 @@ import {
 	type RestaurantStatus,
 	RestaurantStatusVO,
 } from "@/domain/value-objects/restaurant-status.vo.ts";
-import { messages } from "@/shared/constants/message.constants.ts";
-import {
-	ForbiddenAccessError,
-	RestaurantAccountBlockedError,
-} from "@domain/errors/staff.errors";
 import { SubscriptionPlanVO } from "@/domain/value-objects/subscription-plan.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 export interface RestaurantProps {
 	id: string;
@@ -457,5 +462,20 @@ export class Restaurant {
 		if (this.isBlocked) {
 			throw new RestaurantAccountBlockedError();
 		}
+	}
+
+	public ensureCustomerAccess(now: Date = new Date()): void {
+		if (!this.isEligibleForCustomer(now)) {
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+	}
+
+	public isEligibleForCustomer(now: Date = new Date()): boolean {
+		return (
+			this.status === RESTAURANT_STATUS.ACTIVE &&
+			!this.isBlocked &&
+			this.isSubscriptionEligible(now) &&
+			this.onboardingStatus === ONBOARDING_STATUS.COMPLETED
+		);
 	}
 }

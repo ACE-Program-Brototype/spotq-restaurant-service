@@ -40,9 +40,10 @@ export const RESTAURANT_ROUTES = {
 	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
 	MENU_ITEM_VARIANT_STATUS_UPDATE:
 		"/:restaurantId/menu/items/:itemId/variant/:variantId/status",
-	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
+	CUSTOMER_MENU_ITEM_DETAIL: "/customers/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
 	CUSTOMER_LIST: "/customers",
+	CUSTOMER_DETAILS: "/customers/:restaurantId",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -114,6 +115,11 @@ export const INTERNAL_ROUTES = {
 	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
 	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
 } as const;
+
+export const QUEUE_SERVICE_ROUTES = {
+	CUSTOMER_STATUS: (userId: string) =>
+		`/api/internal/v1/queue-entries/${encodeURIComponent(userId)}/status`,
+};
 
 export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
 
