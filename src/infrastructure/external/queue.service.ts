@@ -1,7 +1,10 @@
+import type { ILogger } from "@application/ports/services/logger.interface";
+import { TYPES } from "@config/di/types";
+import { messages } from "@shared/constants/message.constants";
 import { QUEUE_SERVICE_ROUTES } from "@shared/constants/route.constants";
 import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
 import axios from "axios";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import type { CustomerRestaurantQueueStatusDTO } from "@/application/dtos/restaurant/customer-restaurant-details.dto.ts";
 import type {
 	GetRestaurantQueueStatusParams,
@@ -31,6 +34,8 @@ export class QueueService implements IQueueService {
 	private static readonly REQUEST_TIMEOUT_MS = 2500;
 
 	constructor(
+		@inject(TYPES.Logger.PinoClient)
+		private readonly logger: ILogger,
 		baseUrl: string = env.QUEUE_SERVICE_URL,
 		serviceName: string = env.S2S_AUDIENCE || "restaurant-service",
 		targetServiceName: string = env.QUEUE_SERVICE_NAME || "queue-service",
@@ -121,6 +126,7 @@ export class QueueService implements IQueueService {
 
 			return this.toQueueStatus(queueData, restaurantId);
 		} catch {
+			this.logger.error(messages.QUEUE_SERVICE_CONNECTION_ERROR);
 			return this.getUnavailableStatus();
 		}
 	}

@@ -40,7 +40,7 @@ export const RESTAURANT_ROUTES = {
 	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
 	MENU_ITEM_VARIANT_STATUS_UPDATE:
 		"/:restaurantId/menu/items/:itemId/variant/:variantId/status",
-	CUSTOMER_MENU_ITEM_DETAIL: "/customer/:restaurantId/menu/items/:menuItemId",
+	CUSTOMER_MENU_ITEM_DETAIL: "/customers/:restaurantId/menu/items/:menuItemId",
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
 	CUSTOMER_LIST: "/customers",
 	CUSTOMER_DETAILS: "/customers/:restaurantId",
