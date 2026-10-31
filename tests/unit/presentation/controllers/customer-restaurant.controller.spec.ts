@@ -45,6 +45,10 @@ describe("CustomerRestaurantController", () => {
 					averageCost: 400,
 					coverImageKey: "restaurants/res-uuid-1/cover.jpg",
 					coverImage: "restaurants/res-uuid-1/cover.jpg",
+					isOpened: true,
+					isPreorder: false,
+					acceptsQueue: true,
+					subscriptionType: "QUEUE_PRO",
 					createdAt: new Date("2026-10-15T00:00:00.000Z"),
 				},
 				{
@@ -56,6 +60,10 @@ describe("CustomerRestaurantController", () => {
 					averageCost: 250,
 					coverImageKey: null,
 					coverImage: null,
+					isOpened: false,
+					isPreorder: false,
+					acceptsQueue: false,
+					subscriptionType: null,
 					createdAt: new Date("2026-10-15T00:00:00.000Z"),
 				},
 			],
@@ -149,7 +157,7 @@ describe("CustomerRestaurantController", () => {
 					restaurantId: "res-uuid-1",
 				},
 				query: {
-					includeMenu: "true",
+				includeMenu: true,
 				} as never,
 			};
 
@@ -189,7 +197,7 @@ describe("CustomerRestaurantController", () => {
 				params: {
 					restaurantId: "res-uuid-1",
 				},
-				query: {} as never,
+			query: { includeMenu: true } as never,
 			};
 
 			res.locals = {
@@ -230,7 +238,7 @@ describe("CustomerRestaurantController", () => {
 				params: {
 					restaurantId: "res-uuid-1",
 				},
-				query: {} as never,
+			query: { includeMenu: true } as never,
 			};
 
 			res.locals = {

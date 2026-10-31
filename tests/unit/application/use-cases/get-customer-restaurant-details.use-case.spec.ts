@@ -145,6 +145,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 			onboardingStatus,
 			emailVerifiedAt: new Date(),
 			isSubscriptionActive,
+			subscriptionPlanCode: "QUEUE_PRO",
 			subscriptionEndsAt,
 			isBlocked,
 			blockReason: null,
@@ -416,7 +417,7 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		expect(result.queue).toEqual(mockQueueStatus);
 	});
 
-	it("gracefully degrades when queue service throws an error", async () => {
+	it("propagates queue service errors", async () => {
 		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
 			createRestaurantResult(),
 		);
@@ -425,23 +426,15 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 			new Error("Queue service timeout"),
 		);
 
-		const result = await useCase.execute({
-			restaurantId: mockRecord.id,
-			userId: "user-123",
-		});
-
-		expect(result.queue).toEqual({
-			isGuestUser: false,
-			hasJoinedAnyQueue: null,
-			hasJoinedThisRestaurantQueue: null,
-			isQueueStatusAvailable: false,
-		});
-		expect(mockLogger.error).toHaveBeenCalledWith(
-			"[ERROR]: Cannot connect to Queue Service",
-		);
+		await expect(
+			useCase.execute({
+				restaurantId: mockRecord.id,
+				userId: "user-123",
+			}),
+		).rejects.toThrow("Queue service timeout");
 	});
 
-	it("skips queue service when restaurant settings indicate acceptsQueue is false", async () => {
+	it("skips queue service when restaurant settings indicate acceptsQueue is false, even when a user is present", async () => {
 		const customRecord = createRestaurantResult();
 		customRecord.settings = {
 			isOpened: true,
@@ -456,9 +449,47 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 
 		const result = await useCase.execute({
 			restaurantId: mockRecord.id,
+			userId: "user-123",
 		});
 
 		expect(mockQueueService.getQueueStatus).not.toHaveBeenCalled();
-		expect(result.queue).toBeNull();
+		expect(result.queue).toEqual({
+			hasJoinedAnyQueue: null,
+			hasJoinedThisRestaurantQueue: null,
+			isGuestUser: true,
+			isQueueStatusAvailable: true,
+		});
+	});
+
+	it("skips queue service when restaurant plan does not support queues", async () => {
+		const customRecord = createRestaurantResult();
+		customRecord.restaurant = Restaurant.reconstitute({
+			id: mockRecord.id,
+			restaurantName: mockRecord.restaurantName,
+			email: mockRecord.email,
+			phone: mockRecord.phone,
+			ownerName: "Owner Name",
+			ownerEmail: "owner@test.com",
+			status: "ACTIVE",
+			onboardingStatus: "COMPLETED",
+			emailVerifiedAt: new Date(),
+			isSubscriptionActive: true,
+			subscriptionPlanCode: "BASIC",
+			subscriptionEndsAt: null,
+			isBlocked: false,
+			blockReason: null,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
+		mockRestaurantRepository.findCustomerRestaurantDetails.mockResolvedValueOnce(
+			customRecord,
+		);
+
+		await useCase.execute({
+			restaurantId: mockRecord.id,
+			userId: "user-123",
+		});
+
+		expect(mockQueueService.getQueueStatus).not.toHaveBeenCalled();
 	});
 });

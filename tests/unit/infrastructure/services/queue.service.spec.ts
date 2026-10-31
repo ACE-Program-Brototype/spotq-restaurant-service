@@ -8,10 +8,12 @@ import {
 	it,
 	jest,
 } from "@jest/globals";
+import { messages } from "@shared/constants/message.constants";
 
 describe("QueueService", () => {
 	let queueService: QueueService;
 	let axiosGetSpy: ReturnType<typeof jest.spyOn>;
+	let mockLogger: { error: jest.Mock };
 	const { privateKey } = crypto.generateKeyPairSync("rsa", {
 		modulusLength: 2048,
 		privateKeyEncoding: { type: "pkcs8", format: "pem" },
@@ -21,7 +23,9 @@ describe("QueueService", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		axiosGetSpy = jest.spyOn(axios, "get");
+		mockLogger = { error: jest.fn() };
 		queueService = new QueueService(
+			mockLogger as never,
 			"http://queue-service:3004",
 			"restaurant-service",
 			"queue-service",
@@ -126,6 +130,9 @@ describe("QueueService", () => {
 			hasJoinedThisRestaurantQueue: null,
 			isQueueStatusAvailable: false,
 		});
+		expect(mockLogger.error).toHaveBeenCalledWith(
+			messages.QUEUE_SERVICE_CONNECTION_ERROR,
+		);
 	});
 
 	it("returns unavailable status when queue-service payload success is false or malformed", async () => {
@@ -201,6 +208,7 @@ describe("QueueService", () => {
 
 	it("returns unavailable status when private key is missing", async () => {
 		const serviceWithoutKey = new QueueService(
+			mockLogger as never,
 			"http://queue-service:3004",
 			"restaurant-service",
 			"queue-service",
@@ -218,5 +226,8 @@ describe("QueueService", () => {
 			hasJoinedThisRestaurantQueue: null,
 			isQueueStatusAvailable: false,
 		});
+		expect(mockLogger.error).toHaveBeenCalledWith(
+			messages.QUEUE_SERVICE_CONNECTION_ERROR,
+		);
 	});
 });
