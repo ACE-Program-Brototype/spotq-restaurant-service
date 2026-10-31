@@ -28,7 +28,7 @@ export const CustomerRestaurantDetailsMapper = {
 			restaurantName: record.restaurantName,
 			phone: record.phone,
 			email: record.email,
-			type: record.subscriptionPlanCode,
+			subscriptionType: record.subscriptionPlanCode,
 			description: record.profile?.description ?? null,
 			cuisineType: record.profile?.cuisineType ?? null,
 			averageCost: record.profile?.averageCost ?? null,

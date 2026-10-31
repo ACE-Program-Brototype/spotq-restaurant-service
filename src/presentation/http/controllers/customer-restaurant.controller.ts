@@ -22,7 +22,7 @@ export class CustomerRestaurantController {
 		private readonly listCustomerRestaurantsUseCase: ListCustomerRestaurantsUseCase,
 		@inject(TYPES.UseCases.GetCustomerRestaurantDetailsUseCase)
 		private readonly getCustomerRestaurantDetailsUseCase: IGetCustomerRestaurantDetailsUseCase,
-	) { }
+	) {}
 
 	public listRestaurants = async (
 		req: Request,
@@ -51,28 +51,20 @@ export class CustomerRestaurantController {
 		req: Request,
 		res: Response,
 	): Promise<Response> => {
-		const { restaurantId } =
-			req.params as GetCustomerRestaurantDetailsParams;
+		const { restaurantId } = req.params as GetCustomerRestaurantDetailsParams;
 
-		const { includeMenu, categoryId } = (
-			res.locals?.query ?? req.query
-		) as GetCustomerRestaurantDetailsQuery;
+		const { includeMenu, categoryId } =
+			req.query as unknown as GetCustomerRestaurantDetailsQuery;
 
 		const userId = req.userId;
 
-		const result =
-			await this.getCustomerRestaurantDetailsUseCase.execute({
-				restaurantId,
-				includeMenu,
-				categoryId,
-				userId,
-			});
+		const result = await this.getCustomerRestaurantDetailsUseCase.execute({
+			restaurantId,
+			includeMenu,
+			categoryId,
+			userId,
+		});
 
-		return sendSuccessResponse(
-			res,
-			result,
-			messages.SUCCESS,
-			HTTP_STATUS.OK,
-		);
+		return sendSuccessResponse(res, result, messages.SUCCESS, HTTP_STATUS.OK);
 	};
 }

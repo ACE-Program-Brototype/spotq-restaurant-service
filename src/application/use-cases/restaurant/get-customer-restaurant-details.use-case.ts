@@ -1,4 +1,3 @@
-import type { ILogger } from "@application/ports/services/logger.interface";
 import { SUBSCRIPTION_PLAN } from "@domain/value-objects/subscription-plan.vo";
 import { inject, injectable } from "inversify";
 import type {
@@ -23,8 +22,6 @@ export class GetCustomerRestaurantDetailsUseCase
 		private readonly restaurantRepository: IRestaurantRepository,
 		@inject(TYPES.Services.QueueService)
 		private readonly queueService: IQueueService,
-		@inject(TYPES.Logger.PinoClient)
-		private readonly logger: ILogger,
 	) {}
 
 	public async execute(
@@ -43,6 +40,7 @@ export class GetCustomerRestaurantDetailsUseCase
 		}
 
 		record.restaurant.ensureCustomerAccess(new Date());
+
 		let queueStatus: CustomerRestaurantQueueStatusDTO | null = null;
 
 		if (
@@ -55,24 +53,18 @@ export class GetCustomerRestaurantDetailsUseCase
 				isQueueStatusAvailable: true,
 			};
 		}
-		if (dto.userId) {
-			try {
-				const status = await this.queueService.getQueueStatus({
-					restaurantId: dto.restaurantId,
-					userId: dto.userId,
-				});
-				if (status) {
-					queueStatus = status;
-				}
-			} catch {
-				// Preserve default queue status when the queue service is unavailable.
-				this.logger.error(messages.QUEUE_SERVICE_CONNECTION_ERROR);
-				queueStatus = {
-					hasJoinedAnyQueue: null,
-					hasJoinedThisRestaurantQueue: null,
-					isGuestUser: false,
-					isQueueStatusAvailable: false,
-				};
+		if (
+			dto.userId &&
+			record.restaurant.canAccessQueueService(
+				record.settings?.acceptsQueue ?? false,
+			)
+		) {
+			const status = await this.queueService.getQueueStatus({
+				restaurantId: dto.restaurantId,
+				userId: dto.userId,
+			});
+			if (status) {
+				queueStatus = status;
 			}
 		}
 

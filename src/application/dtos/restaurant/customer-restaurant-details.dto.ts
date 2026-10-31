@@ -97,7 +97,7 @@ export interface CustomerRestaurantDetailsOutputDTO {
 	restaurantName: string;
 	phone: string;
 	email: string;
-	type: string;
+	subscriptionType: string;
 	description: string | null;
 	cuisineType: string | null;
 	averageCost: number | null;
