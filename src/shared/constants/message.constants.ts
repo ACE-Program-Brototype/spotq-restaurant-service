@@ -172,6 +172,8 @@ export const messages = {
 	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
 	INVALID_RESTAURANT_ID_FORMAT:
 		"Invalid restaurant ID format. Must be a valid UUID",
+	RESTAURANT_IDS_REQUIRED: "At least one restaurant ID is required",
+	RESTAURANT_IDS_MAX_LIMIT: "Cannot request more than 100 restaurants at once",
 	INVALID_STAFF_ID_FORMAT: "Invalid staff ID format",
 	REJECTION_REASON_EMPTY: "Rejection reason cannot be empty",
 	REJECTION_REASON_MAX_LENGTH:

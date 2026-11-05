@@ -110,6 +110,7 @@ export const TABLE_ROUTES = {
 
 export const INTERNAL_ROUTES = {
 	BASE: "/api/internal/v1",
+	RESTAURANTS_BATCH: "/restaurants/batch",
 	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
 	RELEASE_TABLE: "/restaurants/:restaurantId/tables/release",
 	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",

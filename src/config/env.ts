@@ -182,6 +182,19 @@ const envSchema = z.object({
 		return getTestKeyPair().publicKey;
 	}, z.string().min(1)),
 
+	PAYMENT_S2S_PUBLIC_KEY: z.preprocess((val) => {
+		if (typeof val === "string" && val.trim().length > 0) {
+			return val.replace(/\\n/g, "\n").trim();
+		}
+		if (
+			typeof process.env.PAYMENT_S2S_PUBLIC_KEY === "string" &&
+			process.env.PAYMENT_S2S_PUBLIC_KEY.trim().length > 0
+		) {
+			return process.env.PAYMENT_S2S_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
+		}
+		return getTestKeyPair().publicKey;
+	}, z.string().min(1)),
+
 	S2S_AUDIENCE: z.string().trim().default("restaurant-service"),
 	S2S_PRIVATE_KEY: z.preprocess((val) => {
 		const key =
