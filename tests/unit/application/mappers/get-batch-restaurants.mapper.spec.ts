@@ -20,10 +20,11 @@ describe("GetBatchRestaurantsMapper", () => {
 			subscriptionEndsAt: new Date("2026-12-31T23:59:59.000Z"),
 		};
 
-		const dto = GetBatchRestaurantsMapper.toDTO(record);
+		const dto = GetBatchRestaurantsMapper.toRestaurantBatchItemDTO(record);
 
 		expect(dto).toEqual({
 			id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+			restaurantId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
 			restaurantName: "Spice Garden",
 			ownerName: "Alice Chef",
 			ownerEmail: "alice@example.com",
@@ -56,10 +57,11 @@ describe("GetBatchRestaurantsMapper", () => {
 			subscriptionEndsAt: null,
 		};
 
-		const dto = GetBatchRestaurantsMapper.toDTO(record);
+		const dto = GetBatchRestaurantsMapper.toRestaurantBatchItemDTO(record);
 
 		expect(dto.subscriptionEndsAt).toBeNull();
 		expect(dto.subscriptionPlanCode).toBeNull();
+		expect(dto.restaurantId).toBe("b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22");
 	});
 
 	it("should map an array of records to DTO list", () => {
@@ -81,19 +83,23 @@ describe("GetBatchRestaurantsMapper", () => {
 			},
 		];
 
-		const dtoList = GetBatchRestaurantsMapper.toDTOList(records);
+		const dtoList =
+			GetBatchRestaurantsMapper.toRestaurantBatchItemDTOList(records);
 		expect(dtoList).toHaveLength(1);
 		expect(dtoList[0].id).toBe("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
+		expect(dtoList[0].restaurantId).toBe(
+			"a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+		);
 	});
 
 	it("should return empty array if records is null or undefined", () => {
 		expect(
-			GetBatchRestaurantsMapper.toDTOList(
+			GetBatchRestaurantsMapper.toRestaurantBatchItemDTOList(
 				null as unknown as RestaurantBatchItemRecord[],
 			),
 		).toEqual([]);
 		expect(
-			GetBatchRestaurantsMapper.toDTOList(
+			GetBatchRestaurantsMapper.toRestaurantBatchItemDTOList(
 				undefined as unknown as RestaurantBatchItemRecord[],
 			),
 		).toEqual([]);

@@ -2,9 +2,12 @@ import type { RestaurantBatchItemDTO } from "@/application/dtos/internal/get-bat
 import type { RestaurantBatchItemRecord } from "@/domain/repositories/restaurant.repository.interface.ts";
 
 export const GetBatchRestaurantsMapper = {
-	toDTO(record: RestaurantBatchItemRecord): RestaurantBatchItemDTO {
+	toRestaurantBatchItemDTO(
+		record: RestaurantBatchItemRecord,
+	): RestaurantBatchItemDTO {
 		return {
 			id: record.id,
+			restaurantId: record.id,
 			restaurantName: record.restaurantName,
 			ownerName: record.ownerName,
 			ownerEmail: record.ownerEmail,
@@ -22,10 +25,12 @@ export const GetBatchRestaurantsMapper = {
 		};
 	},
 
-	toDTOList(records: RestaurantBatchItemRecord[]): RestaurantBatchItemDTO[] {
+	toRestaurantBatchItemDTOList(
+		records: RestaurantBatchItemRecord[],
+	): RestaurantBatchItemDTO[] {
 		if (!Array.isArray(records)) {
 			return [];
 		}
-		return records.map(GetBatchRestaurantsMapper.toDTO);
+		return records.map(GetBatchRestaurantsMapper.toRestaurantBatchItemDTO);
 	},
 };

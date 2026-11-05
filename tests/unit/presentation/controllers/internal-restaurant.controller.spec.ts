@@ -142,6 +142,7 @@ describe("InternalRestaurantController", () => {
 			const mockBatchResult = [
 				{
 					id: restaurantId,
+					restaurantId,
 					restaurantName: "Spice Garden",
 					ownerName: "Alice",
 					ownerEmail: "alice@example.com",

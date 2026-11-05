@@ -4,6 +4,7 @@ export interface GetBatchRestaurantsInputDTO {
 
 export interface RestaurantBatchItemDTO {
 	id: string;
+	restaurantId: string;
 	restaurantName: string;
 	ownerName: string;
 	ownerEmail: string;

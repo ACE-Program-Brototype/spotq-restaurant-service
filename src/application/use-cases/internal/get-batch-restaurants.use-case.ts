@@ -32,6 +32,6 @@ export class GetBatchRestaurantsUseCase implements IGetBatchRestaurantsUseCase {
 
 		const records = await this.restaurantRepository.findBatchByIds(uniqueIds);
 
-		return GetBatchRestaurantsMapper.toDTOList(records);
+		return GetBatchRestaurantsMapper.toRestaurantBatchItemDTOList(records);
 	}
 }

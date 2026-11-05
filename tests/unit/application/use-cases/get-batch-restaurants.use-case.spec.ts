@@ -102,6 +102,7 @@ describe("GetBatchRestaurantsUseCase", () => {
 		expect(result).toEqual([
 			{
 				id: id1,
+				restaurantId: id1,
 				restaurantName: "Spice Garden",
 				ownerName: "Alice Chef",
 				ownerEmail: "alice@example.com",
@@ -117,6 +118,7 @@ describe("GetBatchRestaurantsUseCase", () => {
 			},
 			{
 				id: id2,
+				restaurantId: id2,
 				restaurantName: "Bistro Delight",
 				ownerName: "Bob Owner",
 				ownerEmail: "bob@example.com",
