@@ -17,6 +17,3 @@ export interface RestaurantBatchItemDTO {
 	subscriptionPlanCode: string | null;
 	subscriptionEndsAt: string | null;
 }
-
-export type GetBatchRestaurantsInputDto = GetBatchRestaurantsInputDTO;
-export type RestaurantBatchItemDto = RestaurantBatchItemDTO;

@@ -23,6 +23,9 @@ export const GetBatchRestaurantsMapper = {
 	},
 
 	toDTOList(records: RestaurantBatchItemRecord[]): RestaurantBatchItemDTO[] {
+		if (!Array.isArray(records)) {
+			return [];
+		}
 		return records.map(GetBatchRestaurantsMapper.toDTO);
 	},
 };

@@ -1,14 +1,14 @@
 import express from "express";
 import { internalRestaurantController } from "@/config/di/controllers.resolutions.ts";
-import { INTERNAL_ROUTES } from "@/shared/constants/route.constants.ts";
-import { internalS2SAuthMiddleware } from "../middleware/internal-s2s-auth.middleware.ts";
+import { internalS2SAuthMiddleware } from "@/presentation/http/middleware/internal-s2s-auth.middleware.ts";
 import {
 	validateRequestBody,
 	validateRequestParams,
-} from "../middleware/validation.middleware.ts";
-import { getMenuItemDetailsParamsSchema } from "../validators/get-menu-item-details.validator.ts";
-import { getBatchRestaurantsBodySchema } from "../validators/internal/get-batch-restaurants.validator.ts";
-import { validateRestaurantParamsSchema } from "../validators/internal/validate-restaurant.validator.ts";
+} from "@/presentation/http/middleware/validation.middleware.ts";
+import { getMenuItemDetailsParamsSchema } from "@/presentation/http/validators/get-menu-item-details.validator.ts";
+import { getBatchRestaurantsBodySchema } from "@/presentation/http/validators/internal/get-batch-restaurants.validator.ts";
+import { validateRestaurantParamsSchema } from "@/presentation/http/validators/internal/validate-restaurant.validator.ts";
+import { INTERNAL_ROUTES } from "@/shared/constants/route.constants.ts";
 
 export const internalRestaurantRouter = express.Router();
 

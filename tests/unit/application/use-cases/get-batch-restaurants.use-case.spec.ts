@@ -24,6 +24,26 @@ describe("GetBatchRestaurantsUseCase", () => {
 		expect(restaurantRepository.findBatchByIds).not.toHaveBeenCalled();
 	});
 
+	it("should return empty array if input or restaurantIds is null or undefined", async () => {
+		expect(
+			await useCase.execute(null as unknown as { restaurantIds: string[] }),
+		).toEqual([]);
+		expect(
+			await useCase.execute(undefined as unknown as { restaurantIds: string[] }),
+		).toEqual([]);
+		expect(
+			await useCase.execute({
+				restaurantIds: null as unknown as string[],
+			}),
+		).toEqual([]);
+		expect(
+			await useCase.execute({
+				restaurantIds: undefined as unknown as string[],
+			}),
+		).toEqual([]);
+		expect(restaurantRepository.findBatchByIds).not.toHaveBeenCalled();
+	});
+
 	it("should return empty array if restaurantIds only contain whitespace strings", async () => {
 		const result = await useCase.execute({ restaurantIds: ["   ", ""] });
 

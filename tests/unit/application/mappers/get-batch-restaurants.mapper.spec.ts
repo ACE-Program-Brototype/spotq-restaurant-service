@@ -85,4 +85,17 @@ describe("GetBatchRestaurantsMapper", () => {
 		expect(dtoList).toHaveLength(1);
 		expect(dtoList[0].id).toBe("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
 	});
+
+	it("should return empty array if records is null or undefined", () => {
+		expect(
+			GetBatchRestaurantsMapper.toDTOList(
+				null as unknown as RestaurantBatchItemRecord[],
+			),
+		).toEqual([]);
+		expect(
+			GetBatchRestaurantsMapper.toDTOList(
+				undefined as unknown as RestaurantBatchItemRecord[],
+			),
+		).toEqual([]);
+	});
 });

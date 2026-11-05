@@ -186,12 +186,6 @@ const envSchema = z.object({
 		if (typeof val === "string" && val.trim().length > 0) {
 			return val.replace(/\\n/g, "\n").trim();
 		}
-		if (
-			typeof process.env.PAYMENT_S2S_PUBLIC_KEY === "string" &&
-			process.env.PAYMENT_S2S_PUBLIC_KEY.trim().length > 0
-		) {
-			return process.env.PAYMENT_S2S_PUBLIC_KEY.replace(/\\n/g, "\n").trim();
-		}
 		return getTestKeyPair().publicKey;
 	}, z.string().min(1)),
 

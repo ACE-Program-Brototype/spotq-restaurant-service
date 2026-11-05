@@ -18,8 +18,12 @@ export class GetBatchRestaurantsUseCase implements IGetBatchRestaurantsUseCase {
 	async execute(
 		input: GetBatchRestaurantsInputDTO,
 	): Promise<RestaurantBatchItemDTO[]> {
+		if (!input?.restaurantIds || !Array.isArray(input.restaurantIds)) {
+			return [];
+		}
+
 		const uniqueIds = Array.from(
-			new Set(input.restaurantIds.map((id) => id.trim())),
+			new Set(input.restaurantIds.map((id) => id?.trim())),
 		).filter(Boolean);
 
 		if (uniqueIds.length === 0) {
