@@ -1,8 +1,8 @@
-export interface GetBatchRestaurantsInputDto {
+export interface GetBatchRestaurantsInputDTO {
 	restaurantIds: string[];
 }
 
-export interface RestaurantBatchItemDto {
+export interface RestaurantBatchItemDTO {
 	id: string;
 	restaurantName: string;
 	ownerName: string;
@@ -17,3 +17,6 @@ export interface RestaurantBatchItemDto {
 	subscriptionPlanCode: string | null;
 	subscriptionEndsAt: string | null;
 }
+
+export type GetBatchRestaurantsInputDto = GetBatchRestaurantsInputDTO;
+export type RestaurantBatchItemDto = RestaurantBatchItemDTO;
