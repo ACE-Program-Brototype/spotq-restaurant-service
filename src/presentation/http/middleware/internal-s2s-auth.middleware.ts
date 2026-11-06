@@ -11,6 +11,9 @@ export function internalS2SAuthMiddleware(): RequestHandler {
 		...(env.ORDER_S2S_PUBLIC_KEY && {
 			[S2S_CALLER_SERVICES.ORDER_SERVICE]: env.ORDER_S2S_PUBLIC_KEY,
 		}),
+		...(env.PAYMENT_S2S_PUBLIC_KEY && {
+			[S2S_CALLER_SERVICES.PAYMENT_SERVICE]: env.PAYMENT_S2S_PUBLIC_KEY,
+		}),
 	};
 
 	const verifierConfig: TokenVerifierConfig = {

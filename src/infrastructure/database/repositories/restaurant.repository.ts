@@ -30,6 +30,7 @@ import type {
 	CustomerRestaurantListItem,
 	IRestaurantRepository,
 	RestaurantApplicationDetail,
+	RestaurantBatchItemRecord,
 	RestaurantFilterParams,
 	RestaurantValidationRecord,
 } from "@/domain/repositories/restaurant.repository.interface.ts";
@@ -1505,6 +1506,32 @@ export class RestaurantRepository
 				raw as unknown as RawCustomerRestaurantDetails,
 				restaurantEntity,
 			);
+		});
+	}
+
+	async findBatchByIds(ids: string[]): Promise<RestaurantBatchItemRecord[]> {
+		if (ids.length === 0) {
+			return [];
+		}
+		return this.run(async () => {
+			return this.prisma.restaurant.findMany({
+				where: { id: { in: ids } },
+				select: {
+					id: true,
+					restaurantName: true,
+					ownerName: true,
+					ownerEmail: true,
+					email: true,
+					phone: true,
+					status: true,
+					onboardingStatus: true,
+					isBlocked: true,
+					blockReason: true,
+					isSubscriptionActive: true,
+					subscriptionPlanCode: true,
+					subscriptionEndsAt: true,
+				},
+			});
 		});
 	}
 }

@@ -393,6 +393,24 @@ export interface IRestaurantRepository
 	findCustomerRestaurantDetails(
 		params: CustomerRestaurantDetailsQueryParams,
 	): Promise<CustomerRestaurantDetailsRecord | null>;
+
+	findBatchByIds(ids: string[]): Promise<RestaurantBatchItemRecord[]>;
+}
+
+export interface RestaurantBatchItemRecord {
+	id: string;
+	restaurantName: string;
+	ownerName: string;
+	ownerEmail: string;
+	email: string;
+	phone: string;
+	status: string;
+	onboardingStatus: string;
+	isBlocked: boolean;
+	blockReason: string | null;
+	isSubscriptionActive: boolean;
+	subscriptionPlanCode: string | null;
+	subscriptionEndsAt: Date | null;
 }
 
 export interface CustomerRestaurantDetailsQueryParams {

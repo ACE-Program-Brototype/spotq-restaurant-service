@@ -163,6 +163,7 @@ export const TYPES = {
 		GetInternalMenuItemDetailsUseCase: Symbol.for(
 			"GetInternalMenuItemDetailsUseCase",
 		),
+		GetBatchRestaurantsUseCase: Symbol.for("GetBatchRestaurantsUseCase"),
 	},
 
 	Controller: {

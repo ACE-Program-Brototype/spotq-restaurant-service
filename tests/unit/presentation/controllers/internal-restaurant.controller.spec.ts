@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { Request, Response } from "express";
 import type { IGetInternalMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-internal-menu-item-details.use-case.port.ts";
+import type { IGetBatchRestaurantsUseCase } from "@/application/ports/use-cases/internal/get-batch-restaurants.use-case.port.ts";
 import type { IValidateRestaurantEligibilityUseCase } from "@/application/ports/use-cases/validate-restaurant-eligibility.use-case.port.ts";
 import { InternalRestaurantController } from "@/presentation/http/controllers/internal-restaurant.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -9,6 +10,7 @@ import { messages } from "@/shared/constants/message.constants.ts";
 describe("InternalRestaurantController", () => {
 	let validateRestaurantEligibilityUseCase: jest.Mocked<IValidateRestaurantEligibilityUseCase>;
 	let getInternalMenuItemDetailsUseCase: jest.Mocked<IGetInternalMenuItemDetailsUseCase>;
+	let getBatchRestaurantsUseCase: jest.Mocked<IGetBatchRestaurantsUseCase>;
 	let controller: InternalRestaurantController;
 	let req: Partial<Request>;
 	let res: Partial<Response>;
@@ -23,10 +25,14 @@ describe("InternalRestaurantController", () => {
 		getInternalMenuItemDetailsUseCase = {
 			execute: jest.fn(),
 		};
+		getBatchRestaurantsUseCase = {
+			execute: jest.fn(),
+		};
 
 		controller = new InternalRestaurantController(
 			validateRestaurantEligibilityUseCase,
 			getInternalMenuItemDetailsUseCase,
+			getBatchRestaurantsUseCase,
 		);
 
 		res = {
@@ -121,6 +127,50 @@ describe("InternalRestaurantController", () => {
 					success: true,
 					message: messages.MENU_ITEM_DETAILS_FETCHED_SUCCESS,
 					data: mockDetailsResult,
+				}),
+			);
+		});
+	});
+
+	describe("getBatchRestaurants", () => {
+		it("should return 200 with batch restaurants list", async () => {
+			const restaurantIds = [restaurantId];
+			req = {
+				body: { restaurantIds },
+			};
+
+			const mockBatchResult = [
+				{
+					id: restaurantId,
+					restaurantId,
+					restaurantName: "Spice Garden",
+					ownerName: "Alice",
+					ownerEmail: "alice@example.com",
+					email: "info@spicegarden.com",
+					phone: "+1234567890",
+					status: "ACTIVE",
+					onboardingStatus: "COMPLETED",
+					isBlocked: false,
+					blockReason: null,
+					isSubscriptionActive: true,
+					subscriptionPlanCode: "PRO_MONTHLY",
+					subscriptionEndsAt: "2026-12-31T23:59:59.000Z",
+				},
+			];
+
+			getBatchRestaurantsUseCase.execute.mockResolvedValue(mockBatchResult);
+
+			await controller.getBatchRestaurants(req as Request, res as Response);
+
+			expect(getBatchRestaurantsUseCase.execute).toHaveBeenCalledWith({
+				restaurantIds,
+			});
+			expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+			expect(res.json).toHaveBeenCalledWith(
+				expect.objectContaining({
+					success: true,
+					message: messages.RESTAURANTS_FETCHED_SUCCESS,
+					data: mockBatchResult,
 				}),
 			);
 		});

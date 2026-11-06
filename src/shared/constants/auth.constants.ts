@@ -47,6 +47,7 @@ export type TokenType = (typeof TOKEN_TYPES)[keyof typeof TOKEN_TYPES];
 export const S2S_CALLER_SERVICES = {
 	QUEUE_SERVICE: "queue-service",
 	ORDER_SERVICE: "order-service",
+	PAYMENT_SERVICE: "payment-service",
 } as const;
 
 export type S2SCallerService =

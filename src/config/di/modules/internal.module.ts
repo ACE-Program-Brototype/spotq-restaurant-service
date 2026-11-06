@@ -5,7 +5,9 @@ import { ReleaseTableUseCase } from "@application/use-cases/internal/release-tab
 import { InternalTableController } from "@presentation/http/controllers/internal-table.controller";
 import { ContainerModule } from "inversify";
 import type { IGetInternalMenuItemDetailsUseCase } from "@/application/ports/use-cases/get-internal-menu-item-details.use-case.port.ts";
+import type { IGetBatchRestaurantsUseCase } from "@/application/ports/use-cases/internal/get-batch-restaurants.use-case.port.ts";
 import type { IValidateRestaurantEligibilityUseCase } from "@/application/ports/use-cases/validate-restaurant-eligibility.use-case.port.ts";
+import { GetBatchRestaurantsUseCase } from "@/application/use-cases/internal/get-batch-restaurants.use-case.ts";
 import { GetInternalMenuItemDetailsUseCase } from "@/application/use-cases/internal/get-internal-menu-item-details.use-case.ts";
 import { ValidateRestaurantEligibilityUseCase } from "@/application/use-cases/internal/validate-restaurant-eligibility.use-case.ts";
 import { TYPES } from "@/config/di/types.ts";
@@ -22,6 +24,10 @@ export const internalModule = new ContainerModule(({ bind }) => {
 		TYPES.UseCases.GetInternalMenuItemDetailsUseCase,
 	)
 		.to(GetInternalMenuItemDetailsUseCase)
+		.inSingletonScope();
+
+	bind<IGetBatchRestaurantsUseCase>(TYPES.UseCases.GetBatchRestaurantsUseCase)
+		.to(GetBatchRestaurantsUseCase)
 		.inSingletonScope();
 
 	bind<InternalRestaurantController>(
