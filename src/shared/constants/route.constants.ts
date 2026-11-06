@@ -72,6 +72,8 @@ export const STORAGE_ROUTES = {
 
 export const ADMIN_ROUTES = {
 	BASE: "/admin",
+	DASHBOARD: "/dashboard",
+	DASHBOARD_ANALYTICS: "/analytics/dashboard",
 	APPLICATIONS: "/restaurants/applications",
 	APPLICATION_DETAILS: "/restaurants/applications/:id",
 	APPROVE_RESTAURANT: "/restaurants/:id/approve",
@@ -115,6 +117,10 @@ export const INTERNAL_ROUTES = {
 	RELEASE_TABLE: "/restaurants/:restaurantId/tables/release",
 	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
 	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
+} as const;
+
+export const PAYMENT_SERVICE_ROUTES = {
+	FINANCE_SUMMARY: "/admin/finance/summary",
 } as const;
 
 export const QUEUE_SERVICE_ROUTES = {
