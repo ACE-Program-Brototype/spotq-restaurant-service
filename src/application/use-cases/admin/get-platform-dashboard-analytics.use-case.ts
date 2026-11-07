@@ -26,32 +26,30 @@ export class GetPlatformDashboardAnalyticsUseCase
 		query: GetPlatformDashboardAnalyticsQueryDto,
 		adminUserId?: string,
 	): Promise<PlatformDashboardAnalyticsResponseDto> {
-		const [
-			totalRestaurants,
-			activeSubscribedRestaurants,
-			subscriptionTierDistribution,
-			onboardingTrend,
-			onboardingFunnel,
-			geographicBreakdown,
-			paymentSummary,
-		] = await Promise.all([
-			this.restaurantAnalyticsRepository.getTotalRestaurantsCount(
+		// Run database queries sequentially to prevent connection pool exhaustion on limited database instances (e.g. Aiven)
+		const totalRestaurants =
+			await this.restaurantAnalyticsRepository.getTotalRestaurantsCount(
 				query.from,
 				query.to,
-			),
-			this.restaurantAnalyticsRepository.getActiveSubscribedCount(),
-			this.restaurantAnalyticsRepository.getSubscriptionTierDistribution(),
-			this.restaurantAnalyticsRepository.getOnboardingTrend(
+			);
+		const activeSubscribedRestaurants =
+			await this.restaurantAnalyticsRepository.getActiveSubscribedCount();
+		const subscriptionTierDistribution =
+			await this.restaurantAnalyticsRepository.getSubscriptionTierDistribution();
+		const onboardingTrend =
+			await this.restaurantAnalyticsRepository.getOnboardingTrend(
 				query.from,
 				query.to,
-			),
-			this.restaurantAnalyticsRepository.getOnboardingFunnel(
+			);
+		const onboardingFunnel =
+			await this.restaurantAnalyticsRepository.getOnboardingFunnel(
 				query.from,
 				query.to,
-			),
-			this.restaurantAnalyticsRepository.getGeographicBreakdown(),
-			this.paymentAnalyticsService.getFinanceSummary(adminUserId),
-		]);
+			);
+		const geographicBreakdown =
+			await this.restaurantAnalyticsRepository.getGeographicBreakdown();
+		const paymentSummary =
+			await this.paymentAnalyticsService.getFinanceSummary(adminUserId);
 
 		if (!paymentSummary) {
 			this.logger.warn(
@@ -95,4 +93,3 @@ export class GetPlatformDashboardAnalyticsUseCase
 		};
 	}
 }
-
