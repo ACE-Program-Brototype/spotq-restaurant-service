@@ -1,3 +1,8 @@
+import { PAYMENT_SERVICE_ROUTES } from "@shared/constants/route.constants.ts";
+import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
+import axios from "axios";
+import { inject, injectable } from "inversify";
+import type { GetPlatformDashboardAnalyticsQueryDto } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type {
 	IPaymentAnalyticsService,
@@ -5,20 +10,24 @@ import type {
 } from "@/application/ports/services/payment-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
-import { PAYMENT_SERVICE_ROUTES } from "@shared/constants/route.constants.ts";
-import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
-import axios from "axios";
-import { inject, injectable } from "inversify";
+
+interface PaymentSummaryTimelinePointApiData {
+	period: string;
+	revenuePaise: string;
+}
 
 interface PaymentSummaryApiData {
 	currency: string;
 	masterBalancePaise: string;
-	todayTurnoverPaise: string;
-	tonightEodPayoutQueuePaise: string;
-	lifetimeDisbursedPaise: string;
-	totalRefundsProcessedPaise: string;
-	saasSubscriptionMrrPaise: string;
-	activeVenuesCount: number;
+	todayTurnoverPaise?: string;
+	tonightEodPayoutQueuePaise?: string;
+	lifetimeDisbursedPaise?: string;
+	totalRefundsProcessedPaise?: string;
+	saasSubscriptionMrrPaise?: string;
+	saasSubscriptionArrPaise?: string;
+	grossRevenueYearToDatePaise?: string;
+	monthlyTimeline?: PaymentSummaryTimelinePointApiData[];
+	activeVenuesCount?: number;
 }
 
 interface PaymentSummaryApiResponse {
@@ -94,23 +103,43 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 	private toFinanceSummary(
 		data: PaymentSummaryApiData,
 	): PaymentFinanceSummaryDto {
-		const mrrPaise = BigInt(data.saasSubscriptionMrrPaise || "0");
-		const currentMrrRupees = Number(mrrPaise / 100n);
-		// Annualized MRR (MRR * 12)
-		const currentArrRupees = currentMrrRupees * 12;
+		const currentMrrRupees =
+			data.saasSubscriptionMrrPaise != null
+				? Number(BigInt(data.saasSubscriptionMrrPaise)) / 100
+				: null;
 
-		const turnoverPaise = BigInt(data.todayTurnoverPaise || "0");
-		const todayTurnoverRupees = Number(turnoverPaise / 100n);
+		const currentArrRupees =
+			data.saasSubscriptionArrPaise != null
+				? Number(BigInt(data.saasSubscriptionArrPaise)) / 100
+				: null;
+
+		const grossRevenueYearToDateRupees =
+			data.grossRevenueYearToDatePaise != null
+				? Number(BigInt(data.grossRevenueYearToDatePaise)) / 100
+				: null;
+
+		const monthlyTimeline = (data.monthlyTimeline || []).map((point) => ({
+			month: point.period,
+			grossRevenueRupees: Number(BigInt(point.revenuePaise || "0")) / 100,
+		}));
+
+		const todayTurnoverRupees =
+			data.todayTurnoverPaise != null
+				? Number(BigInt(data.todayTurnoverPaise)) / 100
+				: null;
 
 		return {
 			currentMrrRupees,
 			currentArrRupees,
-			activeVenuesCount: data.activeVenuesCount || 0,
+			grossRevenueYearToDateRupees,
+			monthlyTimeline,
+			activeVenuesCount: data.activeVenuesCount ?? null,
 			todayTurnoverRupees,
 		};
 	}
 
 	public async getFinanceSummary(
+		query?: GetPlatformDashboardAnalyticsQueryDto,
 		adminUserId?: string,
 	): Promise<PaymentFinanceSummaryDto | null> {
 		const controller = new AbortController();
@@ -122,8 +151,13 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 		try {
 			const url = `${this.baseUrl}${PAYMENT_SERVICE_ROUTES.FINANCE_SUMMARY}`;
 			const response = await axios.get(url, {
-				method: "GET",
 				headers: this.getInternalHeaders(adminUserId),
+				params: {
+					billingCycle: query?.billingCycle,
+					fiscalYear: query?.fiscalYear,
+					from: query?.from,
+					to: query?.to,
+				},
 				signal: controller.signal,
 			});
 

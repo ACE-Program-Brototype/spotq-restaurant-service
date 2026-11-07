@@ -8,16 +8,16 @@ export interface GetPlatformDashboardAnalyticsQueryDto {
 export interface PlatformDashboardAnalyticsOverviewDto {
 	totalRestaurants: number;
 	activeSubscribedRestaurants: number;
-	mrrRupees: number;
-	totalDinersServedToday: number;
+	mrrRupees: number | null;
+	totalDinersServedToday: number | null;
 	subscriptionTierDistribution: Record<string, number>;
 	onboardingTrend: Array<{ period: string; count: number }>;
 }
 
 export interface PlatformDashboardAnalyticsRevenueDto {
-	currentMrrRupees: number;
-	currentArrRupees: number;
-	grossRevenueYearToDateRupees: number;
+	currentMrrRupees: number | null;
+	currentArrRupees: number | null;
+	grossRevenueYearToDateRupees: number | null;
 	monthlyTimeline: Array<{ month: string; grossRevenueRupees: number }>;
 }
 
@@ -44,4 +44,3 @@ export interface PlatformDashboardAnalyticsResponseDto {
 	filters: PlatformDashboardAnalyticsFiltersDto;
 	generatedAt: string;
 }
-

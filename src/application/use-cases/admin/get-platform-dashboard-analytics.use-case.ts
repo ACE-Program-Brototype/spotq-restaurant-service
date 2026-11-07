@@ -8,11 +8,11 @@ import type { IPaymentAnalyticsService } from "@/application/ports/services/paym
 import type { IGetPlatformDashboardAnalyticsUseCase } from "@/application/ports/use-cases/admin/get-platform-dashboard-analytics.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
 export class GetPlatformDashboardAnalyticsUseCase
-	implements IGetPlatformDashboardAnalyticsUseCase
-{
+	implements IGetPlatformDashboardAnalyticsUseCase {
 	constructor(
 		@inject(TYPES.Repositories.RestaurantAnalyticsRepository)
 		private readonly restaurantAnalyticsRepository: IRestaurantAnalyticsRepository,
@@ -20,7 +20,7 @@ export class GetPlatformDashboardAnalyticsUseCase
 		private readonly paymentAnalyticsService: IPaymentAnalyticsService,
 		@inject(TYPES.Logger.PinoClient)
 		private readonly logger: ILogger,
-	) {}
+	) { }
 
 	public async execute(
 		query: GetPlatformDashboardAnalyticsQueryDto,
@@ -48,36 +48,38 @@ export class GetPlatformDashboardAnalyticsUseCase
 			);
 		const geographicBreakdown =
 			await this.restaurantAnalyticsRepository.getGeographicBreakdown();
-		const paymentSummary =
-			await this.paymentAnalyticsService.getFinanceSummary(adminUserId);
+		const paymentSummary = await this.paymentAnalyticsService.getFinanceSummary(
+			query,
+			adminUserId,
+		);
 
 		if (!paymentSummary) {
 			this.logger.warn(
 				{ adminUserId, query },
-				"Payment service finance summary is unavailable. Fallback zero values applied for revenue metrics.",
+				messages.PAYMENT_SERVICE_FINANCE_SUMMARY_UNAVAILABLE,
 			);
 		}
 
 		return {
 			overview: {
 				totalRestaurants,
-				activeSubscribedRestaurants,
-				mrrRupees: paymentSummary ? paymentSummary.currentMrrRupees : 0,
-				// NOTE: Order Service does not yet expose a platform-wide diner metric.
-				// Defaulted to 0 pending Order Service platform analytics integration.
-				totalDinersServedToday: 0,
+				activeSubscribedRestaurants:
+					paymentSummary?.activeVenuesCount != null
+						? paymentSummary.activeVenuesCount
+						: activeSubscribedRestaurants,
+				mrrRupees: paymentSummary?.currentMrrRupees ?? null,
+				// NOTE: Order Service does not store guest count or party size.
+				// Explicitly null to distinguish lack of measurement from a measured 0.
+				totalDinersServedToday: null,
 				subscriptionTierDistribution,
 				onboardingTrend,
 			},
 			revenue: {
-				currentMrrRupees: paymentSummary ? paymentSummary.currentMrrRupees : 0,
-				currentArrRupees: paymentSummary ? paymentSummary.currentArrRupees : 0,
-				// NOTE: Payment Service does not provide a Year-To-Date gross revenue metric.
-				// Defaulted to 0 pending a dedicated YTD revenue endpoint from Payment Service.
-				grossRevenueYearToDateRupees: 0,
-				// NOTE: Payment Service GET /admin/finance/summary provides aggregate figures,
-				// not monthly revenue timelines. Kept as empty array until endpoint is available.
-				monthlyTimeline: [],
+				currentMrrRupees: paymentSummary?.currentMrrRupees ?? null,
+				currentArrRupees: paymentSummary?.currentArrRupees ?? null,
+				grossRevenueYearToDateRupees:
+					paymentSummary?.grossRevenueYearToDateRupees ?? null,
+				monthlyTimeline: paymentSummary?.monthlyTimeline ?? [],
 			},
 			growth: {
 				funnel: onboardingFunnel,

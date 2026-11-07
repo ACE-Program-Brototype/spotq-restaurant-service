@@ -419,7 +419,10 @@ export const messages = {
 
 	// CUSTOMER
 	QUEUE_SERVICE_CONNECTION_ERROR: "[ERROR]: Cannot connect to Queue Service",
-	PLATFORM_DASHBOARD_ANALYTICS_FETCHED: "Platform dashboard analytics fetched successfully",
+	PLATFORM_DASHBOARD_ANALYTICS_FETCHED:
+		"Platform dashboard analytics fetched successfully",
+	PAYMENT_SERVICE_FINANCE_SUMMARY_UNAVAILABLE:
+		"Payment service finance summary is unavailable. Financial metrics set to null (distinguishable from genuine zero).",
 } as const;
 
 export type MessageKey = keyof typeof messages;

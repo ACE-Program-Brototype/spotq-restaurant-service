@@ -72,6 +72,7 @@ export const STORAGE_ROUTES = {
 
 export const ADMIN_ROUTES = {
 	BASE: "/admin",
+	API_V1_BASE: "/api/v1/admin",
 	DASHBOARD: "/dashboard",
 	DASHBOARD_ANALYTICS: "/analytics/dashboard",
 	APPLICATIONS: "/restaurants/applications",

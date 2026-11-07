@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import axios from "axios";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import { PaymentAnalyticsService } from "@/infrastructure/external/payment-analytics.service.ts";
-import axios from "axios";
 
 describe("PaymentAnalyticsService", () => {
 	let mockLogger: jest.Mocked<ILogger>;
@@ -22,7 +22,7 @@ describe("PaymentAnalyticsService", () => {
 			info: jest.fn(),
 			error: jest.fn(),
 			warn: jest.fn(),
-		};
+		} as unknown as jest.Mocked<ILogger>;
 		service = new PaymentAnalyticsService(
 			mockLogger,
 			"http://test-payment-service:3003",
@@ -43,18 +43,28 @@ describe("PaymentAnalyticsService", () => {
 				lifetimeDisbursedPaise: "120000000",
 				totalRefundsProcessedPaise: "0",
 				saasSubscriptionMrrPaise: "18800000",
+				saasSubscriptionArrPaise: "225600000",
+				grossRevenueYearToDatePaise: "35000000",
+				monthlyTimeline: [
+					{ period: "2026-10", revenuePaise: "15000000" },
+					{ period: "2026-11", revenuePaise: "20000000" },
+				],
 				activeVenuesCount: 94,
 			},
 		};
 
 		axiosGetSpy.mockResolvedValueOnce({ data: mockResponse } as never);
 
-		const result = await service.getFinanceSummary("admin-user-123");
+		const query = {
+			billingCycle: "MONTHLY" as const,
+			fiscalYear: 2026,
+		};
+
+		const result = await service.getFinanceSummary(query, "admin-user-123");
 
 		expect(axiosGetSpy).toHaveBeenCalledWith(
 			"http://test-payment-service:3003/admin/finance/summary",
 			expect.objectContaining({
-				method: "GET",
 				headers: expect.objectContaining({
 					Accept: "application/json",
 					"X-Caller-Service": "restaurant-service",
@@ -62,14 +72,48 @@ describe("PaymentAnalyticsService", () => {
 					"x-user-id": "admin-user-123",
 					"x-user-role": "admin",
 				}),
+				params: {
+					billingCycle: "MONTHLY",
+					fiscalYear: 2026,
+					from: undefined,
+					to: undefined,
+				},
 			}),
 		);
 
 		expect(result).toEqual({
 			currentMrrRupees: 188000,
 			currentArrRupees: 2256000,
+			grossRevenueYearToDateRupees: 350000,
+			monthlyTimeline: [
+				{ month: "2026-10", grossRevenueRupees: 150000 },
+				{ month: "2026-11", grossRevenueRupees: 200000 },
+			],
 			activeVenuesCount: 94,
 			todayTurnoverRupees: 25000,
+		});
+	});
+
+	it("should map missing optional metrics to null instead of fabricating zeroes", async () => {
+		const mockBaselineResponse = {
+			success: true,
+			data: {
+				currency: "INR",
+				masterBalancePaise: "5000000",
+			},
+		};
+
+		axiosGetSpy.mockResolvedValueOnce({ data: mockBaselineResponse } as never);
+
+		const result = await service.getFinanceSummary();
+
+		expect(result).toEqual({
+			currentMrrRupees: null,
+			currentArrRupees: null,
+			grossRevenueYearToDateRupees: null,
+			monthlyTimeline: [],
+			activeVenuesCount: null,
+			todayTurnoverRupees: null,
 		});
 	});
 

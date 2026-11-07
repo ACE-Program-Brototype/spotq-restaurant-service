@@ -19,7 +19,7 @@ describe("AdminDashboardAnalyticsController", () => {
 			totalRestaurants: 100,
 			activeSubscribedRestaurants: 80,
 			mrrRupees: 200000,
-			totalDinersServedToday: 0,
+			totalDinersServedToday: null,
 			subscriptionTierDistribution: { PRO: 60, ENTERPRISE: 20 },
 			onboardingTrend: [{ period: "2026-10", count: 20 }],
 		},
@@ -46,7 +46,9 @@ describe("AdminDashboardAnalyticsController", () => {
 
 	beforeEach(() => {
 		useCase = {
-			execute: jest.fn<IGetPlatformDashboardAnalyticsUseCase["execute"]>().mockResolvedValue(mockResponseDto),
+			execute: jest
+				.fn<IGetPlatformDashboardAnalyticsUseCase["execute"]>()
+				.mockResolvedValue(mockResponseDto),
 		};
 
 		controller = new AdminDashboardAnalyticsController(useCase);
@@ -57,7 +59,7 @@ describe("AdminDashboardAnalyticsController", () => {
 			json: jest.fn().mockReturnThis() as never,
 		};
 
-		next = jest.fn();
+		next = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
 	it("should return 200 with dashboard analytics on success", async () => {

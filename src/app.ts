@@ -56,6 +56,7 @@ app.get("/", (_req, res) => {
 
 // Mount routes
 app.use(ADMIN_ROUTES.BASE, adminRouter);
+app.use(ADMIN_ROUTES.API_V1_BASE, adminRouter);
 app.use(INTERNAL_ROUTES.BASE, internalRestaurantRouter);
 app.use(INTERNAL_ROUTES.BASE, internalTableRouter);
 app.use(STAFF_ROUTES.BASE, staffRouter);

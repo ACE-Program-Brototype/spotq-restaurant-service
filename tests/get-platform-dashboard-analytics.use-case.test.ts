@@ -11,6 +11,7 @@ import type {
 	IRestaurantAnalyticsRepository,
 	OnboardingTrendPoint,
 } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
 
 describe("GetPlatformDashboardAnalyticsUseCase", () => {
 	let useCase: GetPlatformDashboardAnalyticsUseCase;
@@ -44,6 +45,8 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 	const defaultFinanceSummary: PaymentFinanceSummaryDto = {
 		currentMrrRupees: 250000,
 		currentArrRupees: 3000000,
+		grossRevenueYearToDateRupees: 500000,
+		monthlyTimeline: [{ month: "2026-10", grossRevenueRupees: 250000 }],
 		activeVenuesCount: 30,
 		todayTurnoverRupees: 50000,
 	};
@@ -52,7 +55,9 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		mockRestaurantRepo = {
 			getTotalRestaurantsCount: jest.fn().mockResolvedValue(50),
 			getActiveSubscribedCount: jest.fn().mockResolvedValue(30),
-			getSubscriptionTierDistribution: jest.fn().mockResolvedValue(defaultTiers),
+			getSubscriptionTierDistribution: jest
+				.fn()
+				.mockResolvedValue(defaultTiers),
 			getOnboardingTrend: jest.fn().mockResolvedValue(defaultTrend),
 			getOnboardingFunnel: jest.fn().mockResolvedValue(defaultFunnel),
 			getGeographicBreakdown: jest.fn().mockResolvedValue(defaultGeo),
@@ -93,15 +98,17 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		expect(result.overview.totalRestaurants).toBe(50);
 		expect(result.overview.activeSubscribedRestaurants).toBe(30);
 		expect(result.overview.mrrRupees).toBe(250000);
-		expect(result.overview.totalDinersServedToday).toBe(0);
+		expect(result.overview.totalDinersServedToday).toBeNull();
 		expect(result.overview.subscriptionTierDistribution).toEqual(defaultTiers);
 		expect(result.overview.onboardingTrend).toEqual(defaultTrend);
 
 		// Revenue assertions
 		expect(result.revenue.currentMrrRupees).toBe(250000);
 		expect(result.revenue.currentArrRupees).toBe(3000000);
-		expect(result.revenue.grossRevenueYearToDateRupees).toBe(0);
-		expect(result.revenue.monthlyTimeline).toEqual([]);
+		expect(result.revenue.grossRevenueYearToDateRupees).toBe(500000);
+		expect(result.revenue.monthlyTimeline).toEqual([
+			{ month: "2026-10", grossRevenueRupees: 250000 },
+		]);
 
 		// Growth assertions
 		expect(result.growth.funnel).toEqual(defaultFunnel);
@@ -123,15 +130,18 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 
 		const result = await useCase.execute({}, "admin-123");
 
-		expect(result.overview.mrrRupees).toBe(0);
-		expect(result.revenue.currentMrrRupees).toBe(0);
-		expect(result.revenue.currentArrRupees).toBe(0);
-		expect(result.revenue.grossRevenueYearToDateRupees).toBe(0);
+		expect(result.overview.mrrRupees).toBeNull();
+		expect(result.overview.totalDinersServedToday).toBeNull();
+		expect(result.revenue.currentMrrRupees).toBeNull();
+		expect(result.revenue.currentArrRupees).toBeNull();
+		expect(result.revenue.grossRevenueYearToDateRupees).toBeNull();
+		expect(result.revenue.monthlyTimeline).toEqual([]);
 		expect(result.overview.totalRestaurants).toBe(50);
+		expect(result.overview.activeSubscribedRestaurants).toBe(30);
 
 		expect(mockLogger.warn).toHaveBeenCalledWith(
 			expect.objectContaining({ adminUserId: "admin-123" }),
-			expect.stringContaining("Payment service finance summary is unavailable"),
+			messages.PAYMENT_SERVICE_FINANCE_SUMMARY_UNAVAILABLE,
 		);
 	});
 
@@ -164,8 +174,12 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 			"2026-03-01T00:00:00.000Z",
 			"2026-08-31T23:59:59.999Z",
 		);
-		expect(mockRestaurantRepo.getActiveSubscribedCount).toHaveBeenCalledTimes(1);
-		expect(mockRestaurantRepo.getSubscriptionTierDistribution).toHaveBeenCalledTimes(1);
+		expect(mockRestaurantRepo.getActiveSubscribedCount).toHaveBeenCalledTimes(
+			1,
+		);
+		expect(
+			mockRestaurantRepo.getSubscriptionTierDistribution,
+		).toHaveBeenCalledTimes(1);
 		expect(mockRestaurantRepo.getGeographicBreakdown).toHaveBeenCalledTimes(1);
 	});
 
@@ -173,8 +187,8 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		await useCase.execute({}, "super-admin-uuid-999");
 
 		expect(mockPaymentService.getFinanceSummary).toHaveBeenCalledWith(
+			{},
 			"super-admin-uuid-999",
 		);
 	});
 });
-
