@@ -105,9 +105,6 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 			getSubscriptionSummary: jest
 				.fn<IPaymentAnalyticsService["getSubscriptionSummary"]>()
 				.mockResolvedValue(defaultSubscriptionSummary),
-			getFinanceSummary: jest
-				.fn<IPaymentAnalyticsService["getFinanceSummary"]>()
-				.mockResolvedValue(null),
 		};
 
 		mockUserService = {
@@ -147,7 +144,6 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		// Overview assertions
 		expect(result.overview.totalRestaurants).toBe(142);
 		expect(result.overview.activeSubscribedRestaurants).toBe(118);
-		expect(result.overview.totalDinersServedToday).toBeNull();
 		// Authoritative distribution without fabricated categories
 		expect(result.overview.subscriptionTierDistribution).toEqual({
 			QUEUE_PRO: 88,

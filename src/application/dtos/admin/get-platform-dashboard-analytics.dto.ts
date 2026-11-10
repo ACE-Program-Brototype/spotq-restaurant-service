@@ -49,7 +49,6 @@ export interface RevenueSectionDto {
 export interface PlatformOverviewDto {
 	totalRestaurants: number;
 	activeSubscribedRestaurants: number | null;
-	totalDinersServedToday: number | null;
 	subscriptionTierDistribution: Record<string, number> | null;
 }
 

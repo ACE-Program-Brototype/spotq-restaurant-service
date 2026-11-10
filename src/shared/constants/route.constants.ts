@@ -125,7 +125,6 @@ export const INTERNAL_ROUTES = {
 } as const;
 
 export const PAYMENT_SERVICE_ROUTES = {
-	FINANCE_SUMMARY: "/admin/finance/summary",
 	ANALYTICS_SUBSCRIPTIONS_SUMMARY:
 		"/api/internal/v1/analytics/subscriptions/summary",
 } as const;

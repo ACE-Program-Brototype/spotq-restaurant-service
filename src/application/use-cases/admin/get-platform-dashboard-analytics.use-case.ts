@@ -185,9 +185,6 @@ export class GetPlatformDashboardAnalyticsUseCase
 			overview: {
 				totalRestaurants,
 				activeSubscribedRestaurants,
-				// NOTE: Order Service does not store platform guest count or party size.
-				// Explicitly null to distinguish lack of measurement from a measured 0.
-				totalDinersServedToday: null,
 				subscriptionTierDistribution,
 			},
 			customerGrowth,

@@ -152,7 +152,7 @@ describe("GetRestaurantAnalyticsDashboardUseCase", () => {
 			info: jest.fn(),
 			warn: jest.fn(),
 			error: jest.fn(),
-		};
+		} as unknown as jest.Mocked<ILogger>;
 
 		useCase = new GetRestaurantAnalyticsDashboardUseCase(
 			mockRepo,

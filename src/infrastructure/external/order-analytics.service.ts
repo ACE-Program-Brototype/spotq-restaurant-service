@@ -1,3 +1,4 @@
+import { CircuitBreaker } from "@spotq-org/circuit-breaker";
 import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
 import axios from "axios";
 import { inject, injectable } from "inversify";
@@ -11,7 +12,6 @@ import type {
 } from "@/application/ports/services/order-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
-import { CircuitBreaker } from "@/infrastructure/resilience/circuit-breaker.ts";
 import { ORDER_SERVICE_ROUTES } from "@/shared/constants/route.constants.ts";
 
 interface ApiResponseEnvelope<T> {
@@ -25,7 +25,10 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 	private readonly serviceName: string;
 	private readonly targetServiceName: string;
 	private readonly privateKey: string;
-	private readonly circuitBreaker: CircuitBreaker;
+	private readonly circuitBreaker: CircuitBreaker<
+		[() => Promise<unknown>],
+		unknown
+	>;
 
 	constructor(
 		@inject(TYPES.Logger.PinoClient)
@@ -39,11 +42,26 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 		this.serviceName = serviceName;
 		this.targetServiceName = targetServiceName;
 		this.privateKey = privateKey ?? env.S2S_PRIVATE_KEY;
-		this.circuitBreaker = new CircuitBreaker("order-service", {
-			failureThreshold: 5,
-			cooldownPeriodMs: 30_000,
-			requestTimeoutMs: 3_000,
-		});
+		this.circuitBreaker = new CircuitBreaker(
+			async (requestFn: () => Promise<unknown>) => await requestFn(),
+			{
+				name: "order-service",
+				timeoutMs: 3_000,
+				resetTimeoutMs: 30_000,
+				errorThresholdPercentage: 50,
+				volumeThreshold: 5,
+				checkIsFailure: (error: unknown) => {
+					const status = (error as { response?: { status?: number } })?.response
+						?.status;
+					if (typeof status === "number") {
+						if (status >= 400 && status < 500 && status !== 408 && status !== 429) {
+							return false;
+						}
+					}
+					return true;
+				},
+			},
+		);
 	}
 
 	private getInternalHeaders(callerUserId?: string): Record<string, string> {
@@ -79,7 +97,7 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 		callerUserId?: string,
 	): Promise<RestaurantOrderAnalyticsSummaryDto | null> {
 		try {
-			return await this.circuitBreaker.execute(async (signal) => {
+			const result = await this.circuitBreaker.execute(async () => {
 				const endpoint =
 					ORDER_SERVICE_ROUTES.ANALYTICS_ORDERS_SUMMARY(restaurantId);
 				const url = `${this.baseUrl}${endpoint}`;
@@ -95,7 +113,7 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 						year: query?.year,
 						status: query?.status,
 					},
-					signal,
+					timeout: 3_000,
 				});
 
 				if (response.data?.success && response.data?.data) {
@@ -108,9 +126,10 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 				);
 				return null;
 			});
+			return (result as RestaurantOrderAnalyticsSummaryDto | null) ?? null;
 		} catch (error) {
 			this.logger.warn(
-				{ error, restaurantId, circuitState: this.circuitBreaker.getState() },
+				{ error, restaurantId, circuitState: this.circuitBreaker.state },
 				"Failed to fetch order summary from order-service",
 			);
 			return null;
@@ -123,7 +142,7 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 		callerUserId?: string,
 	): Promise<RestaurantProductAnalyticsDto | null> {
 		try {
-			return await this.circuitBreaker.execute(async (signal) => {
+			const result = await this.circuitBreaker.execute(async () => {
 				const endpoint =
 					ORDER_SERVICE_ROUTES.ANALYTICS_ORDERS_PRODUCTS(restaurantId);
 				const url = `${this.baseUrl}${endpoint}`;
@@ -140,7 +159,7 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 						page: query?.page,
 						limit: query?.limit,
 					},
-					signal,
+					timeout: 3_000,
 				});
 
 				if (response.data?.success && response.data?.data) {
@@ -153,16 +172,13 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 				);
 				return null;
 			});
+			return (result as RestaurantProductAnalyticsDto | null) ?? null;
 		} catch (error) {
 			this.logger.warn(
-				{ error, restaurantId, circuitState: this.circuitBreaker.getState() },
+				{ error, restaurantId, circuitState: this.circuitBreaker.state },
 				"Failed to fetch product analytics from order-service",
 			);
 			return null;
 		}
-	}
-
-	public getCircuitBreaker(): CircuitBreaker {
-		return this.circuitBreaker;
 	}
 }

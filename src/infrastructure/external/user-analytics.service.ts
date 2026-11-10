@@ -1,3 +1,4 @@
+import { CircuitBreaker } from "@spotq-org/circuit-breaker";
 import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
 import axios from "axios";
 import { inject, injectable } from "inversify";
@@ -9,7 +10,6 @@ import type {
 } from "@/application/ports/services/user-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
-import { CircuitBreaker } from "@/infrastructure/resilience/circuit-breaker.ts";
 import { USER_SERVICE_ROUTES } from "@/shared/constants/route.constants.ts";
 
 interface UserSummaryApiResponse {
@@ -23,7 +23,10 @@ export class UserAnalyticsService implements IUserAnalyticsService {
 	private readonly serviceName: string;
 	private readonly targetServiceName: string;
 	private readonly privateKey: string;
-	private readonly circuitBreaker: CircuitBreaker;
+	private readonly circuitBreaker: CircuitBreaker<
+		[() => Promise<unknown>],
+		unknown
+	>;
 
 	constructor(
 		@inject(TYPES.Logger.PinoClient)
@@ -37,11 +40,26 @@ export class UserAnalyticsService implements IUserAnalyticsService {
 		this.serviceName = serviceName;
 		this.targetServiceName = targetServiceName;
 		this.privateKey = privateKey ?? env.S2S_PRIVATE_KEY;
-		this.circuitBreaker = new CircuitBreaker("user-service", {
-			failureThreshold: 5,
-			cooldownPeriodMs: 30_000,
-			requestTimeoutMs: 3_000,
-		});
+		this.circuitBreaker = new CircuitBreaker(
+			async (requestFn: () => Promise<unknown>) => await requestFn(),
+			{
+				name: "user-service",
+				timeoutMs: 3_000,
+				resetTimeoutMs: 30_000,
+				errorThresholdPercentage: 50,
+				volumeThreshold: 5,
+				checkIsFailure: (error: unknown) => {
+					const status = (error as { response?: { status?: number } })?.response
+						?.status;
+					if (typeof status === "number") {
+						if (status >= 400 && status < 500 && status !== 408 && status !== 429) {
+							return false;
+						}
+					}
+					return true;
+				},
+			},
+		);
 	}
 
 	private getInternalHeaders(callerUserId?: string): Record<string, string> {
@@ -76,7 +94,7 @@ export class UserAnalyticsService implements IUserAnalyticsService {
 		callerUserId?: string,
 	): Promise<UserAnalyticsSummaryDto | null> {
 		try {
-			return await this.circuitBreaker.execute(async (signal) => {
+			const result = await this.circuitBreaker.execute(async () => {
 				const url = `${this.baseUrl}${USER_SERVICE_ROUTES.ANALYTICS_USERS_SUMMARY}`;
 				const response = await axios.get<UserSummaryApiResponse>(url, {
 					headers: this.getInternalHeaders(callerUserId),
@@ -86,7 +104,7 @@ export class UserAnalyticsService implements IUserAnalyticsService {
 						month: query?.month,
 						year: query?.year,
 					},
-					signal,
+					timeout: 3_000,
 				});
 
 				if (response.data?.success && response.data?.data) {
@@ -99,16 +117,13 @@ export class UserAnalyticsService implements IUserAnalyticsService {
 				);
 				return null;
 			});
+			return (result as UserAnalyticsSummaryDto | null) ?? null;
 		} catch (error) {
 			this.logger.warn(
-				{ error, circuitState: this.circuitBreaker.getState() },
+				{ error, circuitState: this.circuitBreaker.state },
 				"Failed to fetch user summary from user-service",
 			);
 			return null;
 		}
-	}
-
-	public getCircuitBreaker(): CircuitBreaker {
-		return this.circuitBreaker;
 	}
 }

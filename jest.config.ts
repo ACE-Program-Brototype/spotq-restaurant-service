@@ -35,6 +35,7 @@ const config: Config = {
 		"^@/(.*)$": "<rootDir>/src/$1",
 		"^(\\./.+)\\.js$": "$1",
 		"^(\\.\\./.+)\\.js$": "$1",
+		"^@spotq-org/circuit-breaker$": "<rootDir>/node_modules/@spotq-org/circuit-breaker/dist/index.js",
 	},
 	transform: {
 		"^.+\\.(t|j)sx?$": [
@@ -58,7 +59,9 @@ const config: Config = {
 			},
 		],
 	},
-	transformIgnorePatterns: ["node_modules/(?!.*(inversify|@inversifyjs|jose))"],
+	transformIgnorePatterns: [
+		"node_modules/(?!.*(inversify|@inversifyjs|jose|@spotq-org))",
+	],
 	testMatch: ["<rootDir>/tests/**/*.spec.ts", "<rootDir>/tests/**/*.test.ts"],
 	setupFiles: ["<rootDir>/tests/setup.ts"],
 };

@@ -36,34 +36,9 @@ export interface PaymentSubscriptionAnalyticsQueryDto {
 	billingCycle?: BillingCycle;
 }
 
-export interface PaymentFinanceTimelinePointDto {
-	month: string;
-	grossRevenueRupees: number;
-}
-
-export interface PaymentFinanceSummaryDto {
-	currentMrrRupees: number | null;
-	currentArrRupees: number | null;
-	grossRevenueYearToDateRupees: number | null;
-	monthlyTimeline: PaymentFinanceTimelinePointDto[];
-	activeVenuesCount: number | null;
-	todayTurnoverRupees: number | null;
-}
-
-export interface PaymentFinanceSummaryQueryDto {
-	from?: string;
-	to?: string;
-	billingCycle?: BillingCycle;
-	fiscalYear?: number;
-}
-
 export interface IPaymentAnalyticsService {
 	getSubscriptionSummary(
 		query?: PaymentSubscriptionAnalyticsQueryDto,
 		callerUserId?: string,
 	): Promise<PaymentSubscriptionSummaryDto | null>;
-	getFinanceSummary(
-		query?: PaymentFinanceSummaryQueryDto,
-		adminUserId?: string,
-	): Promise<PaymentFinanceSummaryDto | null>;
 }

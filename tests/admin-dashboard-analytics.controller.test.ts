@@ -18,7 +18,6 @@ describe("AdminDashboardAnalyticsController", () => {
 		overview: {
 			totalRestaurants: 100,
 			activeSubscribedRestaurants: 80,
-			totalDinersServedToday: null,
 			subscriptionTierDistribution: {
 				PRO: 60,
 				ENTERPRISE: 20,
