@@ -403,6 +403,8 @@ const envSchema = z.object({
 		.trim()
 		.default("http://spotq-queue-service:3004"),
 	QUEUE_SERVICE_NAME: z.string().trim().default("queue-service"),
+	RABBITMQ_URL: z.string().trim().default("amqp://guest:guest@localhost:5672"),
+	RABBITMQ_PREFETCH_COUNT: z.coerce.number().positive().default(10),
 });
 
 export type Env = z.infer<typeof envSchema>;
