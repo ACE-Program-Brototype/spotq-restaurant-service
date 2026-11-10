@@ -1,11 +1,15 @@
-import { PrismaRestaurantAnalyticsRepository } from "@/infrastructure/database/repositories/prisma-restaurant-analytics.repository.ts";
 import type { PrismaClient } from "@prisma/client";
+import { PrismaRestaurantAnalyticsRepository } from "@/infrastructure/database/repositories/prisma-restaurant-analytics.repository.ts";
 
 describe("PrismaRestaurantAnalyticsRepository", () => {
 	let mockPrisma: {
 		restaurant: {
 			count: jest.Mock;
 			groupBy: jest.Mock;
+		};
+		menuItem: {
+			findMany: jest.Mock;
+			count: jest.Mock;
 		};
 		$queryRaw: jest.Mock;
 	};
@@ -17,6 +21,10 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 			restaurant: {
 				count: jest.fn(),
 				groupBy: jest.fn(),
+			},
+			menuItem: {
+				findMany: jest.fn(),
+				count: jest.fn(),
 			},
 			$queryRaw: jest.fn(),
 		};
@@ -105,12 +113,12 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 	});
 
 	describe("getOnboardingFunnel", () => {
-		it("should execute SQL aggregation and return all 4 funnel stages", async () => {
+		it("should execute SQL aggregation and return all 4 funnel stages in chronological order", async () => {
 			mockPrisma.$queryRaw.mockResolvedValueOnce([
 				{
 					registered: 100,
 					documents_uploaded: 80,
-					verified: 60,
+					approved_active: 60,
 					first_subscription: 50,
 				},
 			]);
@@ -119,10 +127,26 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 
 			expect(mockPrisma.$queryRaw).toHaveBeenCalled();
 			expect(result).toEqual([
-				{ stage: "REGISTERED", count: 100 },
-				{ stage: "DOCUMENTS_UPLOADED", count: 80 },
-				{ stage: "VERIFIED", count: 60 },
-				{ stage: "FIRST_SUBSCRIPTION", count: 50 },
+				{
+					stage: "REGISTERED",
+					count: 100,
+					label: "Registered & Email Verified",
+				},
+				{
+					stage: "DOCUMENTS_UPLOADED",
+					count: 80,
+					label: "Documents Uploaded",
+				},
+				{
+					stage: "APPROVED_ACTIVE",
+					count: 60,
+					label: "Platform Approved & Live",
+				},
+				{
+					stage: "FIRST_SUBSCRIPTION",
+					count: 50,
+					label: "First Subscription Active",
+				},
 			]);
 		});
 
@@ -132,10 +156,26 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 			const result = await repository.getOnboardingFunnel();
 
 			expect(result).toEqual([
-				{ stage: "REGISTERED", count: 0 },
-				{ stage: "DOCUMENTS_UPLOADED", count: 0 },
-				{ stage: "VERIFIED", count: 0 },
-				{ stage: "FIRST_SUBSCRIPTION", count: 0 },
+				{
+					stage: "REGISTERED",
+					count: 0,
+					label: "Registered & Email Verified",
+				},
+				{
+					stage: "DOCUMENTS_UPLOADED",
+					count: 0,
+					label: "Documents Uploaded",
+				},
+				{
+					stage: "APPROVED_ACTIVE",
+					count: 0,
+					label: "Platform Approved & Live",
+				},
+				{
+					stage: "FIRST_SUBSCRIPTION",
+					count: 0,
+					label: "First Subscription Active",
+				},
 			]);
 		});
 	});
@@ -154,5 +194,78 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 			expect(result).toEqual(mockGeo);
 		});
 	});
-});
 
+	describe("getActiveMenuItems", () => {
+		it("should query menuItem.findMany for active and non-deleted items only", async () => {
+			const mockDishes = [
+				{ id: "dish-1", name: "Butter Chicken", isAvailable: true },
+			];
+			mockPrisma.menuItem.findMany.mockResolvedValueOnce(mockDishes);
+
+			const result = await repository.getActiveMenuItems("rest-uuid-123");
+
+			expect(mockPrisma.menuItem.findMany).toHaveBeenCalledWith({
+				where: {
+					restaurantId: "rest-uuid-123",
+					isAvailable: true,
+					isDeleted: false,
+				},
+				select: {
+					id: true,
+					name: true,
+					isAvailable: true,
+				},
+				orderBy: {
+					name: "asc",
+				},
+			});
+			expect(result).toEqual(mockDishes);
+		});
+	});
+
+	describe("getAllMenuItems", () => {
+		it("should query menuItem.findMany for all non-deleted items (including unavailable)", async () => {
+			const mockDishes = [
+				{ id: "dish-1", name: "Butter Chicken", isAvailable: true },
+				{ id: "dish-2", name: "Paneer Tikka", isAvailable: false },
+			];
+			mockPrisma.menuItem.findMany.mockResolvedValueOnce(mockDishes);
+
+			const result = await repository.getAllMenuItems("rest-uuid-123");
+
+			expect(mockPrisma.menuItem.findMany).toHaveBeenCalledWith({
+				where: {
+					restaurantId: "rest-uuid-123",
+					isDeleted: false,
+				},
+				select: {
+					id: true,
+					name: true,
+					isAvailable: true,
+				},
+				orderBy: {
+					name: "asc",
+				},
+			});
+			expect(result).toEqual(mockDishes);
+		});
+	});
+
+	describe("getTotalActiveProductsCount", () => {
+		it("should count menuItems with isAvailable: true and isDeleted: false", async () => {
+			mockPrisma.menuItem.count.mockResolvedValueOnce(18);
+
+			const result =
+				await repository.getTotalActiveProductsCount("rest-uuid-123");
+
+			expect(mockPrisma.menuItem.count).toHaveBeenCalledWith({
+				where: {
+					restaurantId: "rest-uuid-123",
+					isAvailable: true,
+					isDeleted: false,
+				},
+			});
+			expect(result).toBe(18);
+		});
+	});
+});

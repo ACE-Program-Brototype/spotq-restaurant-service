@@ -1,20 +1,23 @@
+import type { Prisma, PrismaClient } from "@prisma/client";
+import { inject, injectable } from "inversify";
 import { TYPES } from "@/config/di/types.ts";
 import type {
+	ActiveMenuItemInfo,
 	FunnelStageCount,
 	GeographicBreakdownPoint,
 	IRestaurantAnalyticsRepository,
 	OnboardingTrendPoint,
 } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
-import type { Prisma, PrismaClient } from "@prisma/client";
-import { inject, injectable } from "inversify";
+import { REPORTING_TIMEZONE } from "@/shared/constants/analytics.constants.ts";
 
 @injectable()
 export class PrismaRestaurantAnalyticsRepository
-	implements IRestaurantAnalyticsRepository {
+	implements IRestaurantAnalyticsRepository
+{
 	constructor(
 		@inject(TYPES.PrismaClient)
 		private readonly prisma: PrismaClient,
-	) { }
+	) {}
 
 	private buildDateFilter(
 		from?: string,
@@ -70,7 +73,7 @@ export class PrismaRestaurantAnalyticsRepository
 
 		const results = await this.prisma.$queryRaw<OnboardingTrendPoint[]>`
 			SELECT
-				TO_CHAR(created_at AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM') AS period,
+				TO_CHAR(created_at AT TIME ZONE ${REPORTING_TIMEZONE}, 'YYYY-MM') AS period,
 				COUNT(*)::int AS count
 			FROM restaurants
 			WHERE (${fromDate}::timestamptz IS NULL OR created_at >= ${fromDate}::timestamptz)
@@ -93,14 +96,14 @@ export class PrismaRestaurantAnalyticsRepository
 			Array<{
 				registered: number;
 				documents_uploaded: number;
-				verified: number;
+				approved_active: number;
 				first_subscription: number;
 			}>
 		>`
 			SELECT
 				COUNT(*)::int AS registered,
 				COUNT(CASE WHEN onboarding_status = 'COMPLETED' THEN 1 END)::int AS documents_uploaded,
-				COUNT(CASE WHEN status IN ('APPROVED', 'ACTIVE') THEN 1 END)::int AS verified,
+				COUNT(CASE WHEN status IN ('APPROVED', 'ACTIVE') THEN 1 END)::int AS approved_active,
 				COUNT(CASE WHEN subscription_plan_code IS NOT NULL OR is_subscription_active = TRUE THEN 1 END)::int AS first_subscription
 			FROM restaurants
 			WHERE (${fromDate}::timestamptz IS NULL OR created_at >= ${fromDate}::timestamptz)
@@ -110,15 +113,31 @@ export class PrismaRestaurantAnalyticsRepository
 		const data = results[0] ?? {
 			registered: 0,
 			documents_uploaded: 0,
-			verified: 0,
+			approved_active: 0,
 			first_subscription: 0,
 		};
 
 		return [
-			{ stage: "REGISTERED", count: data.registered },
-			{ stage: "DOCUMENTS_UPLOADED", count: data.documents_uploaded },
-			{ stage: "VERIFIED", count: data.verified },
-			{ stage: "FIRST_SUBSCRIPTION", count: data.first_subscription },
+			{
+				stage: "REGISTERED",
+				count: data.registered,
+				label: "Registered & Email Verified",
+			},
+			{
+				stage: "DOCUMENTS_UPLOADED",
+				count: data.documents_uploaded,
+				label: "Documents Uploaded",
+			},
+			{
+				stage: "APPROVED_ACTIVE",
+				count: data.approved_active,
+				label: "Platform Approved & Live",
+			},
+			{
+				stage: "FIRST_SUBSCRIPTION",
+				count: data.first_subscription,
+				label: "First Subscription Active",
+			},
 		];
 	}
 
@@ -135,5 +154,56 @@ export class PrismaRestaurantAnalyticsRepository
 		`;
 
 		return results;
+	}
+
+	async getActiveMenuItems(
+		restaurantId: string,
+	): Promise<ActiveMenuItemInfo[]> {
+		const items = await this.prisma.menuItem.findMany({
+			where: {
+				restaurantId,
+				isAvailable: true,
+				isDeleted: false,
+			},
+			select: {
+				id: true,
+				name: true,
+				isAvailable: true,
+			},
+			orderBy: {
+				name: "asc",
+			},
+		});
+
+		return items;
+	}
+
+	async getAllMenuItems(restaurantId: string): Promise<ActiveMenuItemInfo[]> {
+		const items = await this.prisma.menuItem.findMany({
+			where: {
+				restaurantId,
+				isDeleted: false,
+			},
+			select: {
+				id: true,
+				name: true,
+				isAvailable: true,
+			},
+			orderBy: {
+				name: "asc",
+			},
+		});
+
+		return items;
+	}
+
+	async getTotalActiveProductsCount(restaurantId: string): Promise<number> {
+		return await this.prisma.menuItem.count({
+			where: {
+				restaurantId,
+				isAvailable: true,
+				isDeleted: false,
+			},
+		});
 	}
 }

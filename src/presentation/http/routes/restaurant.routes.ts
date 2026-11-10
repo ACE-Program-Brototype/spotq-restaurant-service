@@ -1,6 +1,7 @@
 import express from "express";
 import {
 	customerRestaurantController,
+	restaurantAnalyticsController,
 	restaurantAuthController,
 	restaurantStaffManagementController,
 	restaurantStatusController,
@@ -23,6 +24,10 @@ import {
 	getCustomerRestaurantDetailsQuerySchema,
 } from "../validators/get-customer-restaurant-details.validator";
 import { listCustomerRestaurantsQuerySchema } from "../validators/list-customer-restaurants.validator";
+import {
+	getRestaurantAnalyticsDashboardParamsSchema,
+	getRestaurantAnalyticsDashboardQuerySchema,
+} from "../validators/restaurant/get-restaurant-analytics-dashboard.validator";
 import {
 	sendRestaurantEmailOtpSchema,
 	verifyRestaurantEmailOtpSchema,
@@ -167,6 +172,20 @@ restaurantRouter.get(
 	validateRequestParams(getCustomerRestaurantDetailsParamsSchema),
 	validateRequestQuery(getCustomerRestaurantDetailsQuerySchema),
 	customerRestaurantController.getRestaurantDetails,
+);
+
+restaurantRouter.get(
+	[
+		RESTAURANT_ROUTES.ANALYTICS_DASHBOARD,
+		RESTAURANT_ROUTES.ANALYTICS_DASHBOARD_PREFIX,
+		RESTAURANT_ROUTES.ANALYTICS_DASHBOARD_FULL,
+	],
+	restaurantOwnerAuthMiddleware,
+	validateRequestParams(getRestaurantAnalyticsDashboardParamsSchema),
+	validateRequestQuery(getRestaurantAnalyticsDashboardQuerySchema),
+	restaurantAnalyticsController.getRestaurantAnalyticsDashboard.bind(
+		restaurantAnalyticsController,
+	),
 );
 
 // menu router

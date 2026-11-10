@@ -9,6 +9,7 @@ import type { InternalRestaurantController } from "@/presentation/http/controlle
 import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
 import type { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller";
 import type { MenuItemController } from "@/presentation/http/controllers/menu-item.controller";
+import type { RestaurantAnalyticsController } from "@/presentation/http/controllers/restaurant-analytics.controller";
 import type { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import type { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
 import type { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
@@ -86,3 +87,8 @@ export const internalRestaurantController =
 export const internalTableController = container.get<InternalTableController>(
 	TYPES.Controller.InternalTableController,
 );
+
+export const restaurantAnalyticsController =
+	container.get<RestaurantAnalyticsController>(
+		TYPES.Controller.RestaurantAnalyticsController,
+	);

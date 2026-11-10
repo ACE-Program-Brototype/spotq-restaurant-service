@@ -403,8 +403,18 @@ const envSchema = z.object({
 		.trim()
 		.default("http://spotq-queue-service:3004"),
 	QUEUE_SERVICE_NAME: z.string().trim().default("queue-service"),
-	PAYMENT_SERVICE_URL: z.string().trim().default("http://spotq-payment-service:3003"),
+	PAYMENT_SERVICE_URL: z
+		.string()
+		.trim()
+		.default("http://spotq-payment-service:3003"),
 	PAYMENT_SERVICE_NAME: z.string().trim().default("payment-service"),
+	ORDER_SERVICE_URL: z
+		.string()
+		.trim()
+		.default("http://spotq-order-service:3002"),
+	ORDER_SERVICE_NAME: z.string().trim().default("order-service"),
+	USER_SERVICE_URL: z.string().trim().default("http://spotq-user-service:3001"),
+	USER_SERVICE_NAME: z.string().trim().default("user-service"),
 });
 
 export type Env = z.infer<typeof envSchema>;

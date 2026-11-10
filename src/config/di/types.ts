@@ -68,7 +68,9 @@ export const TYPES = {
 		"GetRestaurantApplicationDetailsUseCase",
 	),
 	AdminRestaurantController: Symbol.for("AdminRestaurantController"),
-	AdminDashboardAnalyticsController: Symbol.for("AdminDashboardAnalyticsController"),
+	AdminDashboardAnalyticsController: Symbol.for(
+		"AdminDashboardAnalyticsController",
+	),
 
 	// Feature Namespaced Sub-types (for Restaurant & Storage & Common services)
 	UseCases: {
@@ -168,6 +170,9 @@ export const TYPES = {
 		GetPlatformDashboardAnalyticsUseCase: Symbol.for(
 			"GetPlatformDashboardAnalyticsUseCase",
 		),
+		GetRestaurantAnalyticsDashboardUseCase: Symbol.for(
+			"GetRestaurantAnalyticsDashboardUseCase",
+		),
 	},
 
 	Controller: {
@@ -176,6 +181,7 @@ export const TYPES = {
 		AdminDashboardAnalyticsController: Symbol.for(
 			"AdminDashboardAnalyticsController",
 		),
+		RestaurantAnalyticsController: Symbol.for("RestaurantAnalyticsController"),
 		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
 		StorageController: Symbol.for("StorageController"),
 		AddonController: Symbol.for("AddonController"),
@@ -199,9 +205,7 @@ export const TYPES = {
 		MenuItemRepository: Symbol.for("MenuItemRepository"),
 		TableSectionRepository: Symbol.for("TableSectionRepository"),
 		TableRepository: Symbol.for("TableRepository"),
-		RestaurantAnalyticsRepository: Symbol.for(
-			"RestaurantAnalyticsRepository",
-		),
+		RestaurantAnalyticsRepository: Symbol.for("RestaurantAnalyticsRepository"),
 	},
 
 	Redis: {
@@ -221,6 +225,8 @@ export const TYPES = {
 		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
 		QueueService: Symbol.for("QueueService"),
 		PaymentAnalyticsService: Symbol.for("PaymentAnalyticsService"),
+		UserAnalyticsService: Symbol.for("UserAnalyticsService"),
+		OrderAnalyticsService: Symbol.for("OrderAnalyticsService"),
 	},
 
 	Logger: {

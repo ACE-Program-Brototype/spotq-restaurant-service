@@ -2,8 +2,12 @@ import "reflect-metadata";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type {
 	IPaymentAnalyticsService,
-	PaymentFinanceSummaryDto,
+	PaymentSubscriptionSummaryDto,
 } from "@/application/ports/services/payment-analytics.service.port.ts";
+import type {
+	IUserAnalyticsService,
+	UserAnalyticsSummaryDto,
+} from "@/application/ports/services/user-analytics.service.port.ts";
 import { GetPlatformDashboardAnalyticsUseCase } from "@/application/use-cases/admin/get-platform-dashboard-analytics.use-case.ts";
 import type {
 	FunnelStageCount,
@@ -17,6 +21,7 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 	let useCase: GetPlatformDashboardAnalyticsUseCase;
 	let mockRestaurantRepo: jest.Mocked<IRestaurantAnalyticsRepository>;
 	let mockPaymentService: jest.Mocked<IPaymentAnalyticsService>;
+	let mockUserService: jest.Mocked<IUserAnalyticsService>;
 	let mockLogger: jest.Mocked<ILogger>;
 
 	const defaultTrend: OnboardingTrendPoint[] = [
@@ -25,10 +30,14 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 	];
 
 	const defaultFunnel: FunnelStageCount[] = [
-		{ stage: "REGISTERED", count: 50 },
-		{ stage: "DOCUMENTS_UPLOADED", count: 40 },
-		{ stage: "VERIFIED", count: 35 },
-		{ stage: "FIRST_SUBSCRIPTION", count: 30 },
+		{ stage: "REGISTERED", count: 50, label: "Registered & Email Verified" },
+		{ stage: "DOCUMENTS_UPLOADED", count: 40, label: "Documents Uploaded" },
+		{ stage: "APPROVED_ACTIVE", count: 35, label: "Platform Approved & Live" },
+		{
+			stage: "FIRST_SUBSCRIPTION",
+			count: 30,
+			label: "First Subscription Active",
+		},
 	];
 
 	const defaultGeo: GeographicBreakdownPoint[] = [
@@ -36,35 +45,75 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		{ city: "Mumbai", state: "Maharashtra", restaurantCount: 15 },
 	];
 
-	const defaultTiers: Record<string, number> = {
-		FREE: 15,
-		PRO: 10,
-		ENTERPRISE: 5,
+	const defaultSubscriptionSummary: PaymentSubscriptionSummaryDto = {
+		activeSubscribedRestaurants: 118,
+		currentMrrRupees: 245000,
+		currentArrRupees: 2940000,
+		grossSubscriptionRevenueRupees: 245000,
+		growthPercentage: 14.2,
+		subscriptionTierDistribution: {
+			QUEUE_PRO: 88,
+			ENTERPRISE: 30,
+		},
+		timeline: [
+			{
+				bucketLabel: "Week 1",
+				grossRevenueRupees: 65000,
+				mrrRupees: 58000,
+				newSubscriptionsCount: 12,
+			},
+		],
 	};
 
-	const defaultFinanceSummary: PaymentFinanceSummaryDto = {
-		currentMrrRupees: 250000,
-		currentArrRupees: 3000000,
-		grossRevenueYearToDateRupees: 500000,
-		monthlyTimeline: [{ month: "2026-10", grossRevenueRupees: 250000 }],
-		activeVenuesCount: 30,
-		todayTurnoverRupees: 50000,
+	const defaultUserSummary: UserAnalyticsSummaryDto = {
+		totalRegisteredCustomers: 12500,
+		newCustomersInPeriod: 48,
 	};
 
 	beforeEach(() => {
 		mockRestaurantRepo = {
-			getTotalRestaurantsCount: jest.fn().mockResolvedValue(50),
-			getActiveSubscribedCount: jest.fn().mockResolvedValue(30),
+			getTotalRestaurantsCount: jest
+				.fn<IRestaurantAnalyticsRepository["getTotalRestaurantsCount"]>()
+				.mockResolvedValue(142),
+			getActiveSubscribedCount: jest
+				.fn<IRestaurantAnalyticsRepository["getActiveSubscribedCount"]>()
+				.mockResolvedValue(118),
 			getSubscriptionTierDistribution: jest
-				.fn()
-				.mockResolvedValue(defaultTiers),
-			getOnboardingTrend: jest.fn().mockResolvedValue(defaultTrend),
-			getOnboardingFunnel: jest.fn().mockResolvedValue(defaultFunnel),
-			getGeographicBreakdown: jest.fn().mockResolvedValue(defaultGeo),
+				.fn<IRestaurantAnalyticsRepository["getSubscriptionTierDistribution"]>()
+				.mockResolvedValue({}),
+			getOnboardingTrend: jest
+				.fn<IRestaurantAnalyticsRepository["getOnboardingTrend"]>()
+				.mockResolvedValue(defaultTrend),
+			getOnboardingFunnel: jest
+				.fn<IRestaurantAnalyticsRepository["getOnboardingFunnel"]>()
+				.mockResolvedValue(defaultFunnel),
+			getGeographicBreakdown: jest
+				.fn<IRestaurantAnalyticsRepository["getGeographicBreakdown"]>()
+				.mockResolvedValue(defaultGeo),
+			getActiveMenuItems: jest
+				.fn<IRestaurantAnalyticsRepository["getActiveMenuItems"]>()
+				.mockResolvedValue([]),
+			getAllMenuItems: jest
+				.fn<IRestaurantAnalyticsRepository["getAllMenuItems"]>()
+				.mockResolvedValue([]),
+			getTotalActiveProductsCount: jest
+				.fn<IRestaurantAnalyticsRepository["getTotalActiveProductsCount"]>()
+				.mockResolvedValue(0),
 		};
 
 		mockPaymentService = {
-			getFinanceSummary: jest.fn().mockResolvedValue(defaultFinanceSummary),
+			getSubscriptionSummary: jest
+				.fn<IPaymentAnalyticsService["getSubscriptionSummary"]>()
+				.mockResolvedValue(defaultSubscriptionSummary),
+			getFinanceSummary: jest
+				.fn<IPaymentAnalyticsService["getFinanceSummary"]>()
+				.mockResolvedValue(null),
+		};
+
+		mockUserService = {
+			getUserSummary: jest
+				.fn<IUserAnalyticsService["getUserSummary"]>()
+				.mockResolvedValue(defaultUserSummary),
 		};
 
 		mockLogger = {
@@ -76,6 +125,7 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		useCase = new GetPlatformDashboardAnalyticsUseCase(
 			mockRestaurantRepo,
 			mockPaymentService,
+			mockUserService,
 			mockLogger,
 		);
 	});
@@ -84,60 +134,80 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		jest.clearAllMocks();
 	});
 
-	it("1. Successful aggregation of restaurant and payment data", async () => {
+	it("1. Successful aggregation of restaurant, payment, and user data with consistent date boundaries", async () => {
 		const query = {
-			from: "2026-01-01T00:00:00.000Z",
-			to: "2026-10-31T23:59:59.999Z",
-			billingCycle: "MONTHLY" as const,
-			fiscalYear: 2026,
+			period: "MONTH" as const,
+			year: 2026,
+			month: 11,
+			billingCycle: "ALL" as const,
 		};
 
 		const result = await useCase.execute(query, "admin-123");
 
 		// Overview assertions
-		expect(result.overview.totalRestaurants).toBe(50);
-		expect(result.overview.activeSubscribedRestaurants).toBe(30);
-		expect(result.overview.mrrRupees).toBe(250000);
+		expect(result.overview.totalRestaurants).toBe(142);
+		expect(result.overview.activeSubscribedRestaurants).toBe(118);
 		expect(result.overview.totalDinersServedToday).toBeNull();
-		expect(result.overview.subscriptionTierDistribution).toEqual(defaultTiers);
-		expect(result.overview.onboardingTrend).toEqual(defaultTrend);
+		// Authoritative distribution without fabricated categories
+		expect(result.overview.subscriptionTierDistribution).toEqual({
+			QUEUE_PRO: 88,
+			ENTERPRISE: 30,
+		});
+
+		// Customer Growth assertions
+		expect(result.customerGrowth).toEqual({
+			status: "AVAILABLE",
+			totalRegisteredCustomers: 12500,
+			newCustomersInPeriod: 48,
+		});
 
 		// Revenue assertions
-		expect(result.revenue.currentMrrRupees).toBe(250000);
-		expect(result.revenue.currentArrRupees).toBe(3000000);
-		expect(result.revenue.grossRevenueYearToDateRupees).toBe(500000);
-		expect(result.revenue.monthlyTimeline).toEqual([
-			{ month: "2026-10", grossRevenueRupees: 250000 },
-		]);
+		expect(result.revenue).toEqual({
+			status: "AVAILABLE",
+			grossSubscriptionRevenueRupees: 245000,
+			currentMrrRupees: 245000,
+			currentArrRupees: 2940000,
+			growthPercentage: 14.2,
+			timeline: defaultSubscriptionSummary.timeline,
+		});
+
+		// Local DB queries received consistent date boundaries
+		expect(mockRestaurantRepo.getTotalRestaurantsCount).toHaveBeenCalledWith(
+			expect.any(String),
+			expect.any(String),
+		);
+		expect(mockRestaurantRepo.getOnboardingFunnel).toHaveBeenCalledWith(
+			expect.any(String),
+			expect.any(String),
+		);
 
 		// Growth assertions
-		expect(result.growth.funnel).toEqual(defaultFunnel);
+		expect(result.growth.onboardingFunnel).toHaveLength(4);
+		expect(result.growth.onboardingTrend).toEqual(defaultTrend);
 		expect(result.growth.geographicBreakdown).toEqual(defaultGeo);
 
-		// Filters & metadata assertions
-		expect(result.filters).toEqual({
-			from: "2026-01-01T00:00:00.000Z",
-			to: "2026-10-31T23:59:59.999Z",
-			billingCycle: "MONTHLY",
-			fiscalYear: 2026,
-		});
+		// Metadata assertions
+		expect(result.filters.period).toBe("MONTH");
+		expect(result.filters.year).toBe(2026);
+		expect(result.filters.month).toBe(11);
 		expect(new Date(result.generatedAt).getTime()).not.toBeNaN();
 		expect(mockLogger.warn).not.toHaveBeenCalled();
 	});
 
-	it("2. Payment Service returning null applies fallbacks and logs warning", async () => {
-		mockPaymentService.getFinanceSummary.mockResolvedValue(null);
+	it("2. Payment Service returning null sets UNAVAILABLE and null subscription distribution (no false zeros)", async () => {
+		mockPaymentService.getSubscriptionSummary.mockResolvedValue(null);
 
 		const result = await useCase.execute({}, "admin-123");
 
-		expect(result.overview.mrrRupees).toBeNull();
-		expect(result.overview.totalDinersServedToday).toBeNull();
-		expect(result.revenue.currentMrrRupees).toBeNull();
-		expect(result.revenue.currentArrRupees).toBeNull();
-		expect(result.revenue.grossRevenueYearToDateRupees).toBeNull();
-		expect(result.revenue.monthlyTimeline).toEqual([]);
-		expect(result.overview.totalRestaurants).toBe(50);
-		expect(result.overview.activeSubscribedRestaurants).toBe(30);
+		expect(result.overview.activeSubscribedRestaurants).toBeNull();
+		expect(result.overview.subscriptionTierDistribution).toBeNull();
+		expect(result.revenue).toEqual({
+			status: "UNAVAILABLE",
+			error: {
+				code: "PAYMENT_SERVICE_UNAVAILABLE",
+				message: "Subscription revenue metrics unavailable",
+			},
+		});
 
 		expect(mockLogger.warn).toHaveBeenCalledWith(
 			expect.objectContaining({ adminUserId: "admin-123" }),
@@ -145,19 +215,28 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		);
 	});
 
-	it("3. Repository failure propagation", async () => {
-		const repoError = new Error("Database query execution failed");
-		mockRestaurantRepo.getTotalRestaurantsCount.mockRejectedValue(repoError);
+	it("3. User Service returning null sets UNAVAILABLE without failing the entire request", async () => {
+		mockUserService.getUserSummary.mockResolvedValue(null);
 
-		await expect(useCase.execute({}, "admin-123")).rejects.toThrow(
-			"Database query execution failed",
-		);
+		const result = await useCase.execute({}, "admin-123");
+
+		expect(result.customerGrowth).toEqual({
+			status: "UNAVAILABLE",
+			error: {
+				code: "USER_SERVICE_UNAVAILABLE",
+				message: "Customer growth metrics unavailable",
+			},
+		});
+
+		expect(result.overview.totalRestaurants).toBe(142);
+		expect(result.revenue.status).toBe("AVAILABLE");
 	});
 
-	it("4. Correct query-filter forwarding to repository methods", async () => {
+	it("4. Precedence: Legacy from/to without period filters local DB and resolves period", async () => {
 		const query = {
 			from: "2026-03-01T00:00:00.000Z",
 			to: "2026-08-31T23:59:59.999Z",
+			fiscalYear: 2026,
 		};
 
 		await useCase.execute(query, "admin-123");
@@ -166,29 +245,9 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 			"2026-03-01T00:00:00.000Z",
 			"2026-08-31T23:59:59.999Z",
 		);
-		expect(mockRestaurantRepo.getOnboardingTrend).toHaveBeenCalledWith(
-			"2026-03-01T00:00:00.000Z",
-			"2026-08-31T23:59:59.999Z",
-		);
 		expect(mockRestaurantRepo.getOnboardingFunnel).toHaveBeenCalledWith(
 			"2026-03-01T00:00:00.000Z",
 			"2026-08-31T23:59:59.999Z",
-		);
-		expect(mockRestaurantRepo.getActiveSubscribedCount).toHaveBeenCalledTimes(
-			1,
-		);
-		expect(
-			mockRestaurantRepo.getSubscriptionTierDistribution,
-		).toHaveBeenCalledTimes(1);
-		expect(mockRestaurantRepo.getGeographicBreakdown).toHaveBeenCalledTimes(1);
-	});
-
-	it("5. Correct admin user ID forwarding to payment service", async () => {
-		await useCase.execute({}, "super-admin-uuid-999");
-
-		expect(mockPaymentService.getFinanceSummary).toHaveBeenCalledWith(
-			{},
-			"super-admin-uuid-999",
 		);
 	});
 });

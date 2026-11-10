@@ -1,5 +1,6 @@
 import { ContainerModule } from "inversify";
 import type { IPaymentAnalyticsService } from "@/application/ports/services/payment-analytics.service.port.ts";
+import type { IUserAnalyticsService } from "@/application/ports/services/user-analytics.service.port.ts";
 import type { IApproveRestaurantUseCase } from "@/application/ports/use-cases/admin/approve-restaurant.use-case.port.ts";
 import type { IBlockRestaurantUseCase } from "@/application/ports/use-cases/admin/block-restaurant.use-case.port.ts";
 import type { IGetPlatformDashboardAnalyticsUseCase } from "@/application/ports/use-cases/admin/get-platform-dashboard-analytics.use-case.port.ts";
@@ -20,6 +21,7 @@ import { TYPES } from "@/config/di/types.ts";
 import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
 import { PrismaRestaurantAnalyticsRepository } from "@/infrastructure/database/repositories/prisma-restaurant-analytics.repository.ts";
 import { PaymentAnalyticsService } from "@/infrastructure/external/payment-analytics.service.ts";
+import { UserAnalyticsService } from "@/infrastructure/external/user-analytics.service.ts";
 import { AdminDashboardAnalyticsController } from "@/presentation/http/controllers/admin-dashboard-analytics.controller.ts";
 import { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller.ts";
 
@@ -34,6 +36,10 @@ export const adminModule = new ContainerModule(({ bind }) => {
 	// Services
 	bind<IPaymentAnalyticsService>(TYPES.Services.PaymentAnalyticsService)
 		.to(PaymentAnalyticsService)
+		.inSingletonScope();
+
+	bind<IUserAnalyticsService>(TYPES.Services.UserAnalyticsService)
+		.to(UserAnalyticsService)
 		.inSingletonScope();
 
 	// Controllers

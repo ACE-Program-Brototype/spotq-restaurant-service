@@ -2,14 +2,35 @@ import { PAYMENT_SERVICE_ROUTES } from "@shared/constants/route.constants.ts";
 import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
 import axios from "axios";
 import { inject, injectable } from "inversify";
-import type { GetPlatformDashboardAnalyticsQueryDto } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
+import { z } from "zod";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type {
 	IPaymentAnalyticsService,
 	PaymentFinanceSummaryDto,
+	PaymentFinanceSummaryQueryDto,
+	PaymentSubscriptionAnalyticsQueryDto,
+	PaymentSubscriptionSummaryDto,
 } from "@/application/ports/services/payment-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
+import { CircuitBreaker } from "@/infrastructure/resilience/circuit-breaker.ts";
+
+const paymentSubscriptionSummarySchema = z.object({
+	activeSubscribedRestaurants: z.number().int().nonnegative(),
+	currentMrrRupees: z.number().nonnegative(),
+	currentArrRupees: z.number().nonnegative(),
+	grossSubscriptionRevenueRupees: z.number().nonnegative(),
+	growthPercentage: z.number().nullable().optional(),
+	subscriptionTierDistribution: z.record(z.string(), z.number()),
+	timeline: z.array(
+		z.object({
+			bucketLabel: z.string(),
+			grossRevenueRupees: z.number(),
+			mrrRupees: z.number(),
+			newSubscriptionsCount: z.number(),
+		}),
+	),
+});
 
 interface PaymentSummaryTimelinePointApiData {
 	period: string;
@@ -35,13 +56,18 @@ interface PaymentSummaryApiResponse {
 	data?: PaymentSummaryApiData | null;
 }
 
+interface SubscriptionSummaryApiResponse {
+	success?: boolean;
+	data?: PaymentSubscriptionSummaryDto | null;
+}
+
 @injectable()
 export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 	private readonly baseUrl: string;
 	private readonly serviceName: string;
 	private readonly targetServiceName: string;
 	private readonly privateKey: string;
-	private static readonly REQUEST_TIMEOUT_MS = 2500;
+	private readonly circuitBreaker: CircuitBreaker;
 
 	constructor(
 		@inject(TYPES.Logger.PinoClient)
@@ -55,6 +81,11 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 		this.serviceName = serviceName;
 		this.targetServiceName = targetServiceName;
 		this.privateKey = privateKey ?? env.S2S_PRIVATE_KEY;
+		this.circuitBreaker = new CircuitBreaker("payment-service", {
+			failureThreshold: 5,
+			cooldownPeriodMs: 30_000,
+			requestTimeoutMs: 3_000,
+		});
 	}
 
 	private getInternalHeaders(adminUserId?: string): Record<string, string> {
@@ -138,46 +169,95 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 		};
 	}
 
-	public async getFinanceSummary(
-		query?: GetPlatformDashboardAnalyticsQueryDto,
-		adminUserId?: string,
-	): Promise<PaymentFinanceSummaryDto | null> {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(
-			() => controller.abort(),
-			PaymentAnalyticsService.REQUEST_TIMEOUT_MS,
-		);
-
+	public async getSubscriptionSummary(
+		query?: PaymentSubscriptionAnalyticsQueryDto,
+		callerUserId?: string,
+	): Promise<PaymentSubscriptionSummaryDto | null> {
 		try {
-			const url = `${this.baseUrl}${PAYMENT_SERVICE_ROUTES.FINANCE_SUMMARY}`;
-			const response = await axios.get(url, {
-				headers: this.getInternalHeaders(adminUserId),
-				params: {
-					billingCycle: query?.billingCycle,
-					fiscalYear: query?.fiscalYear,
-					from: query?.from,
-					to: query?.to,
-				},
-				signal: controller.signal,
-			});
+			return await this.circuitBreaker.execute(async (signal) => {
+				const url = `${this.baseUrl}${PAYMENT_SERVICE_ROUTES.ANALYTICS_SUBSCRIPTIONS_SUMMARY}`;
+				const response = await axios.get<SubscriptionSummaryApiResponse>(url, {
+					headers: this.getInternalHeaders(callerUserId),
+					params: {
+						period: query?.period,
+						day: query?.day,
+						month: query?.month,
+						year: query?.year,
+						billingCycle: query?.billingCycle,
+					},
+					signal,
+				});
 
-			if (!this.isSuccessfulResponse(response.data)) {
+				if (response.data?.success && response.data?.data) {
+					const validated = paymentSubscriptionSummarySchema.safeParse(
+						response.data.data,
+					);
+					if (validated.success) {
+						return validated.data as PaymentSubscriptionSummaryDto;
+					}
+					this.logger.warn(
+						{
+							issues: validated.error.issues,
+							rawData: response.data.data,
+						},
+						"Payment service returned malformed subscription summary schema",
+					);
+					return null;
+				}
+
 				this.logger.warn(
 					{ response: response.data },
-					"Payment service returned unsuccessful summary response",
+					"Payment service returned unsuccessful subscription summary response",
 				);
 				return null;
-			}
-
-			return this.toFinanceSummary(response.data.data);
+			});
 		} catch (error) {
 			this.logger.warn(
-				{ error },
+				{ error, circuitState: this.circuitBreaker.getState() },
+				"Failed to fetch subscription summary from payment-service",
+			);
+			return null;
+		}
+	}
+
+	public async getFinanceSummary(
+		query?: PaymentFinanceSummaryQueryDto,
+		adminUserId?: string,
+	): Promise<PaymentFinanceSummaryDto | null> {
+		try {
+			return await this.circuitBreaker.execute(async (signal) => {
+				const url = `${this.baseUrl}${PAYMENT_SERVICE_ROUTES.FINANCE_SUMMARY}`;
+				const response = await axios.get(url, {
+					headers: this.getInternalHeaders(adminUserId),
+					params: {
+						billingCycle: query?.billingCycle,
+						fiscalYear: query?.fiscalYear,
+						from: query?.from,
+						to: query?.to,
+					},
+					signal,
+				});
+
+				if (!this.isSuccessfulResponse(response.data)) {
+					this.logger.warn(
+						{ response: response.data },
+						"Payment service returned unsuccessful summary response",
+					);
+					return null;
+				}
+
+				return this.toFinanceSummary(response.data.data);
+			});
+		} catch (error) {
+			this.logger.warn(
+				{ error, circuitState: this.circuitBreaker.getState() },
 				"Failed to fetch finance summary from payment-service",
 			);
 			return null;
-		} finally {
-			clearTimeout(timeoutId);
 		}
+	}
+
+	public getCircuitBreaker(): CircuitBreaker {
+		return this.circuitBreaker;
 	}
 }

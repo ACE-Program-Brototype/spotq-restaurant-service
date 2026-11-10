@@ -44,6 +44,10 @@ export const RESTAURANT_ROUTES = {
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
 	CUSTOMER_LIST: "/customers",
 	CUSTOMER_DETAILS: "/customers/:restaurantId",
+	ANALYTICS_DASHBOARD: "/:restaurantId/analytics/dashboard",
+	ANALYTICS_DASHBOARD_FULL:
+		"/api/v1/restaurants/:restaurantId/analytics/dashboard",
+	ANALYTICS_DASHBOARD_PREFIX: "/restaurants/:restaurantId/analytics/dashboard",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -122,6 +126,19 @@ export const INTERNAL_ROUTES = {
 
 export const PAYMENT_SERVICE_ROUTES = {
 	FINANCE_SUMMARY: "/admin/finance/summary",
+	ANALYTICS_SUBSCRIPTIONS_SUMMARY:
+		"/api/internal/v1/analytics/subscriptions/summary",
+} as const;
+
+export const USER_SERVICE_ROUTES = {
+	ANALYTICS_USERS_SUMMARY: "/api/internal/v1/analytics/users/summary",
+} as const;
+
+export const ORDER_SERVICE_ROUTES = {
+	ANALYTICS_ORDERS_SUMMARY: (restaurantId: string) =>
+		`/api/internal/v1/restaurants/${restaurantId}/analytics/orders/summary`,
+	ANALYTICS_ORDERS_PRODUCTS: (restaurantId: string) =>
+		`/api/internal/v1/restaurants/${restaurantId}/analytics/orders/products`,
 } as const;
 
 export const QUEUE_SERVICE_ROUTES = {

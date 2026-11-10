@@ -18,28 +18,46 @@ describe("AdminDashboardAnalyticsController", () => {
 		overview: {
 			totalRestaurants: 100,
 			activeSubscribedRestaurants: 80,
-			mrrRupees: 200000,
 			totalDinersServedToday: null,
-			subscriptionTierDistribution: { PRO: 60, ENTERPRISE: 20 },
-			onboardingTrend: [{ period: "2026-10", count: 20 }],
+			subscriptionTierDistribution: {
+				PRO: 60,
+				ENTERPRISE: 20,
+			},
+		},
+		customerGrowth: {
+			status: "AVAILABLE",
+			totalRegisteredCustomers: 12500,
+			newCustomersInPeriod: 48,
 		},
 		revenue: {
+			status: "AVAILABLE",
+			grossSubscriptionRevenueRupees: 200000,
 			currentMrrRupees: 200000,
 			currentArrRupees: 2400000,
-			grossRevenueYearToDateRupees: 0,
-			monthlyTimeline: [],
+			growthPercentage: 14.2,
+			timeline: [],
 		},
 		growth: {
-			funnel: [{ stage: "REGISTERED", count: 100 }],
+			onboardingFunnel: [
+				{
+					stage: "REGISTERED",
+					count: 100,
+					label: "Registered & Email Verified",
+				},
+			],
+			onboardingTrend: [{ period: "2026-10", count: 20 }],
 			geographicBreakdown: [
 				{ city: "Bengaluru", state: "Karnataka", restaurantCount: 50 },
 			],
 		},
 		filters: {
+			period: "MONTH",
+			day: null,
+			month: 11,
+			year: 2026,
+			billingCycle: "ALL",
 			from: null,
 			to: null,
-			billingCycle: "ALL",
-			fiscalYear: null,
 		},
 		generatedAt: "2026-11-06T12:00:00.000Z",
 	};

@@ -32,116 +32,221 @@ describe("PaymentAnalyticsService", () => {
 		);
 	});
 
-	it("should call payment summary endpoint using S2S headers and convert paise to rupees accurately", async () => {
-		const mockResponse = {
-			success: true,
-			data: {
-				currency: "INR",
-				masterBalancePaise: "5000000",
-				todayTurnoverPaise: "2500000",
-				tonightEodPayoutQueuePaise: "0",
-				lifetimeDisbursedPaise: "120000000",
-				totalRefundsProcessedPaise: "0",
-				saasSubscriptionMrrPaise: "18800000",
-				saasSubscriptionArrPaise: "225600000",
-				grossRevenueYearToDatePaise: "35000000",
+	describe("getSubscriptionSummary", () => {
+		it("should call internal subscription summary endpoint and map response correctly", async () => {
+			const mockResponse = {
+				success: true,
+				data: {
+					activeSubscribedRestaurants: 118,
+					currentMrrRupees: 245000,
+					currentArrRupees: 2940000,
+					grossSubscriptionRevenueRupees: 245000,
+					growthPercentage: 14.2,
+					subscriptionTierDistribution: {
+						QUEUE_PRO: 88,
+						ENTERPRISE: 30,
+					},
+					timeline: [
+						{
+							bucketLabel: "Week 1",
+							grossRevenueRupees: 65000,
+							mrrRupees: 58000,
+							newSubscriptionsCount: 12,
+						},
+					],
+				},
+			};
+
+			axiosGetSpy.mockResolvedValueOnce({ data: mockResponse } as never);
+
+			const query = {
+				period: "MONTH" as const,
+				month: 11,
+				year: 2026,
+				billingCycle: "ALL" as const,
+			};
+
+			const result = await service.getSubscriptionSummary(
+				query,
+				"admin-user-123",
+			);
+
+			expect(axiosGetSpy).toHaveBeenCalledWith(
+				"http://test-payment-service:3003/api/internal/v1/analytics/subscriptions/summary",
+				expect.objectContaining({
+					headers: expect.objectContaining({
+						Accept: "application/json",
+						"X-Caller-Service": "restaurant-service",
+						Authorization: expect.stringMatching(/^Bearer /),
+						"x-user-id": "admin-user-123",
+						"x-user-role": "admin",
+					}),
+					params: {
+						period: "MONTH",
+						day: undefined,
+						month: 11,
+						year: 2026,
+						billingCycle: "ALL",
+					},
+				}),
+			);
+
+			expect(result).toEqual(mockResponse.data);
+		});
+
+		it("should return null and log warning when API returns malformed data", async () => {
+			// Missing required numeric fields in data
+			const malformedResponse = {
+				success: true,
+				data: {
+					activeSubscribedRestaurants: "not-a-number", // should be number
+				},
+			};
+
+			axiosGetSpy.mockResolvedValueOnce({ data: malformedResponse } as never);
+
+			const result = await service.getSubscriptionSummary();
+			expect(result).toBeNull();
+			expect(mockLogger.warn).toHaveBeenCalledWith(
+				expect.objectContaining({
+					rawData: malformedResponse.data,
+				}),
+				"Payment service returned malformed subscription summary schema",
+			);
+		});
+
+		it("should return null and log warning when API returns unsuccessful response", async () => {
+			axiosGetSpy.mockResolvedValueOnce({
+				data: { success: false, data: null },
+			} as never);
+
+			const result = await service.getSubscriptionSummary();
+			expect(result).toBeNull();
+			expect(mockLogger.warn).toHaveBeenCalled();
+		});
+
+		it("should return null and log warning when network request throws", async () => {
+			axiosGetSpy.mockRejectedValueOnce(new Error("Connection timeout"));
+
+			const result = await service.getSubscriptionSummary();
+			expect(result).toBeNull();
+			expect(mockLogger.warn).toHaveBeenCalled();
+		});
+
+		it("should not treat HTTP 401/403 as a service outage failure in circuit breaker", async () => {
+			const authError = new Error("Forbidden");
+			(authError as unknown as { response: { status: number } }).response = {
+				status: 403,
+			};
+
+			// 5 consecutive 403 errors
+			for (let i = 0; i < 5; i++) {
+				axiosGetSpy.mockRejectedValueOnce(authError);
+				await service.getSubscriptionSummary();
+			}
+
+			// Next call should still dispatch network request (breaker not tripped)
+			axiosGetSpy.mockResolvedValueOnce({
+				data: {
+					success: true,
+					data: {
+						activeSubscribedRestaurants: 1,
+						currentMrrRupees: 1000,
+						currentArrRupees: 12000,
+						grossSubscriptionRevenueRupees: 1000,
+						subscriptionTierDistribution: { PRO: 1 },
+						timeline: [],
+					},
+				},
+			} as never);
+
+			const nextResult = await service.getSubscriptionSummary();
+			expect(nextResult).not.toBeNull();
+			expect(axiosGetSpy).toHaveBeenCalledTimes(6);
+		});
+
+		it("should trip circuit breaker after 5 consecutive 5xx/network errors and stop dispatching HTTP requests", async () => {
+			const serverError = new Error("Internal Server Error 500");
+			(serverError as unknown as { response: { status: number } }).response = {
+				status: 500,
+			};
+
+			// 5 consecutive 500 errors
+			for (let i = 0; i < 5; i++) {
+				axiosGetSpy.mockRejectedValueOnce(serverError);
+				await service.getSubscriptionSummary();
+			}
+
+			expect(axiosGetSpy).toHaveBeenCalledTimes(5);
+
+			// 6th call should fast-fail without calling axios.get
+			const resultWhenOpen = await service.getSubscriptionSummary();
+			expect(resultWhenOpen).toBeNull();
+			expect(axiosGetSpy).toHaveBeenCalledTimes(5); // Still 5! No HTTP dispatch when OPEN
+		});
+	});
+
+	describe("getFinanceSummary (legacy)", () => {
+		it("should call payment summary endpoint using S2S headers and convert paise to rupees accurately", async () => {
+			const mockResponse = {
+				success: true,
+				data: {
+					currency: "INR",
+					masterBalancePaise: "5000000",
+					todayTurnoverPaise: "2500000",
+					tonightEodPayoutQueuePaise: "0",
+					lifetimeDisbursedPaise: "120000000",
+					totalRefundsProcessedPaise: "0",
+					saasSubscriptionMrrPaise: "18800000",
+					saasSubscriptionArrPaise: "225600000",
+					grossRevenueYearToDatePaise: "35000000",
+					monthlyTimeline: [
+						{ period: "2026-10", revenuePaise: "15000000" },
+						{ period: "2026-11", revenuePaise: "20000000" },
+					],
+					activeVenuesCount: 94,
+				},
+			};
+
+			axiosGetSpy.mockResolvedValueOnce({ data: mockResponse } as never);
+
+			const query = {
+				billingCycle: "MONTHLY" as const,
+				fiscalYear: 2026,
+			};
+
+			const result = await service.getFinanceSummary(query, "admin-user-123");
+
+			expect(axiosGetSpy).toHaveBeenCalledWith(
+				"http://test-payment-service:3003/admin/finance/summary",
+				expect.objectContaining({
+					headers: expect.objectContaining({
+						Accept: "application/json",
+						"X-Caller-Service": "restaurant-service",
+						Authorization: expect.stringMatching(/^Bearer /),
+						"x-user-id": "admin-user-123",
+						"x-user-role": "admin",
+					}),
+					params: {
+						billingCycle: "MONTHLY",
+						fiscalYear: 2026,
+						from: undefined,
+						to: undefined,
+					},
+				}),
+			);
+
+			expect(result).toEqual({
+				currentMrrRupees: 188000,
+				currentArrRupees: 2256000,
+				grossRevenueYearToDateRupees: 350000,
 				monthlyTimeline: [
-					{ period: "2026-10", revenuePaise: "15000000" },
-					{ period: "2026-11", revenuePaise: "20000000" },
+					{ month: "2026-10", grossRevenueRupees: 150000 },
+					{ month: "2026-11", grossRevenueRupees: 200000 },
 				],
 				activeVenuesCount: 94,
-			},
-		};
-
-		axiosGetSpy.mockResolvedValueOnce({ data: mockResponse } as never);
-
-		const query = {
-			billingCycle: "MONTHLY" as const,
-			fiscalYear: 2026,
-		};
-
-		const result = await service.getFinanceSummary(query, "admin-user-123");
-
-		expect(axiosGetSpy).toHaveBeenCalledWith(
-			"http://test-payment-service:3003/admin/finance/summary",
-			expect.objectContaining({
-				headers: expect.objectContaining({
-					Accept: "application/json",
-					"X-Caller-Service": "restaurant-service",
-					Authorization: expect.stringMatching(/^Bearer /),
-					"x-user-id": "admin-user-123",
-					"x-user-role": "admin",
-				}),
-				params: {
-					billingCycle: "MONTHLY",
-					fiscalYear: 2026,
-					from: undefined,
-					to: undefined,
-				},
-			}),
-		);
-
-		expect(result).toEqual({
-			currentMrrRupees: 188000,
-			currentArrRupees: 2256000,
-			grossRevenueYearToDateRupees: 350000,
-			monthlyTimeline: [
-				{ month: "2026-10", grossRevenueRupees: 150000 },
-				{ month: "2026-11", grossRevenueRupees: 200000 },
-			],
-			activeVenuesCount: 94,
-			todayTurnoverRupees: 25000,
+				todayTurnoverRupees: 25000,
+			});
 		});
-	});
-
-	it("should map missing optional metrics to null instead of fabricating zeroes", async () => {
-		const mockBaselineResponse = {
-			success: true,
-			data: {
-				currency: "INR",
-				masterBalancePaise: "5000000",
-			},
-		};
-
-		axiosGetSpy.mockResolvedValueOnce({ data: mockBaselineResponse } as never);
-
-		const result = await service.getFinanceSummary();
-
-		expect(result).toEqual({
-			currentMrrRupees: null,
-			currentArrRupees: null,
-			grossRevenueYearToDateRupees: null,
-			monthlyTimeline: [],
-			activeVenuesCount: null,
-			todayTurnoverRupees: null,
-		});
-	});
-
-	it("should return null and log warning when payment service returns unsuccessful response", async () => {
-		axiosGetSpy.mockResolvedValueOnce({
-			data: {
-				success: false,
-			},
-		} as never);
-
-		const result = await service.getFinanceSummary();
-
-		expect(result).toBeNull();
-		expect(mockLogger.warn).toHaveBeenCalledWith(
-			expect.objectContaining({ response: { success: false } }),
-			"Payment service returned unsuccessful summary response",
-		);
-	});
-
-	it("should catch connection failure gracefully, log warning and return null", async () => {
-		axiosGetSpy.mockRejectedValueOnce(new Error("Connection refused"));
-
-		const result = await service.getFinanceSummary();
-
-		expect(result).toBeNull();
-		expect(mockLogger.warn).toHaveBeenCalledWith(
-			expect.objectContaining({ error: expect.any(Error) }),
-			"Failed to fetch finance summary from payment-service",
-		);
 	});
 });
