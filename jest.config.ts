@@ -58,7 +58,9 @@ const config: Config = {
 			},
 		],
 	},
-	transformIgnorePatterns: ["node_modules/(?!.*(inversify|@inversifyjs|jose))"],
+	transformIgnorePatterns: [
+		"node_modules/(?!.*(inversify|@inversifyjs|jose|@spotq-org))",
+	],
 	testMatch: ["<rootDir>/tests/**/*.spec.ts", "<rootDir>/tests/**/*.test.ts"],
 	setupFiles: ["<rootDir>/tests/setup.ts"],
 };
