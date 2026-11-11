@@ -228,6 +228,14 @@ export const TYPES = {
 	Worker: {
 		EMAIL: Symbol.for("EmailWorker"),
 	},
+
+	RabbitMQ: {
+		Client: Symbol.for("RabbitMQClient"),
+	},
+
+	Consumers: {
+		SubscriptionConsumer: Symbol.for("SubscriptionConsumer"),
+	},
 } as const;
 
 export type ServiceTypes = typeof TYPES;
