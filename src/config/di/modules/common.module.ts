@@ -1,8 +1,10 @@
 import type { BrevoClient } from "@getbrevo/brevo";
 import type { PrismaClient } from "@prisma/client";
+import type { RabbitMQClient } from "@spotq-org/rabbitmq-client";
 import type { Queue } from "bullmq";
 import { ContainerModule } from "inversify";
 import type Redis from "ioredis";
+import type { ISubscriptionConsumer } from "@/application/ports/consumers/subscription.consumer.port";
 import type { IJwkService } from "@/application/ports/services/IJwk.service";
 import type { ILogger } from "@/application/ports/services/logger.interface";
 import type { IEmailWorker } from "@/application/ports/workers/email.worker.port";
@@ -17,6 +19,8 @@ import {
 import { logger } from "@/infrastructure/observability/logger";
 import { emailQueue } from "@/infrastructure/queue/bullmq.service";
 import { EmailWorker } from "@/infrastructure/queue/workers/email.worker";
+import { SubscriptionConsumer } from "@/infrastructure/rabbitmq/consumers/subscription.consumer";
+import { rabbitmqClient } from "@/infrastructure/rabbitmq/rabbitmq.client";
 import { JwksService } from "@/infrastructure/services/jwk.service";
 import { JwksController } from "@/presentation/http/controllers/jwks.controller";
 
@@ -41,4 +45,10 @@ export const commonModule = new ContainerModule(({ bind }) => {
 	bind<BrevoClient>(TYPES.Brevo.Client).toConstantValue(brevoClient);
 	bind<Queue>(TYPES.Queue.Email).toConstantValue(emailQueue);
 	bind<IEmailWorker>(TYPES.Worker.EMAIL).to(EmailWorker);
+
+	// RabbitMQ & Consumers
+	bind<RabbitMQClient>(TYPES.RabbitMQ.Client).toConstantValue(rabbitmqClient);
+	bind<ISubscriptionConsumer>(TYPES.Consumers.SubscriptionConsumer)
+		.to(SubscriptionConsumer)
+		.inSingletonScope();
 });

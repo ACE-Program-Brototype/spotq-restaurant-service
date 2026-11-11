@@ -1,6 +1,7 @@
 process.env.TZ = "UTC";
 
 import app from "@/app";
+import { subscriptionConsumer } from "@/config/di/consumers.resolutions";
 import { container } from "@/config/di/container";
 import { TYPES } from "@/config/di/types";
 import {
@@ -12,7 +13,6 @@ import {
 	connectBullMQ,
 	disconnectBullMQ,
 } from "@/infrastructure/queue/bullmq.connect";
-import { startSubscriptionConsumer } from "@/infrastructure/rabbitmq/consumers/subscription.consumer";
 import {
 	connectRabbitMQ,
 	disconnectRabbitMQ,
@@ -35,7 +35,7 @@ async function bootstrap() {
 		const emailWorker = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
 		emailWorker.start();
 
-		await startSubscriptionConsumer();
+		await subscriptionConsumer.start();
 		const subscriptionExpiryService = container.get<SubscriptionExpiryService>(
 			TYPES.Services.SubscriptionExpiryService,
 		);
