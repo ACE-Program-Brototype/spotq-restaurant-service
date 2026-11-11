@@ -7,6 +7,7 @@ import type {
 	GetRestaurantOrderSummaryQueryDto,
 	GetRestaurantProductAnalyticsQueryDto,
 	IOrderAnalyticsService,
+	ProductPerformanceItemDto,
 	RestaurantOrderAnalyticsSummaryDto,
 	RestaurantProductAnalyticsDto,
 } from "@/application/ports/services/order-analytics.service.port.ts";
@@ -189,7 +190,39 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 				});
 
 				if (response.data?.success && response.data?.data) {
-					return response.data.data;
+					const data = response.data.data;
+					const mapProductItems = (
+						items?: Array<
+							ProductPerformanceItemDto & { grossSalesRupees?: number }
+						>,
+					): ProductPerformanceItemDto[] =>
+						(items ?? []).map((item) => ({
+							menuItemId: item.menuItemId,
+							name: item.name,
+							quantitySold: item.quantitySold,
+							salesRupees: item.salesRupees ?? item.grossSalesRupees ?? 0,
+							...(item.isAvailable !== undefined
+								? { isAvailable: item.isAvailable }
+								: {}),
+							...(item.percentageOfTotalSales !== undefined
+								? { percentageOfTotalSales: item.percentageOfTotalSales }
+								: {}),
+							...(item.classification !== undefined
+								? { classification: item.classification }
+								: {}),
+						}));
+
+					return {
+						...data,
+						topSelling: {
+							items: mapProductItems(data.topSelling?.items),
+							pagination: data.topSelling?.pagination,
+						},
+						slowMoving: {
+							items: mapProductItems(data.slowMoving?.items),
+							pagination: data.slowMoving?.pagination,
+						},
+					};
 				}
 
 				this.logger.warn(

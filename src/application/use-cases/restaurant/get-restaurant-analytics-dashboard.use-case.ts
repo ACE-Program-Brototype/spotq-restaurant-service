@@ -251,7 +251,8 @@ export class GetRestaurantAnalyticsDashboardUseCase
 					menuItemId: string;
 					name: string;
 					quantitySold: number;
-					salesRupees: number;
+					salesRupees?: number;
+					grossSalesRupees?: number;
 					isAvailable?: boolean;
 					percentageOfTotalSales?: number;
 					classification?: "ZERO_SALES" | "LOW_VOLUME" | "NORMAL";
@@ -259,7 +260,7 @@ export class GetRestaurantAnalyticsDashboardUseCase
 					menuItemId: item.menuItemId,
 					name: item.name || nameMap.get(item.menuItemId) || "Unknown Item",
 					quantitySold: item.quantitySold,
-					salesRupees: item.salesRupees,
+					salesRupees: item.salesRupees ?? item.grossSalesRupees ?? 0,
 					isAvailable:
 						availabilityMap.get(item.menuItemId) ?? item.isAvailable ?? false,
 					percentageOfTotalSales: item.percentageOfTotalSales,

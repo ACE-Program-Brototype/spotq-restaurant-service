@@ -183,5 +183,59 @@ describe("OrderAnalyticsService", () => {
 
 			expect(result).toEqual(mockResponse.data);
 		});
+
+		it("should map grossSalesRupees from order-service to salesRupees", async () => {
+			const rawResponse = {
+				success: true,
+				data: {
+					restaurantId,
+					totalProductsSold: 1,
+					topSelling: {
+						items: [
+							{
+								menuItemId: "item-1",
+								name: "Malabar Biryani",
+								quantitySold: 3,
+								grossSalesRupees: 750,
+								percentageOfTotalSales: 100,
+								classification: "LOW_VOLUME",
+							},
+						],
+						pagination: {
+							totalItems: 1,
+							totalPages: 1,
+							currentPage: 1,
+							limit: 10,
+							hasNextPage: false,
+							hasPrevPage: false,
+						},
+					},
+					slowMoving: {
+						items: [],
+						pagination: {
+							totalItems: 0,
+							totalPages: 1,
+							currentPage: 1,
+							limit: 10,
+							hasNextPage: false,
+							hasPrevPage: false,
+						},
+					},
+				},
+			};
+
+			axiosGetSpy.mockResolvedValueOnce({ data: rawResponse } as never);
+
+			const result = await service.getProductAnalytics(restaurantId);
+
+			expect(result?.topSelling.items[0]).toEqual({
+				menuItemId: "item-1",
+				name: "Malabar Biryani",
+				quantitySold: 3,
+				salesRupees: 750,
+				percentageOfTotalSales: 100,
+				classification: "LOW_VOLUME",
+			});
+		});
 	});
 });
