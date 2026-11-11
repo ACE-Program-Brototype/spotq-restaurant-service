@@ -6,6 +6,7 @@ import type { IDeleteTableUseCase } from "@application/ports/use-cases/table/del
 import type { IGetTableUseCase } from "@application/ports/use-cases/table/get-table.usecase.port";
 import type { IGetTableAvailabilityUseCase } from "@application/ports/use-cases/table/get-table-availability.use-case.port";
 import type { IGetTableDetailsUseCase } from "@application/ports/use-cases/table/get-table-details.use-case.port";
+import type { IReleaseTableUseCase } from "@application/ports/use-cases/table/release-table.use-case.port";
 import type { IUpdateTableUseCase } from "@application/ports/use-cases/table/update-table.use-case.port";
 import type { IUpdateTableStatusUseCase } from "@application/ports/use-cases/table/update-table-status.use-case.port";
 import { TYPES } from "@config/di/types";
@@ -38,6 +39,8 @@ export class TableController {
 		private readonly _deleteTableUseCase: IDeleteTableUseCase,
 		@inject(TYPES.UseCases.GetTableDetailsUseCase)
 		private readonly _getTableDetailsUseCase: IGetTableDetailsUseCase,
+		@inject(TYPES.UseCases.PublicReleaseTableUseCase)
+		private readonly _releaseTableUseCase: IReleaseTableUseCase,
 	) {}
 
 	createTable = async (req: Request, res: Response): Promise<void> => {
@@ -217,5 +220,29 @@ export class TableController {
 		});
 
 		sendSuccessResponse(res, response, messages.TABLE_FETCH_SUCCESS, HTTP_STATUS.OK);
+	};
+
+	releaseTable = async (req: Request, res: Response): Promise<void> => {
+		const userId = req.userId;
+
+		if (!userId) {
+			throw new UnauthorizedEntityAccessError();
+		}
+
+		const { restaurantId } = req.params as { restaurantId: string };
+		const { tables } = req.body;
+
+		const result = await this._releaseTableUseCase.execute({
+			restaurantId,
+			userId,
+			tables,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.TABLE_RELEASE_SUCCESS,
+			HTTP_STATUS.OK,
+		);
 	};
 }
