@@ -9,3 +9,4 @@ allowBuilds:
   unrs-resolver: true
 minimumReleaseAgeExclude:
   - '@spotq-org/s2s-core@1.0.0'
+  - '@spotq-org/rabbitmq-client@1.0.0'

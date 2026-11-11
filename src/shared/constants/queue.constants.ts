@@ -3,6 +3,10 @@ export const QUEUE_NAMES = {
 	SUBSCRIPTION_EVENTS: "restaurant-subscription-events",
 } as const;
 
+export const RABBITMQ_QUEUES = {
+	SUBSCRIPTION_EVENTS: "restaurant-subscription-events",
+} as const;
+
 export const JOB_NAMES = {
 	EMAIL: {
 		VERIFICATION_OTP: "verification-otp",

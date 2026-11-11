@@ -1,6 +1,7 @@
 process.env.TZ = "UTC";
 
 import app from "@/app";
+import { subscriptionConsumer } from "@/config/di/consumers.resolutions";
 import { container } from "@/config/di/container";
 import { TYPES } from "@/config/di/types";
 import {
@@ -12,7 +13,10 @@ import {
 	connectBullMQ,
 	disconnectBullMQ,
 } from "@/infrastructure/queue/bullmq.connect";
-import { createSubscriptionWorker } from "@/infrastructure/queue/workers/subscription.worker";
+import {
+	connectRabbitMQ,
+	disconnectRabbitMQ,
+} from "@/infrastructure/rabbitmq/rabbitmq.client";
 import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
 import type { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
 import { closeS3Client } from "@/infrastructure/storage/s3.client";
@@ -25,12 +29,13 @@ async function bootstrap() {
 		await connectDatabase();
 		await connectRedis();
 		await connectBullMQ();
+		await connectRabbitMQ();
 		await checkS3Connection();
 
 		const emailWorker = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
 		emailWorker.start();
 
-		const subscriptionWorker = createSubscriptionWorker();
+		await subscriptionConsumer.start();
 		const subscriptionExpiryService = container.get<SubscriptionExpiryService>(
 			TYPES.Services.SubscriptionExpiryService,
 		);
@@ -61,10 +66,10 @@ async function bootstrap() {
 
 				try {
 					subscriptionExpiryService.stop();
-					await subscriptionWorker.close();
 					await emailWorker.stop();
 					await closeS3Client();
 
+					await disconnectRabbitMQ();
 					await disconnectBullMQ();
 					await disconnectRedis();
 					await disconnectDatabase();

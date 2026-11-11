@@ -415,6 +415,8 @@ const envSchema = z.object({
 	ORDER_SERVICE_NAME: z.string().trim().default("order-service"),
 	USER_SERVICE_URL: z.string().trim().default("http://spotq-user-service:3000"),
 	USER_SERVICE_NAME: z.string().trim().default("user-service"),
+	RABBITMQ_URL: z.string().trim().default("amqp://guest:guest@localhost:5672"),
+	RABBITMQ_PREFETCH_COUNT: z.coerce.number().positive().default(10),
 });
 
 export type Env = z.infer<typeof envSchema>;
