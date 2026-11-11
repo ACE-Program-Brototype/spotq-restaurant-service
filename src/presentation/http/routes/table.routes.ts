@@ -20,6 +20,11 @@ import {
 	getTableParamsSchema,
 	getTableQuerySchema,
 } from "../validators/table/get-table.validator";
+import { getTableDetailsParamsSchema } from "../validators/table/get-table-details.validator";
+import {
+	releaseTableBodySchema,
+	releaseTableParamsSchema,
+} from "../validators/table/release-table.validator";
 import {
 	updateTableBodySchema,
 	updateTableParamsSchema,
@@ -28,11 +33,6 @@ import {
 	updateTableStatusBodySchema,
 	updateTableStatusParamsSchema,
 } from "../validators/table/update-table-status.validator";
-import { getTableDetailsParamsSchema } from "../validators/table/get-table-details.validator";
-import {
-	releaseTableBodySchema,
-	releaseTableParamsSchema,
-} from "../validators/table/release-table.validator";
 
 export const tableRoutes = Router();
 
@@ -46,14 +46,6 @@ tableRoutes.post(
 
 tableRoutes.patch(
 	TABLE_ROUTES.RELEASE_TABLE,
-	restaurantOrStaffAuthMiddleware,
-	validateRequestParams(releaseTableParamsSchema),
-	validateRequestBody(releaseTableBodySchema),
-	tableController.releaseTable,
-);
-
-tableRoutes.patch(
-	TABLE_ROUTES.RELEASE_TABLES,
 	restaurantOrStaffAuthMiddleware,
 	validateRequestParams(releaseTableParamsSchema),
 	validateRequestBody(releaseTableBodySchema),

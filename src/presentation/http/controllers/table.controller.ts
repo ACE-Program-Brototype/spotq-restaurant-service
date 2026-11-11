@@ -18,6 +18,10 @@ import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { GetTableDetailsParams } from "../validators/table/get-table-details.validator";
 import type {
+	ReleaseTableBody,
+	ReleaseTableParams,
+} from "../validators/table/release-table.validator";
+import type {
 	UpdateTableStatusBody,
 	UpdateTableStatusParams,
 } from "../validators/table/update-table-status.validator";
@@ -39,7 +43,7 @@ export class TableController {
 		private readonly _deleteTableUseCase: IDeleteTableUseCase,
 		@inject(TYPES.UseCases.GetTableDetailsUseCase)
 		private readonly _getTableDetailsUseCase: IGetTableDetailsUseCase,
-		@inject(TYPES.UseCases.PublicReleaseTableUseCase)
+		@inject(TYPES.UseCases.ReleaseTableUseCase)
 		private readonly _releaseTableUseCase: IReleaseTableUseCase,
 	) {}
 
@@ -219,7 +223,12 @@ export class TableController {
 			userId,
 		});
 
-		sendSuccessResponse(res, response, messages.TABLE_FETCH_SUCCESS, HTTP_STATUS.OK);
+		sendSuccessResponse(
+			res,
+			response,
+			messages.TABLE_FETCH_SUCCESS,
+			HTTP_STATUS.OK,
+		);
 	};
 
 	releaseTable = async (req: Request, res: Response): Promise<void> => {
@@ -229,8 +238,8 @@ export class TableController {
 			throw new UnauthorizedEntityAccessError();
 		}
 
-		const { restaurantId } = req.params as { restaurantId: string };
-		const { tables } = req.body;
+		const { restaurantId } = req.params as ReleaseTableParams;
+		const { tables } = req.body as ReleaseTableBody;
 
 		const result = await this._releaseTableUseCase.execute({
 			restaurantId,

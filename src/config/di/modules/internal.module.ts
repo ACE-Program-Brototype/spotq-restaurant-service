@@ -36,7 +36,7 @@ export const internalModule = new ContainerModule(({ bind }) => {
 		.to(InternalRestaurantController)
 		.inSingletonScope();
 
-	bind<IReleaseTableUseCase>(TYPES.UseCases.ReleaseTableUseCase).to(
+	bind<IReleaseTableUseCase>(TYPES.UseCases.InternalReleaseTableUseCase).to(
 		ReleaseTableUseCase,
 	);
 

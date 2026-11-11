@@ -150,7 +150,7 @@ export const TYPES = {
 		ReleaseTableUseCase: Symbol.for("ReleaseTableUseCase"),
 		AssignTableUseCase: Symbol.for("AssignTableUseCase"),
 		UpdateTableStatusUseCase: Symbol.for("UpdateTableStatusUseCase"),
-		PublicReleaseTableUseCase: Symbol.for("PublicReleaseTableUseCase"),
+		InternalReleaseTableUseCase: Symbol.for("InternalReleaseTableUseCase"),
 
 		ListCustomerRestaurantsUseCase: Symbol.for(
 			"ListCustomerRestaurantsUseCase",

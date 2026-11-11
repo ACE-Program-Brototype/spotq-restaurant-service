@@ -17,7 +17,7 @@ import type { IRestaurantRepository } from "@/domain/repositories/restaurant.rep
 import type { IRestaurantStaffRepository } from "@/domain/repositories/restaurant-staff.repository.interface.ts";
 import type { ITableRepository } from "@/domain/repositories/table.repository.interface.ts";
 
-describe("PublicReleaseTableUseCase", () => {
+describe("ReleaseTableUseCase", () => {
 	const restaurantId = "2b6f0cc9-8d13-4f2e-a123-9e8ab12cd345";
 	const staffId = "7c1a9d44-22f4-4ab8-91ef-123456789abc";
 	const tableId1 = "3fa85f64-5717-4562-b3fc-2c963f66afa6";
@@ -88,8 +88,17 @@ describe("PublicReleaseTableUseCase", () => {
 	});
 
 	it("successfully releases multiple tables in a single batch request", async () => {
-		const t1 = mockTable({ id: tableId1, currentOccupancy: 2, status: TABLE_STATUS.PARTIAL_OCCUPIED });
-		const t2 = mockTable({ id: tableId2, tableCode: "T-02", currentOccupancy: 4, status: TABLE_STATUS.OCCUPIED });
+		const t1 = mockTable({
+			id: tableId1,
+			currentOccupancy: 2,
+			status: TABLE_STATUS.PARTIAL_OCCUPIED,
+		});
+		const t2 = mockTable({
+			id: tableId2,
+			tableCode: "T-02",
+			currentOccupancy: 4,
+			status: TABLE_STATUS.OCCUPIED,
+		});
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant(true));
 		tableRepository.findByIds.mockResolvedValue([t1, t2]);
 
@@ -104,12 +113,18 @@ describe("PublicReleaseTableUseCase", () => {
 
 		expect(result.releasedTables).toHaveLength(2);
 		expect(result.releasedTables[0]?.status).toBe(TABLE_STATUS.AVAILABLE);
-		expect(result.releasedTables[1]?.status).toBe(TABLE_STATUS.PARTIAL_OCCUPIED);
+		expect(result.releasedTables[1]?.status).toBe(
+			TABLE_STATUS.PARTIAL_OCCUPIED,
+		);
 		expect(tableRepository.updateMany).toHaveBeenCalledWith([t1, t2]);
 	});
 
 	it("successfully releases guests and sets status to PARTIAL_OCCUPIED when occupancy remains > 0", async () => {
-		const t1 = mockTable({ id: tableId1, currentOccupancy: 4, status: TABLE_STATUS.OCCUPIED });
+		const t1 = mockTable({
+			id: tableId1,
+			currentOccupancy: 4,
+			status: TABLE_STATUS.OCCUPIED,
+		});
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant(true));
 		tableRepository.findByIds.mockResolvedValue([t1]);
 
@@ -119,13 +134,19 @@ describe("PublicReleaseTableUseCase", () => {
 			tables: [{ tableId: tableId1, occupancyToRelease: 2 }],
 		});
 
-		expect(result.releasedTables[0]?.status).toBe(TABLE_STATUS.PARTIAL_OCCUPIED);
+		expect(result.releasedTables[0]?.status).toBe(
+			TABLE_STATUS.PARTIAL_OCCUPIED,
+		);
 		expect(result.releasedTables[0]?.currentOccupancy).toBe(2);
 		expect(tableRepository.updateMany).toHaveBeenCalledWith([t1]);
 	});
 
 	it("allows active staff members to release tables", async () => {
-		const t1 = mockTable({ id: tableId1, currentOccupancy: 3, status: TABLE_STATUS.PARTIAL_OCCUPIED });
+		const t1 = mockTable({
+			id: tableId1,
+			currentOccupancy: 3,
+			status: TABLE_STATUS.PARTIAL_OCCUPIED,
+		});
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant(false));
 		staffRepository.findByIdAndRestaurantId.mockResolvedValue({
 			isActive: () => true,
@@ -147,7 +168,11 @@ describe("PublicReleaseTableUseCase", () => {
 	});
 
 	it("rejects when release count exceeds current occupancy (prevents negative occupancy)", async () => {
-		const t1 = mockTable({ id: tableId1, currentOccupancy: 2, status: TABLE_STATUS.PARTIAL_OCCUPIED });
+		const t1 = mockTable({
+			id: tableId1,
+			currentOccupancy: 2,
+			status: TABLE_STATUS.PARTIAL_OCCUPIED,
+		});
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant(true));
 		tableRepository.findByIds.mockResolvedValue([t1]);
 
@@ -163,7 +188,11 @@ describe("PublicReleaseTableUseCase", () => {
 	});
 
 	it("rejects when table is already in AVAILABLE status", async () => {
-		const t1 = mockTable({ id: tableId1, currentOccupancy: 0, status: TABLE_STATUS.AVAILABLE });
+		const t1 = mockTable({
+			id: tableId1,
+			currentOccupancy: 0,
+			status: TABLE_STATUS.AVAILABLE,
+		});
 		restaurantRepository.findById.mockResolvedValue(mockRestaurant(true));
 		tableRepository.findByIds.mockResolvedValue([t1]);
 

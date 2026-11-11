@@ -103,11 +103,10 @@ export const TABLE_ROUTES = {
 	TABLE: "/:restaurantId/table",
 	DELETE: "/:restaurantId/table/:tableId",
 	INTERNAL: {
-		AVAILABILITY: "/internal/:restaurantId/tables/availability",
+		AVAILABILITY: "/api/internal/:restaurantId/tables/availability",
 	},
 	UPDATE_STATUS: "/:restaurantId/table/:tableId/status",
-	RELEASE_TABLE: "/:restaurantId/table/release",
-	RELEASE_TABLES: "/:restaurantId/tables/release",
+	RELEASE_TABLE: "/:restaurantId/tables/release",
 };
 
 export const INTERNAL_ROUTES = {

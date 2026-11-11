@@ -55,7 +55,7 @@ export const tableModule = new ContainerModule(({ bind }) => {
 		.to(GetTableDetailsUseCase)
 		.inSingletonScope();
 
-	bind<IReleaseTableUseCase>(TYPES.UseCases.PublicReleaseTableUseCase)
+	bind<IReleaseTableUseCase>(TYPES.UseCases.ReleaseTableUseCase)
 		.to(ReleaseTableUseCase)
 		.inSingletonScope();
 
