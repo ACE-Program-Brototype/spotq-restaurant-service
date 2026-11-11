@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import type { CustomerRestaurantQueueStatusDTO } from "@/application/dtos/restaurant/customer-restaurant-details.dto.ts";
 import type { IQueueService } from "@/application/ports/services/queue.service.port.ts";
 import { GetCustomerRestaurantDetailsUseCase } from "@/application/use-cases/restaurant/get-customer-restaurant-details.use-case.ts";
 import { Restaurant } from "@/domain/entities/restaurant.entity.ts";
@@ -11,10 +12,9 @@ import type {
 describe("GetCustomerRestaurantDetailsUseCase", () => {
 	let mockRestaurantRepository: jest.Mocked<IRestaurantRepository>;
 	let mockQueueService: jest.Mocked<IQueueService>;
-	let mockLogger: { error: jest.Mock };
 	let useCase: GetCustomerRestaurantDetailsUseCase;
 
-	const mockRecord: CustomerRestaurantDetailsRecord = {
+	const mockRecord: Omit<CustomerRestaurantDetailsRecord, "restaurant"> = {
 		id: "123e4567-e89b-12d3-a456-426614174000",
 		restaurantName: "Biryani Express",
 		email: "info@biryaniexpress.com",
@@ -22,6 +22,8 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		status: "ACTIVE",
 		isBlocked: false,
 		isSubscriptionActive: true,
+		subscriptionPlanCode: "QUEUE_PRO",
+		subscriptionEndsAt: null,
 		onboardingStatus: "COMPLETED",
 		address: {
 			id: "addr-1",
@@ -52,8 +54,8 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 				dayOfWeek: 1,
 				isOpen: true,
 				isClosed: false,
-				openTime: new Date("1970-01-01T10:00:00.000Z"),
-				closeTime: new Date("1970-01-01T23:00:00.000Z"),
+				openTime: "10:00:00",
+				closeTime: "23:00:00",
 			},
 		],
 		images: [
@@ -167,14 +169,14 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		} as unknown as jest.Mocked<IRestaurantRepository>;
 
 		mockQueueService = {
-			getQueueStatus: jest.fn().mockResolvedValue(null),
+			getQueueStatus: jest
+				.fn<() => Promise<CustomerRestaurantQueueStatusDTO | null>>()
+				.mockResolvedValue(null),
 		} as unknown as jest.Mocked<IQueueService>;
-		mockLogger = { error: jest.fn() };
 
 		useCase = new GetCustomerRestaurantDetailsUseCase(
 			mockRestaurantRepository,
 			mockQueueService,
-			mockLogger as never,
 		);
 	});
 
@@ -386,21 +388,11 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 			createRestaurantResult(),
 		);
 
-		const mockQueueStatus = {
-			isOpen: true,
-			activeWaiters: 3,
-			estimatedWaitMinutes: 15,
-			membership: {
-				hasActiveQueue: true,
-				isCurrentRestaurantQueue: true,
-				queueEntryId: "entry-1",
-				queueNumber: "A-01",
-				partySize: 2,
-				status: "WAITING",
-				position: 3,
-				estimatedWaitMinutes: 15,
-				joinedAt: new Date(),
-			},
+		const mockQueueStatus: CustomerRestaurantQueueStatusDTO = {
+			hasJoinedAnyQueue: true,
+			hasJoinedThisRestaurantQueue: true,
+			isGuestUser: false,
+			isQueueStatusAvailable: true,
 		};
 
 		mockQueueService.getQueueStatus.mockResolvedValueOnce(mockQueueStatus);
