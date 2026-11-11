@@ -35,6 +35,30 @@ export const ANALYTICS_ERROR_CODES = {
 export type AnalyticsErrorCode =
 	(typeof ANALYTICS_ERROR_CODES)[keyof typeof ANALYTICS_ERROR_CODES];
 
+export const ANALYTICS_SECTION_STATUS = {
+	AVAILABLE: "AVAILABLE",
+	UNAVAILABLE: "UNAVAILABLE",
+} as const;
+
+export type AnalyticsSectionStatus =
+	(typeof ANALYTICS_SECTION_STATUS)[keyof typeof ANALYTICS_SECTION_STATUS];
+
+export const PROMISE_STATUS = {
+	FULFILLED: "fulfilled",
+	REJECTED: "rejected",
+} as const;
+
+export type PromiseStatus = (typeof PROMISE_STATUS)[keyof typeof PROMISE_STATUS];
+
+export const PRODUCT_CLASSIFICATIONS = {
+	ZERO_SALES: "ZERO_SALES",
+	LOW_VOLUME: "LOW_VOLUME",
+	NORMAL: "NORMAL",
+} as const;
+
+export type ProductClassification =
+	(typeof PRODUCT_CLASSIFICATIONS)[keyof typeof PRODUCT_CLASSIFICATIONS];
+
 export const ANALYTICS_FALLBACKS = {
 	UNKNOWN_MENU_ITEM: "Unknown Item",
 	DEFAULT_LEAP_YEAR: 2024,

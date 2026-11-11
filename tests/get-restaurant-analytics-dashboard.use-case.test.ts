@@ -110,6 +110,14 @@ describe("GetRestaurantAnalyticsDashboardUseCase", () => {
 
 	beforeEach(() => {
 		mockRepo = {
+			getPlatformRestaurantGrowthMetrics: jest
+				.fn<IRestaurantAnalyticsRepository["getPlatformRestaurantGrowthMetrics"]>()
+				.mockResolvedValue({
+					totalRestaurants: 0,
+					onboardingFunnel: [],
+					onboardingTrend: [],
+					geographicBreakdown: [],
+				}),
 			getTotalRestaurantsCount: jest
 				.fn<IRestaurantAnalyticsRepository["getTotalRestaurantsCount"]>()
 				.mockResolvedValue(0),
@@ -162,18 +170,14 @@ describe("GetRestaurantAnalyticsDashboardUseCase", () => {
 	});
 
 	it("1. Successful aggregation of restaurant order, revenue, operations, and product analytics", async () => {
-		const result = await useCase.execute(
-			{
-				restaurantId,
-				interval: "MONTH",
-				year: 2026,
-				month: 11,
-				status: "ALL",
-				page: 1,
-				limit: 10,
-			},
-			"owner-user-123",
-		);
+		const result = await useCase.execute(restaurantId, {
+			interval: "MONTH",
+			year: 2026,
+			month: 11,
+			status: "ALL",
+			page: 1,
+			limit: 10,
+		});
 
 		expect(result.restaurantId).toBe(restaurantId);
 		expect(result.overview.revenue).toEqual({

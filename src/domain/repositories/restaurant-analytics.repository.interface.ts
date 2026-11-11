@@ -21,7 +21,18 @@ export interface ActiveMenuItemInfo {
 	isAvailable: boolean;
 }
 
+export interface PlatformRestaurantGrowthData {
+	totalRestaurants: number;
+	onboardingFunnel: FunnelStageCount[];
+	onboardingTrend: OnboardingTrendPoint[];
+	geographicBreakdown: GeographicBreakdownPoint[];
+}
+
 export interface IRestaurantAnalyticsRepository {
+	getPlatformRestaurantGrowthMetrics(
+		from?: string,
+		to?: string,
+	): Promise<PlatformRestaurantGrowthData>;
 	getTotalRestaurantsCount(from?: string, to?: string): Promise<number>;
 	getActiveSubscribedCount(): Promise<number>;
 	getSubscriptionTierDistribution(): Promise<Record<string, number>>;

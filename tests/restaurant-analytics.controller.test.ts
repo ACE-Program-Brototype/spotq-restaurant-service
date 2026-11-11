@@ -127,10 +127,7 @@ describe("RestaurantAnalyticsController", () => {
 			next,
 		);
 
-		expect(useCase.execute).toHaveBeenCalledWith(
-			{ restaurantId, ...query },
-			"owner-123",
-		);
+		expect(useCase.execute).toHaveBeenCalledWith(restaurantId, query);
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		expect(res.json).toHaveBeenCalledWith(
 			expect.objectContaining({

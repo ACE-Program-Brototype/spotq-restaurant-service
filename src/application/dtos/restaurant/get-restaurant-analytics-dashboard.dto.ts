@@ -1,11 +1,13 @@
-import type { SectionErrorDto } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
+import type { SectionErrorDTO } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
 import type {
+	ANALYTICS_SECTION_STATUS,
 	AnalyticsPeriod,
 	OrderStatusFilter,
+	ProductClassification,
 } from "@/shared/constants/analytics.constants.ts";
 
-export interface GetRestaurantAnalyticsDashboardQueryDto {
-	restaurantId: string;
+export interface GetRestaurantAnalyticsDashboardInputDTO {
+	restaurantId?: string;
 	interval?: AnalyticsPeriod;
 	day?: number;
 	month?: number;
@@ -15,64 +17,80 @@ export interface GetRestaurantAnalyticsDashboardQueryDto {
 	limit?: number;
 }
 
-export interface RevenueMetricDto {
+export interface RevenueMetricDTO {
 	netSalesRupees: number;
 	discountRupees: number;
 	totalBillAmountRupees: number;
 	growthPercentage: number;
 }
 
-export type RevenueSectionResultDto =
-	| ({ status: "AVAILABLE" } & RevenueMetricDto)
-	| { status: "UNAVAILABLE"; error: SectionErrorDto };
+export type RevenueSectionResultDTO =
+	| ({ status: typeof ANALYTICS_SECTION_STATUS.AVAILABLE } & RevenueMetricDTO)
+	| {
+			status: typeof ANALYTICS_SECTION_STATUS.UNAVAILABLE;
+			error: SectionErrorDTO;
+	  };
 
-export interface OrderMetricDto {
+export interface OrderMetricDTO {
 	totalOrderCount: number;
 	dineInCount: number;
 	takeawayCount: number;
 	growthPercentage: number;
 }
 
-export type OrderSectionResultDto =
-	| ({ status: "AVAILABLE" } & OrderMetricDto)
-	| { status: "UNAVAILABLE"; error: SectionErrorDto };
+export type OrderSectionResultDTO =
+	| ({ status: typeof ANALYTICS_SECTION_STATUS.AVAILABLE } & OrderMetricDTO)
+	| {
+			status: typeof ANALYTICS_SECTION_STATUS.UNAVAILABLE;
+			error: SectionErrorDTO;
+	  };
 
-export interface OperationMetricDto {
+export interface OperationMetricDTO {
 	dinersServedCount: number;
 	uniqueCustomersCount: number;
 }
 
-export type OperationSectionResultDto =
-	| ({ status: "AVAILABLE" } & OperationMetricDto)
-	| { status: "UNAVAILABLE"; error: SectionErrorDto };
+export type OperationSectionResultDTO =
+	| ({
+			status: typeof ANALYTICS_SECTION_STATUS.AVAILABLE;
+	  } & OperationMetricDTO)
+	| {
+			status: typeof ANALYTICS_SECTION_STATUS.UNAVAILABLE;
+			error: SectionErrorDTO;
+	  };
 
-export interface OrderStatusDistributionDto {
+export interface OrderStatusDistributionDTO {
 	status: string;
 	count: number;
 	percentage: number;
 	amountRupees: number;
 }
 
-export interface OrderStatusBreakdownDto {
+export interface OrderStatusBreakdownDTO {
 	totalOrdersTracked: number;
-	distribution: OrderStatusDistributionDto[];
+	distribution: OrderStatusDistributionDTO[];
 }
 
-export type OrderStatusBreakdownResultDto =
-	| ({ status: "AVAILABLE" } & OrderStatusBreakdownDto)
-	| { status: "UNAVAILABLE"; error: SectionErrorDto };
+export type OrderStatusBreakdownResultDTO =
+	| ({
+			status: typeof ANALYTICS_SECTION_STATUS.AVAILABLE;
+	  } & OrderStatusBreakdownDTO)
+	| {
+			status: typeof ANALYTICS_SECTION_STATUS.UNAVAILABLE;
+			error: SectionErrorDTO;
+	  };
 
-export interface ProductItemDto {
+export interface ProductItemDTO {
 	menuItemId: string;
 	name: string;
 	quantitySold: number;
 	salesRupees: number;
 	isAvailable: boolean;
 	percentageOfTotalSales?: number;
-	classification?: "ZERO_SALES" | "LOW_VOLUME" | "NORMAL";
+	classification?: ProductClassification;
 }
 
-export interface ProductRankingPaginationDto {
+export interface ProductRankingPaginationDTO {
 	totalItems: number;
 	totalPages: number;
 	currentPage: number;
@@ -81,24 +99,27 @@ export interface ProductRankingPaginationDto {
 	hasPrevPage: boolean;
 }
 
-export interface ProductSectionAvailableDto {
-	status: "AVAILABLE";
+export interface ProductSectionAvailableDTO {
+	status: typeof ANALYTICS_SECTION_STATUS.AVAILABLE;
 	totalProductsCount: number;
 	topSelling: {
-		items: ProductItemDto[];
-		pagination: ProductRankingPaginationDto;
+		items: ProductItemDTO[];
+		pagination: ProductRankingPaginationDTO;
 	};
 	slowMoving: {
-		items: ProductItemDto[];
-		pagination: ProductRankingPaginationDto;
+		items: ProductItemDTO[];
+		pagination: ProductRankingPaginationDTO;
 	};
 }
 
-export type ProductSectionResultDto =
-	| ProductSectionAvailableDto
-	| { status: "UNAVAILABLE"; error: SectionErrorDto };
+export type ProductSectionResultDTO =
+	| ProductSectionAvailableDTO
+	| {
+			status: typeof ANALYTICS_SECTION_STATUS.UNAVAILABLE;
+			error: SectionErrorDTO;
+	  };
 
-export interface RestaurantAnalyticsDashboardFiltersDto {
+export interface RestaurantAnalyticsDashboardFiltersDTO {
 	interval: AnalyticsPeriod;
 	day?: number | null;
 	month: number;
@@ -108,15 +129,36 @@ export interface RestaurantAnalyticsDashboardFiltersDto {
 	limit: number;
 }
 
-export interface RestaurantAnalyticsDashboardResponseDto {
+export interface RestaurantAnalyticsDashboardOutputDTO {
 	restaurantId: string;
 	overview: {
-		revenue: RevenueSectionResultDto;
-		orders: OrderSectionResultDto;
-		operations: OperationSectionResultDto;
+		revenue: RevenueSectionResultDTO;
+		orders: OrderSectionResultDTO;
+		operations: OperationSectionResultDTO;
 	};
-	orderStatusBreakdown: OrderStatusBreakdownResultDto;
-	products: ProductSectionResultDto;
-	filters: RestaurantAnalyticsDashboardFiltersDto;
+	orderStatusBreakdown: OrderStatusBreakdownResultDTO;
+	products: ProductSectionResultDTO;
+	filters: RestaurantAnalyticsDashboardFiltersDTO;
 	generatedAt: string;
 }
+
+// Backwards-compatible aliases
+export type GetRestaurantAnalyticsDashboardQueryDto =
+	GetRestaurantAnalyticsDashboardInputDTO;
+export type RevenueMetricDto = RevenueMetricDTO;
+export type RevenueSectionResultDto = RevenueSectionResultDTO;
+export type OrderMetricDto = OrderMetricDTO;
+export type OrderSectionResultDto = OrderSectionResultDTO;
+export type OperationMetricDto = OperationMetricDTO;
+export type OperationSectionResultDto = OperationSectionResultDTO;
+export type OrderStatusDistributionDto = OrderStatusDistributionDTO;
+export type OrderStatusBreakdownDto = OrderStatusBreakdownDTO;
+export type OrderStatusBreakdownResultDto = OrderStatusBreakdownResultDTO;
+export type ProductItemDto = ProductItemDTO;
+export type ProductRankingPaginationDto = ProductRankingPaginationDTO;
+export type ProductSectionAvailableDto = ProductSectionAvailableDTO;
+export type ProductSectionResultDto = ProductSectionResultDTO;
+export type RestaurantAnalyticsDashboardFiltersDto =
+	RestaurantAnalyticsDashboardFiltersDTO;
+export type RestaurantAnalyticsDashboardResponseDto =
+	RestaurantAnalyticsDashboardOutputDTO;

@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import type {
-	CustomerGrowthSectionDto,
-	FunnelStageItemDto,
-	GetPlatformDashboardAnalyticsQueryDto,
-	PlatformDashboardAnalyticsResponseDto,
-	RevenueSectionDto,
+	CustomerGrowthSectionDTO,
+	FunnelStageItemDTO,
+	GetPlatformDashboardAnalyticsInputDTO,
+	PlatformDashboardAnalyticsOutputDTO,
+	RevenueSectionDTO,
 } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type { IPaymentAnalyticsService } from "@/application/ports/services/payment-analytics.service.port.ts";
@@ -14,6 +14,9 @@ import { TYPES } from "@/config/di/types.ts";
 import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
 import {
 	ANALYTICS_ERROR_CODES,
+	ANALYTICS_SECTION_STATUS,
+	BILLING_CYCLES,
+	PROMISE_STATUS,
 	type AnalyticsPeriod,
 	type BillingCycle,
 } from "@/shared/constants/analytics.constants.ts";
@@ -36,87 +39,65 @@ export class GetPlatformDashboardAnalyticsUseCase
 	) {}
 
 	public async execute(
-		query: GetPlatformDashboardAnalyticsQueryDto,
-		adminUserId?: string,
-	): Promise<PlatformDashboardAnalyticsResponseDto> {
+		input: GetPlatformDashboardAnalyticsInputDTO = {},
+	): Promise<PlatformDashboardAnalyticsOutputDTO> {
 		const resolvedRange = resolveAnalyticsDateRange({
-			period: query.period as AnalyticsPeriod | undefined,
-			day: query.day,
-			month: query.month,
-			year: query.year,
-			fiscalYear: query.fiscalYear,
-			from: query.from,
-			to: query.to,
+			period: input.period as AnalyticsPeriod | undefined,
+			day: input.day,
+			month: input.month,
+			year: input.year,
 		});
 
-		const billingCycle: BillingCycle = (query.billingCycle ??
-			"ALL") as BillingCycle;
+		const billingCycle: BillingCycle =
+			input.billingCycle ?? BILLING_CYCLES.ALL;
 
-		// 1. Fetch local database metrics using consistent timezone boundaries
-		const totalRestaurants =
-			await this.restaurantAnalyticsRepository.getTotalRestaurantsCount(
+		// 1. Fetch local database metrics concurrently via single repository aggregation method
+		const restaurantGrowth =
+			await this.restaurantAnalyticsRepository.getPlatformRestaurantGrowthMetrics(
 				resolvedRange.fromIso,
 				resolvedRange.toIso,
 			);
-		const rawFunnel =
-			await this.restaurantAnalyticsRepository.getOnboardingFunnel(
-				resolvedRange.fromIso,
-				resolvedRange.toIso,
-			);
-		const onboardingTrend =
-			await this.restaurantAnalyticsRepository.getOnboardingTrend(
-				resolvedRange.fromIso,
-				resolvedRange.toIso,
-			);
-		const geographicBreakdown =
-			await this.restaurantAnalyticsRepository.getGeographicBreakdown();
 
 		// Format onboarding funnel stages in order
-		const onboardingFunnel: FunnelStageItemDto[] = rawFunnel.map((item) => ({
-			stage: item.stage,
-			count: item.count,
-			label: item.label || item.stage,
-		}));
+		const onboardingFunnel: FunnelStageItemDTO[] =
+			restaurantGrowth.onboardingFunnel.map((item) => ({
+				stage: item.stage,
+				count: item.count,
+				label: item.label || item.stage,
+			}));
 
 		// 2. Fetch external microservice metrics concurrently via Promise.allSettled
 		const [paymentResultSettled, userResultSettled] = await Promise.allSettled([
-			this.paymentAnalyticsService.getSubscriptionSummary(
-				{
-					period: resolvedRange.period,
-					day: resolvedRange.day ?? undefined,
-					month: resolvedRange.month,
-					year: resolvedRange.year,
-					billingCycle,
-				},
-				adminUserId,
-			),
-			this.userAnalyticsService.getUserSummary(
-				{
-					period: resolvedRange.period,
-					day: resolvedRange.day ?? undefined,
-					month: resolvedRange.month,
-					year: resolvedRange.year,
-				},
-				adminUserId,
-			),
+			this.paymentAnalyticsService.getSubscriptionSummary({
+				period: resolvedRange.period,
+				day: resolvedRange.day ?? undefined,
+				month: resolvedRange.month,
+				year: resolvedRange.year,
+				billingCycle,
+			}),
+			this.userAnalyticsService.getUserSummary({
+				period: resolvedRange.period,
+				day: resolvedRange.day ?? undefined,
+				month: resolvedRange.month,
+				year: resolvedRange.year,
+			}),
 		]);
 
 		// 3. Process Payment Service response with Circuit Breaker resilience
 		let activeSubscribedRestaurants: number | null = null;
 		let subscriptionTierDistribution: Record<string, number> | null = null;
-		let revenue: RevenueSectionDto;
+		let revenue: RevenueSectionDTO;
 
 		if (
-			paymentResultSettled.status === "fulfilled" &&
+			paymentResultSettled.status === PROMISE_STATUS.FULFILLED &&
 			paymentResultSettled.value !== null
 		) {
 			const paymentData = paymentResultSettled.value;
 			activeSubscribedRestaurants = paymentData.activeSubscribedRestaurants;
-			// Authoritative subscription tier distribution from Payment Service (no fabricated categories)
 			subscriptionTierDistribution = paymentData.subscriptionTierDistribution;
 
 			revenue = {
-				status: "AVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 				grossSubscriptionRevenueRupees:
 					paymentData.grossSubscriptionRevenueRupees,
 				currentMrrRupees: paymentData.currentMrrRupees,
@@ -127,9 +108,8 @@ export class GetPlatformDashboardAnalyticsUseCase
 		} else {
 			this.logger.warn(
 				{
-					adminUserId,
 					reason:
-						paymentResultSettled.status === "rejected"
+						paymentResultSettled.status === PROMISE_STATUS.REJECTED
 							? paymentResultSettled.reason
 							: "Payment service returned null",
 				},
@@ -140,7 +120,7 @@ export class GetPlatformDashboardAnalyticsUseCase
 			activeSubscribedRestaurants = null;
 			subscriptionTierDistribution = null;
 			revenue = {
-				status: "UNAVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.UNAVAILABLE,
 				error: {
 					code: ANALYTICS_ERROR_CODES.PAYMENT_SERVICE_UNAVAILABLE,
 					message: messages.SUBSCRIPTION_REVENUE_METRICS_UNAVAILABLE,
@@ -149,24 +129,23 @@ export class GetPlatformDashboardAnalyticsUseCase
 		}
 
 		// 4. Process User Service response with Circuit Breaker resilience
-		let customerGrowth: CustomerGrowthSectionDto;
+		let customerGrowth: CustomerGrowthSectionDTO;
 
 		if (
-			userResultSettled.status === "fulfilled" &&
+			userResultSettled.status === PROMISE_STATUS.FULFILLED &&
 			userResultSettled.value !== null
 		) {
 			const userData = userResultSettled.value;
 			customerGrowth = {
-				status: "AVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 				totalRegisteredCustomers: userData.totalRegisteredCustomers,
 				newCustomersInPeriod: userData.newCustomersInPeriod,
 			};
 		} else {
 			this.logger.warn(
 				{
-					adminUserId,
 					reason:
-						userResultSettled.status === "rejected"
+						userResultSettled.status === PROMISE_STATUS.REJECTED
 							? userResultSettled.reason
 							: "User service returned null",
 				},
@@ -174,7 +153,7 @@ export class GetPlatformDashboardAnalyticsUseCase
 			);
 
 			customerGrowth = {
-				status: "UNAVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.UNAVAILABLE,
 				error: {
 					code: ANALYTICS_ERROR_CODES.USER_SERVICE_UNAVAILABLE,
 					message: messages.CUSTOMER_GROWTH_METRICS_UNAVAILABLE,
@@ -184,7 +163,7 @@ export class GetPlatformDashboardAnalyticsUseCase
 
 		return {
 			overview: {
-				totalRestaurants,
+				totalRestaurants: restaurantGrowth.totalRestaurants,
 				activeSubscribedRestaurants,
 				subscriptionTierDistribution,
 			},
@@ -192,8 +171,8 @@ export class GetPlatformDashboardAnalyticsUseCase
 			revenue,
 			growth: {
 				onboardingFunnel,
-				onboardingTrend,
-				geographicBreakdown,
+				onboardingTrend: restaurantGrowth.onboardingTrend,
+				geographicBreakdown: restaurantGrowth.geographicBreakdown,
 			},
 			filters: {
 				period: resolvedRange.period,
@@ -201,8 +180,8 @@ export class GetPlatformDashboardAnalyticsUseCase
 				month: resolvedRange.month,
 				year: resolvedRange.year,
 				billingCycle,
-				from: query.from ?? resolvedRange.fromIso,
-				to: query.to ?? resolvedRange.toIso,
+				from: resolvedRange.fromIso,
+				to: resolvedRange.toIso,
 			},
 			generatedAt: new Date().toISOString(),
 		};

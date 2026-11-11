@@ -1,11 +1,11 @@
 import type {
-	GetRestaurantAnalyticsDashboardQueryDto,
-	RestaurantAnalyticsDashboardResponseDto,
+	GetRestaurantAnalyticsDashboardInputDTO,
+	RestaurantAnalyticsDashboardOutputDTO,
 } from "@/application/dtos/restaurant/get-restaurant-analytics-dashboard.dto.ts";
 
 export interface IGetRestaurantAnalyticsDashboardUseCase {
 	execute(
-		query: GetRestaurantAnalyticsDashboardQueryDto,
-		callerUserId?: string,
-	): Promise<RestaurantAnalyticsDashboardResponseDto>;
+		restaurantId: string,
+		input?: GetRestaurantAnalyticsDashboardInputDTO,
+	): Promise<RestaurantAnalyticsDashboardOutputDTO>;
 }

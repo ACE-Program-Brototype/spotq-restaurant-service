@@ -251,6 +251,36 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 		});
 	});
 
+	describe("getPlatformRestaurantGrowthMetrics", () => {
+		it("should execute queries in parallel and return aggregated growth metrics", async () => {
+			mockPrisma.restaurant.count.mockResolvedValueOnce(50);
+			mockPrisma.$queryRaw
+				.mockResolvedValueOnce([
+					{
+						registered: 50,
+						documents_uploaded: 40,
+						approved_active: 30,
+						first_subscription: 20,
+					},
+				])
+				.mockResolvedValueOnce([{ period: "2026-01", count: 10 }])
+				.mockResolvedValueOnce([
+					{ city: "Kochi", state: "Kerala", restaurantCount: 25 },
+				]);
+
+			const result = await repository.getPlatformRestaurantGrowthMetrics();
+
+			expect(result.totalRestaurants).toBe(50);
+			expect(result.onboardingFunnel).toHaveLength(4);
+			expect(result.onboardingTrend).toEqual([
+				{ period: "2026-01", count: 10 },
+			]);
+			expect(result.geographicBreakdown).toEqual([
+				{ city: "Kochi", state: "Kerala", restaurantCount: 25 },
+			]);
+		});
+	});
+
 	describe("getTotalActiveProductsCount", () => {
 		it("should count menuItems with isAvailable: true and isDeleted: false", async () => {
 			mockPrisma.menuItem.count.mockResolvedValueOnce(18);

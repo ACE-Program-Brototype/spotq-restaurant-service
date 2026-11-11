@@ -101,7 +101,7 @@ describe("AdminDashboardAnalyticsController", () => {
 			next,
 		);
 
-		expect(useCase.execute).toHaveBeenCalledWith(query, "admin-123");
+		expect(useCase.execute).toHaveBeenCalledWith(query);
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
 		expect(res.json).toHaveBeenCalledWith(
 			expect.objectContaining({
@@ -114,10 +114,7 @@ describe("AdminDashboardAnalyticsController", () => {
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it("should fallback to req.userId when req.user is undefined", async () => {
-		req = {
-			userId: "admin-fallback-789",
-		};
+	it("should pass query params correctly when executing use case", async () => {
 		res.locals = {
 			query: { billingCycle: "MONTHLY" },
 		};
@@ -128,21 +125,15 @@ describe("AdminDashboardAnalyticsController", () => {
 			next,
 		);
 
-		expect(useCase.execute).toHaveBeenCalledWith(
-			{ billingCycle: "MONTHLY" },
-			"admin-fallback-789",
-		);
+		expect(useCase.execute).toHaveBeenCalledWith({
+			billingCycle: "MONTHLY",
+		});
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
 	});
 
 	it("should fallback to req.query if res.locals.query is missing", async () => {
 		req = {
 			query: { billingCycle: "YEARLY" } as never,
-			user: {
-				userId: "admin-456",
-				email: "admin@spotq.com",
-				role: "admin",
-			} as never,
 		};
 		res.locals = {};
 
@@ -152,10 +143,9 @@ describe("AdminDashboardAnalyticsController", () => {
 			next,
 		);
 
-		expect(useCase.execute).toHaveBeenCalledWith(
-			{ billingCycle: "YEARLY" },
-			"admin-456",
-		);
+		expect(useCase.execute).toHaveBeenCalledWith({
+			billingCycle: "YEARLY",
+		});
 	});
 
 	it("should pass error to next when use case execution throws", async () => {

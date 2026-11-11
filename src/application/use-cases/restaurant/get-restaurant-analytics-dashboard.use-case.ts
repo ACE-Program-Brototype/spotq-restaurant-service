@@ -1,13 +1,13 @@
 import { inject, injectable } from "inversify";
 import type {
-	GetRestaurantAnalyticsDashboardQueryDto,
-	OperationSectionResultDto,
-	OrderSectionResultDto,
-	OrderStatusBreakdownResultDto,
-	ProductItemDto,
-	ProductSectionResultDto,
-	RestaurantAnalyticsDashboardResponseDto,
-	RevenueSectionResultDto,
+	GetRestaurantAnalyticsDashboardInputDTO,
+	OperationSectionResultDTO,
+	OrderSectionResultDTO,
+	OrderStatusBreakdownResultDTO,
+	ProductItemDTO,
+	ProductSectionResultDTO,
+	RestaurantAnalyticsDashboardOutputDTO,
+	RevenueSectionResultDTO,
 } from "@/application/dtos/restaurant/get-restaurant-analytics-dashboard.dto.ts";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type { IOrderAnalyticsService } from "@/application/ports/services/order-analytics.service.port.ts";
@@ -17,6 +17,10 @@ import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/resta
 import {
 	ANALYTICS_ERROR_CODES,
 	ANALYTICS_FALLBACKS,
+	ANALYTICS_SECTION_STATUS,
+	ORDER_STATUS_FILTERS,
+	PRODUCT_CLASSIFICATIONS,
+	PROMISE_STATUS,
 	type AnalyticsPeriod,
 	type OrderStatusFilter,
 } from "@/shared/constants/analytics.constants.ts";
@@ -37,21 +41,29 @@ export class GetRestaurantAnalyticsDashboardUseCase
 	) {}
 
 	public async execute(
-		query: GetRestaurantAnalyticsDashboardQueryDto,
-		callerUserId?: string,
-	): Promise<RestaurantAnalyticsDashboardResponseDto> {
+		restaurantIdOrInput: string | GetRestaurantAnalyticsDashboardInputDTO,
+		inputDto?: GetRestaurantAnalyticsDashboardInputDTO,
+	): Promise<RestaurantAnalyticsDashboardOutputDTO> {
+		const restaurantId =
+			typeof restaurantIdOrInput === "string"
+				? restaurantIdOrInput
+				: (restaurantIdOrInput.restaurantId ?? "");
+		const input =
+			typeof restaurantIdOrInput === "string"
+				? (inputDto ?? {})
+				: restaurantIdOrInput;
+
 		const resolvedRange = resolveAnalyticsDateRange({
-			period: query.interval as AnalyticsPeriod | undefined,
-			day: query.day,
-			month: query.month,
-			year: query.year,
+			period: input.interval as AnalyticsPeriod | undefined,
+			day: input.day,
+			month: input.month,
+			year: input.year,
 		});
 
-		const status: OrderStatusFilter = (query.status ??
-			"ALL") as OrderStatusFilter;
-		const page: number = Math.max(1, query.page ?? 1);
-		const limit: number = Math.max(1, Math.min(100, query.limit ?? 10));
-		const restaurantId = query.restaurantId;
+		const status: OrderStatusFilter =
+			input.status ?? ORDER_STATUS_FILTERS.ALL;
+		const page: number = Math.max(1, input.page ?? 1);
+		const limit: number = Math.max(1, Math.min(100, input.limit ?? 10));
 
 		// 1. Fetch local menu items and active product count concurrently
 		const [totalProductsCount, allMenuItems] = await Promise.all([
@@ -64,39 +76,31 @@ export class GetRestaurantAnalyticsDashboardUseCase
 		// 2. Fetch Order Service metrics concurrently via Promise.allSettled
 		const [orderSummarySettled, productAnalyticsSettled] =
 			await Promise.allSettled([
-				this.orderAnalyticsService.getOrderSummary(
-					restaurantId,
-					{
-						interval: resolvedRange.period,
-						day: resolvedRange.day ?? undefined,
-						month: resolvedRange.month,
-						year: resolvedRange.year,
-						status,
-					},
-					callerUserId,
-				),
-				this.orderAnalyticsService.getProductAnalytics(
-					restaurantId,
-					{
-						interval: resolvedRange.period,
-						day: resolvedRange.day ?? undefined,
-						month: resolvedRange.month,
-						year: resolvedRange.year,
-						page,
-						limit,
-					},
-					callerUserId,
-				),
+				this.orderAnalyticsService.getOrderSummary(restaurantId, {
+					interval: resolvedRange.period,
+					day: resolvedRange.day ?? undefined,
+					month: resolvedRange.month,
+					year: resolvedRange.year,
+					status,
+				}),
+				this.orderAnalyticsService.getProductAnalytics(restaurantId, {
+					interval: resolvedRange.period,
+					day: resolvedRange.day ?? undefined,
+					month: resolvedRange.month,
+					year: resolvedRange.year,
+					page,
+					limit,
+				}),
 			]);
 
 		// 3. Process Order Summary with Circuit Breaker resilience
-		let revenue: RevenueSectionResultDto;
-		let orders: OrderSectionResultDto;
-		let operations: OperationSectionResultDto;
-		let orderStatusBreakdown: OrderStatusBreakdownResultDto;
+		let revenue: RevenueSectionResultDTO;
+		let orders: OrderSectionResultDTO;
+		let operations: OperationSectionResultDTO;
+		let orderStatusBreakdown: OrderStatusBreakdownResultDTO;
 
 		if (
-			orderSummarySettled.status === "fulfilled" &&
+			orderSummarySettled.status === PROMISE_STATUS.FULFILLED &&
 			orderSummarySettled.value !== null
 		) {
 			const summary = orderSummarySettled.value;
@@ -121,26 +125,26 @@ export class GetRestaurantAnalyticsDashboardUseCase
 				{};
 
 			revenue = {
-				status: "AVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 				netSalesRupees: rev.netSalesRupees ?? 0,
 				discountRupees: rev.discountRupees ?? 0,
 				totalBillAmountRupees: rev.totalBillAmountRupees ?? 0,
 				growthPercentage: rev.growthPercentage ?? 0,
 			};
 			orders = {
-				status: "AVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 				totalOrderCount: ord.totalOrderCount ?? 0,
 				dineInCount: ord.dineInCount ?? 0,
 				takeawayCount: ord.takeawayCount ?? 0,
 				growthPercentage: ord.growthPercentage ?? 0,
 			};
 			operations = {
-				status: "AVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 				dinersServedCount: ops.dinersServedCount ?? 0,
 				uniqueCustomersCount: ops.uniqueCustomersCount ?? 0,
 			};
 			orderStatusBreakdown = {
-				status: "AVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 				totalOrdersTracked: osb.totalOrdersTracked ?? 0,
 				distribution: osb.distribution ?? [],
 			};
@@ -148,9 +152,8 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			this.logger.warn(
 				{
 					restaurantId,
-					callerUserId,
 					reason:
-						orderSummarySettled.status === "rejected"
+						orderSummarySettled.status === PROMISE_STATUS.REJECTED
 							? orderSummarySettled.reason
 							: "Order service returned null",
 				},
@@ -158,28 +161,28 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			);
 
 			revenue = {
-				status: "UNAVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.UNAVAILABLE,
 				error: {
 					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
 					message: messages.REVENUE_METRICS_UNAVAILABLE,
 				},
 			};
 			orders = {
-				status: "UNAVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.UNAVAILABLE,
 				error: {
 					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
 					message: messages.ORDER_METRICS_UNAVAILABLE,
 				},
 			};
 			operations = {
-				status: "UNAVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.UNAVAILABLE,
 				error: {
 					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
 					message: messages.OPERATIONS_METRICS_UNAVAILABLE,
 				},
 			};
 			orderStatusBreakdown = {
-				status: "UNAVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.UNAVAILABLE,
 				error: {
 					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
 					message: messages.ORDER_STATUS_BREAKDOWN_UNAVAILABLE,
@@ -188,10 +191,10 @@ export class GetRestaurantAnalyticsDashboardUseCase
 		}
 
 		// 4. Process Product Analytics with Circuit Breaker resilience and Local Catalog Decoration
-		let products: ProductSectionResultDto;
+		let products: ProductSectionResultDTO;
 
 		if (
-			productAnalyticsSettled.status === "fulfilled" &&
+			productAnalyticsSettled.status === PROMISE_STATUS.FULFILLED &&
 			productAnalyticsSettled.value !== null
 		) {
 			const productData = productAnalyticsSettled.value;
@@ -202,7 +205,7 @@ export class GetRestaurantAnalyticsDashboardUseCase
 
 			if (productData.totalProductsSold === 0) {
 				// Zero-sales scenario: all active dishes in catalog classified as ZERO_SALES with slice pagination
-				const activeDishes: ProductItemDto[] = allMenuItems
+				const activeDishes: ProductItemDTO[] = allMenuItems
 					.filter((item) => item.isAvailable)
 					.map((item) => ({
 						menuItemId: item.id,
@@ -210,7 +213,7 @@ export class GetRestaurantAnalyticsDashboardUseCase
 						quantitySold: 0,
 						salesRupees: 0,
 						isAvailable: true,
-						classification: "ZERO_SALES",
+						classification: PRODUCT_CLASSIFICATIONS.ZERO_SALES,
 					}));
 
 				const totalItems = activeDishes.length;
@@ -222,7 +225,7 @@ export class GetRestaurantAnalyticsDashboardUseCase
 				);
 
 				products = {
-					status: "AVAILABLE",
+					status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 					totalProductsCount,
 					topSelling: {
 						items: [],
@@ -258,7 +261,7 @@ export class GetRestaurantAnalyticsDashboardUseCase
 					isAvailable?: boolean;
 					percentageOfTotalSales?: number;
 					classification?: "ZERO_SALES" | "LOW_VOLUME" | "NORMAL";
-				}): ProductItemDto => ({
+				}): ProductItemDTO => ({
 					menuItemId: item.menuItemId,
 					name:
 						item.name ||
@@ -273,7 +276,7 @@ export class GetRestaurantAnalyticsDashboardUseCase
 				});
 
 				products = {
-					status: "AVAILABLE",
+					status: ANALYTICS_SECTION_STATUS.AVAILABLE,
 					totalProductsCount,
 					topSelling: {
 						items: (productData.topSelling?.items ?? []).map(decorateItem),
@@ -303,9 +306,8 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			this.logger.warn(
 				{
 					restaurantId,
-					callerUserId,
 					reason:
-						productAnalyticsSettled.status === "rejected"
+						productAnalyticsSettled.status === PROMISE_STATUS.REJECTED
 							? productAnalyticsSettled.reason
 							: "Order service returned null",
 				},
@@ -313,7 +315,7 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			);
 
 			products = {
-				status: "UNAVAILABLE",
+				status: ANALYTICS_SECTION_STATUS.UNAVAILABLE,
 				error: {
 					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
 					message: messages.PRODUCT_PERFORMANCE_METRICS_UNAVAILABLE,

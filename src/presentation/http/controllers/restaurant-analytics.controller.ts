@@ -1,9 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import { inject, injectable } from "inversify";
-import type { GetRestaurantAnalyticsDashboardQueryDto } from "@/application/dtos/restaurant/get-restaurant-analytics-dashboard.dto.ts";
+import type { GetRestaurantAnalyticsDashboardInputDTO } from "@/application/dtos/restaurant/get-restaurant-analytics-dashboard.dto.ts";
 import type { IGetRestaurantAnalyticsDashboardUseCase } from "@/application/ports/use-cases/restaurant/get-restaurant-analytics-dashboard.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
-import type { AuthenticatedOwner } from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { sendSuccessResponse } from "@/shared/response/api-response.ts";
@@ -25,18 +24,13 @@ export class RestaurantAnalyticsController {
 				restaurantId: string;
 			};
 			const query = (res.locals.query ?? req.query) as Omit<
-				GetRestaurantAnalyticsDashboardQueryDto,
+				GetRestaurantAnalyticsDashboardInputDTO,
 				"restaurantId"
 			>;
-			const owner = req.user as AuthenticatedOwner | undefined;
-			const callerUserId = owner?.userId ?? req.userId;
 
 			const result = await this.getRestaurantAnalyticsDashboardUseCase.execute(
-				{
-					restaurantId: params.restaurantId,
-					...query,
-				},
-				callerUserId,
+				params.restaurantId,
+				query,
 			);
 
 			sendSuccessResponse(

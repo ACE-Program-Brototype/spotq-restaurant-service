@@ -7,6 +7,7 @@ import type {
 	GeographicBreakdownPoint,
 	IRestaurantAnalyticsRepository,
 	OnboardingTrendPoint,
+	PlatformRestaurantGrowthData,
 } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
 import { REPORTING_TIMEZONE } from "@/shared/constants/analytics.constants.ts";
 
@@ -34,6 +35,30 @@ export class PrismaRestaurantAnalyticsRepository
 			createdAt.lte = new Date(to);
 		}
 		return { createdAt };
+	}
+
+	async getPlatformRestaurantGrowthMetrics(
+		from?: string,
+		to?: string,
+	): Promise<PlatformRestaurantGrowthData> {
+		const [
+			totalRestaurants,
+			onboardingFunnel,
+			onboardingTrend,
+			geographicBreakdown,
+		] = await Promise.all([
+			this.getTotalRestaurantsCount(from, to),
+			this.getOnboardingFunnel(from, to),
+			this.getOnboardingTrend(from, to),
+			this.getGeographicBreakdown(),
+		]);
+
+		return {
+			totalRestaurants,
+			onboardingFunnel,
+			onboardingTrend,
+			geographicBreakdown,
+		};
 	}
 
 	async getTotalRestaurantsCount(from?: string, to?: string): Promise<number> {

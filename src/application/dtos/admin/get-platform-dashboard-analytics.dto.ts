@@ -1,81 +1,95 @@
 import type {
+	ANALYTICS_SECTION_STATUS,
 	AnalyticsPeriod,
+	AnalyticsSectionStatus,
 	BillingCycle,
 } from "@/shared/constants/analytics.constants.ts";
 
-export interface GetPlatformDashboardAnalyticsQueryDto {
+export interface GetPlatformDashboardAnalyticsInputDTO {
 	period?: AnalyticsPeriod;
 	day?: number | null;
 	month?: number;
 	year?: number;
 	billingCycle?: BillingCycle;
-	// Legacy query parameters supported for backwards compatibility
-	from?: string;
-	to?: string;
-	fiscalYear?: number;
 }
 
-export type AnalyticsSectionStatus = "AVAILABLE" | "UNAVAILABLE";
+export type { AnalyticsSectionStatus };
 
-export interface SectionErrorDto {
+export interface SectionErrorDTO {
 	code: string;
 	message: string;
 }
 
-export interface CustomerGrowthSectionDto {
-	status: AnalyticsSectionStatus;
-	totalRegisteredCustomers?: number;
-	newCustomersInPeriod?: number;
-	error?: SectionErrorDto;
+export interface CustomerGrowthSectionAvailableDTO {
+	status: typeof ANALYTICS_SECTION_STATUS.AVAILABLE;
+	totalRegisteredCustomers: number;
+	newCustomersInPeriod: number;
 }
 
-export interface RevenueTimelinePointDto {
+export interface CustomerGrowthSectionUnavailableDTO {
+	status: typeof ANALYTICS_SECTION_STATUS.UNAVAILABLE;
+	error: SectionErrorDTO;
+}
+
+export type CustomerGrowthSectionDTO =
+	| CustomerGrowthSectionAvailableDTO
+	| CustomerGrowthSectionUnavailableDTO;
+
+export interface RevenueTimelinePointDTO {
 	bucketLabel: string;
 	grossRevenueRupees: number;
 	mrrRupees: number;
 	newSubscriptionsCount: number;
 }
 
-export interface RevenueSectionDto {
-	status: AnalyticsSectionStatus;
-	grossSubscriptionRevenueRupees?: number;
-	currentMrrRupees?: number;
-	currentArrRupees?: number;
-	growthPercentage?: number | null;
-	timeline?: RevenueTimelinePointDto[];
-	error?: SectionErrorDto;
+export interface RevenueSectionAvailableDTO {
+	status: typeof ANALYTICS_SECTION_STATUS.AVAILABLE;
+	grossSubscriptionRevenueRupees: number;
+	currentMrrRupees: number;
+	currentArrRupees: number;
+	growthPercentage: number | null;
+	timeline: RevenueTimelinePointDTO[];
 }
 
-export interface PlatformOverviewDto {
+export interface RevenueSectionUnavailableDTO {
+	status: typeof ANALYTICS_SECTION_STATUS.UNAVAILABLE;
+	error: SectionErrorDTO;
+}
+
+export type RevenueSectionDTO =
+	| RevenueSectionAvailableDTO
+	| RevenueSectionUnavailableDTO;
+
+export interface PlatformOverviewDTO {
 	totalRestaurants: number;
 	activeSubscribedRestaurants: number | null;
 	subscriptionTierDistribution: Record<string, number> | null;
 }
 
-export interface FunnelStageItemDto {
+export interface FunnelStageItemDTO {
 	stage: string;
 	count: number;
 	label: string;
 }
 
-export interface OnboardingTrendItemDto {
+export interface OnboardingTrendItemDTO {
 	period: string;
 	count: number;
 }
 
-export interface GeographicBreakdownItemDto {
+export interface GeographicBreakdownItemDTO {
 	city: string;
 	state: string;
 	restaurantCount: number;
 }
 
-export interface PlatformGrowthDto {
-	onboardingFunnel: FunnelStageItemDto[];
-	onboardingTrend: OnboardingTrendItemDto[];
-	geographicBreakdown: GeographicBreakdownItemDto[];
+export interface PlatformGrowthDTO {
+	onboardingFunnel: FunnelStageItemDTO[];
+	onboardingTrend: OnboardingTrendItemDTO[];
+	geographicBreakdown: GeographicBreakdownItemDTO[];
 }
 
-export interface PlatformDashboardFiltersDto {
+export interface PlatformDashboardFiltersDTO {
 	period: AnalyticsPeriod;
 	day: number | null;
 	month: number;
@@ -85,11 +99,27 @@ export interface PlatformDashboardFiltersDto {
 	to?: string | null;
 }
 
-export interface PlatformDashboardAnalyticsResponseDto {
-	overview: PlatformOverviewDto;
-	customerGrowth: CustomerGrowthSectionDto;
-	revenue: RevenueSectionDto;
-	growth: PlatformGrowthDto;
-	filters: PlatformDashboardFiltersDto;
+export interface PlatformDashboardAnalyticsOutputDTO {
+	overview: PlatformOverviewDTO;
+	customerGrowth: CustomerGrowthSectionDTO;
+	revenue: RevenueSectionDTO;
+	growth: PlatformGrowthDTO;
+	filters: PlatformDashboardFiltersDTO;
 	generatedAt: string;
 }
+
+// Backwards-compatible aliases
+export type GetPlatformDashboardAnalyticsQueryDto =
+	GetPlatformDashboardAnalyticsInputDTO;
+export type PlatformDashboardAnalyticsResponseDto =
+	PlatformDashboardAnalyticsOutputDTO;
+export type SectionErrorDto = SectionErrorDTO;
+export type CustomerGrowthSectionDto = CustomerGrowthSectionDTO;
+export type RevenueSectionDto = RevenueSectionDTO;
+export type RevenueTimelinePointDto = RevenueTimelinePointDTO;
+export type PlatformOverviewDto = PlatformOverviewDTO;
+export type FunnelStageItemDto = FunnelStageItemDTO;
+export type OnboardingTrendItemDto = OnboardingTrendItemDTO;
+export type GeographicBreakdownItemDto = GeographicBreakdownItemDTO;
+export type PlatformGrowthDto = PlatformGrowthDTO;
+export type PlatformDashboardFiltersDto = PlatformDashboardFiltersDTO;

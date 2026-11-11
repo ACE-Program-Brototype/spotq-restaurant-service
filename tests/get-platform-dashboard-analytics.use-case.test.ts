@@ -72,6 +72,12 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 
 	beforeEach(() => {
 		mockRestaurantRepo = {
+			getPlatformRestaurantGrowthMetrics: jest.fn().mockResolvedValue({
+				totalRestaurants: 142,
+				onboardingFunnel: defaultFunnel,
+				onboardingTrend: defaultTrend,
+				geographicBreakdown: defaultGeo,
+			}),
 			getTotalRestaurantsCount: jest.fn().mockResolvedValue(142),
 			getActiveSubscribedCount: jest.fn().mockResolvedValue(118),
 			getSubscriptionTierDistribution: jest.fn().mockResolvedValue({}),
@@ -119,7 +125,7 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 			billingCycle: "ALL" as const,
 		};
 
-		const result = await useCase.execute(query, "admin-123");
+		const result = await useCase.execute(query);
 
 		// Overview assertions
 		expect(result.overview.totalRestaurants).toBe(142);
@@ -147,15 +153,10 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 			timeline: defaultSubscriptionSummary.timeline,
 		});
 
-		// Local DB queries received consistent date boundaries
-		expect(mockRestaurantRepo.getTotalRestaurantsCount).toHaveBeenCalledWith(
-			expect.any(String),
-			expect.any(String),
-		);
-		expect(mockRestaurantRepo.getOnboardingFunnel).toHaveBeenCalledWith(
-			expect.any(String),
-			expect.any(String),
-		);
+		// Local DB queries received consistent date boundaries via aggregate method
+		expect(
+			mockRestaurantRepo.getPlatformRestaurantGrowthMetrics,
+		).toHaveBeenCalledWith(expect.any(String), expect.any(String));
 
 		// Growth assertions
 		expect(result.growth.onboardingFunnel).toHaveLength(4);
@@ -173,7 +174,7 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 	it("2. Payment Service returning null sets UNAVAILABLE and null subscription distribution (no false zeros)", async () => {
 		mockPaymentService.getSubscriptionSummary.mockResolvedValue(null);
 
-		const result = await useCase.execute({}, "admin-123");
+		const result = await useCase.execute({});
 
 		expect(result.overview.activeSubscribedRestaurants).toBeNull();
 		expect(result.overview.subscriptionTierDistribution).toBeNull();
@@ -186,7 +187,9 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		});
 
 		expect(mockLogger.warn).toHaveBeenCalledWith(
-			expect.objectContaining({ adminUserId: "admin-123" }),
+			expect.objectContaining({
+				reason: "Payment service returned null",
+			}),
 			messages.PAYMENT_SERVICE_FINANCE_SUMMARY_UNAVAILABLE,
 		);
 	});
@@ -194,7 +197,7 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 	it("3. User Service returning null sets UNAVAILABLE without failing the entire request", async () => {
 		mockUserService.getUserSummary.mockResolvedValue(null);
 
-		const result = await useCase.execute({}, "admin-123");
+		const result = await useCase.execute({});
 
 		expect(result.customerGrowth).toEqual({
 			status: "UNAVAILABLE",
@@ -208,22 +211,17 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		expect(result.revenue.status).toBe("AVAILABLE");
 	});
 
-	it("4. Precedence: Legacy from/to without period filters local DB and resolves period", async () => {
+	it("4. Calls repository aggregation with resolved date range", async () => {
 		const query = {
-			from: "2026-03-01T00:00:00.000Z",
-			to: "2026-08-31T23:59:59.999Z",
-			fiscalYear: 2026,
+			period: "MONTH" as const,
+			year: 2026,
+			month: 5,
 		};
 
-		await useCase.execute(query, "admin-123");
+		await useCase.execute(query);
 
-		expect(mockRestaurantRepo.getTotalRestaurantsCount).toHaveBeenCalledWith(
-			"2026-03-01T00:00:00.000Z",
-			"2026-08-31T23:59:59.999Z",
-		);
-		expect(mockRestaurantRepo.getOnboardingFunnel).toHaveBeenCalledWith(
-			"2026-03-01T00:00:00.000Z",
-			"2026-08-31T23:59:59.999Z",
-		);
+		expect(
+			mockRestaurantRepo.getPlatformRestaurantGrowthMetrics,
+		).toHaveBeenCalled();
 	});
 });
