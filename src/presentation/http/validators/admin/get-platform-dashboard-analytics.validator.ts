@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ANALYTICS_FALLBACKS } from "@/shared/constants/analytics.constants.ts";
 import { isValidCalendarDate } from "@/shared/utils/date-range.util.ts";
 
 export const getPlatformDashboardAnalyticsQuerySchema = z
@@ -63,7 +64,8 @@ export const getPlatformDashboardAnalyticsQuerySchema = z
 					path: ["month"],
 				});
 			} else {
-				const checkYear = data.year ?? data.fiscalYear ?? 2024; // 2024 is leap year default
+				const checkYear =
+					data.year ?? data.fiscalYear ?? ANALYTICS_FALLBACKS.DEFAULT_LEAP_YEAR;
 				if (!isValidCalendarDate(checkYear, data.month, data.day)) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,

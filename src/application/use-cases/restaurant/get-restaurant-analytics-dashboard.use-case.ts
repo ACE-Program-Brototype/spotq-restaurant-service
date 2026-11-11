@@ -14,9 +14,11 @@ import type { IOrderAnalyticsService } from "@/application/ports/services/order-
 import type { IGetRestaurantAnalyticsDashboardUseCase } from "@/application/ports/use-cases/restaurant/get-restaurant-analytics-dashboard.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
-import type {
-	AnalyticsPeriod,
-	OrderStatusFilter,
+import {
+	ANALYTICS_ERROR_CODES,
+	ANALYTICS_FALLBACKS,
+	type AnalyticsPeriod,
+	type OrderStatusFilter,
 } from "@/shared/constants/analytics.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { resolveAnalyticsDateRange } from "@/shared/utils/date-range.util.ts";
@@ -158,29 +160,29 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			revenue = {
 				status: "UNAVAILABLE",
 				error: {
-					code: "ORDER_SERVICE_UNAVAILABLE",
-					message: "Revenue metrics unavailable",
+					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
+					message: messages.REVENUE_METRICS_UNAVAILABLE,
 				},
 			};
 			orders = {
 				status: "UNAVAILABLE",
 				error: {
-					code: "ORDER_SERVICE_UNAVAILABLE",
-					message: "Order metrics unavailable",
+					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
+					message: messages.ORDER_METRICS_UNAVAILABLE,
 				},
 			};
 			operations = {
 				status: "UNAVAILABLE",
 				error: {
-					code: "ORDER_SERVICE_UNAVAILABLE",
-					message: "Operations metrics unavailable",
+					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
+					message: messages.OPERATIONS_METRICS_UNAVAILABLE,
 				},
 			};
 			orderStatusBreakdown = {
 				status: "UNAVAILABLE",
 				error: {
-					code: "ORDER_SERVICE_UNAVAILABLE",
-					message: "Order status breakdown unavailable",
+					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
+					message: messages.ORDER_STATUS_BREAKDOWN_UNAVAILABLE,
 				},
 			};
 		}
@@ -258,7 +260,10 @@ export class GetRestaurantAnalyticsDashboardUseCase
 					classification?: "ZERO_SALES" | "LOW_VOLUME" | "NORMAL";
 				}): ProductItemDto => ({
 					menuItemId: item.menuItemId,
-					name: item.name || nameMap.get(item.menuItemId) || "Unknown Item",
+					name:
+						item.name ||
+						nameMap.get(item.menuItemId) ||
+						ANALYTICS_FALLBACKS.UNKNOWN_MENU_ITEM,
 					quantitySold: item.quantitySold,
 					salesRupees: item.salesRupees ?? item.grossSalesRupees ?? 0,
 					isAvailable:
@@ -310,8 +315,8 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			products = {
 				status: "UNAVAILABLE",
 				error: {
-					code: "ORDER_SERVICE_UNAVAILABLE",
-					message: "Product performance metrics unavailable",
+					code: ANALYTICS_ERROR_CODES.ORDER_SERVICE_UNAVAILABLE,
+					message: messages.PRODUCT_PERFORMANCE_METRICS_UNAVAILABLE,
 				},
 			};
 		}

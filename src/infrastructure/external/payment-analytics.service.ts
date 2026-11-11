@@ -1,4 +1,3 @@
-import { PAYMENT_SERVICE_ROUTES } from "@shared/constants/route.constants.ts";
 import { CircuitBreaker } from "@spotq-org/circuit-breaker";
 import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
 import axios from "axios";
@@ -12,6 +11,7 @@ import type {
 } from "@/application/ports/services/payment-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
+import { PAYMENT_SERVICE_ROUTES } from "@/shared/constants/route.constants.ts";
 
 const paymentSubscriptionSummarySchema = z.object({
 	activeSubscribedRestaurants: z.number().int().nonnegative(),
@@ -70,7 +70,12 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 					const status = (error as { response?: { status?: number } })?.response
 						?.status;
 					if (typeof status === "number") {
-						if (status >= 400 && status < 500 && status !== 408 && status !== 429) {
+						if (
+							status >= 400 &&
+							status < 500 &&
+							status !== 408 &&
+							status !== 429
+						) {
 							return false;
 						}
 					}

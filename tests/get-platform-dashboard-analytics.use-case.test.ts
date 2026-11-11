@@ -72,52 +72,32 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 
 	beforeEach(() => {
 		mockRestaurantRepo = {
-			getTotalRestaurantsCount: jest
-				.fn<IRestaurantAnalyticsRepository["getTotalRestaurantsCount"]>()
-				.mockResolvedValue(142),
-			getActiveSubscribedCount: jest
-				.fn<IRestaurantAnalyticsRepository["getActiveSubscribedCount"]>()
-				.mockResolvedValue(118),
-			getSubscriptionTierDistribution: jest
-				.fn<IRestaurantAnalyticsRepository["getSubscriptionTierDistribution"]>()
-				.mockResolvedValue({}),
-			getOnboardingTrend: jest
-				.fn<IRestaurantAnalyticsRepository["getOnboardingTrend"]>()
-				.mockResolvedValue(defaultTrend),
-			getOnboardingFunnel: jest
-				.fn<IRestaurantAnalyticsRepository["getOnboardingFunnel"]>()
-				.mockResolvedValue(defaultFunnel),
-			getGeographicBreakdown: jest
-				.fn<IRestaurantAnalyticsRepository["getGeographicBreakdown"]>()
-				.mockResolvedValue(defaultGeo),
-			getActiveMenuItems: jest
-				.fn<IRestaurantAnalyticsRepository["getActiveMenuItems"]>()
-				.mockResolvedValue([]),
-			getAllMenuItems: jest
-				.fn<IRestaurantAnalyticsRepository["getAllMenuItems"]>()
-				.mockResolvedValue([]),
-			getTotalActiveProductsCount: jest
-				.fn<IRestaurantAnalyticsRepository["getTotalActiveProductsCount"]>()
-				.mockResolvedValue(0),
-		};
+			getTotalRestaurantsCount: jest.fn().mockResolvedValue(142),
+			getActiveSubscribedCount: jest.fn().mockResolvedValue(118),
+			getSubscriptionTierDistribution: jest.fn().mockResolvedValue({}),
+			getOnboardingTrend: jest.fn().mockResolvedValue(defaultTrend),
+			getOnboardingFunnel: jest.fn().mockResolvedValue(defaultFunnel),
+			getGeographicBreakdown: jest.fn().mockResolvedValue(defaultGeo),
+			getActiveMenuItems: jest.fn().mockResolvedValue([]),
+			getAllMenuItems: jest.fn().mockResolvedValue([]),
+			getTotalActiveProductsCount: jest.fn().mockResolvedValue(0),
+		} as unknown as jest.Mocked<IRestaurantAnalyticsRepository>;
 
 		mockPaymentService = {
 			getSubscriptionSummary: jest
-				.fn<IPaymentAnalyticsService["getSubscriptionSummary"]>()
+				.fn()
 				.mockResolvedValue(defaultSubscriptionSummary),
-		};
+		} as unknown as jest.Mocked<IPaymentAnalyticsService>;
 
 		mockUserService = {
-			getUserSummary: jest
-				.fn<IUserAnalyticsService["getUserSummary"]>()
-				.mockResolvedValue(defaultUserSummary),
-		};
+			getUserSummary: jest.fn().mockResolvedValue(defaultUserSummary),
+		} as unknown as jest.Mocked<IUserAnalyticsService>;
 
 		mockLogger = {
 			info: jest.fn(),
 			warn: jest.fn(),
 			error: jest.fn(),
-		};
+		} as unknown as jest.Mocked<ILogger>;
 
 		useCase = new GetPlatformDashboardAnalyticsUseCase(
 			mockRestaurantRepo,

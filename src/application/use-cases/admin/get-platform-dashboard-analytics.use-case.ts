@@ -12,9 +12,10 @@ import type { IUserAnalyticsService } from "@/application/ports/services/user-an
 import type { IGetPlatformDashboardAnalyticsUseCase } from "@/application/ports/use-cases/admin/get-platform-dashboard-analytics.use-case.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
-import type {
-	AnalyticsPeriod,
-	BillingCycle,
+import {
+	ANALYTICS_ERROR_CODES,
+	type AnalyticsPeriod,
+	type BillingCycle,
 } from "@/shared/constants/analytics.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { resolveAnalyticsDateRange } from "@/shared/utils/date-range.util.ts";
@@ -141,8 +142,8 @@ export class GetPlatformDashboardAnalyticsUseCase
 			revenue = {
 				status: "UNAVAILABLE",
 				error: {
-					code: "PAYMENT_SERVICE_UNAVAILABLE",
-					message: "Subscription revenue metrics unavailable",
+					code: ANALYTICS_ERROR_CODES.PAYMENT_SERVICE_UNAVAILABLE,
+					message: messages.SUBSCRIPTION_REVENUE_METRICS_UNAVAILABLE,
 				},
 			};
 		}
@@ -175,8 +176,8 @@ export class GetPlatformDashboardAnalyticsUseCase
 			customerGrowth = {
 				status: "UNAVAILABLE",
 				error: {
-					code: "USER_SERVICE_UNAVAILABLE",
-					message: "Customer growth metrics unavailable",
+					code: ANALYTICS_ERROR_CODES.USER_SERVICE_UNAVAILABLE,
+					message: messages.CUSTOMER_GROWTH_METRICS_UNAVAILABLE,
 				},
 			};
 		}

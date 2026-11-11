@@ -429,6 +429,15 @@ export const messages = {
 		"User service customer analytics is unavailable.",
 	ORDER_SERVICE_ANALYTICS_UNAVAILABLE:
 		"Order service analytics is unavailable.",
+	SUBSCRIPTION_REVENUE_METRICS_UNAVAILABLE:
+		"Subscription revenue metrics unavailable",
+	CUSTOMER_GROWTH_METRICS_UNAVAILABLE: "Customer growth metrics unavailable",
+	REVENUE_METRICS_UNAVAILABLE: "Revenue metrics unavailable",
+	ORDER_METRICS_UNAVAILABLE: "Order metrics unavailable",
+	OPERATIONS_METRICS_UNAVAILABLE: "Operations metrics unavailable",
+	ORDER_STATUS_BREAKDOWN_UNAVAILABLE: "Order status breakdown unavailable",
+	PRODUCT_PERFORMANCE_METRICS_UNAVAILABLE:
+		"Product performance metrics unavailable",
 } as const;
 
 export type MessageKey = keyof typeof messages;

@@ -1,8 +1,5 @@
 import "reflect-metadata";
 
-import { internalTableRouter } from "@presentation/http/routes/internal-table.routes";
-import { tableRoutes } from "@presentation/http/routes/table.routes";
-import { tableSectionRoutes } from "@presentation/http/routes/table-section.routes";
 import cookieParser from "cookie-parser";
 import express from "express";
 import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";
@@ -11,11 +8,14 @@ import { metricsMiddleware } from "@/presentation/http/middleware/metrics.middle
 import { notFoundHandler } from "@/presentation/http/middleware/notfound.middleware.ts";
 import { adminRouter } from "@/presentation/http/routes/admin.routes.ts";
 import { internalRestaurantRouter } from "@/presentation/http/routes/internal-restaurant.routes.ts";
+import { internalTableRouter } from "@/presentation/http/routes/internal-table.routes";
 import jwksRouter from "@/presentation/http/routes/jwks.routes.ts";
 import { restaurantRouter } from "@/presentation/http/routes/restaurant.routes.ts";
 import staffRouter from "@/presentation/http/routes/staff.routes.ts";
 import { storageRouter } from "@/presentation/http/routes/storage.routes.ts";
 import systemRouter from "@/presentation/http/routes/system.routes.ts";
+import { tableRoutes } from "@/presentation/http/routes/table.routes";
+import { tableSectionRoutes } from "@/presentation/http/routes/table-section.routes";
 import { APP_ENV, APP_NAME } from "@/shared/constants/app.constants.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";

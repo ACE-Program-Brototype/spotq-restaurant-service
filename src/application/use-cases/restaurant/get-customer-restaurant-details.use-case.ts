@@ -1,4 +1,3 @@
-import { SUBSCRIPTION_PLAN } from "@domain/value-objects/subscription-plan.vo";
 import { inject, injectable } from "inversify";
 import type {
 	CustomerRestaurantDetailsInputDTO,
@@ -11,6 +10,7 @@ import type { IGetCustomerRestaurantDetailsUseCase } from "@/application/ports/u
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
+import { SUBSCRIPTION_PLAN } from "@/domain/value-objects/subscription-plan.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
