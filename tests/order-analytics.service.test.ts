@@ -97,7 +97,6 @@ describe("OrderAnalyticsService", () => {
 						day: undefined,
 						month: 11,
 						year: 2026,
-						status: "ALL",
 					},
 				}),
 			);

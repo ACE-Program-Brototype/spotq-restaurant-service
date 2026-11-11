@@ -413,7 +413,7 @@ const envSchema = z.object({
 		.trim()
 		.default("http://spotq-order-service:3002"),
 	ORDER_SERVICE_NAME: z.string().trim().default("order-service"),
-	USER_SERVICE_URL: z.string().trim().default("http://spotq-user-service:3001"),
+	USER_SERVICE_URL: z.string().trim().default("http://spotq-user-service:3000"),
 	USER_SERVICE_NAME: z.string().trim().default("user-service"),
 });
 

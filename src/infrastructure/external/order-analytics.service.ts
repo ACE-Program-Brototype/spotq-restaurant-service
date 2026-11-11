@@ -54,7 +54,12 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 					const status = (error as { response?: { status?: number } })?.response
 						?.status;
 					if (typeof status === "number") {
-						if (status >= 400 && status < 500 && status !== 408 && status !== 429) {
+						if (
+							status >= 400 &&
+							status < 500 &&
+							status !== 408 &&
+							status !== 429
+						) {
 							return false;
 						}
 					}
@@ -111,13 +116,34 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 						day: query?.day,
 						month: query?.month,
 						year: query?.year,
-						status: query?.status,
 					},
 					timeout: 3_000,
 				});
 
 				if (response.data?.success && response.data?.data) {
-					return response.data.data;
+					const raw = response.data.data as unknown as {
+						restaurantId: string;
+						revenue?: RestaurantOrderAnalyticsSummaryDto["revenue"];
+						orders?: RestaurantOrderAnalyticsSummaryDto["orders"];
+						operations?: RestaurantOrderAnalyticsSummaryDto["operations"];
+						orderStatusBreakdown?: RestaurantOrderAnalyticsSummaryDto["orderStatusBreakdown"];
+						filters?: RestaurantOrderAnalyticsSummaryDto["filters"];
+						generatedAt?: string;
+						overview?: {
+							revenue?: RestaurantOrderAnalyticsSummaryDto["revenue"];
+							orders?: RestaurantOrderAnalyticsSummaryDto["orders"];
+							operations?: RestaurantOrderAnalyticsSummaryDto["operations"];
+						};
+					};
+					return {
+						restaurantId: raw.restaurantId,
+						revenue: raw.overview?.revenue ?? raw.revenue,
+						orders: raw.overview?.orders ?? raw.orders,
+						operations: raw.overview?.operations ?? raw.operations,
+						orderStatusBreakdown: raw.orderStatusBreakdown,
+						filters: raw.filters,
+						generatedAt: raw.generatedAt,
+					};
 				}
 
 				this.logger.warn(

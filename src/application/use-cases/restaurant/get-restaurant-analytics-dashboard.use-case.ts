@@ -98,29 +98,49 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			orderSummarySettled.value !== null
 		) {
 			const summary = orderSummarySettled.value;
+			const summaryObj = summary as unknown as {
+				revenue?: typeof summary.revenue;
+				orders?: typeof summary.orders;
+				operations?: typeof summary.operations;
+				orderStatusBreakdown?: typeof summary.orderStatusBreakdown;
+				overview?: {
+					revenue?: typeof summary.revenue;
+					orders?: typeof summary.orders;
+					operations?: typeof summary.operations;
+					orderStatusBreakdown?: typeof summary.orderStatusBreakdown;
+				};
+			};
+			const rev = summary.revenue ?? summaryObj.overview?.revenue ?? {};
+			const ord = summary.orders ?? summaryObj.overview?.orders ?? {};
+			const ops = summary.operations ?? summaryObj.overview?.operations ?? {};
+			const osb =
+				summary.orderStatusBreakdown ??
+				summaryObj.overview?.orderStatusBreakdown ??
+				{};
+
 			revenue = {
 				status: "AVAILABLE",
-				netSalesRupees: summary.revenue.netSalesRupees,
-				discountRupees: summary.revenue.discountRupees,
-				totalBillAmountRupees: summary.revenue.totalBillAmountRupees,
-				growthPercentage: summary.revenue.growthPercentage,
+				netSalesRupees: rev.netSalesRupees ?? 0,
+				discountRupees: rev.discountRupees ?? 0,
+				totalBillAmountRupees: rev.totalBillAmountRupees ?? 0,
+				growthPercentage: rev.growthPercentage ?? 0,
 			};
 			orders = {
 				status: "AVAILABLE",
-				totalOrderCount: summary.orders.totalOrderCount,
-				dineInCount: summary.orders.dineInCount,
-				takeawayCount: summary.orders.takeawayCount,
-				growthPercentage: summary.orders.growthPercentage,
+				totalOrderCount: ord.totalOrderCount ?? 0,
+				dineInCount: ord.dineInCount ?? 0,
+				takeawayCount: ord.takeawayCount ?? 0,
+				growthPercentage: ord.growthPercentage ?? 0,
 			};
 			operations = {
 				status: "AVAILABLE",
-				dinersServedCount: summary.operations.dinersServedCount,
-				uniqueCustomersCount: summary.operations.uniqueCustomersCount,
+				dinersServedCount: ops.dinersServedCount ?? 0,
+				uniqueCustomersCount: ops.uniqueCustomersCount ?? 0,
 			};
 			orderStatusBreakdown = {
 				status: "AVAILABLE",
-				totalOrdersTracked: summary.orderStatusBreakdown.totalOrdersTracked,
-				distribution: summary.orderStatusBreakdown.distribution,
+				totalOrdersTracked: osb.totalOrdersTracked ?? 0,
+				distribution: osb.distribution ?? [],
 			};
 		} else {
 			this.logger.warn(
@@ -250,12 +270,26 @@ export class GetRestaurantAnalyticsDashboardUseCase
 					status: "AVAILABLE",
 					totalProductsCount,
 					topSelling: {
-						items: productData.topSelling.items.map(decorateItem),
-						pagination: productData.topSelling.pagination,
+						items: (productData.topSelling?.items ?? []).map(decorateItem),
+						pagination: productData.topSelling?.pagination ?? {
+							totalItems: 0,
+							totalPages: 0,
+							currentPage: page,
+							limit,
+							hasNextPage: false,
+							hasPrevPage: false,
+						},
 					},
 					slowMoving: {
-						items: productData.slowMoving.items.map(decorateItem),
-						pagination: productData.slowMoving.pagination,
+						items: (productData.slowMoving?.items ?? []).map(decorateItem),
+						pagination: productData.slowMoving?.pagination ?? {
+							totalItems: 0,
+							totalPages: 0,
+							currentPage: page,
+							limit,
+							hasNextPage: false,
+							hasPrevPage: false,
+						},
 					},
 				};
 			}
