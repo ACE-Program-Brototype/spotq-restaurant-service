@@ -42,23 +42,27 @@ export class GetCustomerRestaurantDetailsUseCase
 		record.restaurant.ensureCustomerAccess(new Date());
 
 		let queueStatus: CustomerRestaurantQueueStatusDTO | null = null;
+		const canAccessQueue = record.restaurant.canAccessQueueService(
+			record.settings?.acceptsQueue ?? false,
+		);
 
-		if (
-			record.restaurant.subscriptionPlanCode === SUBSCRIPTION_PLAN.QUEUE_PRO
-		) {
+		if (record.restaurant.subscriptionPlanCode === SUBSCRIPTION_PLAN.SELF_PRO) {
+			queueStatus = null;
+		} else if (!canAccessQueue) {
+			queueStatus = {
+				hasJoinedAnyQueue: null,
+				hasJoinedThisRestaurantQueue: null,
+				isGuestUser: !dto.userId,
+				isQueueStatusAvailable: false,
+			};
+		} else if (!dto.userId) {
 			queueStatus = {
 				hasJoinedAnyQueue: null,
 				hasJoinedThisRestaurantQueue: null,
 				isGuestUser: true,
 				isQueueStatusAvailable: true,
 			};
-		}
-		if (
-			dto.userId &&
-			record.restaurant.canAccessQueueService(
-				record.settings?.acceptsQueue ?? false,
-			)
-		) {
+		} else {
 			const status = await this.queueService.getQueueStatus({
 				restaurantId: dto.restaurantId,
 				userId: dto.userId,

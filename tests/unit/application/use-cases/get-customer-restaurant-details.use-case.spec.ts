@@ -456,8 +456,8 @@ describe("GetCustomerRestaurantDetailsUseCase", () => {
 		expect(result.queue).toEqual({
 			hasJoinedAnyQueue: null,
 			hasJoinedThisRestaurantQueue: null,
-			isGuestUser: true,
-			isQueueStatusAvailable: true,
+			isGuestUser: false,
+			isQueueStatusAvailable: false,
 		});
 	});
 
