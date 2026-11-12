@@ -419,6 +419,25 @@ export const messages = {
 
 	// CUSTOMER
 	QUEUE_SERVICE_CONNECTION_ERROR: "[ERROR]: Cannot connect to Queue Service",
+	PLATFORM_DASHBOARD_ANALYTICS_FETCHED:
+		"Platform dashboard analytics fetched successfully",
+	RESTAURANT_ANALYTICS_DASHBOARD_FETCHED:
+		"Restaurant analytics dashboard fetched successfully",
+	PAYMENT_SERVICE_FINANCE_SUMMARY_UNAVAILABLE:
+		"Payment service finance summary is unavailable. Financial metrics set to null (distinguishable from genuine zero).",
+	USER_SERVICE_ANALYTICS_UNAVAILABLE:
+		"User service customer analytics is unavailable.",
+	ORDER_SERVICE_ANALYTICS_UNAVAILABLE:
+		"Order service analytics is unavailable.",
+	SUBSCRIPTION_REVENUE_METRICS_UNAVAILABLE:
+		"Subscription revenue metrics unavailable",
+	CUSTOMER_GROWTH_METRICS_UNAVAILABLE: "Customer growth metrics unavailable",
+	REVENUE_METRICS_UNAVAILABLE: "Revenue metrics unavailable",
+	ORDER_METRICS_UNAVAILABLE: "Order metrics unavailable",
+	OPERATIONS_METRICS_UNAVAILABLE: "Operations metrics unavailable",
+	ORDER_STATUS_BREAKDOWN_UNAVAILABLE: "Order status breakdown unavailable",
+	PRODUCT_PERFORMANCE_METRICS_UNAVAILABLE:
+		"Product performance metrics unavailable",
 } as const;
 
 export type MessageKey = keyof typeof messages;

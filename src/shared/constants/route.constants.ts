@@ -44,6 +44,7 @@ export const RESTAURANT_ROUTES = {
 	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
 	CUSTOMER_LIST: "/customers",
 	CUSTOMER_DETAILS: "/customers/:restaurantId",
+	ANALYTICS_DASHBOARD: "/:restaurantId/analytics/dashboard",
 } as const;
 
 export const STAFF_ROUTES = {
@@ -72,6 +73,9 @@ export const STORAGE_ROUTES = {
 
 export const ADMIN_ROUTES = {
 	BASE: "/admin",
+	API_V1_BASE: "/api/v1/admin",
+	DASHBOARD: "/dashboard",
+	DASHBOARD_ANALYTICS: "/analytics/dashboard",
 	APPLICATIONS: "/restaurants/applications",
 	APPLICATION_DETAILS: "/restaurants/applications/:id",
 	APPROVE_RESTAURANT: "/restaurants/:id/approve",
@@ -103,7 +107,8 @@ export const TABLE_ROUTES = {
 	TABLE: "/:restaurantId/table",
 	DELETE: "/:restaurantId/table/:tableId",
 	INTERNAL: {
-		AVAILABILITY: "/internal/:restaurantId/tables/availability",
+		AVAILABILITY:
+			"/api/internal/v1/restaurants/:restaurantId/tables/availability",
 	},
 	UPDATE_STATUS: "/:restaurantId/table/:tableId/status",
 };
@@ -115,6 +120,22 @@ export const INTERNAL_ROUTES = {
 	RELEASE_TABLE: "/restaurants/:restaurantId/tables/release",
 	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
 	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
+} as const;
+
+export const PAYMENT_SERVICE_ROUTES = {
+	ANALYTICS_SUBSCRIPTIONS_SUMMARY:
+		"/api/internal/v1/analytics/subscriptions/summary",
+} as const;
+
+export const USER_SERVICE_ROUTES = {
+	ANALYTICS_USERS_SUMMARY: "/api/internal/v1/analytics/users/summary",
+} as const;
+
+export const ORDER_SERVICE_ROUTES = {
+	ANALYTICS_ORDERS_SUMMARY: (restaurantId: string) =>
+		`/api/internal/v1/restaurants/${restaurantId}/analytics/orders/summary`,
+	ANALYTICS_ORDERS_PRODUCTS: (restaurantId: string) =>
+		`/api/internal/v1/restaurants/${restaurantId}/analytics/orders/products`,
 } as const;
 
 export const QUEUE_SERVICE_ROUTES = {
