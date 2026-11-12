@@ -1,17 +1,18 @@
-import { CircuitBreaker } from "@spotq-org/circuit-breaker";
-import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
+import type { CircuitBreaker } from "@spotq-org/circuit-breaker";
 import axios from "axios";
 import { inject, injectable } from "inversify";
 import { z } from "zod";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type {
 	IPaymentAnalyticsService,
-	PaymentSubscriptionAnalyticsQueryDto,
-	PaymentSubscriptionSummaryDto,
+	PaymentSubscriptionAnalyticsQueryDTO,
+	PaymentSubscriptionSummaryDTO,
 } from "@/application/ports/services/payment-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
+import { createServiceCircuitBreaker } from "@/infrastructure/resilience/circuit-breaker.factory.ts";
 import { PAYMENT_SERVICE_ROUTES } from "@/shared/constants/route.constants.ts";
+import { buildInternalS2SHeaders } from "@/shared/utils/s2s-headers.util.ts";
 
 const paymentSubscriptionSummarySchema = z.object({
 	activeSubscribedRestaurants: z.number().int().nonnegative(),
@@ -32,7 +33,7 @@ const paymentSubscriptionSummarySchema = z.object({
 
 interface SubscriptionSummaryApiResponse {
 	success?: boolean;
-	data?: PaymentSubscriptionSummaryDto | null;
+	data?: PaymentSubscriptionSummaryDTO | null;
 }
 
 @injectable()
@@ -58,69 +59,30 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 		this.serviceName = serviceName;
 		this.targetServiceName = targetServiceName;
 		this.privateKey = privateKey ?? env.S2S_PRIVATE_KEY;
-		this.circuitBreaker = new CircuitBreaker(
-			async (requestFn: () => Promise<unknown>) => await requestFn(),
-			{
-				name: "payment-service",
-				timeoutMs: 3_000,
-				resetTimeoutMs: 30_000,
-				errorThresholdPercentage: 50,
-				volumeThreshold: 5,
-				checkIsFailure: (error: unknown) => {
-					const status = (error as { response?: { status?: number } })?.response
-						?.status;
-					if (typeof status === "number") {
-						if (
-							status >= 400 &&
-							status < 500 &&
-							status !== 408 &&
-							status !== 429
-						) {
-							return false;
-						}
-					}
-					return true;
-				},
-			},
-		);
+		this.circuitBreaker = createServiceCircuitBreaker({
+			name: "payment-service",
+		});
 	}
 
-	private getInternalHeaders(adminUserId?: string): Record<string, string> {
-		const headers: Record<string, string> = {
-			Accept: "application/json",
-			"X-Caller-Service": this.serviceName,
-			"x-user-id": adminUserId || "system-admin",
-			"x-user-role": "admin",
-		};
-
-		if (this.privateKey) {
-			try {
-				const issuerConfig: TokenIssuerConfig = {
-					serviceName: this.serviceName,
-					privateKey: this.privateKey,
-				};
-				const token = generateToken(this.targetServiceName, issuerConfig);
-				headers.Authorization = `Bearer ${token}`;
-			} catch (error) {
-				this.logger.error(
-					{ error, targetServiceName: this.targetServiceName },
-					"Failed to generate S2S token for payment-service",
-				);
-			}
-		}
-
-		return headers;
+	private getHeaders(callerUserId?: string): Record<string, string> {
+		return buildInternalS2SHeaders({
+			serviceName: this.serviceName,
+			targetServiceName: this.targetServiceName,
+			privateKey: this.privateKey,
+			callerUserId,
+			logger: this.logger,
+		});
 	}
 
 	public async getSubscriptionSummary(
-		query?: PaymentSubscriptionAnalyticsQueryDto,
+		query?: PaymentSubscriptionAnalyticsQueryDTO,
 		callerUserId?: string,
-	): Promise<PaymentSubscriptionSummaryDto | null> {
+	): Promise<PaymentSubscriptionSummaryDTO | null> {
 		try {
 			const result = await this.circuitBreaker.execute(async () => {
 				const url = `${this.baseUrl}${PAYMENT_SERVICE_ROUTES.ANALYTICS_SUBSCRIPTIONS_SUMMARY}`;
 				const response = await axios.get<SubscriptionSummaryApiResponse>(url, {
-					headers: this.getInternalHeaders(callerUserId),
+					headers: this.getHeaders(callerUserId),
 					params: {
 						period: query?.period,
 						day: query?.day,
@@ -128,7 +90,7 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 						year: query?.year,
 						billingCycle: query?.billingCycle,
 					},
-					timeout: 3_000,
+					timeout: env.CIRCUIT_BREAKER_TIMEOUT_MS,
 				});
 
 				if (response.data?.success && response.data?.data) {
@@ -136,7 +98,7 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 						response.data.data,
 					);
 					if (validated.success) {
-						return validated.data as PaymentSubscriptionSummaryDto;
+						return validated.data as PaymentSubscriptionSummaryDTO;
 					}
 					this.logger.warn(
 						{
@@ -154,7 +116,7 @@ export class PaymentAnalyticsService implements IPaymentAnalyticsService {
 				);
 				return null;
 			});
-			return (result as PaymentSubscriptionSummaryDto | null) ?? null;
+			return (result as PaymentSubscriptionSummaryDTO | null) ?? null;
 		} catch (error) {
 			this.logger.warn(
 				{ error, circuitState: this.circuitBreaker.state },

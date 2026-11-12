@@ -9,6 +9,7 @@ import type {
 	RestaurantAnalyticsDashboardOutputDTO,
 	RevenueSectionResultDTO,
 } from "@/application/dtos/restaurant/get-restaurant-analytics-dashboard.dto.ts";
+import { RestaurantAnalyticsDashboardMapper } from "@/application/mappers/restaurant/restaurant-analytics-dashboard.mapper.ts";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type { IOrderAnalyticsService } from "@/application/ports/services/order-analytics.service.port.ts";
 import type { IGetRestaurantAnalyticsDashboardUseCase } from "@/application/ports/use-cases/restaurant/get-restaurant-analytics-dashboard.use-case.port.ts";
@@ -17,6 +18,7 @@ import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/resta
 import {
 	ANALYTICS_ERROR_CODES,
 	ANALYTICS_FALLBACKS,
+	ANALYTICS_PAGINATION,
 	ANALYTICS_SECTION_STATUS,
 	ORDER_STATUS_FILTERS,
 	PRODUCT_CLASSIFICATIONS,
@@ -62,10 +64,22 @@ export class GetRestaurantAnalyticsDashboardUseCase
 
 		const status: OrderStatusFilter =
 			input.status ?? ORDER_STATUS_FILTERS.ALL;
-		const page: number = Math.max(1, input.page ?? 1);
-		const limit: number = Math.max(1, Math.min(100, input.limit ?? 10));
+		const page: number = Math.max(
+			ANALYTICS_PAGINATION.MIN_PAGE,
+			input.page ?? ANALYTICS_PAGINATION.DEFAULT_PAGE,
+		);
+		const limit: number = Math.max(
+			ANALYTICS_PAGINATION.MIN_LIMIT,
+			Math.min(
+				ANALYTICS_PAGINATION.MAX_LIMIT,
+				input.limit ?? ANALYTICS_PAGINATION.DEFAULT_LIMIT,
+			),
+		);
 
-		// 1. Fetch local menu items and active product count concurrently
+		/**
+		 * 1. Fetch local menu items and active product count concurrently
+		 * to enrich downstream product analytics with local catalog status.
+		 */
 		const [totalProductsCount, allMenuItems] = await Promise.all([
 			this.restaurantAnalyticsRepository.getTotalActiveProductsCount(
 				restaurantId,
@@ -73,7 +87,10 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			this.restaurantAnalyticsRepository.getAllMenuItems(restaurantId),
 		]);
 
-		// 2. Fetch Order Service metrics concurrently via Promise.allSettled
+		/**
+		 * 2. Fetch Order Service metrics concurrently via Promise.allSettled
+		 * ensuring failure in one query does not break the other.
+		 */
 		const [orderSummarySettled, productAnalyticsSettled] =
 			await Promise.allSettled([
 				this.orderAnalyticsService.getOrderSummary(restaurantId, {
@@ -93,7 +110,9 @@ export class GetRestaurantAnalyticsDashboardUseCase
 				}),
 			]);
 
-		// 3. Process Order Summary with Circuit Breaker resilience
+		/**
+		 * 3. Process Order Summary with Circuit Breaker resilience.
+		 */
 		let revenue: RevenueSectionResultDTO;
 		let orders: OrderSectionResultDTO;
 		let operations: OperationSectionResultDTO;
@@ -190,7 +209,9 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			};
 		}
 
-		// 4. Process Product Analytics with Circuit Breaker resilience and Local Catalog Decoration
+		/**
+		 * 4. Process Product Analytics with Circuit Breaker resilience and Local Catalog Decoration.
+		 */
 		let products: ProductSectionResultDTO;
 
 		if (
@@ -204,7 +225,9 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			const nameMap = new Map(allMenuItems.map((item) => [item.id, item.name]));
 
 			if (productData.totalProductsSold === 0) {
-				// Zero-sales scenario: all active dishes in catalog classified as ZERO_SALES with slice pagination
+				/**
+				 * Zero-sales scenario: all active dishes in catalog classified as ZERO_SALES with pagination.
+				 */
 				const activeDishes: ProductItemDTO[] = allMenuItems
 					.filter((item) => item.isAvailable)
 					.map((item) => ({
@@ -251,7 +274,9 @@ export class GetRestaurantAnalyticsDashboardUseCase
 					},
 				};
 			} else {
-				// Sales exist: decorate with local live availability and catalog name fallback
+				/**
+				 * Sales exist: decorate with local live availability and catalog name fallback.
+				 */
 				const decorateItem = (item: {
 					menuItemId: string;
 					name: string;
@@ -323,13 +348,11 @@ export class GetRestaurantAnalyticsDashboardUseCase
 			};
 		}
 
-		return {
+		return RestaurantAnalyticsDashboardMapper.toOutputDTO({
 			restaurantId,
-			overview: {
-				revenue,
-				orders,
-				operations,
-			},
+			revenue,
+			orders,
+			operations,
 			orderStatusBreakdown,
 			products,
 			filters: {
@@ -341,7 +364,6 @@ export class GetRestaurantAnalyticsDashboardUseCase
 				page,
 				limit,
 			},
-			generatedAt: new Date().toISOString(),
-		};
+		});
 	}
 }

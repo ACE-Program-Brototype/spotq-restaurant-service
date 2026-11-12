@@ -1,19 +1,20 @@
-import { CircuitBreaker } from "@spotq-org/circuit-breaker";
-import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
+import type { CircuitBreaker } from "@spotq-org/circuit-breaker";
 import axios from "axios";
 import { inject, injectable } from "inversify";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type {
-	GetRestaurantOrderSummaryQueryDto,
-	GetRestaurantProductAnalyticsQueryDto,
+	GetRestaurantOrderSummaryQueryDTO,
+	GetRestaurantProductAnalyticsQueryDTO,
 	IOrderAnalyticsService,
-	ProductPerformanceItemDto,
-	RestaurantOrderAnalyticsSummaryDto,
-	RestaurantProductAnalyticsDto,
+	ProductPerformanceItemDTO,
+	RestaurantOrderAnalyticsSummaryDTO,
+	RestaurantProductAnalyticsDTO,
 } from "@/application/ports/services/order-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
+import { createServiceCircuitBreaker } from "@/infrastructure/resilience/circuit-breaker.factory.ts";
 import { ORDER_SERVICE_ROUTES } from "@/shared/constants/route.constants.ts";
+import { buildInternalS2SHeaders } from "@/shared/utils/s2s-headers.util.ts";
 
 interface ApiResponseEnvelope<T> {
 	success?: boolean;
@@ -43,65 +44,26 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 		this.serviceName = serviceName;
 		this.targetServiceName = targetServiceName;
 		this.privateKey = privateKey ?? env.S2S_PRIVATE_KEY;
-		this.circuitBreaker = new CircuitBreaker(
-			async (requestFn: () => Promise<unknown>) => await requestFn(),
-			{
-				name: "order-service",
-				timeoutMs: 3_000,
-				resetTimeoutMs: 30_000,
-				errorThresholdPercentage: 50,
-				volumeThreshold: 5,
-				checkIsFailure: (error: unknown) => {
-					const status = (error as { response?: { status?: number } })?.response
-						?.status;
-					if (typeof status === "number") {
-						if (
-							status >= 400 &&
-							status < 500 &&
-							status !== 408 &&
-							status !== 429
-						) {
-							return false;
-						}
-					}
-					return true;
-				},
-			},
-		);
+		this.circuitBreaker = createServiceCircuitBreaker({
+			name: "order-service",
+		});
 	}
 
-	private getInternalHeaders(callerUserId?: string): Record<string, string> {
-		const headers: Record<string, string> = {
-			Accept: "application/json",
-			"X-Caller-Service": this.serviceName,
-			"x-user-id": callerUserId || "system-admin",
-			"x-user-role": "admin",
-		};
-
-		if (this.privateKey) {
-			try {
-				const issuerConfig: TokenIssuerConfig = {
-					serviceName: this.serviceName,
-					privateKey: this.privateKey,
-				};
-				const token = generateToken(this.targetServiceName, issuerConfig);
-				headers.Authorization = `Bearer ${token}`;
-			} catch (error) {
-				this.logger.error(
-					{ error, targetServiceName: this.targetServiceName },
-					"Failed to generate S2S token for order-service",
-				);
-			}
-		}
-
-		return headers;
+	private getHeaders(callerUserId?: string): Record<string, string> {
+		return buildInternalS2SHeaders({
+			serviceName: this.serviceName,
+			targetServiceName: this.targetServiceName,
+			privateKey: this.privateKey,
+			callerUserId,
+			logger: this.logger,
+		});
 	}
 
 	public async getOrderSummary(
 		restaurantId: string,
-		query?: GetRestaurantOrderSummaryQueryDto,
+		query?: GetRestaurantOrderSummaryQueryDTO,
 		callerUserId?: string,
-	): Promise<RestaurantOrderAnalyticsSummaryDto | null> {
+	): Promise<RestaurantOrderAnalyticsSummaryDTO | null> {
 		try {
 			const result = await this.circuitBreaker.execute(async () => {
 				const endpoint =
@@ -109,31 +71,31 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 				const url = `${this.baseUrl}${endpoint}`;
 
 				const response = await axios.get<
-					ApiResponseEnvelope<RestaurantOrderAnalyticsSummaryDto>
+					ApiResponseEnvelope<RestaurantOrderAnalyticsSummaryDTO>
 				>(url, {
-					headers: this.getInternalHeaders(callerUserId),
+					headers: this.getHeaders(callerUserId),
 					params: {
 						interval: query?.interval,
 						day: query?.day,
 						month: query?.month,
 						year: query?.year,
 					},
-					timeout: 3_000,
+					timeout: env.CIRCUIT_BREAKER_TIMEOUT_MS,
 				});
 
 				if (response.data?.success && response.data?.data) {
 					const raw = response.data.data as unknown as {
 						restaurantId: string;
-						revenue?: RestaurantOrderAnalyticsSummaryDto["revenue"];
-						orders?: RestaurantOrderAnalyticsSummaryDto["orders"];
-						operations?: RestaurantOrderAnalyticsSummaryDto["operations"];
-						orderStatusBreakdown?: RestaurantOrderAnalyticsSummaryDto["orderStatusBreakdown"];
-						filters?: RestaurantOrderAnalyticsSummaryDto["filters"];
+						revenue?: RestaurantOrderAnalyticsSummaryDTO["revenue"];
+						orders?: RestaurantOrderAnalyticsSummaryDTO["orders"];
+						operations?: RestaurantOrderAnalyticsSummaryDTO["operations"];
+						orderStatusBreakdown?: RestaurantOrderAnalyticsSummaryDTO["orderStatusBreakdown"];
+						filters?: RestaurantOrderAnalyticsSummaryDTO["filters"];
 						generatedAt?: string;
 						overview?: {
-							revenue?: RestaurantOrderAnalyticsSummaryDto["revenue"];
-							orders?: RestaurantOrderAnalyticsSummaryDto["orders"];
-							operations?: RestaurantOrderAnalyticsSummaryDto["operations"];
+							revenue?: RestaurantOrderAnalyticsSummaryDTO["revenue"];
+							orders?: RestaurantOrderAnalyticsSummaryDTO["orders"];
+							operations?: RestaurantOrderAnalyticsSummaryDTO["operations"];
 						};
 					};
 					return {
@@ -153,7 +115,7 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 				);
 				return null;
 			});
-			return (result as RestaurantOrderAnalyticsSummaryDto | null) ?? null;
+			return (result as RestaurantOrderAnalyticsSummaryDTO | null) ?? null;
 		} catch (error) {
 			this.logger.warn(
 				{ error, restaurantId, circuitState: this.circuitBreaker.state },
@@ -165,9 +127,9 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 
 	public async getProductAnalytics(
 		restaurantId: string,
-		query?: GetRestaurantProductAnalyticsQueryDto,
+		query?: GetRestaurantProductAnalyticsQueryDTO,
 		callerUserId?: string,
-	): Promise<RestaurantProductAnalyticsDto | null> {
+	): Promise<RestaurantProductAnalyticsDTO | null> {
 		try {
 			const result = await this.circuitBreaker.execute(async () => {
 				const endpoint =
@@ -175,9 +137,9 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 				const url = `${this.baseUrl}${endpoint}`;
 
 				const response = await axios.get<
-					ApiResponseEnvelope<RestaurantProductAnalyticsDto>
+					ApiResponseEnvelope<RestaurantProductAnalyticsDTO>
 				>(url, {
-					headers: this.getInternalHeaders(callerUserId),
+					headers: this.getHeaders(callerUserId),
 					params: {
 						interval: query?.interval,
 						day: query?.day,
@@ -186,16 +148,16 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 						page: query?.page,
 						limit: query?.limit,
 					},
-					timeout: 3_000,
+					timeout: env.CIRCUIT_BREAKER_TIMEOUT_MS,
 				});
 
 				if (response.data?.success && response.data?.data) {
 					const data = response.data.data;
 					const mapProductItems = (
 						items?: Array<
-							ProductPerformanceItemDto & { grossSalesRupees?: number }
+							ProductPerformanceItemDTO & { grossSalesRupees?: number }
 						>,
-					): ProductPerformanceItemDto[] =>
+					): ProductPerformanceItemDTO[] =>
 						(items ?? []).map((item) => ({
 							menuItemId: item.menuItemId,
 							name: item.name,
@@ -231,7 +193,7 @@ export class OrderAnalyticsService implements IOrderAnalyticsService {
 				);
 				return null;
 			});
-			return (result as RestaurantProductAnalyticsDto | null) ?? null;
+			return (result as RestaurantProductAnalyticsDTO | null) ?? null;
 		} catch (error) {
 			this.logger.warn(
 				{ error, restaurantId, circuitState: this.circuitBreaker.state },

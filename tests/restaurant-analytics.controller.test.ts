@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
-import type { RestaurantAnalyticsDashboardResponseDto } from "@/application/dtos/restaurant/get-restaurant-analytics-dashboard.dto.ts";
+import type { RestaurantAnalyticsDashboardOutputDTO } from "@/application/dtos/restaurant/get-restaurant-analytics-dashboard.dto.ts";
 import type { IGetRestaurantAnalyticsDashboardUseCase } from "@/application/ports/use-cases/restaurant/get-restaurant-analytics-dashboard.use-case.port.ts";
 import { RestaurantAnalyticsController } from "@/presentation/http/controllers/restaurant-analytics.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -16,7 +16,7 @@ describe("RestaurantAnalyticsController", () => {
 
 	const restaurantId = "11111111-2222-3333-4444-555555555555";
 
-	const mockResponseDto: RestaurantAnalyticsDashboardResponseDto = {
+	const mockResponseDto: RestaurantAnalyticsDashboardOutputDTO = {
 		restaurantId,
 		overview: {
 			revenue: {
@@ -140,20 +140,20 @@ describe("RestaurantAnalyticsController", () => {
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it("should catch errors and delegate to next", async () => {
+	it("should propagate error when use case execution throws in Express 5", async () => {
 		const error = new Error("Downstream service failure");
 		useCase.execute.mockRejectedValueOnce(error);
 
 		req = { params: { restaurantId } };
 		res.locals = { params: { restaurantId } };
 
-		await controller.getRestaurantAnalyticsDashboard(
-			req as Request,
-			res as Response,
-			next,
-		);
+		await expect(
+			controller.getRestaurantAnalyticsDashboard(
+				req as Request,
+				res as Response,
+			),
+		).rejects.toThrow("Downstream service failure");
 
-		expect(next).toHaveBeenCalledWith(error);
 		expect(res.status).not.toHaveBeenCalled();
 	});
 });

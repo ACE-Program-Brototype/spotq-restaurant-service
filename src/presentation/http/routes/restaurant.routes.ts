@@ -175,11 +175,7 @@ restaurantRouter.get(
 );
 
 restaurantRouter.get(
-	[
-		RESTAURANT_ROUTES.ANALYTICS_DASHBOARD,
-		RESTAURANT_ROUTES.ANALYTICS_DASHBOARD_PREFIX,
-		RESTAURANT_ROUTES.ANALYTICS_DASHBOARD_FULL,
-	],
+	RESTAURANT_ROUTES.ANALYTICS_DASHBOARD,
 	restaurantOwnerAuthMiddleware,
 	validateRequestParams(getRestaurantAnalyticsDashboardParamsSchema),
 	validateRequestQuery(getRestaurantAnalyticsDashboardQuerySchema),

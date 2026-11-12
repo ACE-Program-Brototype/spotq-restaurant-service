@@ -6,6 +6,7 @@ import type {
 	PlatformDashboardAnalyticsOutputDTO,
 	RevenueSectionDTO,
 } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
+import { PlatformDashboardAnalyticsMapper } from "@/application/mappers/admin/platform-dashboard-analytics.mapper.ts";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type { IPaymentAnalyticsService } from "@/application/ports/services/payment-analytics.service.port.ts";
 import type { IUserAnalyticsService } from "@/application/ports/services/user-analytics.service.port.ts";
@@ -51,14 +52,19 @@ export class GetPlatformDashboardAnalyticsUseCase
 		const billingCycle: BillingCycle =
 			input.billingCycle ?? BILLING_CYCLES.ALL;
 
-		// 1. Fetch local database metrics concurrently via single repository aggregation method
+		/**
+		 * 1. Fetch local database metrics concurrently via single repository
+		 * aggregation method to minimize database roundtrips.
+		 */
 		const restaurantGrowth =
 			await this.restaurantAnalyticsRepository.getPlatformRestaurantGrowthMetrics(
 				resolvedRange.fromIso,
 				resolvedRange.toIso,
 			);
 
-		// Format onboarding funnel stages in order
+		/**
+		 * Format onboarding funnel stages preserving ordered pipeline steps.
+		 */
 		const onboardingFunnel: FunnelStageItemDTO[] =
 			restaurantGrowth.onboardingFunnel.map((item) => ({
 				stage: item.stage,
@@ -66,7 +72,10 @@ export class GetPlatformDashboardAnalyticsUseCase
 				label: item.label || item.stage,
 			}));
 
-		// 2. Fetch external microservice metrics concurrently via Promise.allSettled
+		/**
+		 * 2. Fetch external microservice metrics concurrently via Promise.allSettled
+		 * ensuring failure in one downstream dependency does not abort the entire dashboard.
+		 */
 		const [paymentResultSettled, userResultSettled] = await Promise.allSettled([
 			this.paymentAnalyticsService.getSubscriptionSummary({
 				period: resolvedRange.period,
@@ -83,7 +92,9 @@ export class GetPlatformDashboardAnalyticsUseCase
 			}),
 		]);
 
-		// 3. Process Payment Service response with Circuit Breaker resilience
+		/**
+		 * 3. Process Payment Service response with Circuit Breaker resilience.
+		 */
 		let activeSubscribedRestaurants: number | null = null;
 		let subscriptionTierDistribution: Record<string, number> | null = null;
 		let revenue: RevenueSectionDTO;
@@ -116,7 +127,9 @@ export class GetPlatformDashboardAnalyticsUseCase
 				messages.PAYMENT_SERVICE_FINANCE_SUMMARY_UNAVAILABLE,
 			);
 
-			// Explicitly null & UNAVAILABLE to avoid returning false zeros or stale local flags
+			/**
+			 * Explicitly mark null and UNAVAILABLE to avoid returning false zeros or stale local flags.
+			 */
 			activeSubscribedRestaurants = null;
 			subscriptionTierDistribution = null;
 			revenue = {
@@ -128,7 +141,9 @@ export class GetPlatformDashboardAnalyticsUseCase
 			};
 		}
 
-		// 4. Process User Service response with Circuit Breaker resilience
+		/**
+		 * 4. Process User Service response with Circuit Breaker resilience.
+		 */
 		let customerGrowth: CustomerGrowthSectionDTO;
 
 		if (
@@ -161,7 +176,7 @@ export class GetPlatformDashboardAnalyticsUseCase
 			};
 		}
 
-		return {
+		return PlatformDashboardAnalyticsMapper.toOutputDTO({
 			overview: {
 				totalRestaurants: restaurantGrowth.totalRestaurants,
 				activeSubscribedRestaurants,
@@ -169,11 +184,9 @@ export class GetPlatformDashboardAnalyticsUseCase
 			},
 			customerGrowth,
 			revenue,
-			growth: {
-				onboardingFunnel,
-				onboardingTrend: restaurantGrowth.onboardingTrend,
-				geographicBreakdown: restaurantGrowth.geographicBreakdown,
-			},
+			onboardingFunnel,
+			onboardingTrend: restaurantGrowth.onboardingTrend,
+			geographicBreakdown: restaurantGrowth.geographicBreakdown,
 			filters: {
 				period: resolvedRange.period,
 				day: resolvedRange.day,
@@ -183,7 +196,6 @@ export class GetPlatformDashboardAnalyticsUseCase
 				from: resolvedRange.fromIso,
 				to: resolvedRange.toIso,
 			},
-			generatedAt: new Date().toISOString(),
-		};
+		});
 	}
 }

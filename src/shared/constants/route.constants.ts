@@ -45,9 +45,6 @@ export const RESTAURANT_ROUTES = {
 	CUSTOMER_LIST: "/customers",
 	CUSTOMER_DETAILS: "/customers/:restaurantId",
 	ANALYTICS_DASHBOARD: "/:restaurantId/analytics/dashboard",
-	ANALYTICS_DASHBOARD_FULL:
-		"/api/v1/restaurants/:restaurantId/analytics/dashboard",
-	ANALYTICS_DASHBOARD_PREFIX: "/restaurants/:restaurantId/analytics/dashboard",
 } as const;
 
 export const STAFF_ROUTES = {

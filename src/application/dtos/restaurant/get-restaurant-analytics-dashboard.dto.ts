@@ -141,24 +141,3 @@ export interface RestaurantAnalyticsDashboardOutputDTO {
 	filters: RestaurantAnalyticsDashboardFiltersDTO;
 	generatedAt: string;
 }
-
-// Backwards-compatible aliases
-export type GetRestaurantAnalyticsDashboardQueryDto =
-	GetRestaurantAnalyticsDashboardInputDTO;
-export type RevenueMetricDto = RevenueMetricDTO;
-export type RevenueSectionResultDto = RevenueSectionResultDTO;
-export type OrderMetricDto = OrderMetricDTO;
-export type OrderSectionResultDto = OrderSectionResultDTO;
-export type OperationMetricDto = OperationMetricDTO;
-export type OperationSectionResultDto = OperationSectionResultDTO;
-export type OrderStatusDistributionDto = OrderStatusDistributionDTO;
-export type OrderStatusBreakdownDto = OrderStatusBreakdownDTO;
-export type OrderStatusBreakdownResultDto = OrderStatusBreakdownResultDTO;
-export type ProductItemDto = ProductItemDTO;
-export type ProductRankingPaginationDto = ProductRankingPaginationDTO;
-export type ProductSectionAvailableDto = ProductSectionAvailableDTO;
-export type ProductSectionResultDto = ProductSectionResultDTO;
-export type RestaurantAnalyticsDashboardFiltersDto =
-	RestaurantAnalyticsDashboardFiltersDTO;
-export type RestaurantAnalyticsDashboardResponseDto =
-	RestaurantAnalyticsDashboardOutputDTO;

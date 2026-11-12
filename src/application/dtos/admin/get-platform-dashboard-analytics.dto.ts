@@ -107,19 +107,3 @@ export interface PlatformDashboardAnalyticsOutputDTO {
 	filters: PlatformDashboardFiltersDTO;
 	generatedAt: string;
 }
-
-// Backwards-compatible aliases
-export type GetPlatformDashboardAnalyticsQueryDto =
-	GetPlatformDashboardAnalyticsInputDTO;
-export type PlatformDashboardAnalyticsResponseDto =
-	PlatformDashboardAnalyticsOutputDTO;
-export type SectionErrorDto = SectionErrorDTO;
-export type CustomerGrowthSectionDto = CustomerGrowthSectionDTO;
-export type RevenueSectionDto = RevenueSectionDTO;
-export type RevenueTimelinePointDto = RevenueTimelinePointDTO;
-export type PlatformOverviewDto = PlatformOverviewDTO;
-export type FunnelStageItemDto = FunnelStageItemDTO;
-export type OnboardingTrendItemDto = OnboardingTrendItemDTO;
-export type GeographicBreakdownItemDto = GeographicBreakdownItemDTO;
-export type PlatformGrowthDto = PlatformGrowthDTO;
-export type PlatformDashboardFiltersDto = PlatformDashboardFiltersDTO;

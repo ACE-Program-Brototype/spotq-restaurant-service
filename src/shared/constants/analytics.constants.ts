@@ -65,3 +65,11 @@ export const ANALYTICS_FALLBACKS = {
 	SYSTEM_ADMIN_CALLER: "system-admin",
 	ADMIN_ROLE: "admin",
 } as const;
+
+export const ANALYTICS_PAGINATION = {
+	DEFAULT_PAGE: 1,
+	MIN_PAGE: 1,
+	DEFAULT_LIMIT: 10,
+	MIN_LIMIT: 1,
+	MAX_LIMIT: 100,
+} as const;

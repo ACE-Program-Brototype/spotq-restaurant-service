@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import type { GetPlatformDashboardAnalyticsInputDTO } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
 import type { IGetPlatformDashboardAnalyticsUseCase } from "@/application/ports/use-cases/admin/get-platform-dashboard-analytics.use-case.port.ts";
@@ -17,23 +17,18 @@ export class AdminDashboardAnalyticsController {
 	public getDashboardAnalytics = async (
 		req: Request,
 		res: Response,
-		next: NextFunction,
 	): Promise<void> => {
-		try {
-			const query = (res.locals.query ??
-				req.query) as GetPlatformDashboardAnalyticsInputDTO;
+		const query = (res.locals.query ??
+			req.query) as GetPlatformDashboardAnalyticsInputDTO;
 
-			const result =
-				await this.getPlatformDashboardAnalyticsUseCase.execute(query);
+		const result =
+			await this.getPlatformDashboardAnalyticsUseCase.execute(query);
 
-			sendSuccessResponse(
-				res,
-				result,
-				messages.PLATFORM_DASHBOARD_ANALYTICS_FETCHED,
-				HTTP_STATUS.OK,
-			);
-		} catch (error) {
-			next(error);
-		}
+		sendSuccessResponse(
+			res,
+			result,
+			messages.PLATFORM_DASHBOARD_ANALYTICS_FETCHED,
+			HTTP_STATUS.OK,
+		);
 	};
 }

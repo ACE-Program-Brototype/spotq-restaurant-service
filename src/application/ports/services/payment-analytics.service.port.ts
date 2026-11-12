@@ -3,21 +3,21 @@ import type {
 	BillingCycle,
 } from "@/shared/constants/analytics.constants.ts";
 
-export interface PaymentSubscriptionTimelineBucketDto {
+export interface PaymentSubscriptionTimelineBucketDTO {
 	bucketLabel: string;
 	grossRevenueRupees: number;
 	mrrRupees: number;
 	newSubscriptionsCount: number;
 }
 
-export interface PaymentSubscriptionSummaryDto {
+export interface PaymentSubscriptionSummaryDTO {
 	activeSubscribedRestaurants: number;
 	currentMrrRupees: number;
 	currentArrRupees: number;
 	grossSubscriptionRevenueRupees: number;
 	growthPercentage: number | null;
 	subscriptionTierDistribution: Record<string, number>;
-	timeline: PaymentSubscriptionTimelineBucketDto[];
+	timeline: PaymentSubscriptionTimelineBucketDTO[];
 	filters?: {
 		period: AnalyticsPeriod;
 		day: number | null;
@@ -28,7 +28,7 @@ export interface PaymentSubscriptionSummaryDto {
 	generatedAt?: string;
 }
 
-export interface PaymentSubscriptionAnalyticsQueryDto {
+export interface PaymentSubscriptionAnalyticsQueryDTO {
 	period?: AnalyticsPeriod;
 	day?: number | null;
 	month?: number;
@@ -38,7 +38,7 @@ export interface PaymentSubscriptionAnalyticsQueryDto {
 
 export interface IPaymentAnalyticsService {
 	getSubscriptionSummary(
-		query?: PaymentSubscriptionAnalyticsQueryDto,
+		query?: PaymentSubscriptionAnalyticsQueryDTO,
 		callerUserId?: string,
-	): Promise<PaymentSubscriptionSummaryDto | null>;
+	): Promise<PaymentSubscriptionSummaryDTO | null>;
 }

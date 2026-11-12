@@ -1,20 +1,21 @@
-import { CircuitBreaker } from "@spotq-org/circuit-breaker";
-import { generateToken, type TokenIssuerConfig } from "@spotq-org/s2s-core";
+import type { CircuitBreaker } from "@spotq-org/circuit-breaker";
 import axios from "axios";
 import { inject, injectable } from "inversify";
 import type { ILogger } from "@/application/ports/services/logger.interface.ts";
 import type {
 	IUserAnalyticsService,
-	UserAnalyticsSummaryDto,
-	UserAnalyticsSummaryQueryDto,
+	UserAnalyticsSummaryDTO,
+	UserAnalyticsSummaryQueryDTO,
 } from "@/application/ports/services/user-analytics.service.port.ts";
 import { TYPES } from "@/config/di/types.ts";
 import { env } from "@/config/env.ts";
+import { createServiceCircuitBreaker } from "@/infrastructure/resilience/circuit-breaker.factory.ts";
 import { USER_SERVICE_ROUTES } from "@/shared/constants/route.constants.ts";
+import { buildInternalS2SHeaders } from "@/shared/utils/s2s-headers.util.ts";
 
 interface UserSummaryApiResponse {
 	success?: boolean;
-	data?: UserAnalyticsSummaryDto | null;
+	data?: UserAnalyticsSummaryDTO | null;
 }
 
 @injectable()
@@ -40,71 +41,37 @@ export class UserAnalyticsService implements IUserAnalyticsService {
 		this.serviceName = serviceName;
 		this.targetServiceName = targetServiceName;
 		this.privateKey = privateKey ?? env.S2S_PRIVATE_KEY;
-		this.circuitBreaker = new CircuitBreaker(
-			async (requestFn: () => Promise<unknown>) => await requestFn(),
-			{
-				name: "user-service",
-				timeoutMs: 3_000,
-				resetTimeoutMs: 30_000,
-				errorThresholdPercentage: 50,
-				volumeThreshold: 5,
-				checkIsFailure: (error: unknown) => {
-					const status = (error as { response?: { status?: number } })?.response
-						?.status;
-					if (typeof status === "number") {
-						if (status >= 400 && status < 500 && status !== 408 && status !== 429) {
-							return false;
-						}
-					}
-					return true;
-				},
-			},
-		);
+		this.circuitBreaker = createServiceCircuitBreaker({
+			name: "user-service",
+		});
 	}
 
-	private getInternalHeaders(callerUserId?: string): Record<string, string> {
-		const headers: Record<string, string> = {
-			Accept: "application/json",
-			"X-Caller-Service": this.serviceName,
-			"x-user-id": callerUserId || "system-admin",
-			"x-user-role": "admin",
-		};
-
-		if (this.privateKey) {
-			try {
-				const issuerConfig: TokenIssuerConfig = {
-					serviceName: this.serviceName,
-					privateKey: this.privateKey,
-				};
-				const token = generateToken(this.targetServiceName, issuerConfig);
-				headers.Authorization = `Bearer ${token}`;
-			} catch (error) {
-				this.logger.error(
-					{ error, targetServiceName: this.targetServiceName },
-					"Failed to generate S2S token for user-service",
-				);
-			}
-		}
-
-		return headers;
+	private getHeaders(callerUserId?: string): Record<string, string> {
+		return buildInternalS2SHeaders({
+			serviceName: this.serviceName,
+			targetServiceName: this.targetServiceName,
+			privateKey: this.privateKey,
+			callerUserId,
+			logger: this.logger,
+		});
 	}
 
 	public async getUserSummary(
-		query?: UserAnalyticsSummaryQueryDto,
+		query?: UserAnalyticsSummaryQueryDTO,
 		callerUserId?: string,
-	): Promise<UserAnalyticsSummaryDto | null> {
+	): Promise<UserAnalyticsSummaryDTO | null> {
 		try {
 			const result = await this.circuitBreaker.execute(async () => {
 				const url = `${this.baseUrl}${USER_SERVICE_ROUTES.ANALYTICS_USERS_SUMMARY}`;
 				const response = await axios.get<UserSummaryApiResponse>(url, {
-					headers: this.getInternalHeaders(callerUserId),
+					headers: this.getHeaders(callerUserId),
 					params: {
 						period: query?.period,
 						day: query?.day,
 						month: query?.month,
 						year: query?.year,
 					},
-					timeout: 3_000,
+					timeout: env.CIRCUIT_BREAKER_TIMEOUT_MS,
 				});
 
 				if (response.data?.success && response.data?.data) {
@@ -117,7 +84,7 @@ export class UserAnalyticsService implements IUserAnalyticsService {
 				);
 				return null;
 			});
-			return (result as UserAnalyticsSummaryDto | null) ?? null;
+			return (result as UserAnalyticsSummaryDTO | null) ?? null;
 		} catch (error) {
 			this.logger.warn(
 				{ error, circuitState: this.circuitBreaker.state },

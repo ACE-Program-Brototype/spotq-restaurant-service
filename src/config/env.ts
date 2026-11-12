@@ -417,6 +417,17 @@ const envSchema = z.object({
 	USER_SERVICE_NAME: z.string().trim().default("user-service"),
 	RABBITMQ_URL: z.string().trim().default("amqp://guest:guest@localhost:5672"),
 	RABBITMQ_PREFETCH_COUNT: z.coerce.number().positive().default(10),
+
+	// Circuit Breaker Configuration (@spotq-org/circuit-breaker)
+	CIRCUIT_BREAKER_TIMEOUT_MS: z.coerce.number().positive().default(3000),
+	CIRCUIT_BREAKER_RESET_TIMEOUT_MS: z.coerce.number().positive().default(30000),
+	CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE: z.coerce
+		.number()
+		.min(1)
+		.max(100)
+		.default(50),
+	CIRCUIT_BREAKER_VOLUME_THRESHOLD: z.coerce.number().min(1).default(5),
+	CIRCUIT_BREAKER_ROLLING_WINDOW_MS: z.coerce.number().positive().default(10000),
 });
 
 export type Env = z.infer<typeof envSchema>;

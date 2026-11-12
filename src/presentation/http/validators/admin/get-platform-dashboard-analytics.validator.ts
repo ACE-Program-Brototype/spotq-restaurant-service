@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ANALYTICS_FALLBACKS } from "@/shared/constants/analytics.constants.ts";
+import { ANALYTICS_VALIDATION_MESSAGES } from "@/shared/constants/analytics-validation.constants.ts";
 import { isValidCalendarDate } from "@/shared/utils/date-range.util.ts";
 
 export const getPlatformDashboardAnalyticsQuerySchema = z
@@ -7,21 +8,21 @@ export const getPlatformDashboardAnalyticsQuerySchema = z
 		period: z.enum(["DAY", "WEEK", "MONTH", "YEAR"]).optional(),
 		day: z.coerce
 			.number()
-			.int({ message: "day must be an integer" })
-			.min(1, { message: "day must be between 1 and 31" })
-			.max(31, { message: "day must be between 1 and 31" })
+			.int({ message: ANALYTICS_VALIDATION_MESSAGES.DAY_MUST_BE_INTEGER })
+			.min(1, { message: ANALYTICS_VALIDATION_MESSAGES.DAY_OUT_OF_RANGE })
+			.max(31, { message: ANALYTICS_VALIDATION_MESSAGES.DAY_OUT_OF_RANGE })
 			.optional(),
 		month: z.coerce
 			.number()
-			.int({ message: "month must be an integer" })
-			.min(1, { message: "month must be between 1 and 12" })
-			.max(12, { message: "month must be between 1 and 12" })
+			.int({ message: ANALYTICS_VALIDATION_MESSAGES.MONTH_MUST_BE_INTEGER })
+			.min(1, { message: ANALYTICS_VALIDATION_MESSAGES.MONTH_OUT_OF_RANGE })
+			.max(12, { message: ANALYTICS_VALIDATION_MESSAGES.MONTH_OUT_OF_RANGE })
 			.optional(),
 		year: z.coerce
 			.number()
-			.int({ message: "year must be an integer" })
-			.min(2000, { message: "year must be 2000 or later" })
-			.max(2100, { message: "year must be 2100 or earlier" })
+			.int({ message: ANALYTICS_VALIDATION_MESSAGES.YEAR_MUST_BE_INTEGER })
+			.min(2000, { message: ANALYTICS_VALIDATION_MESSAGES.YEAR_TOO_EARLY })
+			.max(2100, { message: ANALYTICS_VALIDATION_MESSAGES.YEAR_TOO_LATE })
 			.optional(),
 		billingCycle: z
 			.enum(["ALL", "MONTHLY", "YEARLY"])
@@ -30,17 +31,23 @@ export const getPlatformDashboardAnalyticsQuerySchema = z
 		// Backwards-compatible legacy parameters
 		from: z
 			.string()
-			.datetime({ message: "Invalid ISO date format for 'from'" })
+			.datetime({ message: ANALYTICS_VALIDATION_MESSAGES.FROM_INVALID_ISO })
 			.optional(),
 		to: z
 			.string()
-			.datetime({ message: "Invalid ISO date format for 'to'" })
+			.datetime({ message: ANALYTICS_VALIDATION_MESSAGES.TO_INVALID_ISO })
 			.optional(),
 		fiscalYear: z.coerce
 			.number()
-			.int({ message: "fiscalYear must be an integer" })
-			.min(2000, { message: "fiscalYear must be 2000 or later" })
-			.max(2100, { message: "fiscalYear must be 2100 or earlier" })
+			.int({
+				message: ANALYTICS_VALIDATION_MESSAGES.FISCAL_YEAR_MUST_BE_INTEGER,
+			})
+			.min(2000, {
+				message: ANALYTICS_VALIDATION_MESSAGES.FISCAL_YEAR_TOO_EARLY,
+			})
+			.max(2100, {
+				message: ANALYTICS_VALIDATION_MESSAGES.FISCAL_YEAR_TOO_LATE,
+			})
 			.optional(),
 	})
 	.superRefine((data, ctx) => {
@@ -49,7 +56,7 @@ export const getPlatformDashboardAnalyticsQuerySchema = z
 			if (new Date(data.from) > new Date(data.to)) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "'from' date must be earlier than or equal to 'to' date",
+					message: ANALYTICS_VALIDATION_MESSAGES.FROM_BEFORE_TO,
 					path: ["to"],
 				});
 			}
@@ -60,7 +67,8 @@ export const getPlatformDashboardAnalyticsQuerySchema = z
 			if (data.month === undefined) {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
-					message: "month is required when day is specified",
+					message:
+						ANALYTICS_VALIDATION_MESSAGES.MONTH_REQUIRED_WHEN_DAY_SPECIFIED,
 					path: ["month"],
 				});
 			} else {
@@ -69,7 +77,11 @@ export const getPlatformDashboardAnalyticsQuerySchema = z
 				if (!isValidCalendarDate(checkYear, data.month, data.day)) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
-						message: `Invalid calendar date: day ${data.day} does not exist in month ${data.month} of year ${checkYear}`,
+						message: ANALYTICS_VALIDATION_MESSAGES.formatInvalidCalendarDate(
+							data.day,
+							data.month,
+							checkYear,
+						),
 						path: ["day"],
 					});
 				}

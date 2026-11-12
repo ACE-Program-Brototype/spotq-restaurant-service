@@ -1,20 +1,20 @@
 import type { AnalyticsPeriod } from "@/shared/constants/analytics.constants.ts";
 
-export interface UserAnalyticsSummaryQueryDto {
+export interface UserAnalyticsSummaryQueryDTO {
 	period?: AnalyticsPeriod;
 	day?: number;
 	month?: number;
 	year?: number;
 }
 
-export interface UserAnalyticsSummaryDto {
+export interface UserAnalyticsSummaryDTO {
 	totalRegisteredCustomers: number;
 	newCustomersInPeriod: number;
 }
 
 export interface IUserAnalyticsService {
 	getUserSummary(
-		query?: UserAnalyticsSummaryQueryDto,
+		query?: UserAnalyticsSummaryQueryDTO,
 		callerUserId?: string,
-	): Promise<UserAnalyticsSummaryDto | null>;
+	): Promise<UserAnalyticsSummaryDTO | null>;
 }

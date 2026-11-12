@@ -3,7 +3,7 @@ import type {
 	OrderStatusFilter,
 } from "@/shared/constants/analytics.constants.ts";
 
-export interface GetRestaurantOrderSummaryQueryDto {
+export interface GetRestaurantOrderSummaryQueryDTO {
 	interval?: AnalyticsPeriod;
 	day?: number;
 	month?: number;
@@ -11,7 +11,7 @@ export interface GetRestaurantOrderSummaryQueryDto {
 	status?: OrderStatusFilter;
 }
 
-export interface GetRestaurantProductAnalyticsQueryDto {
+export interface GetRestaurantProductAnalyticsQueryDTO {
 	interval?: AnalyticsPeriod;
 	day?: number;
 	month?: number;
@@ -20,14 +20,14 @@ export interface GetRestaurantProductAnalyticsQueryDto {
 	limit?: number;
 }
 
-export interface OrderStatusDistributionItemDto {
+export interface OrderStatusDistributionItemDTO {
 	status: string;
 	count: number;
 	percentage: number;
 	amountRupees: number;
 }
 
-export interface RestaurantOrderAnalyticsSummaryDto {
+export interface RestaurantOrderAnalyticsSummaryDTO {
 	restaurantId: string;
 	revenue: {
 		netSalesRupees: number;
@@ -47,7 +47,7 @@ export interface RestaurantOrderAnalyticsSummaryDto {
 	};
 	orderStatusBreakdown: {
 		totalOrdersTracked: number;
-		distribution: OrderStatusDistributionItemDto[];
+		distribution: OrderStatusDistributionItemDTO[];
 	};
 	filters?: {
 		interval: string;
@@ -59,7 +59,7 @@ export interface RestaurantOrderAnalyticsSummaryDto {
 	generatedAt?: string;
 }
 
-export interface ProductPerformanceItemDto {
+export interface ProductPerformanceItemDTO {
 	menuItemId: string;
 	name: string;
 	quantitySold: number;
@@ -69,7 +69,7 @@ export interface ProductPerformanceItemDto {
 	classification?: "ZERO_SALES" | "LOW_VOLUME" | "NORMAL";
 }
 
-export interface ProductRankingPaginationDto {
+export interface ProductRankingPaginationDTO {
 	totalItems: number;
 	totalPages: number;
 	currentPage: number;
@@ -78,16 +78,16 @@ export interface ProductRankingPaginationDto {
 	hasPrevPage: boolean;
 }
 
-export interface RestaurantProductAnalyticsDto {
+export interface RestaurantProductAnalyticsDTO {
 	restaurantId: string;
 	totalProductsSold: number;
 	topSelling: {
-		items: ProductPerformanceItemDto[];
-		pagination: ProductRankingPaginationDto;
+		items: ProductPerformanceItemDTO[];
+		pagination: ProductRankingPaginationDTO;
 	};
 	slowMoving: {
-		items: ProductPerformanceItemDto[];
-		pagination: ProductRankingPaginationDto;
+		items: ProductPerformanceItemDTO[];
+		pagination: ProductRankingPaginationDTO;
 	};
 	filters?: {
 		interval: string;
@@ -103,13 +103,13 @@ export interface RestaurantProductAnalyticsDto {
 export interface IOrderAnalyticsService {
 	getOrderSummary(
 		restaurantId: string,
-		query?: GetRestaurantOrderSummaryQueryDto,
+		query?: GetRestaurantOrderSummaryQueryDTO,
 		callerUserId?: string,
-	): Promise<RestaurantOrderAnalyticsSummaryDto | null>;
+	): Promise<RestaurantOrderAnalyticsSummaryDTO | null>;
 
 	getProductAnalytics(
 		restaurantId: string,
-		query?: GetRestaurantProductAnalyticsQueryDto,
+		query?: GetRestaurantProductAnalyticsQueryDTO,
 		callerUserId?: string,
-	): Promise<RestaurantProductAnalyticsDto | null>;
+	): Promise<RestaurantProductAnalyticsDTO | null>;
 }

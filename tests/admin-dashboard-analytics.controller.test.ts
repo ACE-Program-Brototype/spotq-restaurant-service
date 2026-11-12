@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import type { NextFunction, Request, Response } from "express";
-import type { PlatformDashboardAnalyticsResponseDto } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
+import type { PlatformDashboardAnalyticsOutputDTO } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
 import type { IGetPlatformDashboardAnalyticsUseCase } from "@/application/ports/use-cases/admin/get-platform-dashboard-analytics.use-case.port.ts";
 import { AdminDashboardAnalyticsController } from "@/presentation/http/controllers/admin-dashboard-analytics.controller.ts";
 import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
@@ -14,7 +14,7 @@ describe("AdminDashboardAnalyticsController", () => {
 	let res: Partial<Response>;
 	let next: jest.MockedFunction<NextFunction>;
 
-	const mockResponseDto: PlatformDashboardAnalyticsResponseDto = {
+	const mockResponseDto: PlatformDashboardAnalyticsOutputDTO = {
 		overview: {
 			totalRestaurants: 100,
 			activeSubscribedRestaurants: 80,
@@ -148,20 +148,17 @@ describe("AdminDashboardAnalyticsController", () => {
 		});
 	});
 
-	it("should pass error to next when use case execution throws", async () => {
+	it("should propagate error when use case execution throws in Express 5", async () => {
 		const error = new Error("Database query execution failed");
 		useCase.execute.mockRejectedValue(error);
 
 		req = {};
 		res.locals = {};
 
-		await controller.getDashboardAnalytics(
-			req as Request,
-			res as Response,
-			next,
-		);
+		await expect(
+			controller.getDashboardAnalytics(req as Request, res as Response),
+		).rejects.toThrow("Database query execution failed");
 
-		expect(next).toHaveBeenCalledWith(error);
 		expect(res.status).not.toHaveBeenCalled();
 		expect(res.json).not.toHaveBeenCalled();
 	});

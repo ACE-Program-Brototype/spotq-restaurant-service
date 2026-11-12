@@ -37,21 +37,25 @@ export class PrismaRestaurantAnalyticsRepository
 		return { createdAt };
 	}
 
+	/**
+	 * Aggregates platform-wide restaurant growth metrics concurrently.
+	 * Optimizes database roundtrips by deriving total registered restaurants
+	 * directly from the onboarding funnel's COUNT(*) aggregation.
+	 */
 	async getPlatformRestaurantGrowthMetrics(
 		from?: string,
 		to?: string,
 	): Promise<PlatformRestaurantGrowthData> {
-		const [
-			totalRestaurants,
-			onboardingFunnel,
-			onboardingTrend,
-			geographicBreakdown,
-		] = await Promise.all([
-			this.getTotalRestaurantsCount(from, to),
-			this.getOnboardingFunnel(from, to),
-			this.getOnboardingTrend(from, to),
-			this.getGeographicBreakdown(),
-		]);
+		const [onboardingFunnel, onboardingTrend, geographicBreakdown] =
+			await Promise.all([
+				this.getOnboardingFunnel(from, to),
+				this.getOnboardingTrend(from, to),
+				this.getGeographicBreakdown(),
+			]);
+
+		const totalRestaurants =
+			onboardingFunnel.find((stage) => stage.stage === "REGISTERED")?.count ??
+			0;
 
 		return {
 			totalRestaurants,
@@ -89,6 +93,18 @@ export class PrismaRestaurantAnalyticsRepository
 		return distribution;
 	}
 
+	/**
+	 * Computes monthly onboarding trends aggregated by reporting timezone.
+	 *
+	 * Security Note:
+	 * Uses Prisma's tagged template literal `$queryRaw` which transforms all
+	 * interpolated variables (${fromDate}, ${toDate}, ${REPORTING_TIMEZONE})
+	 * into parameterized PostgreSQL bind variables ($1, $2, etc.), preventing SQL injection.
+	 *
+	 * Technical Rationale:
+	 * Raw SQL is required because Prisma's ORM groupBy does not support SQL date truncation
+	 * or timezone conversion (TO_CHAR(created_at AT TIME ZONE ..., 'YYYY-MM')).
+	 */
 	async getOnboardingTrend(
 		from?: string,
 		to?: string,
@@ -110,6 +126,17 @@ export class PrismaRestaurantAnalyticsRepository
 		return results;
 	}
 
+	/**
+	 * Aggregates restaurant onboarding lifecycle stages into a single-pass funnel.
+	 *
+	 * Security Note:
+	 * Uses Prisma's parameterized `$queryRaw` tagged template literal to ensure all
+	 * date filters are safely bound as typed parameters.
+	 *
+	 * Technical Rationale:
+	 * A single conditional aggregation query (COUNT(CASE WHEN ...)) executes all 4 stages
+	 * in 1 database roundtrip instead of 4 sequential or separate Prisma count queries.
+	 */
 	async getOnboardingFunnel(
 		from?: string,
 		to?: string,
@@ -166,6 +193,16 @@ export class PrismaRestaurantAnalyticsRepository
 		];
 	}
 
+	/**
+	 * Aggregates geographic distribution of restaurants across cities and states.
+	 *
+	 * Security Note:
+	 * Parameter-free query using Prisma's tagged template literal.
+	 *
+	 * Technical Rationale:
+	 * Requires cross-table join and text normalization (INITCAP(TRIM(...)))
+	 * with DISTINCT counting not expressible in standard Prisma aggregations.
+	 */
 	async getGeographicBreakdown(): Promise<GeographicBreakdownPoint[]> {
 		const results = await this.prisma.$queryRaw<GeographicBreakdownPoint[]>`
 			SELECT
