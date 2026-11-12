@@ -35,6 +35,7 @@ const config: Config = {
 		"^@/(.*)$": "<rootDir>/src/$1",
 		"^(\\./.+)\\.js$": "$1",
 		"^(\\.\\./.+)\\.js$": "$1",
+		"^@spotq-org/circuit-breaker$": "<rootDir>/node_modules/@spotq-org/circuit-breaker/dist/index.js",
 	},
 	transform: {
 		"^.+\\.(t|j)sx?$": [

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+	adminDashboardAnalyticsController,
 	adminRestaurantController,
 	menuCategoryController,
 } from "@/config/di/controllers.resolutions.ts";
@@ -24,6 +25,7 @@ import { getRestaurantApplicationDetailsParamSchema } from "@/presentation/http/
 import { getRestaurantDetailsParamSchema } from "@/presentation/http/validators/admin/get-restaurant-details.validator.ts";
 import { listRestaurantApplicationsSchema } from "@/presentation/http/validators/admin/list-restaurant-applications.validator.ts";
 import { listRestaurantsQuerySchema } from "@/presentation/http/validators/admin/list-restaurants.validator.ts";
+import { getPlatformDashboardAnalyticsQuerySchema } from "@/presentation/http/validators/admin/get-platform-dashboard-analytics.validator.ts";
 import {
 	rejectRestaurantBodySchema,
 	rejectRestaurantParamSchema,
@@ -33,6 +35,24 @@ import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/li
 import { ADMIN_ROUTES } from "@/shared/constants/route.constants.ts";
 
 export const adminRouter = express.Router();
+
+adminRouter.get(
+	ADMIN_ROUTES.DASHBOARD,
+	adminAuthMiddleware,
+	validateRequestQuery(getPlatformDashboardAnalyticsQuerySchema),
+	adminDashboardAnalyticsController.getDashboardAnalytics.bind(
+		adminDashboardAnalyticsController,
+	),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.DASHBOARD_ANALYTICS,
+	adminAuthMiddleware,
+	validateRequestQuery(getPlatformDashboardAnalyticsQuerySchema),
+	adminDashboardAnalyticsController.getDashboardAnalytics.bind(
+		adminDashboardAnalyticsController,
+	),
+);
 
 adminRouter.get(
 	ADMIN_ROUTES.APPLICATIONS,

@@ -1,4 +1,3 @@
-import { SUBSCRIPTION_PLAN } from "@domain/value-objects/subscription-plan.vo";
 import { inject, injectable } from "inversify";
 import type {
 	CustomerRestaurantDetailsInputDTO,
@@ -11,6 +10,7 @@ import type { IGetCustomerRestaurantDetailsUseCase } from "@/application/ports/u
 import { TYPES } from "@/config/di/types.ts";
 import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
 import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
+import { SUBSCRIPTION_PLAN } from "@/domain/value-objects/subscription-plan.vo.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 
 @injectable()
@@ -42,23 +42,27 @@ export class GetCustomerRestaurantDetailsUseCase
 		record.restaurant.ensureCustomerAccess(new Date());
 
 		let queueStatus: CustomerRestaurantQueueStatusDTO | null = null;
+		const canAccessQueue = record.restaurant.canAccessQueueService(
+			record.settings?.acceptsQueue ?? false,
+		);
 
-		if (
-			record.restaurant.subscriptionPlanCode === SUBSCRIPTION_PLAN.QUEUE_PRO
-		) {
+		if (record.restaurant.subscriptionPlanCode === SUBSCRIPTION_PLAN.SELF_PRO) {
+			queueStatus = null;
+		} else if (!canAccessQueue) {
+			queueStatus = {
+				hasJoinedAnyQueue: null,
+				hasJoinedThisRestaurantQueue: null,
+				isGuestUser: !dto.userId,
+				isQueueStatusAvailable: false,
+			};
+		} else if (!dto.userId) {
 			queueStatus = {
 				hasJoinedAnyQueue: null,
 				hasJoinedThisRestaurantQueue: null,
 				isGuestUser: true,
 				isQueueStatusAvailable: true,
 			};
-		}
-		if (
-			dto.userId &&
-			record.restaurant.canAccessQueueService(
-				record.settings?.acceptsQueue ?? false,
-			)
-		) {
+		} else {
 			const status = await this.queueService.getQueueStatus({
 				restaurantId: dto.restaurantId,
 				userId: dto.userId,

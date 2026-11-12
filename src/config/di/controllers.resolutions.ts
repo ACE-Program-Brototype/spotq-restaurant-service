@@ -1,20 +1,22 @@
-import type { InternalTableController } from "@presentation/http/controllers/internal-table.controller";
-import type { TableController } from "@presentation/http/controllers/table.controller";
-import type { TableSectionController } from "@presentation/http/controllers/table-section.controller";
+import { container } from "@/config/di/container.ts";
+import { TYPES } from "@/config/di/types.ts";
 import type { AddonController } from "@/presentation/http/controllers/addon.controller";
+import type { AdminDashboardAnalyticsController } from "@/presentation/http/controllers/admin-dashboard-analytics.controller";
 import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
 import type { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
 import type { InternalRestaurantController } from "@/presentation/http/controllers/internal-restaurant.controller";
+import type { InternalTableController } from "@/presentation/http/controllers/internal-table.controller";
 import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
 import type { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller";
 import type { MenuItemController } from "@/presentation/http/controllers/menu-item.controller";
+import type { RestaurantAnalyticsController } from "@/presentation/http/controllers/restaurant-analytics.controller";
 import type { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
 import type { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
 import type { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
 import type { StaffController } from "@/presentation/http/controllers/staff.controller";
 import type { StorageController } from "@/presentation/http/controllers/storage.controller";
-import { container } from "./container";
-import { TYPES } from "./types";
+import type { TableController } from "@/presentation/http/controllers/table.controller";
+import type { TableSectionController } from "@/presentation/http/controllers/table-section.controller";
 
 export const menuCategoryController = container.get<MenuCategoryController>(
 	TYPES.Controller.MenuCategoryController,
@@ -55,6 +57,11 @@ export const adminRestaurantController =
 		TYPES.Controller.AdminRestaurantController,
 	);
 
+export const adminDashboardAnalyticsController =
+	container.get<AdminDashboardAnalyticsController>(
+		TYPES.Controller.AdminDashboardAnalyticsController,
+	);
+
 export const addonController = container.get<AddonController>(
 	TYPES.Controller.AddonController,
 );
@@ -80,3 +87,8 @@ export const internalRestaurantController =
 export const internalTableController = container.get<InternalTableController>(
 	TYPES.Controller.InternalTableController,
 );
+
+export const restaurantAnalyticsController =
+	container.get<RestaurantAnalyticsController>(
+		TYPES.Controller.RestaurantAnalyticsController,
+	);
