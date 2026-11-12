@@ -14,7 +14,7 @@ import type {
 @injectable()
 export class InternalTableController {
 	constructor(
-		@inject(TYPES.UseCases.ReleaseTableUseCase)
+		@inject(TYPES.UseCases.InternalReleaseTableUseCase)
 		private readonly _releaseTableUseCase: IReleaseTableUseCase,
 
 		@inject(TYPES.UseCases.AssignTableUseCase)

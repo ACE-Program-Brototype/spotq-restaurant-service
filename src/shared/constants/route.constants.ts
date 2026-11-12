@@ -111,6 +111,7 @@ export const TABLE_ROUTES = {
 			"/api/internal/v1/restaurants/:restaurantId/tables/availability",
 	},
 	UPDATE_STATUS: "/:restaurantId/table/:tableId/status",
+	RELEASE_TABLE: "/:restaurantId/tables/release",
 };
 
 export const INTERNAL_ROUTES = {
