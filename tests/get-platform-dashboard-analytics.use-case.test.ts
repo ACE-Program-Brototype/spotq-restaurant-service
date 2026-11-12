@@ -11,7 +11,6 @@ import type {
 import { GetPlatformDashboardAnalyticsUseCase } from "@/application/use-cases/admin/get-platform-dashboard-analytics.use-case.ts";
 import type {
 	FunnelStageCount,
-	GeographicBreakdownPoint,
 	IRestaurantAnalyticsRepository,
 	OnboardingTrendPoint,
 } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
@@ -38,11 +37,6 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 			count: 30,
 			label: "First Subscription Active",
 		},
-	];
-
-	const defaultGeo: GeographicBreakdownPoint[] = [
-		{ city: "Bengaluru", state: "Karnataka", restaurantCount: 20 },
-		{ city: "Mumbai", state: "Maharashtra", restaurantCount: 15 },
 	];
 
 	const defaultSubscriptionSummary: PaymentSubscriptionSummaryDto = {
@@ -76,14 +70,12 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 				totalRestaurants: 142,
 				onboardingFunnel: defaultFunnel,
 				onboardingTrend: defaultTrend,
-				geographicBreakdown: defaultGeo,
 			}),
 			getTotalRestaurantsCount: jest.fn().mockResolvedValue(142),
 			getActiveSubscribedCount: jest.fn().mockResolvedValue(118),
 			getSubscriptionTierDistribution: jest.fn().mockResolvedValue({}),
 			getOnboardingTrend: jest.fn().mockResolvedValue(defaultTrend),
 			getOnboardingFunnel: jest.fn().mockResolvedValue(defaultFunnel),
-			getGeographicBreakdown: jest.fn().mockResolvedValue(defaultGeo),
 			getActiveMenuItems: jest.fn().mockResolvedValue([]),
 			getAllMenuItems: jest.fn().mockResolvedValue([]),
 			getTotalActiveProductsCount: jest.fn().mockResolvedValue(0),
@@ -161,7 +153,6 @@ describe("GetPlatformDashboardAnalyticsUseCase", () => {
 		// Growth assertions
 		expect(result.growth.onboardingFunnel).toHaveLength(4);
 		expect(result.growth.onboardingTrend).toEqual(defaultTrend);
-		expect(result.growth.geographicBreakdown).toEqual(defaultGeo);
 
 		// Metadata assertions
 		expect(result.filters.period).toBe("MONTH");

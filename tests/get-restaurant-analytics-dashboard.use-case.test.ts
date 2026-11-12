@@ -111,12 +111,13 @@ describe("GetRestaurantAnalyticsDashboardUseCase", () => {
 	beforeEach(() => {
 		mockRepo = {
 			getPlatformRestaurantGrowthMetrics: jest
-				.fn<IRestaurantAnalyticsRepository["getPlatformRestaurantGrowthMetrics"]>()
+				.fn<
+					IRestaurantAnalyticsRepository["getPlatformRestaurantGrowthMetrics"]
+				>()
 				.mockResolvedValue({
 					totalRestaurants: 0,
 					onboardingFunnel: [],
 					onboardingTrend: [],
-					geographicBreakdown: [],
 				}),
 			getTotalRestaurantsCount: jest
 				.fn<IRestaurantAnalyticsRepository["getTotalRestaurantsCount"]>()
@@ -132,9 +133,6 @@ describe("GetRestaurantAnalyticsDashboardUseCase", () => {
 				.mockResolvedValue([]),
 			getOnboardingFunnel: jest
 				.fn<IRestaurantAnalyticsRepository["getOnboardingFunnel"]>()
-				.mockResolvedValue([]),
-			getGeographicBreakdown: jest
-				.fn<IRestaurantAnalyticsRepository["getGeographicBreakdown"]>()
 				.mockResolvedValue([]),
 			getActiveMenuItems: jest
 				.fn<IRestaurantAnalyticsRepository["getActiveMenuItems"]>()

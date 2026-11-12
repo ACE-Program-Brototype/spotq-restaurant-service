@@ -77,16 +77,9 @@ export interface OnboardingTrendItemDTO {
 	count: number;
 }
 
-export interface GeographicBreakdownItemDTO {
-	city: string;
-	state: string;
-	restaurantCount: number;
-}
-
 export interface PlatformGrowthDTO {
 	onboardingFunnel: FunnelStageItemDTO[];
 	onboardingTrend: OnboardingTrendItemDTO[];
-	geographicBreakdown: GeographicBreakdownItemDTO[];
 }
 
 export interface PlatformDashboardFiltersDTO {

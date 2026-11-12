@@ -4,7 +4,6 @@ import { TYPES } from "@/config/di/types.ts";
 import type {
 	ActiveMenuItemInfo,
 	FunnelStageCount,
-	GeographicBreakdownPoint,
 	IRestaurantAnalyticsRepository,
 	OnboardingTrendPoint,
 	PlatformRestaurantGrowthData,
@@ -46,12 +45,10 @@ export class PrismaRestaurantAnalyticsRepository
 		from?: string,
 		to?: string,
 	): Promise<PlatformRestaurantGrowthData> {
-		const [onboardingFunnel, onboardingTrend, geographicBreakdown] =
-			await Promise.all([
-				this.getOnboardingFunnel(from, to),
-				this.getOnboardingTrend(from, to),
-				this.getGeographicBreakdown(),
-			]);
+		const [onboardingFunnel, onboardingTrend] = await Promise.all([
+			this.getOnboardingFunnel(from, to),
+			this.getOnboardingTrend(from, to),
+		]);
 
 		const totalRestaurants =
 			onboardingFunnel.find((stage) => stage.stage === "REGISTERED")?.count ??
@@ -61,7 +58,6 @@ export class PrismaRestaurantAnalyticsRepository
 			totalRestaurants,
 			onboardingFunnel,
 			onboardingTrend,
-			geographicBreakdown,
 		};
 	}
 
@@ -191,31 +187,6 @@ export class PrismaRestaurantAnalyticsRepository
 				label: "First Subscription Active",
 			},
 		];
-	}
-
-	/**
-	 * Aggregates geographic distribution of restaurants across cities and states.
-	 *
-	 * Security Note:
-	 * Parameter-free query using Prisma's tagged template literal.
-	 *
-	 * Technical Rationale:
-	 * Requires cross-table join and text normalization (INITCAP(TRIM(...)))
-	 * with DISTINCT counting not expressible in standard Prisma aggregations.
-	 */
-	async getGeographicBreakdown(): Promise<GeographicBreakdownPoint[]> {
-		const results = await this.prisma.$queryRaw<GeographicBreakdownPoint[]>`
-			SELECT
-				INITCAP(TRIM(ra.city)) AS city,
-				INITCAP(TRIM(ra.state)) AS state,
-				COUNT(DISTINCT ra.restaurant_id)::int AS "restaurantCount"
-			FROM restaurant_addresses ra
-			INNER JOIN restaurants r ON r.id = ra.restaurant_id
-			GROUP BY INITCAP(TRIM(ra.city)), INITCAP(TRIM(ra.state))
-			ORDER BY "restaurantCount" DESC;
-		`;
-
-		return results;
 	}
 
 	async getActiveMenuItems(

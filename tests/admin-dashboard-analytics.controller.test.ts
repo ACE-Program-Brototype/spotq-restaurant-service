@@ -45,9 +45,6 @@ describe("AdminDashboardAnalyticsController", () => {
 				},
 			],
 			onboardingTrend: [{ period: "2026-10", count: 20 }],
-			geographicBreakdown: [
-				{ city: "Bengaluru", state: "Karnataka", restaurantCount: 50 },
-			],
 		},
 		filters: {
 			period: "MONTH",

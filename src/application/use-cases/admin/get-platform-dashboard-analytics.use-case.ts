@@ -16,10 +16,10 @@ import type { IRestaurantAnalyticsRepository } from "@/domain/repositories/resta
 import {
 	ANALYTICS_ERROR_CODES,
 	ANALYTICS_SECTION_STATUS,
-	BILLING_CYCLES,
-	PROMISE_STATUS,
 	type AnalyticsPeriod,
+	BILLING_CYCLES,
 	type BillingCycle,
+	PROMISE_STATUS,
 } from "@/shared/constants/analytics.constants.ts";
 import { messages } from "@/shared/constants/message.constants.ts";
 import { resolveAnalyticsDateRange } from "@/shared/utils/date-range.util.ts";
@@ -49,8 +49,7 @@ export class GetPlatformDashboardAnalyticsUseCase
 			year: input.year,
 		});
 
-		const billingCycle: BillingCycle =
-			input.billingCycle ?? BILLING_CYCLES.ALL;
+		const billingCycle: BillingCycle = input.billingCycle ?? BILLING_CYCLES.ALL;
 
 		/**
 		 * 1. Fetch local database metrics concurrently via single repository
@@ -186,7 +185,6 @@ export class GetPlatformDashboardAnalyticsUseCase
 			revenue,
 			onboardingFunnel,
 			onboardingTrend: restaurantGrowth.onboardingTrend,
-			geographicBreakdown: restaurantGrowth.geographicBreakdown,
 			filters: {
 				period: resolvedRange.period,
 				day: resolvedRange.day,

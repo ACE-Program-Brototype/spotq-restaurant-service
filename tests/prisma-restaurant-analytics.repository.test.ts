@@ -180,21 +180,6 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 		});
 	});
 
-	describe("getGeographicBreakdown", () => {
-		it("should execute SQL aggregation and return city/state counts", async () => {
-			const mockGeo = [
-				{ city: "Kochi", state: "Kerala", restaurantCount: 45 },
-				{ city: "Bengaluru", state: "Karnataka", restaurantCount: 30 },
-			];
-			mockPrisma.$queryRaw.mockResolvedValueOnce(mockGeo);
-
-			const result = await repository.getGeographicBreakdown();
-
-			expect(mockPrisma.$queryRaw).toHaveBeenCalled();
-			expect(result).toEqual(mockGeo);
-		});
-	});
-
 	describe("getActiveMenuItems", () => {
 		it("should query menuItem.findMany for active and non-deleted items only", async () => {
 			const mockDishes = [
@@ -263,10 +248,7 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 						first_subscription: 20,
 					},
 				])
-				.mockResolvedValueOnce([{ period: "2026-01", count: 10 }])
-				.mockResolvedValueOnce([
-					{ city: "Kochi", state: "Kerala", restaurantCount: 25 },
-				]);
+				.mockResolvedValueOnce([{ period: "2026-01", count: 10 }]);
 
 			const result = await repository.getPlatformRestaurantGrowthMetrics();
 
@@ -274,9 +256,6 @@ describe("PrismaRestaurantAnalyticsRepository", () => {
 			expect(result.onboardingFunnel).toHaveLength(4);
 			expect(result.onboardingTrend).toEqual([
 				{ period: "2026-01", count: 10 },
-			]);
-			expect(result.geographicBreakdown).toEqual([
-				{ city: "Kochi", state: "Kerala", restaurantCount: 25 },
 			]);
 		});
 	});

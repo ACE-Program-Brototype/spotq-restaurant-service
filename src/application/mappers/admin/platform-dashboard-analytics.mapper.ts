@@ -6,10 +6,7 @@ import type {
 	PlatformOverviewDTO,
 	RevenueSectionDTO,
 } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
-import type {
-	GeographicBreakdownPoint,
-	OnboardingTrendPoint,
-} from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
+import type { OnboardingTrendPoint } from "@/domain/repositories/restaurant-analytics.repository.interface.ts";
 
 export interface CreatePlatformDashboardAnalyticsParams {
 	overview: PlatformOverviewDTO;
@@ -17,7 +14,6 @@ export interface CreatePlatformDashboardAnalyticsParams {
 	revenue: RevenueSectionDTO;
 	onboardingFunnel: FunnelStageItemDTO[];
 	onboardingTrend: OnboardingTrendPoint[];
-	geographicBreakdown: GeographicBreakdownPoint[];
 	filters: PlatformDashboardFiltersDTO;
 	generatedAt?: string;
 }
@@ -37,7 +33,6 @@ export const PlatformDashboardAnalyticsMapper = {
 			growth: {
 				onboardingFunnel: params.onboardingFunnel,
 				onboardingTrend: params.onboardingTrend,
-				geographicBreakdown: params.geographicBreakdown,
 			},
 			filters: params.filters,
 			generatedAt: params.generatedAt ?? new Date().toISOString(),
