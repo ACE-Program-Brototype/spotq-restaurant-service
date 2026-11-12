@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import type { PlatformDashboardAnalyticsOutputDTO } from "@/application/dtos/admin/get-platform-dashboard-analytics.dto.ts";
 import type { IGetPlatformDashboardAnalyticsUseCase } from "@/application/ports/use-cases/admin/get-platform-dashboard-analytics.use-case.port.ts";
 import { AdminDashboardAnalyticsController } from "@/presentation/http/controllers/admin-dashboard-analytics.controller.ts";
@@ -12,7 +12,6 @@ describe("AdminDashboardAnalyticsController", () => {
 	let controller: AdminDashboardAnalyticsController;
 	let req: Partial<Request> & { userId?: string };
 	let res: Partial<Response>;
-	let next: jest.MockedFunction<NextFunction>;
 
 	const mockResponseDto: PlatformDashboardAnalyticsOutputDTO = {
 		overview: {
@@ -72,8 +71,6 @@ describe("AdminDashboardAnalyticsController", () => {
 			status: jest.fn().mockReturnThis() as never,
 			json: jest.fn().mockReturnThis() as never,
 		};
-
-		next = jest.fn() as unknown as jest.MockedFunction<NextFunction>;
 	});
 
 	it("should return 200 with dashboard analytics on success", async () => {
@@ -92,11 +89,7 @@ describe("AdminDashboardAnalyticsController", () => {
 		};
 		res.locals = { query };
 
-		await controller.getDashboardAnalytics(
-			req as Request,
-			res as Response,
-			next,
-		);
+		await controller.getDashboardAnalytics(req as Request, res as Response);
 
 		expect(useCase.execute).toHaveBeenCalledWith(query);
 		expect(res.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
@@ -108,7 +101,6 @@ describe("AdminDashboardAnalyticsController", () => {
 				data: mockResponseDto,
 			}),
 		);
-		expect(next).not.toHaveBeenCalled();
 	});
 
 	it("should pass query params correctly when executing use case", async () => {
@@ -116,11 +108,7 @@ describe("AdminDashboardAnalyticsController", () => {
 			query: { billingCycle: "MONTHLY" },
 		};
 
-		await controller.getDashboardAnalytics(
-			req as Request,
-			res as Response,
-			next,
-		);
+		await controller.getDashboardAnalytics(req as Request, res as Response);
 
 		expect(useCase.execute).toHaveBeenCalledWith({
 			billingCycle: "MONTHLY",
@@ -134,11 +122,7 @@ describe("AdminDashboardAnalyticsController", () => {
 		};
 		res.locals = {};
 
-		await controller.getDashboardAnalytics(
-			req as Request,
-			res as Response,
-			next,
-		);
+		await controller.getDashboardAnalytics(req as Request, res as Response);
 
 		expect(useCase.execute).toHaveBeenCalledWith({
 			billingCycle: "YEARLY",
