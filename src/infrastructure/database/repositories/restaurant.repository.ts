@@ -736,6 +736,7 @@ export class RestaurantRepository
 						raw.settings?.loyaltyEnabled ??
 						raw.settings?.isLoyaltyEnabled ??
 						false,
+					isOpened: raw.settings?.isOpened ?? false,
 					autoAcceptQueue: raw.settings?.autoAcceptQueue ?? false,
 					seatingCapacity: raw.settings?.seatingCapacity ?? 0,
 				},

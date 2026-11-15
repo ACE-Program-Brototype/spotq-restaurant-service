@@ -277,6 +277,7 @@ export interface RestaurantProfileSettingsDetails {
 	acceptsQueue: boolean;
 	acceptsQrOrders: boolean;
 	loyaltyEnabled: boolean;
+	isOpened: boolean;
 	autoAcceptQueue: boolean;
 	seatingCapacity: number;
 }
