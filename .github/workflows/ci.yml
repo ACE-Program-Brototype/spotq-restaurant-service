@@ -4,59 +4,47 @@ on:
   push:
     branches:
       - development
-      - staging
       - main
 
   pull_request:
     branches:
       - development
-      - staging
       - main
+    
+concurrency: 
+  group: restaurant-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     name: Build & Verify
-
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    container:
+      image: node:22-alpine
 
     steps:
-      # Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v4
+      
+      - name: Enable Corepack
+        run: corepack enable
 
-      # Setup pnpm
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 11
+      - name: Activate project pnpm version
+        run: corepack pnpm --version
 
-      # Setup Node
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-
-      # Install Dependencies
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      # Generate Prisma Client
       - name: Generate Prisma Client
-        run: pnpm prisma generate
+        run: pnpm exec prisma generate
 
-      # Lint
       - name: Run Linter
         run: pnpm lint
 
-      # Test
       - name: Run Tests
         run: pnpm test
 
-      # Build
       - name: Build Application
         run: pnpm build
-
-      # Build Docker Image
-      - name: Build Docker Image
-        run: docker build -t spotq-restaurant-service .
