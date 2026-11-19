@@ -198,6 +198,8 @@ const envSchema = z.object({
 		return typeof key === "string" ? key.replace(/\\n/g, "\n").trim() : "";
 	}, z.string().default("")),
 	SERVICE_NAME: z.string().trim().default("restaurant-service"),
+	SERVICE_VERSION: z.string().trim().default("1.0.0"),
+	NODE_ENV: z.string().trim().default("development"),
 
 	JWT_KEY_TYPE: z.string().trim().default("RSA"),
 	JWT_KEY_USE: z.string().trim().default("sig"),
@@ -427,7 +429,10 @@ const envSchema = z.object({
 		.max(100)
 		.default(50),
 	CIRCUIT_BREAKER_VOLUME_THRESHOLD: z.coerce.number().min(1).default(5),
-	CIRCUIT_BREAKER_ROLLING_WINDOW_MS: z.coerce.number().positive().default(10000),
+	CIRCUIT_BREAKER_ROLLING_WINDOW_MS: z.coerce
+		.number()
+		.positive()
+		.default(10000),
 });
 
 export type Env = z.infer<typeof envSchema>;

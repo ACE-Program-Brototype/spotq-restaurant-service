@@ -1,7 +1,19 @@
+import crypto from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
 import { requestContextStorage } from "@/infrastructure/observability/async-storage.ts";
 import { logger } from "@/infrastructure/observability/logger.ts";
-import { messages } from "@/shared/constants/message.constants.ts";
+
+function parseTraceparent(header?: string): {
+	traceId?: string;
+	spanId?: string;
+} {
+	if (!header) return {};
+	const parts = header.split("-");
+	if (parts.length >= 3 && parts[1] && parts[2]) {
+		return { traceId: parts[1], spanId: parts[2] };
+	}
+	return {};
+}
 
 export function httpLogger(
 	req: Request,
@@ -20,47 +32,71 @@ export function httpLogger(
 		req.get("x-correlation-id")?.trim() ||
 		requestId;
 
+	const traceparent = parseTraceparent(req.get("traceparent") || undefined);
+	const traceId =
+		req.get("X-Trace-ID")?.trim() ||
+		req.get("x-trace-id")?.trim() ||
+		traceparent.traceId;
+	const spanId =
+		req.get("X-Span-ID")?.trim() ||
+		req.get("x-span-id")?.trim() ||
+		traceparent.spanId;
+
 	res.locals.requestId = requestId;
 	res.locals.correlationId = correlationId;
 	res.setHeader("X-Request-ID", requestId);
 	res.setHeader("X-Correlation-ID", correlationId);
+	if (traceId) {
+		res.setHeader("X-Trace-ID", traceId);
+	}
 
-	requestContextStorage.run({ requestId, correlationId }, () => {
-		logger.info(
+	const store = {
+		requestId,
+		correlationId,
+		...(traceId ? { traceId } : {}),
+		...(spanId ? { spanId } : {}),
+	};
+
+	requestContextStorage.run(store, () => {
+		const path = req.originalUrl || req.url;
+
+		logger.debug(
 			{
-				event: "http.request",
-				requestId,
-				correlationId,
-				method: req.method,
-				url: req.originalUrl,
-				ip: req.ip,
-				userAgent: req.get("user-agent"),
-				contentLength: req.get("content-length"),
-				contentType: req.get("content-type"),
-				operation: `${req.method} ${req.route?.path ?? req.path}`,
+				http: {
+					method: req.method,
+					path,
+					client_ip: req.ip || req.socket?.remoteAddress,
+				},
+				headers: {
+					host: req.headers.host,
+					userAgent: req.get("user-agent"),
+				},
 			},
-			messages.INCOMMING_HTTP_REQ,
+			"Incoming request",
 		);
 
 		res.on("finish", () => {
-			const duration = Number(process.hrtime.bigint() - start) / 1_000_000;
+			const durationMs =
+				Math.round((Number(process.hrtime.bigint() - start) / 1_000_000) * 10) /
+				10;
+			const finalPath = req.originalUrl || req.url;
 
 			logger.info(
 				{
-					event: "http.response",
-					requestId,
-					correlationId,
-					method: req.method,
-					url: req.originalUrl,
-					statusCode: res.statusCode,
-					responseTime: Number(duration.toFixed(2)),
-					responseSize: res.getHeader("content-length"),
-					operation: `${req.method} ${req.route?.path ?? req.path}`,
+					http: {
+						method: req.method,
+						path: finalPath,
+						status_code: res.statusCode,
+						duration_ms: durationMs,
+						client_ip: req.ip || req.socket?.remoteAddress,
+					},
 				},
-				messages.OUTGOING_HTTP_RES,
+				`HTTP ${req.method} ${finalPath} ${res.statusCode} (${durationMs}ms)`,
 			);
 		});
 
 		next();
 	});
 }
+
+export const loggerMiddleware = httpLogger;
