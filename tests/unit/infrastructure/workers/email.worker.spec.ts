@@ -51,17 +51,23 @@ describe("EmailWorker", () => {
 			);
 			expect(mockLogger.info).toHaveBeenCalledWith(
 				expect.objectContaining({
-					jobId: "job-1",
-					jobName: JOB_NAMES.EMAIL.VERIFICATION_OTP,
-					event: "EMAIL_JOB_PROCESSING",
+					job: expect.objectContaining({
+						job_id: "job-1",
+						queue: "email-queue",
+						routing_key: JOB_NAMES.EMAIL.VERIFICATION_OTP,
+						status: "PROCESSING",
+					}),
 				}),
 				"Processing email job",
 			);
 			expect(mockLogger.info).toHaveBeenCalledWith(
 				expect.objectContaining({
-					jobId: "job-1",
-					jobName: JOB_NAMES.EMAIL.VERIFICATION_OTP,
-					event: "EMAIL_JOB_COMPLETED",
+					job: expect.objectContaining({
+						job_id: "job-1",
+						queue: "email-queue",
+						routing_key: JOB_NAMES.EMAIL.VERIFICATION_OTP,
+						status: "COMPLETED",
+					}),
 				}),
 				"Email job completed successfully",
 			);
@@ -97,9 +103,12 @@ describe("EmailWorker", () => {
 			);
 			expect(mockLogger.info).toHaveBeenCalledWith(
 				expect.objectContaining({
-					jobId: "job-2",
-					jobName: JOB_NAMES.EMAIL.TRANSACTIONAL,
-					event: "EMAIL_JOB_COMPLETED",
+					job: expect.objectContaining({
+						job_id: "job-2",
+						queue: "email-queue",
+						routing_key: JOB_NAMES.EMAIL.TRANSACTIONAL,
+						status: "COMPLETED",
+					}),
 				}),
 				"Email job completed successfully",
 			);
@@ -120,8 +129,12 @@ describe("EmailWorker", () => {
 			).not.toHaveBeenCalled();
 			expect(mockLogger.warn).toHaveBeenCalledWith(
 				expect.objectContaining({
-					jobId: "job-99",
-					jobName: "UNKNOWN_EMAIL_JOB",
+					job: expect.objectContaining({
+						job_id: "job-99",
+						queue: "email-queue",
+						routing_key: "UNKNOWN_EMAIL_JOB",
+						status: "UNKNOWN",
+					}),
 				}),
 				"Unknown email job type received",
 			);
@@ -142,7 +155,12 @@ describe("EmailWorker", () => {
 
 			expect(mockClose).toHaveBeenCalledTimes(1);
 			expect(mockLogger.info).toHaveBeenCalledWith(
-				expect.objectContaining({ event: "EMAIL_WORKER_STOPPED" }),
+				expect.objectContaining({
+					job: expect.objectContaining({
+						queue: "email-queue",
+						status: "STOPPED",
+					}),
+				}),
 				"Email worker stopped successfully",
 			);
 			// biome-ignore lint/suspicious/noExplicitAny: verify worker instance cleared

@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import type { BrevoClient } from "@getbrevo/brevo";
 import { type Job, Worker } from "bullmq";
 import { inject, injectable } from "inversify";
@@ -6,6 +7,7 @@ import type { ILogger } from "@/application/ports/services/logger.interface";
 import type { IEmailWorker } from "@/application/ports/workers/email.worker.port";
 import { TYPES } from "@/config/di/types";
 import { env } from "@/config/env.ts";
+import { requestContextStorage } from "@/infrastructure/observability/async-storage.ts";
 import { JOB_NAMES, QUEUE_NAMES } from "@/shared/constants/queue.constants";
 import { bullMQConnection } from "../bullmq.service";
 
@@ -25,48 +27,96 @@ export class EmailWorker implements IEmailWorker {
 	) {}
 
 	async processJob(job: Job): Promise<void> {
-		this.logger.info(
-			{
-				jobId: job.id,
-				jobName: job.name,
-				event: "EMAIL_JOB_PROCESSING",
-			},
-			"Processing email job",
-		);
+		const correlationId =
+			(job.data?.correlationId as string) ||
+			(job.data?.correlation_id as string) ||
+			String(job.id || crypto.randomUUID());
 
-		if (job.name === JOB_NAMES.EMAIL.VERIFICATION_OTP) {
-			const { toEmail, otp } = job.data;
-			await this.emailService.sendVerificationEmail(toEmail, otp);
-		} else if (job.name === JOB_NAMES.EMAIL.TRANSACTIONAL) {
-			const { to, subject, htmlContent, recipientName } = job.data;
-			await this.brevoClient.transactionalEmails.sendTransacEmail({
-				subject,
-				htmlContent,
-				sender: {
-					name: env.BREVO_SENDER_NAME,
-					email: env.BREVO_SENDER_EMAIL,
-				},
-				to: [
+		await requestContextStorage.run(
+			{ correlationId, requestId: correlationId },
+			async () => {
+				const startTime = process.hrtime.bigint();
+				this.logger.info(
 					{
-						email: to,
-						name: recipientName,
+						job: {
+							queue: QUEUE_NAMES.EMAIL,
+							job_id: String(job.id),
+							routing_key: job.name,
+							status: "PROCESSING",
+						},
 					},
-				],
-			});
-		} else {
-			this.logger.warn(
-				{ jobId: job.id, jobName: job.name },
-				"Unknown email job type received",
-			);
-		}
+					"Processing email job",
+				);
 
-		this.logger.info(
-			{
-				jobId: job.id,
-				jobName: job.name,
-				event: "EMAIL_JOB_COMPLETED",
+				try {
+					if (job.name === JOB_NAMES.EMAIL.VERIFICATION_OTP) {
+						const { toEmail, otp } = job.data;
+						await this.emailService.sendVerificationEmail(toEmail, otp);
+					} else if (job.name === JOB_NAMES.EMAIL.TRANSACTIONAL) {
+						const { to, subject, htmlContent, recipientName } = job.data;
+						await this.brevoClient.transactionalEmails.sendTransacEmail({
+							subject,
+							htmlContent,
+							sender: {
+								name: env.BREVO_SENDER_NAME,
+								email: env.BREVO_SENDER_EMAIL,
+							},
+							to: [
+								{
+									email: to,
+									name: recipientName,
+								},
+							],
+						});
+					} else {
+						this.logger.warn(
+							{
+								job: {
+									queue: QUEUE_NAMES.EMAIL,
+									job_id: String(job.id),
+									routing_key: job.name,
+									status: "UNKNOWN",
+								},
+							},
+							"Unknown email job type received",
+						);
+					}
+
+					const endTime = process.hrtime.bigint();
+					const durationMs =
+						Math.round((Number(endTime - startTime) / 1_000_000) * 10) / 10;
+					this.logger.info(
+						{
+							job: {
+								queue: QUEUE_NAMES.EMAIL,
+								job_id: String(job.id),
+								routing_key: job.name,
+								duration_ms: durationMs,
+								status: "COMPLETED",
+							},
+						},
+						"Email job completed successfully",
+					);
+				} catch (error) {
+					const endTime = process.hrtime.bigint();
+					const durationMs =
+						Math.round((Number(endTime - startTime) / 1_000_000) * 10) / 10;
+					this.logger.error(
+						{
+							err: error,
+							job: {
+								queue: QUEUE_NAMES.EMAIL,
+								job_id: String(job.id),
+								routing_key: job.name,
+								duration_ms: durationMs,
+								status: "FAILED",
+							},
+						},
+						"Email job processing failed",
+					);
+					throw error;
+				}
 			},
-			"Email job completed successfully",
 		);
 	}
 
@@ -83,10 +133,13 @@ export class EmailWorker implements IEmailWorker {
 		this.worker.on("failed", (job, err) => {
 			this.logger.error(
 				{
-					event: "EMAIL_WORKER_JOB_FAILED",
-					jobId: job?.id,
-					jobName: job?.name,
-					error: err.message,
+					err,
+					job: {
+						queue: QUEUE_NAMES.EMAIL,
+						job_id: String(job?.id),
+						routing_key: job?.name,
+						status: "FAILED",
+					},
 				},
 				"Email job processing failed",
 			);
@@ -94,8 +147,10 @@ export class EmailWorker implements IEmailWorker {
 
 		this.logger.info(
 			{
-				queue: QUEUE_NAMES.EMAIL,
-				event: "EMAIL_WORKER_STARTED",
+				job: {
+					queue: QUEUE_NAMES.EMAIL,
+					status: "STARTED",
+				},
 			},
 			"Email worker started successfully",
 		);
@@ -108,8 +163,10 @@ export class EmailWorker implements IEmailWorker {
 
 			this.logger.info(
 				{
-					queue: QUEUE_NAMES.EMAIL,
-					event: "EMAIL_WORKER_STOPPED",
+					job: {
+						queue: QUEUE_NAMES.EMAIL,
+						status: "STOPPED",
+					},
 				},
 				"Email worker stopped successfully",
 			);

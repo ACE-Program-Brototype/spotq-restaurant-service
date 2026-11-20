@@ -90,27 +90,39 @@ export const errorHandler: ErrorRequestHandler = (
 	}
 
 	const errorObj = err instanceof Error ? err : new Error(String(err));
+	const isServerError = statusCode >= HTTP_STATUS.INTERNAL_SERVER_ERROR;
 
-	logger.error(
-		{
-			event: "application.error",
-			requestId: res.locals.requestId,
-			method: req.method,
-			url: req.originalUrl,
-			statusCode,
-			correlationId: res.locals.correlationId,
+	const path = req?.originalUrl || req?.url || "";
+	const http = req?.method
+		? {
+				method: req.method,
+				path,
+				status_code: statusCode,
+			}
+		: undefined;
+
+	const logPayload = {
+		...(http ? { http } : {}),
+		error: {
+			name: errorObj.name,
 			code,
-			error: {
-				name: errorObj.name,
-				message: errorObj.message,
-				stack: errorObj.stack,
-				...(err instanceof PersistenceError && err.originalError
-					? { originalError: serializeError(err.originalError) }
-					: {}),
-			},
+			message: errorObj.message,
+			...(isServerError && errorObj.stack ? { stack: errorObj.stack } : {}),
+			...(err instanceof PersistenceError && err.originalError
+				? { originalError: serializeError(err.originalError) }
+				: {}),
 		},
-		messages.UNHANDLED_APP_ERROR,
-	);
+	};
+
+	const logMessage = isServerError
+		? messages.UNHANDLED_APP_ERROR
+		: errorObj.message;
+
+	if (isServerError) {
+		logger.error(logPayload, logMessage);
+	} else {
+		logger.warn(logPayload, logMessage);
+	}
 
 	res
 		.status(statusCode)
