@@ -17,6 +17,7 @@ export interface ProfileDetailsDto {
 export interface SettingsDetailsDto {
 	acceptsQueue: boolean;
 	acceptsQrOrders: boolean;
+	isOpened: boolean;
 	loyaltyEnabled: boolean;
 	autoAcceptQueue: boolean;
 	seatingCapacity: number;
