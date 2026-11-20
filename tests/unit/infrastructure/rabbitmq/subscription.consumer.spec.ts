@@ -51,7 +51,12 @@ describe("SubscriptionConsumer (RabbitMQ)", () => {
 			expect.any(Function),
 		);
 		expect(mockLogger.info).toHaveBeenCalledWith(
-			{ queue: RABBITMQ_QUEUES.SUBSCRIPTION_EVENTS },
+			{
+				job: {
+					queue: RABBITMQ_QUEUES.SUBSCRIPTION_EVENTS,
+					status: "LISTENING",
+				},
+			},
 			"RabbitMQ subscription consumer started and listening for events",
 		);
 	});
@@ -82,10 +87,16 @@ describe("SubscriptionConsumer (RabbitMQ)", () => {
 		});
 		expect(mockLogger.info).toHaveBeenCalledWith(
 			expect.objectContaining({
-				subscriptionId: "sub-456",
-				restaurantId: "rest-789",
-				planCode: "PRO_MONTHLY",
-				event: "SUBSCRIPTION_EVENT_COMPLETED",
+				job: expect.objectContaining({
+					queue: RABBITMQ_QUEUES.SUBSCRIPTION_EVENTS,
+					routing_key: JOB_NAMES.SUBSCRIPTION.ACTIVATED,
+					status: "COMPLETED",
+				}),
+				context: expect.objectContaining({
+					subscription_id: "sub-456",
+					restaurant_id: "rest-789",
+					plan_code: "PRO_MONTHLY",
+				}),
 			}),
 			"Restaurant subscription activated and cached successfully",
 		);
@@ -110,7 +121,17 @@ describe("SubscriptionConsumer (RabbitMQ)", () => {
 
 		expect(mockActivateSubscriptionUseCase.execute).toHaveBeenCalledTimes(1);
 		expect(mockLogger.info).toHaveBeenCalledWith(
-			{ eventId: "evt-dup-123", restaurantId: "rest-789" },
+			expect.objectContaining({
+				job: expect.objectContaining({
+					queue: RABBITMQ_QUEUES.SUBSCRIPTION_EVENTS,
+					routing_key: JOB_NAMES.SUBSCRIPTION.ACTIVATED,
+					status: "SKIPPED",
+				}),
+				context: expect.objectContaining({
+					event_id: "evt-dup-123",
+					restaurant_id: "rest-789",
+				}),
+			}),
 			"Subscription event already processed. Skipping idempotently.",
 		);
 	});
@@ -132,7 +153,17 @@ describe("SubscriptionConsumer (RabbitMQ)", () => {
 
 		expect(mockActivateSubscriptionUseCase.execute).not.toHaveBeenCalled();
 		expect(mockLogger.warn).toHaveBeenCalledWith(
-			{ eventType: "unknown.event", eventId: "evt-unknown" },
+			expect.objectContaining({
+				job: expect.objectContaining({
+					queue: RABBITMQ_QUEUES.SUBSCRIPTION_EVENTS,
+					routing_key: "unknown.event",
+					status: "UNHANDLED",
+				}),
+				context: expect.objectContaining({
+					event_type: "unknown.event",
+					event_id: "evt-unknown",
+				}),
+			}),
 			"Unhandled subscription event type from RabbitMQ",
 		);
 	});
