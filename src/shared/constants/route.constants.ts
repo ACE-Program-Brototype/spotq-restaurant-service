@@ -1,0 +1,163 @@
+export const SYSTEM_ROUTES = {
+	HEALTH: "/health",
+	READY: "/ready",
+	METRICS: "/metrics",
+} as const;
+
+export const RESTAURANT_ROUTES = {
+	EMAIL_OTP: "/otp",
+	VERIFY_EMAIL: "/otp/verify",
+	RESEND_EMAIL_OTP: "/otp/resend",
+	REFRESH_ACCESS_TOKEN: "/refresh-token",
+	ONBOARD: "/onboarding",
+	STAFF_STATUS_UPDATE: "/:restaurantId/staff/:staffId/status",
+	STAFF_UPDATE: "/:restaurantId/staff/:staffId",
+	STAFF_LIST: "/:restaurantId/staff",
+	STATUS: "/me/status",
+	VERIFICATION_STATUS: "/verification-status",
+	STAFF_REMOVE: "/:restaurantId/staff/:staffId",
+	VERIFICATION_STATUS_BY_ID: "/:id/verification-status",
+	PROFILE: "/profile",
+	STAFF_DETAIL: "/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_FULL: "/api/v1/restaurants/:restaurantId/staff/:staffId",
+	STAFF_DETAIL_PREFIX: "/restaurants/:restaurantId/staff/:staffId",
+	RESTAURANT_ADDONS: "/:restaurantId/addons",
+	RESTAURANT_ADDON_UPDATE: "/:restaurantId/addons/:addonId",
+	RESTAURANT_ADDON_DELETE: "/:restaurantId/addons/:addonId",
+	MENU_CATEGORIES: "/:restaurantId/menu/categories",
+	MENU_CATEGORY_UPDATE: "/:restaurantId/menu/categories/:categoryId",
+	MENU_CATEGORY_STATUS_UPDATE:
+		"/:restaurantId/menu/categories/:categoryId/status",
+	MENU_CATEGORY_DELETE: "/:restaurantId/menu/categories/:categoryId",
+	MENU_ITEMS: "/:restaurantId/menu/items",
+	MENU_ITEM_DETAIL: "/:restaurantId/menu/items/:menuItemId",
+	MENU_ITEM_UPDATE: "/:restaurantId/menu/items/:menuItemId",
+	STAFF_MENU_ITEMS: "/:restaurantId/staff/menu/items",
+	STAFF_MENU_ITEMS_PREFIX: "/restaurants/:restaurantId/staff/menu/items",
+	STAFF_MENU_CATEGORIES: "/:restaurantId/staff/menu/categories",
+	STAFF_MENU_CATEGORIES_PREFIX:
+		"/restaurants/:restaurantId/staff/menu/categories",
+	MENU_ITEM_STATUS_UPDATE: "/:restaurantId/menu/items/:menuItemId/status",
+	MENU_ITEM_VARIANT_STATUS_UPDATE:
+		"/:restaurantId/menu/items/:itemId/variant/:variantId/status",
+	CUSTOMER_MENU_ITEM_DETAIL: "/customers/:restaurantId/menu/items/:menuItemId",
+	MENU_ITEM_DELETE: "/:restaurantId/menu/items/:menuItemId",
+	CUSTOMER_LIST: "/customers",
+	CUSTOMER_DETAILS: "/customers/:restaurantId",
+	ANALYTICS_DASHBOARD: "/:restaurantId/analytics/dashboard",
+} as const;
+
+export const STAFF_ROUTES = {
+	BASE: "/staff",
+	LOGIN: "/login",
+	SELECT_RESTAURANT: "/select-restaurant",
+	LOGOUT: "/logout",
+	REFRESH_TOKEN: "/refresh-token",
+	FORGOT_PASSWORD: "/forgot-password",
+	VERIFY_FORGOT_PASSWORD_OTP: "/forgot-password/verify",
+	RESEND_FORGOT_PASSWORD_OTP: "/forgot-password/resend-otp",
+	RESET_PASSWORD: "/reset-password",
+	INVITATIONS: "/invitations",
+	VALIDATE_INVITATION: "/invitations/validate",
+	ACCEPT_INVITATION: "/invitations/accept",
+	RESEND_INVITATION: "/invitations/resend",
+	REVOKE_INVITATION: "/invitations/revoke",
+	GET_PROFILE: "/profile/me",
+} as const;
+
+export const STORAGE_ROUTES = {
+	BASE: "/storage",
+	PRESIGNED_URL: "/presigned-url",
+	S3_OBJECT: "/s3-object",
+} as const;
+
+export const ADMIN_ROUTES = {
+	BASE: "/admin",
+	API_V1_BASE: "/api/v1/admin",
+	DASHBOARD: "/dashboard",
+	DASHBOARD_ANALYTICS: "/analytics/dashboard",
+	APPLICATIONS: "/restaurants/applications",
+	APPLICATION_DETAILS: "/restaurants/applications/:id",
+	APPROVE_RESTAURANT: "/restaurants/:id/approve",
+	REJECT_RESTAURANT: "/restaurants/:id/reject",
+	RESTAURANTS: "/restaurants",
+	GET_RESTAURANT_DETAILS: "/restaurants/:id",
+	BLOCK_RESTAURANT: "/restaurants/:id/block",
+	UNBLOCK_RESTAURANT: "/restaurants/:id/unblock",
+	RESTAURANT_MENU_CATEGORIES: "/restaurants/:restaurantId/menu/categories",
+} as const;
+
+export const JWKS_ROUTES = {
+	BASE: "/.well-known",
+	JWKS: "/jwks.json",
+} as const;
+
+export const TABLE_SECTION_ROUTES = {
+	BASE: "/",
+	CREATE_TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION: "/:restaurantId/table-sections",
+	TABLE_SECTION_ID: "/:restaurantId/table-sections/:tableSectionId",
+};
+
+export const TABLE_ROUTES = {
+	BASE: "/",
+	TABLE_ID: "/:restaurantId/table/:tableId",
+	CREATE_TABLE: "/:restaurantId/table",
+	UPDATE_TABLE: "/:restaurantId/table/:tableId",
+	TABLE: "/:restaurantId/table",
+	DELETE: "/:restaurantId/table/:tableId",
+	INTERNAL: {
+		AVAILABILITY:
+			"/api/internal/v1/restaurants/:restaurantId/tables/availability",
+	},
+	UPDATE_STATUS: "/:restaurantId/table/:tableId/status",
+	RELEASE_TABLE: "/:restaurantId/tables/release",
+};
+
+export const INTERNAL_ROUTES = {
+	BASE: "/api/internal/v1",
+	RESTAURANTS_BATCH: "/restaurants/batch",
+	RESTAURANT_VALIDATION: "/restaurants/:restaurantId/validation",
+	RELEASE_TABLE: "/restaurants/:restaurantId/tables/release",
+	ASSIGN_TABLE: "/restaurants/:restaurantId/tables/assign",
+	MENU_ITEM_DETAIL: "/restaurants/:restaurantId/menu/items/:menuItemId",
+} as const;
+
+export const PAYMENT_SERVICE_ROUTES = {
+	ANALYTICS_SUBSCRIPTIONS_SUMMARY:
+		"/api/internal/v1/analytics/subscriptions/summary",
+} as const;
+
+export const USER_SERVICE_ROUTES = {
+	ANALYTICS_USERS_SUMMARY: "/api/internal/v1/analytics/users/summary",
+} as const;
+
+export const ORDER_SERVICE_ROUTES = {
+	ANALYTICS_ORDERS_SUMMARY: (restaurantId: string) =>
+		`/api/internal/v1/restaurants/${restaurantId}/analytics/orders/summary`,
+	ANALYTICS_ORDERS_PRODUCTS: (restaurantId: string) =>
+		`/api/internal/v1/restaurants/${restaurantId}/analytics/orders/products`,
+} as const;
+
+export const QUEUE_SERVICE_ROUTES = {
+	CUSTOMER_STATUS: (userId: string) =>
+		`/api/internal/v1/queue-entries/${encodeURIComponent(userId)}/status`,
+};
+
+export type TableRoute = (typeof TABLE_ROUTES)[keyof typeof TABLE_ROUTES];
+
+export type TableSectionRoute =
+	(typeof TABLE_SECTION_ROUTES)[keyof typeof TABLE_SECTION_ROUTES];
+
+export type RestaurantRoute =
+	(typeof RESTAURANT_ROUTES)[keyof typeof RESTAURANT_ROUTES];
+
+export type SystemRoute = (typeof SYSTEM_ROUTES)[keyof typeof SYSTEM_ROUTES];
+
+export type StaffRoute = (typeof STAFF_ROUTES)[keyof typeof STAFF_ROUTES];
+
+export type StorageRoute = (typeof STORAGE_ROUTES)[keyof typeof STORAGE_ROUTES];
+export type AdminRoute = (typeof ADMIN_ROUTES)[keyof typeof ADMIN_ROUTES];
+export type JwksRoute = (typeof JWKS_ROUTES)[keyof typeof JWKS_ROUTES];
+export type InternalRoute =
+	(typeof INTERNAL_ROUTES)[keyof typeof INTERNAL_ROUTES];

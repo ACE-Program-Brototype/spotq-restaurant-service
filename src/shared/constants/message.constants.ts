@@ -1,0 +1,443 @@
+export const messages = {
+	SUCCESS: "Success",
+	LOGIN_SUCCESS: "Login successful",
+	LOGOUT_SUCCESS: "Logout successful",
+	STAFF_LOGIN_SUCCESS: "Staff logged in successfully",
+	STAFF_LOGOUT_SUCCESS: "Staff logged out successfully",
+	STAFF_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully",
+	FORGOT_PASSWORD_OTP_SENT: "Password reset OTP sent to your email",
+	OTP_SENT_SUCCESS: "OTP sent to your email successfully",
+	OTP_VERIFIED_SUCCESS: "OTP verified successfully",
+	OTP_RESENT_SUCCESS: "OTP resent to your email successfully",
+	PASSWORD_RESET_SUCCESS: "Password reset successfully",
+	RESTAURANT_STATUS_FETCHED: "Restaurant status retrieved successfully",
+	RESTAURANT_STATUS_AND_SUBSCRIPTION_VERIFIED:
+		"Restaurant status and subscription verified successfully",
+
+	STAFF_INVITATION_SENT_SUCCESS: "Staff invitation sent successfully",
+	STAFF_INVITATION_VALID: "Invitation token is valid",
+	STAFF_INVITATION_ACCEPTED_SUCCESS:
+		"Staff account created and invitation accepted successfully",
+	STAFF_INVITATION_RESENT_SUCCESS: "Staff invitation resent successfully",
+	STAFF_INVITATION_REVOKED_SUCCESS: "Staff invitation revoked successfully",
+	STAFF_INVITATIONS_FETCHED_SUCCESS: "Staff invitations retrieved successfully",
+	STAFF_PROFILE_FETCH_SUCCESS: "Staff profile retrieved successfully",
+	STAFF_STATUS_UPDATED_SUCCESS: "Staff status updated successfully",
+	STAFF_STATUS_REQUIRED: "Staff status is required",
+	STAFF_UPDATED_SUCCESS: "Staff information updated successfully",
+	RESTAURANTS_FETCHED_SUCCESS: "Restaurants retrieved successfully",
+	STAFF_PROFILE_UPDATED_SUCCESS: "Staff profile updated successfully",
+	SELECT_RESTAURANT_PROMPT: "Please select a restaurant to continue",
+	RESTAURANT_SELECTED_SUCCESS: "Restaurant selected successfully",
+	SELECTION_TOKEN_REQUIRED: "Selection token is required",
+	SELECTION_TOKEN_EMPTY: "Selection token cannot be empty",
+	INVALID_OR_EXPIRED_SELECTION_TOKEN: "Invalid or expired selection token",
+	STAFF_NOT_MEMBER_OF_RESTAURANT:
+		"Staff is not a member of the selected restaurant",
+	STAFF_ACCOUNT_DEACTIVATED:
+		"Your staff account for this restaurant has been deactivated. Please contact your restaurant administrator.",
+	NO_ACTIVE_RESTAURANT_MEMBERSHIPS: "No active restaurant memberships found",
+
+	PRESIGNED_URL_GENERATED_SUCCESS:
+		"Presigned upload URL generated successfully.",
+	PRESIGNED_GET_URL_GENERATED_SUCCESS:
+		"Presigned download URL generated successfully.",
+	S3_OBJECT_DELETED_SUCCESS: "S3 object deleted successfully",
+	S3_OBJECT_DELETE_FAILED: "Failed to delete S3 object",
+	STORAGE_KEY_FORBIDDEN:
+		"Forbidden: You are not authorized to delete this storage object",
+	STORAGE_KEY_PARAM_REQUIRED: "Key is required",
+	STORAGE_OBJECT_KEY_REQUIRED: "Object key is required",
+	STORAGE_KEY_OR_OBJECT_KEY_REQUIRED:
+		"Either 'key' or 'objectKey' must be provided",
+	STORAGE_PATH_TRAVERSAL_NOT_ALLOWED:
+		"Key must not contain path traversal characters ('..')",
+
+	SERVICE_RUNNING: "Service is running",
+	SERVICE_HEALTHY: "Service health check successful",
+	SERVICE_READY: "Service is ready",
+
+	INTERNAL_SERVER_ERROR: "Internal server error occurred",
+	UNHANDLED_APP_ERROR: "Unhandled application error",
+	UNAUTHORIZED: "Unauthorized access",
+	UNAUTHORIZED_RESTAURANT: "Unauthorized or missing restaurant identification",
+	GATEWAY_UNAUTHORIZED: "Unauthorized request from gateway",
+	AUTH_HEADER_REQUIRED: "Authorization header with Bearer token is required",
+	INVALID_ACCESS_TOKEN: "Invalid or expired access token",
+	FORBIDDEN: "Forbidden request",
+	STAFF_FORBIDDEN: "Forbidden: Staff access required",
+	OWNER_FORBIDDEN: "Forbidden: Restaurant Owner access required",
+	RESTAURANT_ACCESS_FORBIDDEN:
+		"Forbidden: You do not have access to this restaurant",
+	ADMIN_FORBIDDEN: "Forbidden: Admin access required",
+	RESTAURANT_DETAILS_FETCHED_SUCCESS:
+		"Restaurant details retrieved successfully",
+	STAFF_FORBIDDEN_UPDATE:
+		"Forbidden: You can only update your own staff profile",
+	STAFF_RESTAURANT_FORBIDDEN:
+		"Forbidden: Staff does not belong to the specified restaurant",
+	VALIDATION_ERROR: "Validation error occurred",
+	INVALID_VARIANT_ID: "Invalid variant ID",
+	INVALID_CREDENTIALS: "Invalid email or password",
+	INVALID_REFRESH_TOKEN: "Invalid or expired refresh token",
+	REVOKED_TOKEN: "Refresh token has been revoked",
+	INVALID_OTP: "Invalid or incorrect OTP",
+	OTP_EXPIRED: "OTP has expired. Please request a new one",
+	INVALID_TEMP_TOKEN: "Invalid or expired reset token",
+	EMAIL_NOT_VERIFIED: "Email address is not verified",
+	ACCOUNT_NOT_ACTIVE: "Your account is not active. Please contact support",
+	ACCOUNT_LOCKED:
+		"Too many failed login attempts. Please reset your password or try again later",
+	TOO_MANY_REQUESTS: "Too many requests. Please try again later",
+	UNKNOWN_ERROR: "An unexpected error occurred",
+	RATE_LIMIT_EXCEEDED: "Too many requests. Please try again later",
+	RATE_LIMIT_LOGIN_EXCEEDED:
+		"Too many login attempts. Please try again after 15 minutes.",
+	RATE_LIMIT_FORGOT_PASSWORD_EXCEEDED:
+		"Too many forgot password requests for this email. Maximum 3 attempts per 24 hours.",
+	RATE_LIMIT_VERIFY_OTP_EXCEEDED:
+		"Too many failed OTP verification attempts. Please try again after 15 minutes.",
+	RATE_LIMIT_RESEND_OTP_EXCEEDED:
+		"Too many OTP resend requests. Maximum 3 attempts per 1 hour.",
+	RATE_LIMIT_RESET_PASSWORD_EXCEEDED:
+		"Too many password reset attempts. Please try again after 15 minutes.",
+	RATE_LIMIT_REFRESH_TOKEN_EXCEEDED:
+		"Too many token refresh requests. Please try again after 1 minute.",
+	RATE_LIMIT_INVITE_STAFF_EXCEEDED:
+		"Too many staff invitation requests. Please try again later.",
+	RATE_LIMIT_REVOKE_INVITATION_EXCEEDED:
+		"Too many invitation revocation attempts. Please try again later.",
+	RATE_LIMIT_VALIDATE_INVITATION_EXCEEDED:
+		"Too many invitation validation attempts. Please try again later.",
+	RATE_LIMIT_ACCEPT_INVITATION_EXCEEDED:
+		"Too many invitation acceptance attempts. Please try again later.",
+	RATE_LIMIT_APPROVE_RESTAURANT_EXCEEDED:
+		"Too many approve restaurant requests. Please try again later.",
+	RATE_LIMIT_REJECT_RESTAURANT_EXCEEDED:
+		"Too many reject restaurant requests. Please try again later.",
+	RATE_LIMIT_BLOCK_RESTAURANT_EXCEEDED:
+		"Too many block restaurant requests. Please try again later.",
+	RATE_LIMIT_UNBLOCK_RESTAURANT_EXCEEDED:
+		"Too many unblock restaurant requests. Please try again later.",
+	STAFF_NOT_FOUND: "Staff member not found",
+	STAFF_INACTIVE: "Staff account is inactive. Please contact administrator",
+	STAFF_SUSPENDED: "Staff account is suspended. Please contact administrator",
+	STAFF_ACCOUNT_NOT_ACTIVE: "Staff account is not active",
+	STAFF_ACCOUNT_SUSPENDED: "Staff account is suspended",
+	EMAIL_ALREADY_EXISTS: "Staff member with this email already exists",
+	STAFF_INVITATION_ALREADY_PENDING:
+		"An active invitation has already been sent to this email address",
+	STAFF_INVITATION_NOT_FOUND: "Staff invitation not found",
+	CANNOT_RENEW_ACCEPTED_INVITATION:
+		"Cannot renew an already accepted invitation",
+	INVALID_INVITATION_TOKEN: "Invalid or non-existent invitation token",
+	INVITATION_EXPIRED: "Invitation has expired",
+	INVALID_STAFF_DATA: "Invalid staff data provided",
+	INVALID_RESTAURANT_DATA: "Invalid restaurant data provided",
+	RESTAURANT_NOT_FOUND: "Restaurant not found",
+	RESTAURANT_EMAIL_ALREADY_EXISTS: "Restaurant with this email already exists",
+	RESTAURANT_PHONE_ALREADY_EXISTS:
+		"Restaurant with this phone number already exists",
+	RESTAURANT_ID_REQUIRED: "Restaurant ID is required",
+	STAFF_ID_REQUIRED: "Staff ID is required",
+	RESTAURANT_ACCOUNT_BLOCKED:
+		"Restaurant account is blocked. Please contact support",
+	RESTAURANT_INACTIVE:
+		"Restaurant is not active or approved to perform this action",
+	TOKEN_HASH_REQUIRED: "Token hash is required",
+	PASSWORD_HASH_REQUIRED: "Password hash is required",
+	FULLNAME_INVALID: "Fullname is required and must be at least 2 characters",
+	FULLNAME_REQUIRED: "Fullname is required",
+	RESTAUARANT_NAME_REQUIRED:
+		"Restaurant name is required and must be at least 2 characters",
+	RESTAURANT_NAME_REQUIRED:
+		"Restaurant name is required and must be at least 2 characters",
+	RESTAURANT_NAME_INVALID:
+		"Restaurant name is required and must be at least 2 characters",
+	RESTAURANT_EMAIL_REQUIRED: "Valid restaurant email is required",
+	RESTAURANT_PHONE_REQUIRED: "Valid restaurant phone is required",
+	OWNER_NAME_REQUIRED:
+		"Owner name is required and must be at least 2 characters",
+	OWNER_NAME_INVALID:
+		"Owner name is required and must be at least 2 characters",
+	OWNER_EMAIL_REQUIRED: "Valid owner email is required",
+	PHONE_REQUIRED: "Phone number is required",
+	INVALID_PHONE_FORMAT: "Invalid phone number format",
+	EMAIL_REQUIRED: "Email is required",
+	INVALID_EMAIL_FORMAT: "Invalid email format",
+	INVALID_STAFF_ROLE: "Invalid staff role specified",
+	INVALID_STAFF_STATUS: "Invalid staff status",
+	INVALID_INVITATION_STATUS: "Invalid invitation status specified",
+	INVALID_RESTAURANT_STATUS: "Invalid restaurant status specified",
+	INVALID_ONBOARDING_STATUS: "Invalid onboarding status specified",
+	INVALID_RESTAURANT_ID_FORMAT:
+		"Invalid restaurant ID format. Must be a valid UUID",
+	RESTAURANT_IDS_REQUIRED: "At least one restaurant ID is required",
+	RESTAURANT_IDS_MAX_LIMIT: "Cannot request more than 100 restaurants at once",
+	INVALID_STAFF_ID_FORMAT: "Invalid staff ID format",
+	REJECTION_REASON_EMPTY: "Rejection reason cannot be empty",
+	REJECTION_REASON_MAX_LENGTH:
+		"Rejection reason must not exceed 500 characters",
+	INVALID_FROM_DATE_FORMAT: "Invalid fromDate format",
+	INVALID_TO_DATE_FORMAT: "Invalid toDate format",
+	STORAGE_KEY_REQUIRED: "Storage object key is required",
+	STORAGE_KEY_INVALID: "Invalid storage object key specified",
+	BLOCK_REASON_REQUIRED: "Block reason is required",
+	RESET_TOKEN_REQUIRED: "Reset token is required",
+	INVALID_TOKEN_PURPOSE: "Invalid token purpose",
+	REFRESH_TOKEN_REQUIRED: "Refresh token is required",
+	INVITATION_TOKEN_REQUIRED: "Invitation token is required",
+	FULLNAME_MIN_LENGTH: "Full name must be at least 2 characters",
+	FULLNAME_MAX_LENGTH: "Full name must not exceed 100 characters",
+	INVALID_INDIAN_PHONE_FORMAT:
+		"Invalid Indian phone number format. Must be a 10-digit mobile number starting with 6-9, optionally prefixed with +91, 91, or 0",
+	PASSWORD_REQUIRED: "Password is required",
+	PASSWORD_MIN_LENGTH: "Password must be at least 8 characters long",
+	PASSWORD_MIN_LENGTH_6: "Password must be at least 6 characters",
+	PASSWORD_UPPERCASE_REQUIRED:
+		"Password must contain at least one uppercase letter",
+	PASSWORD_LOWERCASE_REQUIRED:
+		"Password must contain at least one lowercase letter",
+	PASSWORD_DIGIT_REQUIRED: "Password must contain at least one digit",
+	PASSWORD_SPECIAL_REQUIRED:
+		"Password must contain at least one special character",
+	EITHER_INVITATION_ID_OR_EMAIL_REQUIRED:
+		"Either invitationId or email must be provided",
+	OTP_REQUIRED: "OTP is required",
+	OTP_DIGITS_REQUIRED: "OTP must be a 6-digit number",
+	SERVICE_UNAVAILABLE: "Service temporarily unavailable",
+	ROUTE_NOT_FOUND: "The requested route does not exist",
+	REQ_ROUTE_NOT_FOUND: "Requested route not found",
+
+	INCOMMING_HTTP_REQ: "Incoming HTTP Request",
+	OUTGOING_HTTP_RES: "Outgoing HTTP Response",
+
+	RESTAURANT_EMAIL_OTP_SENT_SUCCESS:
+		"If this email is eligible for registration, a verification code will be sent.",
+	EMAIL_VERIFIED_SUCCESS: "Email verified successfully.",
+	RESTAURANT_REGISTRATION_SUCCESS: "Restaurant registered successfully.",
+	RESTAURANT_REGISTRATION_REJECTED: "Registration request was rejected.",
+	ACCESS_TOKEN_REFRESH_SUCCESS: "Access token refreshed successfully.",
+	RESTAURANT_APPROVED_SUCCESS: "Restaurant application approved successfully.",
+	RESTAURANT_REJECTED_SUCCESS: "Restaurant application rejected successfully.",
+	RESTAURANT_ALREADY_PROCESSED:
+		"Restaurant application has already been processed.",
+	EVENT_ALREADY_PROCESSED: "Event has already been processed",
+	REJECTION_REASON_REQUIRED: "Rejection reason is required",
+	CANNOT_APPROVE_NON_PENDING_RESTAURANT:
+		"Cannot approve a restaurant that is not in pending status.",
+	CANNOT_APPROVE_INCOMPLETE_ONBOARDING:
+		"Cannot approve a restaurant with incomplete onboarding.",
+	CANNOT_REJECT_NON_PENDING_RESTAURANT:
+		"Cannot reject a restaurant that is not in pending status.",
+	CANNOT_REJECT_INCOMPLETE_ONBOARDING:
+		"Cannot reject a restaurant with incomplete onboarding.",
+	RESTAURANT_APPLICATIONS_FETCHED_SUCCESS:
+		"Restaurant applications retrieved successfully.",
+	RESTAURANT_APPLICATION_DETAILS_FETCHED_SUCCESS:
+		"Restaurant application details retrieved successfully.",
+	RESTAURANT_BLOCKED_SUCCESS: "Restaurant blocked successfully.",
+	RESTAURANT_UNBLOCKED_SUCCESS: "Restaurant unblocked successfully.",
+	RESTAURANT_ALREADY_BLOCKED: "Restaurant is already blocked",
+	RESTAURANT_NOT_BLOCKED: "Restaurant is not blocked",
+	CANNOT_MODIFY_PENDING_RESTAURANT:
+		"Cannot block or unblock a restaurant with pending status",
+	CANNOT_MODIFY_INCOMPLETE_ONBOARDING:
+		"Cannot block or unblock a restaurant with incomplete onboarding",
+	STAFF_MEMBERS_RETRIEVED_SUCCESS: "Staff members retrieved successfully.",
+	NO_STAFF_MEMBERS_FOUND: "No staff members found.",
+	YOU_DO_NOT_HAVE_PERMISSION:
+		"You do not have permission to access this resource.",
+	INVALID_SORT_FIELD: "Invalid sort field",
+	INVALID_SORT_ORDER: "Invalid sort order",
+	INVALID_QUERY_PARAMETERS: "Invalid query parameters",
+	AT_LEAST_ONE_FIELD_REQUIRED: "At least one editable field must be provided",
+	UNSUPPORTED_FIELDS_ERROR: "Request body contains unsupported fields",
+	INVALID_AVATAR_KEY: "Invalid avatar S3 key format",
+	AVATAR_RESTAURANT_MISMATCH:
+		"Cannot use an avatar belonging to another restaurant",
+	AVATAR_STAFF_MISMATCH:
+		"Cannot use an avatar belonging to another staff member",
+	RESTAURANT_VERIFICATION_STATUS_FETCH_SUCCESS:
+		"Verification status retrieved successfully",
+	RESTAURANT_PROFILE_FETCH_SUCCESS: "Restaurant profile retrieved successfully",
+	RESTAURANT_PROFILE_UPDATED_SUCCESS: "Restaurant profile updated successfully",
+	NAME_MIN_LENGTH: "Name must be at least 2 characters",
+	PHONE_MIN_LENGTH: "Phone must be at least 7 characters",
+	OWNER_NAME_MIN_LENGTH: "Owner name must be at least 2 characters",
+	AVERAGE_COST_INVALID: "Average cost cannot be negative",
+	SEATING_CAPACITY_INVALID: "Seating capacity cannot be negative",
+	INVALID_TIME_FORMAT: "Time must be in HH:mm format",
+	CLOSE_TIME_MUST_BE_AFTER_OPEN_TIME: "Close time must be after open time",
+	STAFF_REMOVED_SUCCESS: "Staff member removed successfully",
+	INVALID_STAFF_ID: "Invalid staff ID",
+	INVALID_RESTAURANT_ID: "Invalid restaurant ID",
+	INVALID_CATEGORY_ID: "Invalid category ID",
+	CATEGORY_ID_REQUIRED: "Category ID is required",
+	STAFF_DETAIL_FETCH_SUCCESS: "Staff member details retrieved successfully",
+	ADDON_CREATED_SUCCESS: "Menu item add-on created successfully",
+	ADDON_ALREADY_EXISTS:
+		"An add-on with this name already exists for this restaurant",
+	ADDON_NOT_FOUND: "Add-on not found",
+	ADDON_NAME_REQUIRED: "Name is required",
+	ADDON_NAME_MAX_LENGTH: "Add-on name must not exceed 255 characters",
+	ADDON_PRICE_REQUIRED: "Price is required",
+	ADDON_PRICE_NEGATIVE: "Price must be greater than or equal to 0",
+	ADDON_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
+	ADDON_DESCRIPTION_MAX_LENGTH:
+		"Add-on description must not exceed 1000 characters",
+	ADDONS_FETCHED_SUCCESS: "Restaurant add-ons retrieved successfully",
+	INVALID_ADDON_ID: "Invalid add-on ID",
+	INVALID_MENU_ITEM_ID: "Invalid menu item ID",
+	MENU_CATEGORY_CREATED_SUCCESS: "Menu category created successfully",
+	MENU_CATEGORIES_FETCHED_SUCCESS: "Menu categories retrieved successfully",
+	MENU_CATEGORY_UPDATED_SUCCESS: "Menu category updated successfully",
+	MENU_CATEGORY_STATUS_UPDATED_SUCCESS:
+		"Menu category status updated successfully",
+	MENU_CATEGORY_DELETED_SUCCESS: "Menu category deleted successfully",
+	CATEGORY_ALREADY_EXISTS:
+		"A category with this name already exists for this restaurant",
+	CATEGORY_NAME_REQUIRED: "Category name is required",
+	CATEGORY_NAME_MAX_LENGTH: "Category name must not exceed 255 characters",
+	CATEGORY_DESCRIPTION_MAX_LENGTH:
+		"Category description must not exceed 1000 characters",
+	CATEGORY_NOT_FOUND: "Category not found",
+	CATEGORY_HAS_MENU_ITEMS: "Cannot delete a category that contains menu items",
+	CATEGORY_DISPLAY_ORDER_INVALID:
+		"Display order must be a non-negative integer",
+	CATEGORY_IS_ACTIVE_INVALID: "isActive must be a boolean",
+	CANNOT_MODIFY_DELETED_CATEGORY: "Cannot modify a deleted category",
+	MENU_ITEM_CREATED_SUCCESS: "Menu item created successfully",
+	MENU_ITEM_UPDATED_SUCCESS: "Menu item updated successfully",
+	MENU_ITEM_ALREADY_EXISTS:
+		"A menu item with this name already exists for this restaurant",
+	MENU_ITEM_NOT_FOUND: "Menu item not found",
+	MENU_ITEM_VARIANT_NOT_FOUND: "Menu item variant not found",
+	ADDON_NOT_FOUND_FOR_RESTAURANT:
+		"One or more selected add-ons do not belong to this restaurant",
+	DUPLICATE_ADDON_IN_MENU_ITEM:
+		"Duplicate add-ons are not allowed for a menu item",
+	MENU_ITEM_NAME_REQUIRED: "Menu item name is required",
+	MENU_ITEM_NAME_MAX_LENGTH: "Menu item name must not exceed 255 characters",
+	MENU_ITEM_DESCRIPTION_MAX_LENGTH:
+		"Menu item description must not exceed 1000 characters",
+	MENU_ITEM_PRICE_REQUIRED: "Menu item price is required",
+	MENU_ITEM_PRICE_NEGATIVE:
+		"Menu item price must be greater than or equal to 0",
+	MENU_ITEM_PRICE_MAX_EXCEEDED: "Price must not exceed 99999999.99",
+	PREPARATION_TIME_NEGATIVE: "Preparation time cannot be negative",
+	CALORIES_NEGATIVE: "Calories cannot be negative",
+	INVALID_VARIANT_DATA: "Invalid variant data",
+	AT_LEAST_ONE_ACTIVE_VARIANT_REQUIRED:
+		"At least one variant must be available",
+	MENU_ITEM_VARIANT_STATUS_UPDATED_SUCCESS:
+		"Variant status updated successfully",
+	MULTIPLE_DEFAULT_VARIANTS: "Only one variant can be marked as default",
+	DUPLICATE_VARIANT_IN_MENU_ITEM:
+		"Duplicate variants are not allowed for a menu item",
+	VARIANT_NAME_REQUIRED: "Variant name is required",
+	VARIANT_MENU_ITEM_ID_REQUIRED: "Variant menu item ID is required",
+	VARIANT_PRICE_REQUIRED: "Variant price is required",
+	VARIANT_PRICE_NEGATIVE: "Variant price must be greater than or equal to 0",
+	PRICE_EXCEEDS_MAXIMUM: "Price exceeds maximum allowed value",
+	MENU_ITEM_DESCRIPTION_REQUIRED: "Menu item description is required",
+	PREPARATION_TIME_REQUIRED: "Preparation time is required",
+	MENU_ITEM_IMAGES_REQUIRED: "At least one image is required",
+	INVALID_MENU_ITEM_DATA: "Invalid menu item data",
+	INVALID_MENU_ITEM_IMAGE_ID: "Invalid menu item image ID",
+	IS_VEGETARIAN_REQUIRED: "isVegetarian is required",
+	ADDON_UPDATED_SUCCESS: "Add-on updated successfully",
+	ADDON_DELETED_SUCCESS: "Add-on deleted successfully",
+	ADDON_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
+	MENU_ITEMS_FETCHED_SUCCESS: "Menu items retrieved successfully",
+	MENU_ITEM_PREPARATION_TIME_INVALID:
+		"Preparation time must be a positive number of minutes",
+	MENU_ITEM_CALORIES_INVALID: "Calories must be a positive number",
+	MIN_PRICE_CANNOT_BE_GREATER_THAN_MAX_PRICE:
+		"minPrice cannot be greater than maxPrice",
+	CANNOT_MODIFY_DELETED_ADDON: "Cannot modify a deleted add-on",
+	MENU_ITEM_DETAILS_FETCHED_SUCCESS: "Menu item details retrieved successfully",
+	STAFF_MENU_ITEMS_FETCHED_SUCCESS: "Staff menu items retrieved successfully",
+	MENU_ITEM_STATUS_UPDATED_SUCCESS: "Menu item status updated successfully",
+	MENU_ITEM_DELETED_SUCCESS: "Menu item deleted successfully",
+	MENU_ITEM_IS_AVAILABLE_INVALID: "isAvailable must be a boolean",
+	CANNOT_MODIFY_DELETED_MENU_ITEM: "Cannot modify a deleted menu item",
+
+	// TABLE SECTION
+	INVALID_TABLE_SECTION_NAME: "Table section name is invalid",
+	TABLE_SECTION_ALREADY_EXISTS: "Table Section already exists",
+	TABLE_SECTION_NOT_FOUND: "Table Section not found",
+	TABLE_SECTION_ALREADY_EXIST: "Table Section already exists",
+	TABLE_SECTION_CREATE_SUCCESS: "Table Section Created Successfully",
+	TABLE_SECTION_NAME_REQUIRED: "Table Section name required",
+	TABLE_SECTION_NAME_MAX: "Table section name must not exceed 100 characters.",
+	TABLE_SECTION_GOT_SUCCESS: "Table Section Got Successfully",
+	INVALID_TABLE_SECTION_MODE: "Invalid table section mode",
+
+	// PAGINATION ERRORS
+	INVALID_PAGE: "Page must be a positive integer",
+	INVALID_LIMIT: "Limit must be a positive integer",
+	LIMIT_EXCEEDS_MAX: "Limit exceeded",
+	TABLE_SECTION_ID_REQUIRED: "Table section Id Required",
+	INVALID_TABLE_SECTION_ID: "Invalid Table section ID",
+	TABLE_SECTION_DELETE_SUCCESS: "Table Section Deleted Successfully",
+
+	// TABLE
+	TABLE_CAPACITY_MIN: "Table capacity must be at least 1.",
+	INVALID_TABLE_CAPACITY: "Table capacity must be a valid integer.",
+	INVALID_TABLE_CODE: "Table code cannot be empty.",
+	TABLE_CODE_MAX: "Table code must not exceed 50 characters.",
+	INVALID_TABLE_SHAPE: "Invalid table shape.",
+	TABLE_NOT_FOUND: "Table not found.",
+	TABLE_ALREADY_EXISTS:
+		"A table with this code already exists in this restaurant.",
+	TABLE_CAPACITY_EXCEEDED: "Current occupancy cannot exceed table capacity.",
+	INVALID_TABLE_OCCUPANCY:
+		"Guest count must be a positive integer and cannot exceed current table occupancy.",
+	TABLE_ALREADY_OCCUPIED: "Table is already occupied.",
+	TABLE_CREATE_SUCCESS: "Table Created successfully",
+	TABLE_CAPACITY_REQUIRED: "Table capacity required",
+	TABLE_CODE_REQUIRED: "Table code required",
+	TABLE_UPDATE_SUCCESS: "Table Updated Successfully",
+	TABLE_FETCH_SUCCESS: "Table Fetched Successfully",
+	INVALID_TABLE_STATUS: "Invalid Table Status",
+	TABLE_ID_REQUIRED: "Table Id Required",
+	TABLE_STATUS_UPDATE_SUCCESS: "Table Status Update Success",
+	TABLE_INVALID_TRANSITION: "Table Invalid Transition",
+	TABLE_MUST_BE_UNOCCUPIED: "Table must be Unoccupied",
+	INVALID_TABLE_ID: "Invalid Table Id",
+	TABLE_IN_USE: "Table In Use",
+	TABLE_DELETE_SUCCESS: "Table deleted Succesfully",
+	TABLE_RELEASE_SUCCESS: "Table Released Successfully",
+	TABLE_ASSIGN_SUCCESS: "Table Assigned Successfully",
+	TABLES_REQUIRED: "At least one table must be provided",
+	TABLE_NOT_AVAILABLE: "Table Not Available",
+	DUPLICATE_TABLE_ID: "Duplicate Table Id",
+	TABLE_SECTION_IN_USE: "Table Section in use",
+
+	INVALID_PARTY_SIZE: "Invalid Party Size",
+
+	// CUSTOMER
+	QUEUE_SERVICE_CONNECTION_ERROR: "[ERROR]: Cannot connect to Queue Service",
+	PLATFORM_DASHBOARD_ANALYTICS_FETCHED:
+		"Platform dashboard analytics fetched successfully",
+	RESTAURANT_ANALYTICS_DASHBOARD_FETCHED:
+		"Restaurant analytics dashboard fetched successfully",
+	PAYMENT_SERVICE_FINANCE_SUMMARY_UNAVAILABLE:
+		"Payment service finance summary is unavailable. Financial metrics set to null (distinguishable from genuine zero).",
+	USER_SERVICE_ANALYTICS_UNAVAILABLE:
+		"User service customer analytics is unavailable.",
+	ORDER_SERVICE_ANALYTICS_UNAVAILABLE:
+		"Order service analytics is unavailable.",
+	SUBSCRIPTION_REVENUE_METRICS_UNAVAILABLE:
+		"Subscription revenue metrics unavailable",
+	CUSTOMER_GROWTH_METRICS_UNAVAILABLE: "Customer growth metrics unavailable",
+	REVENUE_METRICS_UNAVAILABLE: "Revenue metrics unavailable",
+	ORDER_METRICS_UNAVAILABLE: "Order metrics unavailable",
+	OPERATIONS_METRICS_UNAVAILABLE: "Operations metrics unavailable",
+	ORDER_STATUS_BREAKDOWN_UNAVAILABLE: "Order status breakdown unavailable",
+	PRODUCT_PERFORMANCE_METRICS_UNAVAILABLE:
+		"Product performance metrics unavailable",
+} as const;
+
+export type MessageKey = keyof typeof messages;

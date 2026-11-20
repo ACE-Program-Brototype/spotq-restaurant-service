@@ -1,0 +1,132 @@
+import express from "express";
+import {
+	adminDashboardAnalyticsController,
+	adminRestaurantController,
+	menuCategoryController,
+} from "@/config/di/controllers.resolutions.ts";
+import { adminAuthMiddleware } from "@/presentation/http/middleware/admin.auth.middleware.ts";
+import {
+	approveRestaurantRateLimiter,
+	blockRestaurantRateLimiter,
+	rejectRestaurantRateLimiter,
+	unblockRestaurantRateLimiter,
+} from "@/presentation/http/middleware/rate-limiter.middleware.ts";
+import {
+	validateRequestBody,
+	validateRequestParams,
+	validateRequestQuery,
+} from "@/presentation/http/middleware/validation.middleware.ts";
+import { approveRestaurantParamSchema } from "@/presentation/http/validators/admin/approve-restaurant.validator.ts";
+import {
+	blockRestaurantBodySchema,
+	blockRestaurantParamSchema,
+} from "@/presentation/http/validators/admin/block-restaurant.validator.ts";
+import { getRestaurantApplicationDetailsParamSchema } from "@/presentation/http/validators/admin/get-restaurant-application-details.validator.ts";
+import { getRestaurantDetailsParamSchema } from "@/presentation/http/validators/admin/get-restaurant-details.validator.ts";
+import { listRestaurantApplicationsSchema } from "@/presentation/http/validators/admin/list-restaurant-applications.validator.ts";
+import { listRestaurantsQuerySchema } from "@/presentation/http/validators/admin/list-restaurants.validator.ts";
+import { getPlatformDashboardAnalyticsQuerySchema } from "@/presentation/http/validators/admin/get-platform-dashboard-analytics.validator.ts";
+import {
+	rejectRestaurantBodySchema,
+	rejectRestaurantParamSchema,
+} from "@/presentation/http/validators/admin/reject-restaurant.validator.ts";
+import { unblockRestaurantParamSchema } from "@/presentation/http/validators/admin/unblock-restaurant.validator.ts";
+import { listMenuCategoriesParamSchema } from "@/presentation/http/validators/list-menu-categories.validator.ts";
+import { ADMIN_ROUTES } from "@/shared/constants/route.constants.ts";
+
+export const adminRouter = express.Router();
+
+adminRouter.get(
+	ADMIN_ROUTES.DASHBOARD,
+	adminAuthMiddleware,
+	validateRequestQuery(getPlatformDashboardAnalyticsQuerySchema),
+	adminDashboardAnalyticsController.getDashboardAnalytics.bind(
+		adminDashboardAnalyticsController,
+	),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.DASHBOARD_ANALYTICS,
+	adminAuthMiddleware,
+	validateRequestQuery(getPlatformDashboardAnalyticsQuerySchema),
+	adminDashboardAnalyticsController.getDashboardAnalytics.bind(
+		adminDashboardAnalyticsController,
+	),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.APPLICATIONS,
+	adminAuthMiddleware,
+	validateRequestQuery(listRestaurantApplicationsSchema),
+	adminRestaurantController.listRestaurantApplications.bind(
+		adminRestaurantController,
+	),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.APPLICATION_DETAILS,
+	adminAuthMiddleware,
+	validateRequestParams(getRestaurantApplicationDetailsParamSchema),
+	adminRestaurantController.getRestaurantApplicationDetails.bind(
+		adminRestaurantController,
+	),
+);
+
+adminRouter.patch(
+	ADMIN_ROUTES.APPROVE_RESTAURANT,
+	adminAuthMiddleware,
+	approveRestaurantRateLimiter,
+	validateRequestParams(approveRestaurantParamSchema),
+	adminRestaurantController.approveRestaurant.bind(adminRestaurantController),
+);
+
+adminRouter.patch(
+	ADMIN_ROUTES.REJECT_RESTAURANT,
+	adminAuthMiddleware,
+	rejectRestaurantRateLimiter,
+	validateRequestParams(rejectRestaurantParamSchema),
+	validateRequestBody(rejectRestaurantBodySchema),
+	adminRestaurantController.rejectRestaurant.bind(adminRestaurantController),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.RESTAURANTS,
+	adminAuthMiddleware,
+	validateRequestQuery(listRestaurantsQuerySchema),
+	adminRestaurantController.listRestaurants.bind(adminRestaurantController),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.GET_RESTAURANT_DETAILS,
+	adminAuthMiddleware,
+	validateRequestParams(getRestaurantDetailsParamSchema),
+	adminRestaurantController.getRestaurantDetails.bind(
+		adminRestaurantController,
+	),
+);
+
+adminRouter.patch(
+	ADMIN_ROUTES.BLOCK_RESTAURANT,
+	adminAuthMiddleware,
+	blockRestaurantRateLimiter,
+	validateRequestParams(blockRestaurantParamSchema),
+	validateRequestBody(blockRestaurantBodySchema),
+	adminRestaurantController.blockRestaurant.bind(adminRestaurantController),
+);
+
+adminRouter.patch(
+	ADMIN_ROUTES.UNBLOCK_RESTAURANT,
+	adminAuthMiddleware,
+	unblockRestaurantRateLimiter,
+	validateRequestParams(unblockRestaurantParamSchema),
+	adminRestaurantController.unblockRestaurant.bind(adminRestaurantController),
+);
+
+adminRouter.get(
+	ADMIN_ROUTES.RESTAURANT_MENU_CATEGORIES,
+	adminAuthMiddleware,
+	validateRequestParams(listMenuCategoriesParamSchema),
+	menuCategoryController.listRestaurantCategories,
+);
+
+export default adminRouter;

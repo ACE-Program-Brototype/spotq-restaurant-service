@@ -1,0 +1,18 @@
+import type { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
+import type { IBaseRepository } from "./base.repository.interface.ts";
+
+export interface IMenuCategoryRepository
+	extends IBaseRepository<MenuCategory, string> {
+	findByNameAndRestaurantId(
+		restaurantId: string,
+		name: string,
+	): Promise<MenuCategory | null>;
+	findByRestaurantId(restaurantId: string): Promise<MenuCategory[]>;
+	getNextDisplayOrder(restaurantId: string): Promise<number>;
+	create(category: MenuCategory): Promise<MenuCategory>;
+	updateCategory(
+		category: MenuCategory,
+		previousDisplayOrder?: number,
+	): Promise<MenuCategory>;
+	hasMenuItems(categoryId: string): Promise<boolean>;
+}

@@ -1,0 +1,54 @@
+export const AUTH_ROLES = {
+	RESTAURANT_OWNER: "restaurant_owner",
+	RESTAURANT_ADMIN: "restaurant_admin",
+	RESTAURANT: "restaurant",
+	OWNER: "owner",
+	ADMIN: "admin",
+	MANAGER: "manager",
+	STAFF: "staff",
+} as const;
+
+export const CUSTOMER_ROLE = "CUSTOMER";
+
+export type AuthRole = (typeof AUTH_ROLES)[keyof typeof AUTH_ROLES];
+
+export const ALLOWED_OWNER_ROLES: ReadonlySet<string> = new Set([
+	AUTH_ROLES.RESTAURANT_OWNER,
+	AUTH_ROLES.RESTAURANT_ADMIN,
+	AUTH_ROLES.RESTAURANT,
+	AUTH_ROLES.OWNER,
+	AUTH_ROLES.ADMIN,
+]);
+
+export const MANAGER_ADMIN_ROLES: ReadonlySet<string> = new Set([
+	AUTH_ROLES.MANAGER,
+	AUTH_ROLES.ADMIN,
+	AUTH_ROLES.RESTAURANT_ADMIN,
+	AUTH_ROLES.RESTAURANT_OWNER,
+	AUTH_ROLES.OWNER,
+	AUTH_ROLES.RESTAURANT,
+]);
+
+export const ALLOWED_OWNER_OR_STAFF_ROLES: ReadonlySet<string> = new Set([
+	AUTH_ROLES.RESTAURANT_OWNER,
+	AUTH_ROLES.RESTAURANT_ADMIN,
+	AUTH_ROLES.RESTAURANT,
+	AUTH_ROLES.OWNER,
+	AUTH_ROLES.ADMIN,
+	AUTH_ROLES.STAFF,
+]);
+
+export const TOKEN_TYPES = {
+	ACCESS: "access",
+	REFRESH: "refresh",
+} as const;
+
+export type TokenType = (typeof TOKEN_TYPES)[keyof typeof TOKEN_TYPES];
+export const S2S_CALLER_SERVICES = {
+	QUEUE_SERVICE: "queue-service",
+	ORDER_SERVICE: "order-service",
+	PAYMENT_SERVICE: "payment-service",
+} as const;
+
+export type S2SCallerService =
+	(typeof S2S_CALLER_SERVICES)[keyof typeof S2S_CALLER_SERVICES];

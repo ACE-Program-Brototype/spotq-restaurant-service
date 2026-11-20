@@ -2,3 +2,8 @@ node_modules
 dist
 .env
 coverage
+/src/generated/prisma
+.DS_Store
+bruno/
+*.bru
+Dockerfile.dev

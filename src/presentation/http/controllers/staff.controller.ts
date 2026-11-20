@@ -1,0 +1,589 @@
+import { TYPES } from "@di/types.ts";
+import type { CookieOptions, NextFunction, Request, Response } from "express";
+import { inject, injectable } from "inversify";
+import type { LoginStaffDTO } from "@/application/dtos/staff/login-staff.dto.ts";
+import type { IAcceptInvitationUseCase } from "@/application/ports/use-cases/accept-invitation.use-case.port.ts";
+import type { IForgotPasswordUseCase } from "@/application/ports/use-cases/forgot-password.use-case.port.ts";
+import type { IGetStaffProfileUseCase } from "@/application/ports/use-cases/get-staff-profile.use-case.port.ts";
+import type { IInviteStaffUseCase } from "@/application/ports/use-cases/invite-staff.use-case.port.ts";
+import type { IListStaffInvitationsUseCase } from "@/application/ports/use-cases/list-staff-invitations.use-case.port.ts";
+import type { IListStaffMembersUseCase } from "@/application/ports/use-cases/list-staff-members.use-case.port.ts";
+import type { ILoginStaffUseCase } from "@/application/ports/use-cases/login-staff.use-case.port.ts";
+import type { ILogoutStaffUseCase } from "@/application/ports/use-cases/logout-staff.use-case.port.ts";
+import type { IRefreshTokenUseCase } from "@/application/ports/use-cases/refresh-token.use-case.port.ts";
+import type { IResendForgotPasswordOtpUseCase } from "@/application/ports/use-cases/resend-forgot-password-otp.use-case.port.ts";
+import type { IResendStaffInvitationUseCase } from "@/application/ports/use-cases/resend-invitation.use-case.port.ts";
+import type { IResetPasswordUseCase } from "@/application/ports/use-cases/reset-password.use-case.port.ts";
+import type { IRevokeStaffInvitationUseCase } from "@/application/ports/use-cases/revoke-invitation.use-case.port.ts";
+import type { ISelectRestaurantUseCase } from "@/application/ports/use-cases/select-restaurant.use-case.port.ts";
+import type { IUpdateStaffProfileUseCase } from "@/application/ports/use-cases/update-staff-profile.use-case.port.ts";
+import type { IValidateInvitationUseCase } from "@/application/ports/use-cases/validate-invitation.use-case.port.ts";
+import type { IVerifyForgotPasswordOtpUseCase } from "@/application/ports/use-cases/verify-forgot-password-otp.use-case.port.ts";
+import { env } from "@/config/env.ts";
+import {
+	RestaurantIdRequiredError,
+	StaffForbiddenError,
+} from "@/domain/errors/staff.errors.ts";
+import type { AuthenticatedOwnerRequest } from "@/presentation/http/middleware/restaurant-owner.auth.middleware.ts";
+import type { AuthenticatedRequest } from "@/presentation/http/middleware/staff.auth.middleware.ts";
+import type { ListStaffInvitationsQuery } from "@/presentation/http/validators/staff/list-invitations.validator.ts";
+import type { ListStaffQuery } from "@/presentation/http/validators/staff/list-staff.validator.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
+import {
+	ApiResponse,
+	sendPaginatedSuccessResponse,
+	sendSuccessResponse,
+} from "@/shared/response/api-response.ts";
+
+@injectable()
+export class StaffController {
+	constructor(
+		@inject(TYPES.LoginStaffUseCase)
+		private readonly loginStaffUseCase: ILoginStaffUseCase,
+		@inject(TYPES.LogoutStaffUseCase)
+		private readonly logoutStaffUseCase: ILogoutStaffUseCase,
+		@inject(TYPES.RefreshTokenUseCase)
+		private readonly refreshTokenUseCase: IRefreshTokenUseCase,
+		@inject(TYPES.ForgotPasswordUseCase)
+		private readonly forgotPasswordUseCase: IForgotPasswordUseCase,
+		@inject(TYPES.VerifyForgotPasswordOtpUseCase)
+		private readonly verifyForgotPasswordOtpUseCase: IVerifyForgotPasswordOtpUseCase,
+		@inject(TYPES.ResendForgotPasswordOtpUseCase)
+		private readonly resendForgotPasswordOtpUseCase: IResendForgotPasswordOtpUseCase,
+		@inject(TYPES.ResetPasswordUseCase)
+		private readonly resetPasswordUseCase: IResetPasswordUseCase,
+		@inject(TYPES.InviteStaffUseCase)
+		private readonly inviteStaffUseCase: IInviteStaffUseCase,
+		@inject(TYPES.ValidateInvitationUseCase)
+		private readonly validateInvitationUseCase: IValidateInvitationUseCase,
+		@inject(TYPES.AcceptInvitationUseCase)
+		private readonly acceptInvitationUseCase: IAcceptInvitationUseCase,
+		@inject(TYPES.ResendStaffInvitationUseCase)
+		private readonly resendStaffInvitationUseCase: IResendStaffInvitationUseCase,
+		@inject(TYPES.RevokeStaffInvitationUseCase)
+		private readonly revokeStaffInvitationUseCase: IRevokeStaffInvitationUseCase,
+		@inject(TYPES.ListStaffInvitationsUseCase)
+		private readonly listStaffInvitationsUseCase: IListStaffInvitationsUseCase,
+		@inject(TYPES.ListStaffMembersUseCase)
+		private readonly listStaffMembersUseCase: IListStaffMembersUseCase,
+		@inject(TYPES.GetStaffProfileUseCase)
+		private readonly getStaffProfileUseCase: IGetStaffProfileUseCase,
+		@inject(TYPES.UpdateStaffProfileUseCase)
+		private readonly updateStaffProfileUseCase: IUpdateStaffProfileUseCase,
+		@inject(TYPES.SelectRestaurantUseCase)
+		private readonly selectRestaurantUseCase: ISelectRestaurantUseCase,
+	) {}
+
+	public login = async (req: Request, res: Response): Promise<void> => {
+		const dto: LoginStaffDTO = {
+			email: req.body.email,
+			password: req.body.password,
+			...(req.body.restaurantId && { restaurantId: req.body.restaurantId }),
+		};
+
+		const result = await this.loginStaffUseCase.execute(dto);
+
+		if (result.requiresRestaurantSelection) {
+			sendSuccessResponse(
+				res,
+				{
+					requiresRestaurantSelection: true,
+					selectToken: result.selectToken,
+					restaurants: result.restaurants,
+				},
+				messages.SELECT_RESTAURANT_PROMPT,
+				HTTP_STATUS.OK,
+			);
+			return;
+		}
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		if (result.refreshToken) {
+			res.cookie(
+				env.COOKIE_NAME_REFRESH_TOKEN,
+				result.refreshToken,
+				cookieOptions,
+			);
+		}
+
+		sendSuccessResponse(
+			res,
+			{
+				staff: result.staff,
+				accessToken: result.accessToken,
+			},
+			messages.STAFF_LOGIN_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public selectRestaurant = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const result = await this.selectRestaurantUseCase.execute({
+			selectToken: req.body.selectToken,
+			restaurantId: req.body.restaurantId,
+		});
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		res.cookie(
+			env.COOKIE_NAME_REFRESH_TOKEN,
+			result.refreshToken,
+			cookieOptions,
+		);
+
+		sendSuccessResponse(
+			res,
+			{
+				staff: result.staff,
+				accessToken: result.accessToken,
+			},
+			messages.STAFF_LOGIN_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public logout = async (req: Request, res: Response): Promise<void> => {
+		const refreshToken = req.cookies?.[env.COOKIE_NAME_REFRESH_TOKEN];
+
+		await this.logoutStaffUseCase.execute({ refreshToken });
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		res.clearCookie(env.COOKIE_NAME_REFRESH_TOKEN, cookieOptions);
+
+		sendSuccessResponse(
+			res,
+			null,
+			messages.STAFF_LOGOUT_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public refreshToken = async (req: Request, res: Response): Promise<void> => {
+		const refreshToken =
+			req.cookies?.[env.COOKIE_NAME_REFRESH_TOKEN] || req.body?.refreshToken;
+
+		const result = await this.refreshTokenUseCase.execute({ refreshToken });
+
+		sendSuccessResponse(
+			res,
+			{
+				accessToken: result.accessToken,
+			},
+			messages.STAFF_TOKEN_REFRESH_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public forgotPassword = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		await this.forgotPasswordUseCase.execute({
+			email: req.body.email,
+		});
+
+		sendSuccessResponse(res, null, messages.OTP_SENT_SUCCESS, HTTP_STATUS.OK);
+	};
+
+	public verifyForgotPasswordOtp = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const result = await this.verifyForgotPasswordOtpUseCase.execute({
+			email: req.body.email,
+			otp: req.body.otp,
+		});
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_TEMP_TOKEN_MAX_AGE_MS,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		res.cookie(env.COOKIE_NAME_TEMP_TOKEN, result.tempToken, cookieOptions);
+
+		sendSuccessResponse(
+			res,
+			null,
+			messages.OTP_VERIFIED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public resendForgotPasswordOtp = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		await this.resendForgotPasswordOtpUseCase.execute({
+			email: req.body.email,
+		});
+
+		sendSuccessResponse(res, null, messages.OTP_RESENT_SUCCESS, HTTP_STATUS.OK);
+	};
+
+	public resetPassword = async (req: Request, res: Response): Promise<void> => {
+		const tempToken = req.cookies?.[env.COOKIE_NAME_TEMP_TOKEN];
+
+		await this.resetPasswordUseCase.execute({
+			password: req.body.password,
+			tempToken,
+		});
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		res.clearCookie(env.COOKIE_NAME_TEMP_TOKEN, cookieOptions);
+
+		sendSuccessResponse(
+			res,
+			null,
+			messages.PASSWORD_RESET_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public inviteStaff = async (req: Request, res: Response): Promise<void> => {
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const result = await this.inviteStaffUseCase.execute({
+			email: req.body.email,
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_SENT_SUCCESS,
+			HTTP_STATUS.CREATED,
+		);
+	};
+
+	public validateInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const result = await this.validateInvitationUseCase.execute({
+			token: req.body.token,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_VALID,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public acceptInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const result = await this.acceptInvitationUseCase.execute({
+			token: req.body.token,
+			fullname: req.body.fullname,
+			phone: req.body.phone,
+			password: req.body.password,
+		});
+
+		const cookieOptions: CookieOptions = {
+			httpOnly: env.COOKIE_HTTP_ONLY,
+			secure: env.COOKIE_SECURE,
+			sameSite: env.COOKIE_SAME_SITE,
+			maxAge: env.COOKIE_MAX_AGE_MS,
+			path: env.COOKIE_PATH,
+			...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+		};
+
+		res.cookie(
+			env.COOKIE_NAME_REFRESH_TOKEN,
+			result.refreshToken,
+			cookieOptions,
+		);
+
+		sendSuccessResponse(
+			res,
+			{
+				staff: result.staff,
+				accessToken: result.accessToken,
+			},
+			messages.STAFF_INVITATION_ACCEPTED_SUCCESS,
+			HTTP_STATUS.CREATED,
+		);
+	};
+
+	public resendInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const result = await this.resendStaffInvitationUseCase.execute({
+			email: req.body.email,
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_RESENT_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public revokeInvitation = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const result = await this.revokeStaffInvitationUseCase.execute({
+			invitationId: req.body.invitationId,
+			email: req.body.email,
+			restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATION_REVOKED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public listInvitations = async (
+		req: Request,
+		res: Response,
+	): Promise<void> => {
+		const restaurantId = (req.headers["x-restaurant-id"] as string)?.trim();
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const query = (res?.locals?.query ??
+			req.query) as unknown as ListStaffInvitationsQuery;
+
+		const result = await this.listStaffInvitationsUseCase.execute({
+			restaurantId,
+			page: query.page,
+			limit: query.limit,
+			status: query.status,
+			search: query.search,
+			sortBy: query.sortBy,
+			sortOrder: query.sortOrder,
+		});
+
+		sendSuccessResponse(
+			res,
+			result,
+			messages.STAFF_INVITATIONS_FETCHED_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public getProfile = async (req: Request, res: Response): Promise<void> => {
+		const authReq = req as AuthenticatedRequest;
+		const authUser = authReq.user;
+		const staffId = authUser?.userId ?? authReq.userId;
+
+		if (!staffId) {
+			res
+				.status(HTTP_STATUS.UNAUTHORIZED)
+				.json(
+					ApiResponse.error(
+						messages.UNAUTHORIZED,
+						"UNAUTHORIZED",
+						HTTP_STATUS.UNAUTHORIZED,
+					),
+				);
+			return;
+		}
+
+		const profile = await this.getStaffProfileUseCase.execute({
+			staffId,
+			restaurantId: authUser?.restaurantId,
+		});
+
+		sendSuccessResponse(
+			res,
+			profile,
+			messages.STAFF_PROFILE_FETCH_SUCCESS,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public listStaff = async (req: Request, res: Response): Promise<void> => {
+		const authReq = req as AuthenticatedOwnerRequest;
+		const rawRestaurantId =
+			req.params.restaurantId ||
+			(req.headers["x-restaurant-id"] as string) ||
+			authReq.user?.restaurantId ||
+			"";
+		const restaurantId =
+			(Array.isArray(rawRestaurantId)
+				? rawRestaurantId[0]
+				: rawRestaurantId
+			)?.trim() || "";
+
+		if (!restaurantId) {
+			throw new RestaurantIdRequiredError(messages.RESTAURANT_ID_REQUIRED);
+		}
+
+		const rawOwnerEmail =
+			authReq.user?.email || (req.headers["x-user-email"] as string) || "";
+		const ownerEmail =
+			(Array.isArray(rawOwnerEmail)
+				? rawOwnerEmail[0]
+				: rawOwnerEmail
+			)?.trim() || undefined;
+
+		const query = (res?.locals?.query ??
+			req.query) as unknown as ListStaffQuery;
+
+		const result = await this.listStaffMembersUseCase.execute({
+			restaurantId,
+			ownerEmail,
+			page: query.page,
+			limit: query.limit,
+			status: query.status,
+			search: query.search,
+			sortBy: query.sortBy,
+			sortOrder: query.sortOrder,
+		});
+
+		const message =
+			result.pagination.total === 0
+				? messages.NO_STAFF_MEMBERS_FOUND
+				: messages.STAFF_MEMBERS_RETRIEVED_SUCCESS;
+
+		sendPaginatedSuccessResponse(
+			res,
+			result.staff,
+			result.pagination,
+			message,
+			HTTP_STATUS.OK,
+		);
+	};
+
+	public updateProfile = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<void> => {
+		try {
+			const authReq = req as AuthenticatedRequest;
+			const authUser = authReq.user;
+			const userId = authUser?.userId ?? authReq.userId;
+
+			if (!userId) {
+				res
+					.status(HTTP_STATUS.UNAUTHORIZED)
+					.json(
+						ApiResponse.error(
+							messages.UNAUTHORIZED,
+							"UNAUTHORIZED",
+							HTTP_STATUS.UNAUTHORIZED,
+						),
+					);
+				return;
+			}
+
+			const restaurantId = Array.isArray(req.params.restaurantId)
+				? req.params.restaurantId[0]
+				: req.params.restaurantId;
+			const staffId = Array.isArray(req.params.staffId)
+				? req.params.staffId[0]
+				: req.params.staffId;
+
+			if (userId !== staffId) {
+				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN_UPDATE);
+			}
+
+			if (
+				authUser?.restaurantId &&
+				restaurantId &&
+				authUser.restaurantId !== restaurantId
+			) {
+				throw new StaffForbiddenError(messages.STAFF_FORBIDDEN_UPDATE);
+			}
+
+			const targetRestaurantId = authUser?.restaurantId || restaurantId;
+
+			const {
+				name,
+				fullname,
+				phone,
+				avatar_url,
+				avatarUrl,
+				avatarUpdatedAt,
+				hasAvatar,
+			} = req.body;
+
+			const profile = await this.updateStaffProfileUseCase.execute({
+				restaurantId: targetRestaurantId,
+				staffId,
+				name: name ?? fullname,
+				phone,
+				avatarUpdatedAt,
+				hasAvatar,
+				avatar_url: avatar_url !== undefined ? avatar_url : avatarUrl,
+				avatarUrl: avatarUrl !== undefined ? avatarUrl : avatar_url,
+			});
+
+			sendSuccessResponse(
+				res,
+				profile,
+				messages.STAFF_PROFILE_UPDATED_SUCCESS,
+				HTTP_STATUS.OK,
+			);
+		} catch (error) {
+			next(error);
+		}
+	};
+}

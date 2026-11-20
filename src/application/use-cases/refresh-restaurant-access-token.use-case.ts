@@ -1,0 +1,43 @@
+import { inject, injectable } from "inversify";
+import { InvalidRefreshTokenError } from "@/application/errors/invalid-refresh-token.error";
+import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
+import type {
+	IRefreshRestaurantAccessTokenUseCase,
+	RefreshRestaurantAccessTokenDto,
+} from "@/application/ports/use-cases/refresh-restaurant-access-token.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
+
+@injectable()
+export class RefreshRestaurantAccessTokenUseCase
+	implements IRefreshRestaurantAccessTokenUseCase
+{
+	constructor(
+		@inject(TYPES.Services.AuthTokenService)
+		private readonly authTokenService: IAuthTokenService,
+	) {}
+
+	async execute(
+		dto: RefreshRestaurantAccessTokenDto,
+	): Promise<{ accessToken: string }> {
+		const { refreshToken } = dto;
+
+		if (!refreshToken?.trim()) {
+			throw new InvalidRefreshTokenError();
+		}
+
+		try {
+			const payload = this.authTokenService.verifyRefreshToken(refreshToken);
+
+			const accessToken = this.authTokenService.generateAccessToken({
+				restaurantId: payload.restaurantId,
+				email: payload.email,
+				sub: payload.sub || payload.restaurantId,
+				role: payload.role || "RESTAURANT_OWNER",
+			});
+
+			return { accessToken };
+		} catch {
+			throw new InvalidRefreshTokenError();
+		}
+	}
+}

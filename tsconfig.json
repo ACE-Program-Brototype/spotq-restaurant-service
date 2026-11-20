@@ -1,0 +1,40 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"rootDir": "./",
+		"outDir": "./dist",
+		"paths": {
+			"@domain/*": ["./src/domain/*"],
+			"@application/*": ["./src/application/*"],
+			"@dtos/*": ["./src/application/dtos/*"],
+			"@ports/*": ["./src/application/ports/*"],
+			"@use-cases/*": ["./src/application/use-cases/*"],
+			"@infrastructure/*": ["./src/infrastructure/*"],
+			"@presentation/*": ["./src/presentation/*"],
+			"@interfaces/*": ["./src/interfaces/*"],
+			"@config/*": ["./src/config/*"],
+			"@di/*": ["./src/config/di/*"],
+			"@modules/*": ["./src/modules/*"],
+			"@shared/*": ["./src/shared/*"],
+			"@utils/*": ["./src/utils/*"],
+			"@/*": ["./src/*"]
+		},
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"allowArbitraryExtensions": true,
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"forceConsistentCasingInFileNames": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"resolveJsonModule": true,
+		"types": ["node", "reflect-metadata", "jest"]
+	},
+	"include": ["src/**/*", "tests/**/*", "scripts/**/*", "prisma/**/*"],
+	"exclude": ["node_modules", "dist"]
+}

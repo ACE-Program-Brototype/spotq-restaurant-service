@@ -1,0 +1,73 @@
+import "reflect-metadata";
+
+import cookieParser from "cookie-parser";
+import express from "express";
+import { errorHandler } from "@/presentation/http/middleware/error.middleware.ts";
+import { httpLogger } from "@/presentation/http/middleware/log.middleware.ts";
+import { metricsMiddleware } from "@/presentation/http/middleware/metrics.middleware.ts";
+import { notFoundHandler } from "@/presentation/http/middleware/notfound.middleware.ts";
+import { adminRouter } from "@/presentation/http/routes/admin.routes.ts";
+import { internalRestaurantRouter } from "@/presentation/http/routes/internal-restaurant.routes.ts";
+import { internalTableRouter } from "@/presentation/http/routes/internal-table.routes";
+import jwksRouter from "@/presentation/http/routes/jwks.routes.ts";
+import { restaurantRouter } from "@/presentation/http/routes/restaurant.routes.ts";
+import staffRouter from "@/presentation/http/routes/staff.routes.ts";
+import { storageRouter } from "@/presentation/http/routes/storage.routes.ts";
+import systemRouter from "@/presentation/http/routes/system.routes.ts";
+import { tableRoutes } from "@/presentation/http/routes/table.routes";
+import { tableSectionRoutes } from "@/presentation/http/routes/table-section.routes";
+import { APP_ENV, APP_NAME } from "@/shared/constants/app.constants.ts";
+import { HTTP_STATUS } from "@/shared/constants/http.constants.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
+import {
+	ADMIN_ROUTES,
+	INTERNAL_ROUTES,
+	JWKS_ROUTES,
+	STAFF_ROUTES,
+	STORAGE_ROUTES,
+	TABLE_ROUTES,
+	TABLE_SECTION_ROUTES,
+} from "@/shared/constants/route.constants.ts";
+import { sendSuccessResponse } from "@/shared/response/api-response.ts";
+
+const app = express();
+
+app.use(express.json());
+app.use(cookieParser());
+
+app.use(httpLogger);
+app.use(metricsMiddleware);
+
+// JWKS Endpoint
+app.use(JWKS_ROUTES.BASE, jwksRouter);
+
+app.get("/", (_req, res) => {
+	sendSuccessResponse(
+		res,
+		{
+			service: APP_NAME,
+			status: "running",
+			environment: APP_ENV,
+		},
+		messages.SERVICE_RUNNING,
+		HTTP_STATUS.OK,
+	);
+});
+
+// Mount routes
+app.use(ADMIN_ROUTES.BASE, adminRouter);
+app.use(ADMIN_ROUTES.API_V1_BASE, adminRouter);
+app.use(INTERNAL_ROUTES.BASE, internalRestaurantRouter);
+app.use(INTERNAL_ROUTES.BASE, internalTableRouter);
+app.use(STAFF_ROUTES.BASE, staffRouter);
+app.use(TABLE_SECTION_ROUTES.BASE, tableSectionRoutes);
+app.use(TABLE_ROUTES.BASE, tableRoutes);
+app.use("/", systemRouter);
+app.use("/", restaurantRouter);
+app.use(STORAGE_ROUTES.BASE, storageRouter);
+
+// 404 & Error handlers
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+export default app;

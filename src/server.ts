@@ -1,0 +1,99 @@
+process.env.TZ = "UTC";
+
+import app from "@/app";
+import { subscriptionConsumer } from "@/config/di/consumers.resolutions";
+import { container } from "@/config/di/container";
+import { TYPES } from "@/config/di/types";
+import {
+	connectDatabase,
+	disconnectDatabase,
+} from "@/infrastructure/database/db";
+import { logger } from "@/infrastructure/observability/logger";
+import {
+	connectBullMQ,
+	disconnectBullMQ,
+} from "@/infrastructure/queue/bullmq.connect";
+import {
+	connectRabbitMQ,
+	disconnectRabbitMQ,
+} from "@/infrastructure/rabbitmq/rabbitmq.client";
+import { connectRedis, disconnectRedis } from "@/infrastructure/redis/redis";
+import type { SubscriptionExpiryService } from "@/infrastructure/services/subscription-expiry.service";
+import { closeS3Client } from "@/infrastructure/storage/s3.client";
+import { checkS3Connection } from "@/infrastructure/storage/s3.connect";
+import { PORT } from "@/shared/constants/app.constants";
+import type { IEmailWorker } from "./application/ports/workers/email.worker.port";
+
+async function bootstrap() {
+	try {
+		await connectDatabase();
+		await connectRedis();
+		await connectBullMQ();
+		await connectRabbitMQ();
+		await checkS3Connection();
+
+		const emailWorker = container.get<IEmailWorker>(TYPES.Worker.EMAIL);
+		emailWorker.start();
+
+		await subscriptionConsumer.start();
+		const subscriptionExpiryService = container.get<SubscriptionExpiryService>(
+			TYPES.Services.SubscriptionExpiryService,
+		);
+		subscriptionExpiryService.start();
+
+		const server = app.listen(PORT, () => {
+			logger.info({ port: PORT }, "Server listening");
+		});
+
+		let isShuttingDown = false;
+
+		async function shutdown(signal: string) {
+			if (isShuttingDown) {
+				return;
+			}
+			isShuttingDown = true;
+
+			logger.info({ signal }, "Graceful shutdown initiated");
+
+			if (typeof server.closeIdleConnections === "function") {
+				server.closeIdleConnections();
+			}
+
+			server.close(async (err) => {
+				if (err) {
+					logger.error({ err }, "Error closing HTTP server");
+				}
+
+				try {
+					subscriptionExpiryService.stop();
+					await emailWorker.stop();
+					await closeS3Client();
+
+					await disconnectRabbitMQ();
+					await disconnectBullMQ();
+					await disconnectRedis();
+					await disconnectDatabase();
+
+					logger.info("Graceful shutdown completed successfully");
+					process.exit(0);
+				} catch (teardownErr) {
+					logger.error({ err: teardownErr }, "Error during resource teardown");
+					process.exit(1);
+				}
+			});
+
+			setTimeout(() => {
+				logger.error("Forced shutdown due to timeout");
+				process.exit(1);
+			}, 10000).unref();
+		}
+
+		process.on("SIGINT", () => shutdown("SIGINT"));
+		process.on("SIGTERM", () => shutdown("SIGTERM"));
+	} catch (error) {
+		logger.fatal({ err: error }, "Failed to start application");
+		process.exit(1);
+	}
+}
+
+bootstrap();

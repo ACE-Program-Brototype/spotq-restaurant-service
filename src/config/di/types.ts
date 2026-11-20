@@ -1,0 +1,258 @@
+export const TYPES = {
+	// Database & Cache
+	PrismaClient: Symbol.for("PrismaClient"),
+	RedisClient: Symbol.for("RedisClient"),
+
+	// Staff Repositories
+	StaffRepository: Symbol.for("StaffRepository"),
+	RestaurantStaffRepository: Symbol.for("RestaurantStaffRepository"),
+	StaffInvitationRepository: Symbol.for("StaffInvitationRepository"),
+	RestaurantRepository: Symbol.for("RestaurantRepository"),
+	TokenRevocationRepository: Symbol.for("TokenRevocationRepository"),
+	OtpRepository: Symbol.for("OtpRepository"),
+
+	// Staff Services
+	PasswordHasher: Symbol.for("PasswordHasher"),
+	TokenService: Symbol.for("TokenService"),
+	InvitationTokenService: Symbol.for("InvitationTokenService"),
+	StaffInvitationConfig: Symbol.for("StaffInvitationConfig"),
+	OtpService: Symbol.for("StaffOtpService"),
+	EmailQueuePort: Symbol.for("EmailQueuePort"),
+
+	// Staff Use Cases
+	LoginStaffUseCase: Symbol.for("LoginStaffUseCase"),
+	SelectRestaurantUseCase: Symbol.for("SelectRestaurantUseCase"),
+	LogoutStaffUseCase: Symbol.for("LogoutStaffUseCase"),
+	RefreshTokenUseCase: Symbol.for("RefreshTokenUseCase"),
+	ForgotPasswordUseCase: Symbol.for("ForgotPasswordUseCase"),
+	VerifyForgotPasswordOtpUseCase: Symbol.for("VerifyForgotPasswordOtpUseCase"),
+	ResendForgotPasswordOtpUseCase: Symbol.for("ResendForgotPasswordOtpUseCase"),
+	ResetPasswordUseCase: Symbol.for("ResetPasswordUseCase"),
+	InviteStaffUseCase: Symbol.for("InviteStaffUseCase"),
+	ValidateInvitationUseCase: Symbol.for("ValidateInvitationUseCase"),
+	AcceptInvitationUseCase: Symbol.for("AcceptInvitationUseCase"),
+	ResendStaffInvitationUseCase: Symbol.for("ResendStaffInvitationUseCase"),
+	RevokeStaffInvitationUseCase: Symbol.for("RevokeStaffInvitationUseCase"),
+	ListStaffInvitationsUseCase: Symbol.for("ListStaffInvitationsUseCase"),
+	ListStaffMembersUseCase: Symbol.for("ListStaffMembersUseCase"),
+	GetStaffProfileUseCase: Symbol.for("GetStaffProfileUseCase"),
+	UpdateStaffStatusUseCase: Symbol.for("UpdateStaffStatusUseCase"),
+	RemoveStaffUseCase: Symbol.for("RemoveStaffUseCase"),
+	UpdateStaffInfoUseCase: Symbol.for("UpdateStaffInfoUseCase"),
+	UpdateStaffProfileUseCase: Symbol.for("UpdateStaffProfileUseCase"),
+	GetStaffDetailUseCase: Symbol.for("GetStaffDetailUseCase"),
+
+	// Subscription & Restaurant Use Cases
+	GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+	ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
+
+	// Staff Controllers & Services
+	StaffController: Symbol.for("StaffController"),
+	RestaurantStatusController: Symbol.for("RestaurantStatusController"),
+	RestaurantStaffManagementController: Symbol.for(
+		"RestaurantStaffManagementController",
+	),
+	JWKSController: Symbol.for("JWKSController"),
+	JWKService: Symbol.for("JWKService"),
+
+	// Observability & System
+	HealthCheckService: Symbol.for("HealthCheckService"),
+
+	// Admin Use Cases & Controllers
+	ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+	RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+	ListRestaurantApplicationsUseCase: Symbol.for(
+		"ListRestaurantApplicationsUseCase",
+	),
+	GetRestaurantApplicationDetailsUseCase: Symbol.for(
+		"GetRestaurantApplicationDetailsUseCase",
+	),
+	AdminRestaurantController: Symbol.for("AdminRestaurantController"),
+	AdminDashboardAnalyticsController: Symbol.for(
+		"AdminDashboardAnalyticsController",
+	),
+
+	// Feature Namespaced Sub-types (for Restaurant & Storage & Common services)
+	UseCases: {
+		SendRestaurantEmailOtpUseCase: Symbol.for("SendRestaurantEmailOtpUseCase"),
+		ResendRestaurantEmailOtpUseCase: Symbol.for(
+			"ResendRestaurantEmailOtpUseCase",
+		),
+		VerifyRestaurantEmailOtpUseCase: Symbol.for(
+			"VerifyRestaurantEmailOtpUseCase",
+		),
+		RefreshRestaurantAccessTokenUseCase: Symbol.for(
+			"RefreshRestaurantAccessTokenUseCase",
+		),
+		OnboardRestaurantUseCase: Symbol.for("OnboardRestaurantUseCase"),
+		GetRestaurantVerificationStatusUseCase: Symbol.for(
+			"GetRestaurantVerificationStatusUseCase",
+		),
+		GetRestaurantProfileUseCase: Symbol.for("GetRestaurantProfileUseCase"),
+		UpdateRestaurantProfileUseCase: Symbol.for(
+			"UpdateRestaurantProfileUseCase",
+		),
+		GeneratePresignedUrlUseCase: Symbol.for("GeneratePresignedUrlUseCase"),
+		GetPresignedUrlUseCase: Symbol.for("GetPresignedUrlUseCase"),
+		DeleteStorageObjectUseCase: Symbol.for("DeleteStorageObjectUseCase"),
+		ApproveRestaurantUseCase: Symbol.for("ApproveRestaurantUseCase"),
+		RejectRestaurantUseCase: Symbol.for("RejectRestaurantUseCase"),
+		ListRestaurantApplicationsUseCase: Symbol.for(
+			"ListRestaurantApplicationsUseCase",
+		),
+		GetRestaurantApplicationDetailsUseCase: Symbol.for(
+			"GetRestaurantApplicationDetailsUseCase",
+		),
+		GetRestaurantDetailsUseCase: Symbol.for("GetRestaurantDetailsUseCase"),
+		BlockRestaurantUseCase: Symbol.for("BlockRestaurantUseCase"),
+		UnblockRestaurantUseCase: Symbol.for("UnblockRestaurantUseCase"),
+		ListRestaurantsUseCase: Symbol.for("ListRestaurantsUseCase"),
+		GetRestaurantStatusUseCase: Symbol.for("GetRestaurantStatusUseCase"),
+		ActivateSubscriptionUseCase: Symbol.for("ActivateSubscriptionUseCase"),
+		CreateAddonUseCase: Symbol.for("CreateAddonUseCase"),
+		ListRestaurantAddonsUseCase: Symbol.for("ListRestaurantAddonsUseCase"),
+		CreateMenuItemUseCase: Symbol.for("CreateMenuItemUseCase"),
+		UpdateAddonUseCase: Symbol.for("UpdateAddonUseCase"),
+		DeleteAddonUseCase: Symbol.for("DeleteAddonUseCase"),
+		CreateMenuCategoryUseCase: Symbol.for("CreateMenuCategoryUseCase"),
+		UpdateMenuCategoryUseCase: Symbol.for("UpdateMenuCategoryUseCase"),
+		UpdateMenuCategoryStatusUseCase: Symbol.for(
+			"UpdateMenuCategoryStatusUseCase",
+		),
+		DeleteMenuCategoryUseCase: Symbol.for("DeleteMenuCategoryUseCase"),
+		ListRestaurantMenuCategoriesUseCase: Symbol.for(
+			"ListRestaurantMenuCategoriesUseCase",
+		),
+		ListMenuItemsUseCase: Symbol.for("ListMenuItemsUseCase"),
+		ListStaffMenuItemsUseCase: Symbol.for("ListStaffMenuItemsUseCase"),
+		GetRestaurantOwnerMenuItemDetailsUseCase: Symbol.for(
+			"GetRestaurantOwnerMenuItemDetailsUseCase",
+		),
+		GetCustomerMenuItemDetailsUseCase: Symbol.for(
+			"GetCustomerMenuItemDetailsUseCase",
+		),
+		DeleteMenuItemUseCase: Symbol.for("DeleteMenuItemUseCase"),
+		UpdateMenuItemUseCase: Symbol.for("UpdateMenuItemUseCase"),
+		UpdateMenuItemStatusUseCase: Symbol.for("UpdateMenuItemStatusUseCase"),
+		UpdateMenuItemVariantStatusUseCase: Symbol.for(
+			"UpdateMenuItemVariantStatusUseCase",
+		),
+
+		// TABLE SECTION
+		CreateTableSectionUseCase: Symbol.for("CreateTableSectionUseCase"),
+		GetTableSectionUseCase: Symbol.for("GetTableSectionUseCase"),
+		DeleteTableSectionUseCase: Symbol.for("DeleteTableSectionUseCase"),
+
+		// TABLE
+		CreateTableUseCase: Symbol.for("CreateTableUseCase"),
+		UpdateTableUseCase: Symbol.for("UpdateTableUseCase"),
+		GetTableUseCase: Symbol.for("GetTableUseCase"),
+		GetTableDetailsUseCase: Symbol.for("GetTableDetailsUseCase"),
+		GetTableAvailabilityUseCase: Symbol.for("GetTableAvailabilityUseCase"),
+		DeleteTableUseCase: Symbol.for("DeleteTableUseCase"),
+		ReleaseTableUseCase: Symbol.for("ReleaseTableUseCase"),
+		AssignTableUseCase: Symbol.for("AssignTableUseCase"),
+		UpdateTableStatusUseCase: Symbol.for("UpdateTableStatusUseCase"),
+		InternalReleaseTableUseCase: Symbol.for("InternalReleaseTableUseCase"),
+
+		ListCustomerRestaurantsUseCase: Symbol.for(
+			"ListCustomerRestaurantsUseCase",
+		),
+		GetCustomerRestaurantDetailsUseCase: Symbol.for(
+			"GetCustomerRestaurantDetailsUseCase",
+		),
+		ValidateRestaurantEligibilityUseCase: Symbol.for(
+			"ValidateRestaurantEligibilityUseCase",
+		),
+		GetInternalMenuItemDetailsUseCase: Symbol.for(
+			"GetInternalMenuItemDetailsUseCase",
+		),
+		GetBatchRestaurantsUseCase: Symbol.for("GetBatchRestaurantsUseCase"),
+		GetPlatformDashboardAnalyticsUseCase: Symbol.for(
+			"GetPlatformDashboardAnalyticsUseCase",
+		),
+		GetRestaurantAnalyticsDashboardUseCase: Symbol.for(
+			"GetRestaurantAnalyticsDashboardUseCase",
+		),
+	},
+
+	Controller: {
+		RestaurantAuthController: Symbol.for("RestaurantAuthController"),
+		AdminRestaurantController: Symbol.for("AdminRestaurantController"),
+		AdminDashboardAnalyticsController: Symbol.for(
+			"AdminDashboardAnalyticsController",
+		),
+		RestaurantAnalyticsController: Symbol.for("RestaurantAnalyticsController"),
+		RestaurantStatusController: Symbol.for("RestaurantStatusController"),
+		StorageController: Symbol.for("StorageController"),
+		AddonController: Symbol.for("AddonController"),
+		MenuItemController: Symbol.for("MenuItemController"),
+		MenuCategoryController: Symbol.for("MenuCategoryController"),
+		TableSectionController: Symbol.for("TableSectionController"),
+		CustomerRestaurantController: Symbol.for("CustomerRestaurantController"),
+		TableController: Symbol.for("TableController"),
+		InternalRestaurantController: Symbol.for("InternalRestaurantController"),
+		InternalTableController: Symbol.for("InternalTableController"),
+	},
+
+	Database: {
+		PrismaClient: Symbol.for("PrismaClient"),
+	},
+
+	Repositories: {
+		RestaurantRepository: Symbol.for("RestaurantRepository"),
+		AddonRepository: Symbol.for("AddonRepository"),
+		MenuCategoryRepository: Symbol.for("MenuCategoryRepository"),
+		MenuItemRepository: Symbol.for("MenuItemRepository"),
+		TableSectionRepository: Symbol.for("TableSectionRepository"),
+		TableRepository: Symbol.for("TableRepository"),
+		RestaurantAnalyticsRepository: Symbol.for("RestaurantAnalyticsRepository"),
+	},
+
+	Redis: {
+		Client: Symbol.for("RedisClient"),
+	},
+
+	Services: {
+		OtpStore: Symbol.for("RedisOtpStore"),
+		Brevo_Email: Symbol.for("BrevoEmail"),
+		OtpService: Symbol.for("RestaurantOtpService"),
+		EmailVerification: Symbol.for("EmailVerification"),
+		AuthTokenService: Symbol.for("AuthTokenService"),
+		OtpHashService: Symbol.for("OtpHashService"),
+		Storage: Symbol.for("StorageService"),
+		FilePolicyValidator: Symbol.for("FilePolicyValidator"),
+		StorageAccessValidator: Symbol.for("StorageAccessValidator"),
+		SubscriptionExpiryService: Symbol.for("SubscriptionExpiryService"),
+		QueueService: Symbol.for("QueueService"),
+		PaymentAnalyticsService: Symbol.for("PaymentAnalyticsService"),
+		UserAnalyticsService: Symbol.for("UserAnalyticsService"),
+		OrderAnalyticsService: Symbol.for("OrderAnalyticsService"),
+	},
+
+	Logger: {
+		PinoClient: Symbol.for("Logger"),
+	},
+
+	Brevo: {
+		Client: Symbol.for("BrevoClient"),
+	},
+
+	Queue: {
+		Email: Symbol.for("EmailQueue"),
+	},
+
+	Worker: {
+		EMAIL: Symbol.for("EmailWorker"),
+	},
+
+	RabbitMQ: {
+		Client: Symbol.for("RabbitMQClient"),
+	},
+
+	Consumers: {
+		SubscriptionConsumer: Symbol.for("SubscriptionConsumer"),
+	},
+} as const;
+
+export type ServiceTypes = typeof TYPES;

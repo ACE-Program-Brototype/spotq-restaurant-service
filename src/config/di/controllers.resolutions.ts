@@ -1,0 +1,94 @@
+import { container } from "@/config/di/container.ts";
+import { TYPES } from "@/config/di/types.ts";
+import type { AddonController } from "@/presentation/http/controllers/addon.controller";
+import type { AdminDashboardAnalyticsController } from "@/presentation/http/controllers/admin-dashboard-analytics.controller";
+import type { AdminRestaurantController } from "@/presentation/http/controllers/admin-restaurant.controller";
+import type { CustomerRestaurantController } from "@/presentation/http/controllers/customer-restaurant.controller.ts";
+import type { InternalRestaurantController } from "@/presentation/http/controllers/internal-restaurant.controller";
+import type { InternalTableController } from "@/presentation/http/controllers/internal-table.controller";
+import type { JwksController } from "@/presentation/http/controllers/jwks.controller";
+import type { MenuCategoryController } from "@/presentation/http/controllers/menu-category.controller";
+import type { MenuItemController } from "@/presentation/http/controllers/menu-item.controller";
+import type { RestaurantAnalyticsController } from "@/presentation/http/controllers/restaurant-analytics.controller";
+import type { RestaurantAuthController } from "@/presentation/http/controllers/restaurant-auth.controller";
+import type { RestaurantStaffManagementController } from "@/presentation/http/controllers/restaurant-staff-management.controller";
+import type { RestaurantStatusController } from "@/presentation/http/controllers/restaurant-status.controller";
+import type { StaffController } from "@/presentation/http/controllers/staff.controller";
+import type { StorageController } from "@/presentation/http/controllers/storage.controller";
+import type { TableController } from "@/presentation/http/controllers/table.controller";
+import type { TableSectionController } from "@/presentation/http/controllers/table-section.controller";
+
+export const menuCategoryController = container.get<MenuCategoryController>(
+	TYPES.Controller.MenuCategoryController,
+);
+
+export const menuItemController = container.get<MenuItemController>(
+	TYPES.Controller.MenuItemController,
+);
+
+export const restaurantAuthController = container.get<RestaurantAuthController>(
+	TYPES.Controller.RestaurantAuthController,
+);
+
+export const restaurantStatusController =
+	container.get<RestaurantStatusController>(
+		TYPES.Controller.RestaurantStatusController,
+	);
+
+export const storageController = container.get<StorageController>(
+	TYPES.Controller.StorageController,
+);
+
+export const staffController = container.get<StaffController>(
+	TYPES.StaffController,
+);
+
+export const restaurantStaffManagementController =
+	container.get<RestaurantStaffManagementController>(
+		TYPES.RestaurantStaffManagementController,
+	);
+
+export const jwksController = container.get<JwksController>(
+	TYPES.JWKSController,
+);
+
+export const adminRestaurantController =
+	container.get<AdminRestaurantController>(
+		TYPES.Controller.AdminRestaurantController,
+	);
+
+export const adminDashboardAnalyticsController =
+	container.get<AdminDashboardAnalyticsController>(
+		TYPES.Controller.AdminDashboardAnalyticsController,
+	);
+
+export const addonController = container.get<AddonController>(
+	TYPES.Controller.AddonController,
+);
+
+export const tableSectionController = container.get<TableSectionController>(
+	TYPES.Controller.TableSectionController,
+);
+
+export const tableController = container.get<TableController>(
+	TYPES.Controller.TableController,
+);
+
+export const customerRestaurantController =
+	container.get<CustomerRestaurantController>(
+		TYPES.Controller.CustomerRestaurantController,
+	);
+
+export const internalRestaurantController =
+	container.get<InternalRestaurantController>(
+		TYPES.Controller.InternalRestaurantController,
+	);
+
+export const internalTableController = container.get<InternalTableController>(
+	TYPES.Controller.InternalTableController,
+);
+
+export const restaurantAnalyticsController =
+	container.get<RestaurantAnalyticsController>(
+		TYPES.Controller.RestaurantAnalyticsController,
+	);

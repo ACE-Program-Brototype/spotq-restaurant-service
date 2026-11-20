@@ -1,0 +1,134 @@
+import { inject, injectable } from "inversify";
+import type { VerifyRestaurantEmailOtpDto } from "@/application/dtos/restaurant/restaurant-email-verification.dto.ts";
+import type { IAuthTokenService } from "@/application/ports/services/auth-token.service.port";
+import type { IOtpService } from "@/application/ports/services/otp.service.port";
+import type { IOtpHashService } from "@/application/ports/services/otp-hash.service.port";
+import type { IOtpStore } from "@/application/ports/services/otp-store.port";
+import type { IVerifyRestaurantEmailOtpUseCase } from "@/application/ports/use-cases/verify-email-otp.use-case.port.ts";
+import { TYPES } from "@/config/di/types";
+import {
+	ONBOARDING_NEXT_STEPS,
+	type OnboardingNextStep,
+} from "@/domain/constants/onboarding-step.constants";
+import type { IRestaurantRepository } from "@/domain/repositories/restaurant.repository.interface.ts";
+import { logger } from "@/infrastructure/observability/logger";
+import { OTP_CONFIG } from "@/shared/constants/otp.constants";
+import { getRestaurantEmailOtpKey } from "@/utils/otp.util";
+import { InvalidOtpError } from "../errors/invalid-otp.error";
+import { OtpVerificationAttemptsExceededError } from "../errors/otp-verification-attempts-exceeded.error";
+import { RestaurantAccountBlockedError } from "../errors/restaurant-account-blocked.error";
+
+@injectable()
+export class VerifyRestaurantEmailOtpUseCase
+	implements IVerifyRestaurantEmailOtpUseCase
+{
+	constructor(
+		@inject(TYPES.Repositories.RestaurantRepository)
+		private readonly restaurantRepository: IRestaurantRepository,
+
+		@inject(TYPES.Services.OtpStore)
+		private readonly redisOtpStore: IOtpStore,
+
+		@inject(TYPES.Services.OtpService)
+		private readonly otpService: IOtpService,
+
+		@inject(TYPES.Services.AuthTokenService)
+		private readonly authTokenService: IAuthTokenService,
+
+		@inject(TYPES.Services.OtpHashService)
+		private readonly otpHashService: IOtpHashService,
+	) {}
+
+	async execute(dto: VerifyRestaurantEmailOtpDto) {
+		const { email, otp } = dto;
+
+		const otpKey = getRestaurantEmailOtpKey(email);
+
+		const storedOtp = await this.redisOtpStore.get(otpKey);
+
+		if (!storedOtp) {
+			logger.warn(
+				{ email, otpKey },
+				"VerifyRestaurantEmailOtpUseCase: OTP key not found or expired in Redis",
+			);
+			throw new InvalidOtpError();
+		}
+
+		const isValid = await this.otpHashService.compare(otp, storedOtp);
+
+		if (!isValid) {
+			const attempts = await this.otpService.incrementAttempt(email);
+
+			logger.warn(
+				{ email, otpKey, attempts, otpLength: otp?.length },
+				"VerifyRestaurantEmailOtpUseCase: OTP hash comparison failed",
+			);
+
+			if (attempts >= OTP_CONFIG.MAX_ATTEMPTS) {
+				await this.redisOtpStore.delete(otpKey);
+				await this.otpService.resetAttempts(email);
+
+				throw new OtpVerificationAttemptsExceededError();
+			}
+
+			throw new InvalidOtpError();
+		}
+
+		let restaurant = await this.restaurantRepository.findByEmail(email);
+
+		if (!restaurant) {
+			restaurant = await this.restaurantRepository.createRestaurant({
+				restaurantName: "Pending Registration",
+				email,
+				phone: "0000000000",
+				ownerName: "Pending Owner",
+				ownerEmail: email,
+				emailVerifiedAt: new Date(),
+			});
+		}
+
+		if (restaurant.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
+
+		await this.restaurantRepository.updateLastLogin(restaurant.id);
+
+		const tokenPair = this.authTokenService.generateTokenPair({
+			sub: restaurant.id,
+			role: "RESTAURANT_OWNER",
+			email: restaurant.email,
+			restaurantId: restaurant.id,
+		});
+
+		let nextStep: OnboardingNextStep;
+
+		if (restaurant.status === "APPROVED" || restaurant.status === "ACTIVE") {
+			if (!restaurant.isSubscriptionActive) {
+				nextStep = ONBOARDING_NEXT_STEPS.SUBSCRIPTION;
+			} else {
+				nextStep = ONBOARDING_NEXT_STEPS.DASHBOARD;
+			}
+		} else if (restaurant.onboardingStatus === "PENDING") {
+			nextStep = ONBOARDING_NEXT_STEPS.ONBOARDING;
+		} else if (
+			restaurant.status === "PENDING" ||
+			restaurant.status === "REJECTED" ||
+			restaurant.status === "SUSPENDED" ||
+			restaurant.status === "INACTIVE"
+		) {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
+		} else {
+			nextStep = ONBOARDING_NEXT_STEPS.VERIFICATION_STATUS;
+		}
+
+		await this.redisOtpStore.delete(otpKey);
+		await this.otpService.resetAttempts(email);
+
+		return {
+			nextStep,
+			restaurantId: restaurant.id,
+			accessToken: tokenPair.accessToken,
+			refreshToken: tokenPair.refreshToken,
+		};
+	}
+}

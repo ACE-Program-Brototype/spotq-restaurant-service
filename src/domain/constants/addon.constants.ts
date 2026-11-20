@@ -1,0 +1,3 @@
+export const ADDON_NAME_MAX_LENGTH = 255;
+export const ADDON_DESCRIPTION_MAX_LENGTH = 1000;
+export const ADDON_PRICE_MAX = 99999999.99;

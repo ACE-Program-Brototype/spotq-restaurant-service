@@ -1,0 +1,481 @@
+import {
+	ONBOARDING_STATUS,
+	RESTAURANT_STATUS,
+} from "@domain/enums/restaurant-status.enum";
+import {
+	ForbiddenAccessError,
+	RestaurantAccountBlockedError,
+} from "@domain/errors/staff.errors";
+import {
+	InvalidOnboardingStatusError,
+	InvalidRestaurantDataError,
+	RestaurantAlreadyProcessedError,
+	RestaurantNotFoundError,
+} from "@/domain/errors/restaurant.errors.ts";
+import {
+	type OnboardingStatus,
+	OnboardingStatusVO,
+} from "@/domain/value-objects/onboarding-status.vo.ts";
+import {
+	type RestaurantStatus,
+	RestaurantStatusVO,
+} from "@/domain/value-objects/restaurant-status.vo.ts";
+import { SubscriptionPlanVO } from "@/domain/value-objects/subscription-plan.vo.ts";
+import { messages } from "@/shared/constants/message.constants.ts";
+
+export interface RestaurantProps {
+	id: string;
+	restaurantName: string;
+	email: string;
+	phone: string;
+	ownerName: string;
+	ownerEmail: string;
+	status: RestaurantStatusVO;
+	onboardingStatus: OnboardingStatusVO;
+	emailVerifiedAt: Date | null;
+	rejectionReason: string | null;
+	lastLoginAt: Date | null;
+	isSubscriptionActive: boolean;
+	subscriptionPlanCode: string | null;
+	subscriptionEndsAt: Date | null;
+	isBlocked: boolean;
+	blockReason: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface CreateRestaurantProps {
+	id?: string;
+	restaurantName: string;
+	email: string;
+	phone: string;
+	ownerName: string;
+	ownerEmail: string;
+	status?: string | RestaurantStatusVO;
+	onboardingStatus?: string | OnboardingStatusVO;
+	emailVerifiedAt?: Date | null;
+	rejectionReason?: string | null;
+	lastLoginAt?: Date | null;
+	isSubscriptionActive?: boolean;
+	subscriptionPlanCode?: string | null;
+	subscriptionEndsAt?: Date | null;
+	isBlocked?: boolean;
+	blockReason?: string | null;
+}
+
+export interface ReconstituteRestaurantProps {
+	id: string;
+	restaurantName: string;
+	email: string;
+	phone: string;
+	ownerName: string;
+	ownerEmail: string;
+	status: string;
+	onboardingStatus: string;
+	emailVerifiedAt: Date | null;
+	rejectionReason?: string | null;
+	lastLoginAt?: Date | null;
+	isSubscriptionActive?: boolean;
+	subscriptionPlanCode?: string | null;
+	subscriptionEndsAt?: Date | null;
+	isBlocked: boolean;
+	blockReason: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export class Restaurant {
+	private _props: RestaurantProps;
+
+	private constructor(props: RestaurantProps) {
+		this._props = props;
+	}
+
+	public static create(props: CreateRestaurantProps): Restaurant {
+		if (
+			!props.restaurantName ||
+			typeof props.restaurantName !== "string" ||
+			props.restaurantName.trim().length < 2
+		) {
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
+		}
+
+		if (!props.email || typeof props.email !== "string") {
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_EMAIL_REQUIRED);
+		}
+
+		if (!props.phone || typeof props.phone !== "string") {
+			throw new InvalidRestaurantDataError(messages.RESTAURANT_PHONE_REQUIRED);
+		}
+
+		if (
+			!props.ownerName ||
+			typeof props.ownerName !== "string" ||
+			props.ownerName.trim().length < 2
+		) {
+			throw new InvalidRestaurantDataError(messages.OWNER_NAME_REQUIRED);
+		}
+
+		if (!props.ownerEmail || typeof props.ownerEmail !== "string") {
+			throw new InvalidRestaurantDataError(messages.OWNER_EMAIL_REQUIRED);
+		}
+
+		const status =
+			props.status instanceof RestaurantStatusVO
+				? props.status
+				: RestaurantStatusVO.create(
+						typeof props.status === "string" ? props.status : "PENDING",
+					);
+
+		const onboardingStatus =
+			props.onboardingStatus instanceof OnboardingStatusVO
+				? props.onboardingStatus
+				: OnboardingStatusVO.create(
+						typeof props.onboardingStatus === "string"
+							? props.onboardingStatus
+							: "PENDING",
+					);
+
+		const now = new Date();
+		const id = props.id || crypto.randomUUID();
+
+		return new Restaurant({
+			id,
+			restaurantName: props.restaurantName.trim(),
+			email: props.email.trim().toLowerCase(),
+			phone: props.phone.trim(),
+			ownerName: props.ownerName.trim(),
+			ownerEmail: props.ownerEmail.trim().toLowerCase(),
+			status,
+			onboardingStatus,
+			emailVerifiedAt: props.emailVerifiedAt ?? null,
+			rejectionReason: props.rejectionReason ?? null,
+			lastLoginAt: props.lastLoginAt ?? null,
+			isSubscriptionActive: props.isSubscriptionActive ?? false,
+			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
+			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
+			isBlocked: props.isBlocked ?? false,
+			blockReason: props.blockReason ?? null,
+			createdAt: now,
+			updatedAt: now,
+		});
+	}
+
+	public static reconstitute(props: ReconstituteRestaurantProps): Restaurant {
+		return new Restaurant({
+			id: props.id,
+			restaurantName: props.restaurantName,
+			email: props.email,
+			phone: props.phone,
+			ownerName: props.ownerName,
+			ownerEmail: props.ownerEmail,
+			status: RestaurantStatusVO.create(props.status),
+			onboardingStatus: OnboardingStatusVO.create(props.onboardingStatus),
+			emailVerifiedAt: props.emailVerifiedAt,
+			rejectionReason: props.rejectionReason ?? null,
+			lastLoginAt: props.lastLoginAt ?? null,
+			isSubscriptionActive: props.isSubscriptionActive ?? false,
+			subscriptionPlanCode: props.subscriptionPlanCode ?? null,
+			subscriptionEndsAt: props.subscriptionEndsAt ?? null,
+			isBlocked: props.isBlocked,
+			blockReason: props.blockReason,
+			createdAt: props.createdAt,
+			updatedAt: props.updatedAt,
+		});
+	}
+
+	public get id(): string {
+		return this._props.id;
+	}
+
+	public get restaurantName(): string {
+		return this._props.restaurantName;
+	}
+
+	public get email(): string {
+		return this._props.email;
+	}
+
+	public get phone(): string {
+		return this._props.phone;
+	}
+
+	public get ownerName(): string {
+		return this._props.ownerName;
+	}
+
+	public get ownerEmail(): string {
+		return this._props.ownerEmail;
+	}
+
+	public get status(): RestaurantStatus {
+		return this._props.status.value;
+	}
+
+	public get statusVO(): RestaurantStatusVO {
+		return this._props.status;
+	}
+
+	public get onboardingStatus(): OnboardingStatus {
+		return this._props.onboardingStatus.value;
+	}
+
+	public get onboardingStatusVO(): OnboardingStatusVO {
+		return this._props.onboardingStatus;
+	}
+
+	public get emailVerifiedAt(): Date | null {
+		return this._props.emailVerifiedAt;
+	}
+
+	public get lastLoginAt(): Date | null {
+		return this._props.lastLoginAt;
+	}
+
+	public get isSubscriptionActive(): boolean {
+		return this._props.isSubscriptionActive;
+	}
+
+	public get subscriptionPlanCode(): string | null {
+		return this._props.subscriptionPlanCode;
+	}
+
+	public get subscriptionEndsAt(): Date | null {
+		return this._props.subscriptionEndsAt;
+	}
+	public get isBlocked(): boolean {
+		return this._props.isBlocked;
+	}
+
+	public get blockReason(): string | null {
+		return this._props.blockReason;
+	}
+
+	public get rejectionReason(): string | null {
+		return this._props.rejectionReason;
+	}
+
+	public get createdAt(): Date {
+		return this._props.createdAt;
+	}
+
+	public get updatedAt(): Date {
+		return this._props.updatedAt;
+	}
+
+	public recordLogin(date: Date = new Date()): void {
+		this._props.lastLoginAt = date;
+		this._props.updatedAt = new Date();
+	}
+
+	public block(reason: string): void {
+		if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
+			throw new InvalidRestaurantDataError(messages.BLOCK_REASON_REQUIRED);
+		}
+		this._props.isBlocked = true;
+		this._props.blockReason = reason.trim();
+		this._props.status = RestaurantStatusVO.create("SUSPENDED");
+		this._props.updatedAt = new Date();
+	}
+
+	public unblock(): void {
+		this._props.isBlocked = false;
+		this._props.blockReason = null;
+		this._props.status = RestaurantStatusVO.create("ACTIVE");
+		this._props.updatedAt = new Date();
+	}
+
+	public verifyEmail(): void {
+		this._props.emailVerifiedAt = new Date();
+		this._props.updatedAt = new Date();
+	}
+
+	public completeOnboarding(): void {
+		this._props.onboardingStatus = OnboardingStatusVO.create("COMPLETED");
+		this._props.updatedAt = new Date();
+	}
+
+	public approve(): void {
+		if (!this.statusVO.isPending()) {
+			throw new RestaurantAlreadyProcessedError(
+				messages.RESTAURANT_ALREADY_PROCESSED,
+			);
+		}
+		if (!this.onboardingStatusVO.isCompleted()) {
+			throw new InvalidOnboardingStatusError(
+				messages.CANNOT_APPROVE_INCOMPLETE_ONBOARDING,
+			);
+		}
+		this._props.status = RestaurantStatusVO.create("APPROVED");
+		this._props.rejectionReason = null;
+		this._props.updatedAt = new Date();
+	}
+
+	public reject(reason: string): void {
+		if (!reason || typeof reason !== "string" || reason.trim().length === 0) {
+			throw new InvalidRestaurantDataError(messages.REJECTION_REASON_REQUIRED);
+		}
+		if (!this.statusVO.isPending()) {
+			throw new RestaurantAlreadyProcessedError(
+				messages.RESTAURANT_ALREADY_PROCESSED,
+			);
+		}
+		if (!this.onboardingStatusVO.isCompleted()) {
+			throw new InvalidOnboardingStatusError(
+				messages.CANNOT_REJECT_INCOMPLETE_ONBOARDING,
+			);
+		}
+		this._props.status = RestaurantStatusVO.create("REJECTED");
+		this._props.rejectionReason = reason.trim();
+		this._props.updatedAt = new Date();
+	}
+
+	public updateStatus(newStatus: string | RestaurantStatusVO): void {
+		this._props.status =
+			newStatus instanceof RestaurantStatusVO
+				? newStatus
+				: RestaurantStatusVO.create(newStatus);
+		this._props.updatedAt = new Date();
+	}
+
+	public activateSubscription(planCode: string, endsAt: Date): void {
+		this._props.isSubscriptionActive = true;
+		this._props.subscriptionPlanCode = planCode;
+		this._props.subscriptionEndsAt = endsAt;
+		this._props.status = RestaurantStatusVO.create("ACTIVE");
+		this._props.updatedAt = new Date();
+	}
+
+	public expireSubscription(): void {
+		this._props.isSubscriptionActive = false;
+		this._props.updatedAt = new Date();
+	}
+
+	public updateProfile(
+		restaurantName?: string,
+		phone?: string,
+		ownerName?: string,
+		ownerEmail?: string,
+	): void {
+		if (restaurantName !== undefined) {
+			if (
+				typeof restaurantName !== "string" ||
+				restaurantName.trim().length < 2
+			) {
+				throw new InvalidRestaurantDataError(messages.RESTAURANT_NAME_REQUIRED);
+			}
+			this._props.restaurantName = restaurantName.trim();
+		}
+
+		if (phone !== undefined) {
+			if (typeof phone !== "string" || phone.trim().length === 0) {
+				throw new InvalidRestaurantDataError(
+					messages.RESTAURANT_PHONE_REQUIRED,
+				);
+			}
+			this._props.phone = phone.trim();
+		}
+
+		if (ownerName !== undefined) {
+			if (typeof ownerName !== "string" || ownerName.trim().length < 2) {
+				throw new InvalidRestaurantDataError(messages.OWNER_NAME_REQUIRED);
+			}
+			this._props.ownerName = ownerName.trim();
+		}
+
+		if (ownerEmail !== undefined) {
+			if (typeof ownerEmail !== "string" || ownerEmail.trim().length === 0) {
+				throw new InvalidRestaurantDataError(messages.OWNER_EMAIL_REQUIRED);
+			}
+			this._props.ownerEmail = ownerEmail.trim().toLowerCase();
+		}
+
+		this._props.updatedAt = new Date();
+	}
+
+	public isSubscriptionEligible(now: Date = new Date()): boolean {
+		if (!this._props.isSubscriptionActive) {
+			return false;
+		}
+
+		if (
+			this._props.subscriptionEndsAt &&
+			this._props.subscriptionEndsAt <= now
+		) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public hasQueueEntitlement(): boolean {
+		return SubscriptionPlanVO.hasQueueEntitlement(
+			this._props.subscriptionPlanCode,
+		);
+	}
+
+	public canAccessQueueService(
+		acceptsQueueSetting: boolean,
+		now: Date = new Date(),
+	): boolean {
+		const isActive = this.status === "ACTIVE";
+		const notBlocked = !this.isBlocked;
+		const subscriptionValid = this.isSubscriptionEligible(now);
+		const planEntitled = this.hasQueueEntitlement();
+		const queueEnabled = acceptsQueueSetting;
+
+		return (
+			isActive &&
+			notBlocked &&
+			subscriptionValid &&
+			planEntitled &&
+			queueEnabled
+		);
+	}
+
+	/**
+	 * Throws error if user doesnt have admin access
+	 * @param userId string
+	 */
+	ensureAdminAccess(userId: string) {
+		if (this.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
+		// is user restaurant admin
+		// Checks by checking if restaurant id === dto.userId
+		// In Application Restaurant Id is same as restaurant admins userId from JWT
+		if (this.id !== userId) {
+			throw new ForbiddenAccessError();
+		}
+	}
+
+	/**
+	 * If is admin return true
+	 * @param userId string
+	 * @returns boolean
+	 */
+	public isAdmin(userId: string): boolean {
+		return this.id === userId;
+	}
+
+	public ensureOperationalAccess(): void {
+		if (this.isBlocked) {
+			throw new RestaurantAccountBlockedError();
+		}
+	}
+
+	public ensureCustomerAccess(now: Date = new Date()): void {
+		if (!this.isEligibleForCustomer(now)) {
+			throw new RestaurantNotFoundError(messages.RESTAURANT_NOT_FOUND);
+		}
+	}
+
+	public isEligibleForCustomer(now: Date = new Date()): boolean {
+		return (
+			this.status === RESTAURANT_STATUS.ACTIVE &&
+			!this.isBlocked &&
+			this.isSubscriptionEligible(now) &&
+			this.onboardingStatus === ONBOARDING_STATUS.COMPLETED
+		);
+	}
+}

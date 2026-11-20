@@ -1,0 +1,23 @@
+export const ANALYTICS_VALIDATION_MESSAGES = {
+	DAY_MUST_BE_INTEGER: "day must be an integer",
+	DAY_OUT_OF_RANGE: "day must be between 1 and 31",
+	MONTH_MUST_BE_INTEGER: "month must be an integer",
+	MONTH_OUT_OF_RANGE: "month must be between 1 and 12",
+	YEAR_MUST_BE_INTEGER: "year must be an integer",
+	YEAR_TOO_EARLY: "year must be 2000 or later",
+	YEAR_TOO_LATE: "year must be 2100 or earlier",
+	MONTH_REQUIRED_WHEN_DAY_SPECIFIED: "month is required when day is specified",
+	PAGE_MUST_BE_INTEGER: "page must be an integer",
+	PAGE_MIN: "page must be at least 1",
+	LIMIT_MUST_BE_INTEGER: "limit must be an integer",
+	LIMIT_MIN: "limit must be at least 1",
+	LIMIT_MAX: "limit cannot exceed 100",
+	FROM_BEFORE_TO: "'from' date must be earlier than or equal to 'to' date",
+	FROM_INVALID_ISO: "Invalid ISO date format for 'from'",
+	TO_INVALID_ISO: "Invalid ISO date format for 'to'",
+	FISCAL_YEAR_MUST_BE_INTEGER: "fiscalYear must be an integer",
+	FISCAL_YEAR_TOO_EARLY: "fiscalYear must be 2000 or later",
+	FISCAL_YEAR_TOO_LATE: "fiscalYear must be 2100 or earlier",
+	formatInvalidCalendarDate: (day: number, month: number, year: number): string =>
+		`Invalid calendar date: day ${day} does not exist in month ${month} of year ${year}`,
+} as const;

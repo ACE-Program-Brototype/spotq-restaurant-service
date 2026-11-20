@@ -1,0 +1,416 @@
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { DomainError } from "@/domain/errors/domain.error.ts";
+import {
+	type IEntityMapper,
+	PrismaBaseRepository,
+} from "@/infrastructure/database/repositories/prisma-base.repository.ts";
+import { PersistenceError } from "@/infrastructure/errors/persistence.error.ts";
+
+interface TestEntity {
+	id: string;
+	name: string;
+	value: number;
+}
+
+interface TestPrismaModel {
+	id: string;
+	name: string;
+	value: number;
+	created_at: Date;
+}
+
+class TestCustomError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = "TestCustomError";
+	}
+}
+
+class TestDomainError extends DomainError {
+	public readonly code = "TEST_DOMAIN_ERROR";
+	constructor(message = "Domain error") {
+		super(message);
+	}
+}
+
+const testMapper: IEntityMapper<TestEntity, TestPrismaModel> = {
+	toDomain(raw: TestPrismaModel): TestEntity {
+		return {
+			id: raw.id,
+			name: raw.name,
+			value: raw.value,
+		};
+	},
+	toPersistence(entity: TestEntity): TestPrismaModel {
+		return {
+			id: entity.id,
+			name: entity.name,
+			value: entity.value,
+			created_at: new Date(),
+		};
+	},
+};
+
+type MockDelegateType = {
+	findUnique: jest.Mock;
+	findMany: jest.Mock;
+	upsert: jest.Mock;
+	update: jest.Mock;
+	delete: jest.Mock;
+	count: jest.Mock;
+};
+
+class TestRepository extends PrismaBaseRepository<
+	TestEntity,
+	TestPrismaModel,
+	MockDelegateType
+> {
+	constructor(dbModel: MockDelegateType) {
+		super(dbModel, testMapper, {
+			P2002: () => new TestCustomError("Entity already exists"),
+			P2025: () => new TestCustomError("Entity not found"),
+		});
+	}
+}
+
+class TestErrorMapRepository extends PrismaBaseRepository<
+	TestEntity,
+	TestPrismaModel,
+	MockDelegateType
+> {
+	constructor(dbModel: MockDelegateType) {
+		super(dbModel, testMapper, {
+			P2002: () => new TestDomainError("Entity already exists from errorMap"),
+			P2025: () => new TestDomainError("Entity not found from errorMap"),
+		});
+	}
+
+	public async callRun<R>(
+		op: () => Promise<R>,
+		methodErrorMap?: Record<string, (error: unknown) => Error>,
+	): Promise<R> {
+		return this.run(op, methodErrorMap);
+	}
+}
+
+describe("PrismaBaseRepository", () => {
+	let mockDelegate: MockDelegateType;
+	let repository: TestRepository;
+
+	const dummyModel: TestPrismaModel = {
+		id: "test-id-123",
+		name: "Test Name",
+		value: 42,
+		created_at: new Date(),
+	};
+
+	const dummyEntity: TestEntity = {
+		id: "test-id-123",
+		name: "Test Name",
+		value: 42,
+	};
+
+	beforeEach(() => {
+		mockDelegate = {
+			findUnique: jest.fn(),
+			findMany: jest.fn(),
+			upsert: jest.fn(),
+			update: jest.fn(),
+			delete: jest.fn(),
+			count: jest.fn(),
+		};
+		repository = new TestRepository(mockDelegate);
+	});
+
+	describe("findById", () => {
+		it("should return domain entity when record exists", async () => {
+			mockDelegate.findUnique.mockResolvedValue(dummyModel);
+
+			const result = await repository.findById("test-id-123");
+
+			expect(mockDelegate.findUnique).toHaveBeenCalledWith({
+				where: { id: "test-id-123" },
+			});
+			expect(result).toEqual(dummyEntity);
+		});
+
+		it("should return null when record does not exist", async () => {
+			mockDelegate.findUnique.mockResolvedValue(null);
+
+			const result = await repository.findById("non-existent-id");
+
+			expect(result).toBeNull();
+		});
+
+		it("should wrap unexpected DB errors in PersistenceError", async () => {
+			mockDelegate.findUnique.mockRejectedValue(
+				new Error("Connection timeout"),
+			);
+
+			await expect(repository.findById("test-id-123")).rejects.toThrow(
+				PersistenceError,
+			);
+		});
+	});
+
+	describe("exists", () => {
+		it("should return true when count > 0", async () => {
+			mockDelegate.count.mockResolvedValue(1);
+
+			const result = await repository.exists("test-id-123");
+
+			expect(result).toBe(true);
+			expect(mockDelegate.count).toHaveBeenCalledWith({
+				where: { id: "test-id-123" },
+			});
+		});
+
+		it("should return false when count is 0", async () => {
+			mockDelegate.count.mockResolvedValue(0);
+
+			const result = await repository.exists("test-id-123");
+
+			expect(result).toBe(false);
+		});
+
+		it("should wrap unexpected DB errors in PersistenceError", async () => {
+			mockDelegate.count.mockRejectedValue(new Error("Count failed"));
+
+			await expect(repository.exists("test-id-123")).rejects.toThrow(
+				PersistenceError,
+			);
+		});
+	});
+
+	describe("save", () => {
+		it("should upsert entity successfully", async () => {
+			mockDelegate.upsert.mockResolvedValue(dummyModel);
+
+			await repository.save(dummyEntity);
+
+			expect(mockDelegate.upsert).toHaveBeenCalledWith({
+				where: { id: "test-id-123" },
+				update: expect.objectContaining({
+					name: "Test Name",
+					value: 42,
+				}),
+				create: expect.objectContaining({
+					id: "test-id-123",
+					name: "Test Name",
+					value: 42,
+				}),
+			});
+		});
+
+		it("should handle known Prisma error on save", async () => {
+			const prismaError = new PrismaClientKnownRequestError("Duplicate", {
+				code: "P2002",
+				clientVersion: "5.0.0",
+			});
+			mockDelegate.upsert.mockRejectedValue(prismaError);
+
+			await expect(repository.save(dummyEntity)).rejects.toThrow(
+				TestCustomError,
+			);
+		});
+	});
+
+	describe("update", () => {
+		it("should update entity successfully and return domain entity", async () => {
+			const updatedModel: TestPrismaModel = {
+				...dummyModel,
+				name: "Updated Name",
+			};
+			mockDelegate.update.mockResolvedValue(updatedModel);
+
+			const result = await repository.update("test-id-123", {
+				name: "Updated Name",
+			});
+
+			expect(result.name).toBe("Updated Name");
+			expect(mockDelegate.update).toHaveBeenCalledWith({
+				where: { id: "test-id-123" },
+				data: { name: "Updated Name" },
+			});
+		});
+
+		it("should handle known Prisma error on update", async () => {
+			const prismaError = new PrismaClientKnownRequestError("Not found", {
+				code: "P2025",
+				clientVersion: "5.0.0",
+			});
+			mockDelegate.update.mockRejectedValue(prismaError);
+
+			await expect(
+				repository.update("test-id-123", { name: "Updated Name" }),
+			).rejects.toThrow(TestCustomError);
+		});
+	});
+
+	describe("delete", () => {
+		it("should delete entity successfully", async () => {
+			mockDelegate.delete.mockResolvedValue(dummyModel);
+
+			await repository.delete("test-id-123");
+
+			expect(mockDelegate.delete).toHaveBeenCalledWith({
+				where: { id: "test-id-123" },
+			});
+		});
+
+		it("should handle known Prisma error on delete", async () => {
+			const prismaError = new PrismaClientKnownRequestError("Not found", {
+				code: "P2025",
+				clientVersion: "5.0.0",
+			});
+			mockDelegate.delete.mockRejectedValue(prismaError);
+
+			await expect(repository.delete("test-id-123")).rejects.toThrow(
+				TestCustomError,
+			);
+		});
+	});
+
+	describe("errorMap centralized error handling", () => {
+		let mapRepository: TestErrorMapRepository;
+
+		beforeEach(() => {
+			mapRepository = new TestErrorMapRepository(mockDelegate);
+		});
+
+		it("should translate P2002 via errorMap to TestDomainError", async () => {
+			const prismaError = new PrismaClientKnownRequestError("Duplicate key", {
+				code: "P2002",
+				clientVersion: "5.0.0",
+			});
+			mockDelegate.upsert.mockRejectedValue(prismaError);
+
+			await expect(mapRepository.save(dummyEntity)).rejects.toThrow(
+				"Entity already exists from errorMap",
+			);
+		});
+
+		it("should translate P2025 via errorMap to TestDomainError", async () => {
+			const prismaError = new PrismaClientKnownRequestError(
+				"Record not found",
+				{
+					code: "P2025",
+					clientVersion: "5.0.0",
+				},
+			);
+			mockDelegate.update.mockRejectedValue(prismaError);
+
+			await expect(
+				mapRepository.update("test-id-123", { name: "New" }),
+			).rejects.toThrow("Entity not found from errorMap");
+		});
+
+		it("should allow method-specific errorMap to override repository errorMap", async () => {
+			const prismaError = new PrismaClientKnownRequestError("Duplicate key", {
+				code: "P2002",
+				clientVersion: "5.0.0",
+			});
+
+			class ContextualError extends Error {
+				constructor() {
+					super("Contextual error override");
+				}
+			}
+
+			await expect(
+				mapRepository.callRun(
+					async () => {
+						throw prismaError;
+					},
+					{
+						P2002: () => new ContextualError(),
+					},
+				),
+			).rejects.toThrow(ContextualError);
+		});
+
+		it("should safely fall back to PersistenceError if errorMap factory throws", async () => {
+			const prismaError = new PrismaClientKnownRequestError("Duplicate key", {
+				code: "P2002",
+				clientVersion: "5.0.0",
+			});
+
+			await expect(
+				mapRepository.callRun(
+					async () => {
+						throw prismaError;
+					},
+					{
+						P2002: () => {
+							throw new TypeError("Cannot read properties of undefined");
+						},
+					},
+				),
+			).rejects.toThrow(PersistenceError);
+		});
+
+		it("should mark pool and transaction timeouts as retryable", async () => {
+			const timeoutError = new PrismaClientKnownRequestError("Timeout", {
+				code: "P2024",
+				clientVersion: "5.0.0",
+			});
+
+			try {
+				await mapRepository.callRun(async () => {
+					throw timeoutError;
+				});
+				fail("Should have thrown");
+			} catch (error) {
+				expect(error).toBeInstanceOf(PersistenceError);
+				expect((error as PersistenceError).isRetryable).toBe(true);
+			}
+		});
+
+		it("should wrap unmapped Prisma errors in PersistenceError", async () => {
+			const prismaError = new PrismaClientKnownRequestError(
+				"Foreign key fail",
+				{
+					code: "P2003",
+					clientVersion: "5.0.0",
+				},
+			);
+			mockDelegate.delete.mockRejectedValue(prismaError);
+
+			await expect(mapRepository.delete("test-id-123")).rejects.toThrow(
+				PersistenceError,
+			);
+		});
+
+		it("should wrap generic Error in PersistenceError", async () => {
+			mockDelegate.findUnique.mockRejectedValue(
+				new Error("Connection refused"),
+			);
+
+			await expect(mapRepository.findById("test-id-123")).rejects.toThrow(
+				PersistenceError,
+			);
+		});
+
+		it("should preserve pre-existing DomainError without double-wrapping", async () => {
+			const domainError = new TestDomainError("Domain validation failed");
+
+			await expect(
+				mapRepository.callRun(async () => {
+					throw domainError;
+				}),
+			).rejects.toThrow(domainError);
+		});
+
+		it("should preserve pre-existing PersistenceError without double-wrapping", async () => {
+			const persistenceError = new PersistenceError(
+				"Existing persistence error",
+			);
+
+			await expect(
+				mapRepository.callRun(async () => {
+					throw persistenceError;
+				}),
+			).rejects.toThrow(persistenceError);
+		});
+	});
+});

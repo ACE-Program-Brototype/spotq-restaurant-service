@@ -1,0 +1,579 @@
+import type { PrismaClient } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { MenuCategory } from "@/domain/entities/menu-category.entity.ts";
+import {
+	CategoryAlreadyExistsError,
+	CategoryHasMenuItemsError,
+	CategoryNotFoundError,
+} from "@/domain/errors/menu-category.errors.ts";
+import { RestaurantNotFoundError } from "@/domain/errors/restaurant.errors.ts";
+import { PrismaMenuCategoryRepository } from "@/infrastructure/database/repositories/prisma-menu-category.repository.ts";
+
+describe("PrismaMenuCategoryRepository", () => {
+	let mockPrisma: {
+		$transaction: jest.Mock;
+		menuCategory: {
+			findFirst: jest.Mock;
+			create: jest.Mock;
+			updateMany: jest.Mock;
+			findUnique: jest.Mock;
+			findMany: jest.Mock;
+			count: jest.Mock;
+			upsert: jest.Mock;
+			delete: jest.Mock;
+			update: jest.Mock;
+		};
+	};
+	let repository: PrismaMenuCategoryRepository;
+
+	const restaurantId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
+
+	beforeEach(() => {
+		mockPrisma = {
+			// biome-ignore lint/suspicious/noExplicitAny: Mock transaction callback
+			$transaction: jest.fn(async (cb: (tx: any) => Promise<any>) =>
+				cb(mockPrisma),
+			),
+			menuCategory: {
+				findFirst: jest.fn(),
+				findMany: jest.fn(),
+				create: jest.fn(),
+				updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+				findUnique: jest.fn(),
+				count: jest.fn(),
+				upsert: jest.fn(),
+				delete: jest.fn(),
+				update: jest.fn(),
+			},
+		};
+		repository = new PrismaMenuCategoryRepository(
+			mockPrisma as unknown as PrismaClient,
+		);
+		jest.clearAllMocks();
+	});
+
+	it("should return domain entity when category is found by name and restaurantId", async () => {
+		const rawRecord = {
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: "Cold drinks",
+			displayOrder: 1,
+			isActive: true,
+			isDeleted: false,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-23T10:00:00Z"),
+		};
+
+		mockPrisma.menuCategory.findFirst.mockResolvedValueOnce(rawRecord);
+
+		const result = await repository.findByNameAndRestaurantId(
+			restaurantId,
+			"Beverages",
+		);
+
+		expect(result).toBeInstanceOf(MenuCategory);
+		expect(result?.id).toBe("cat-1");
+		expect(result?.name).toBe("Beverages");
+		expect(mockPrisma.menuCategory.findFirst).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				name: {
+					equals: "Beverages",
+					mode: "insensitive",
+				},
+				isDeleted: false,
+			},
+		});
+	});
+
+	it("should return null when category is not found by name and restaurantId", async () => {
+		mockPrisma.menuCategory.findFirst.mockResolvedValueOnce(null);
+
+		const result = await repository.findByNameAndRestaurantId(
+			restaurantId,
+			"NonExistent",
+		);
+
+		expect(result).toBeNull();
+	});
+
+	it("should return categories mapped to domain entities ordered by displayOrder asc", async () => {
+		const rawRecords = [
+			{
+				id: "cat-1",
+				restaurantId,
+				name: "Appetizers",
+				description: "Starters",
+				displayOrder: 0,
+				isActive: true,
+				createdAt: new Date("2026-09-24T10:00:00Z"),
+				updatedAt: new Date("2026-09-24T10:00:00Z"),
+			},
+			{
+				id: "cat-2",
+				restaurantId,
+				name: "Desserts",
+				description: null,
+				displayOrder: 1,
+				isActive: true,
+				createdAt: new Date("2026-09-24T10:00:00Z"),
+				updatedAt: new Date("2026-09-24T10:00:00Z"),
+			},
+		];
+
+		mockPrisma.menuCategory.findMany.mockResolvedValueOnce(rawRecords);
+
+		const result = await repository.findByRestaurantId(restaurantId);
+
+		expect(result).toHaveLength(2);
+		expect(result[0]).toBeInstanceOf(MenuCategory);
+		expect(result[0].id).toBe("cat-1");
+		expect(result[0].displayOrder).toBe(0);
+		expect(result[1]).toBeInstanceOf(MenuCategory);
+		expect(result[1].id).toBe("cat-2");
+		expect(result[1].displayOrder).toBe(1);
+		expect(mockPrisma.menuCategory.findMany).toHaveBeenCalledWith({
+			where: { restaurantId, isDeleted: false },
+			orderBy: { displayOrder: "asc" },
+		});
+	});
+
+	it("should return an empty array when no categories are found for the restaurant", async () => {
+		mockPrisma.menuCategory.findMany.mockResolvedValueOnce([]);
+
+		const result = await repository.findByRestaurantId(restaurantId);
+
+		expect(result).toEqual([]);
+		expect(mockPrisma.menuCategory.findMany).toHaveBeenCalledWith({
+			where: { restaurantId, isDeleted: false },
+			orderBy: { displayOrder: "asc" },
+		});
+	});
+
+	it("should calculate next display order as max + 1 when categories exist", async () => {
+		mockPrisma.menuCategory.findFirst.mockResolvedValueOnce({
+			displayOrder: 4,
+		});
+
+		const nextOrder = await repository.getNextDisplayOrder(restaurantId);
+
+		expect(nextOrder).toBe(5);
+		expect(mockPrisma.menuCategory.findFirst).toHaveBeenCalledWith({
+			where: { restaurantId, isDeleted: false },
+			orderBy: { displayOrder: "desc" },
+			select: { displayOrder: true },
+		});
+	});
+
+	it("should return 0 as next display order when no categories exist", async () => {
+		mockPrisma.menuCategory.findFirst.mockResolvedValueOnce(null);
+
+		const nextOrder = await repository.getNextDisplayOrder(restaurantId);
+
+		expect(nextOrder).toBe(0);
+	});
+
+	it("should create a category and return domain entity", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Main Course",
+			description: "Main dishes",
+			displayOrder: 2,
+		});
+
+		const rawRecord = {
+			id: category.id,
+			restaurantId: category.restaurantId,
+			name: category.name,
+			description: category.description,
+			displayOrder: category.displayOrder,
+			isActive: category.isActive,
+			isDeleted: false,
+			createdAt: category.createdAt,
+			updatedAt: category.updatedAt,
+		};
+
+		mockPrisma.menuCategory.create.mockResolvedValueOnce(rawRecord);
+
+		const created = await repository.create(category);
+
+		expect(created).toBeInstanceOf(MenuCategory);
+		expect(created.id).toBe(category.id);
+		expect(created.name).toBe("Main Course");
+	});
+
+	it("should shift existing display orders with increment 1 when creating category", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Appetizers",
+			displayOrder: 2,
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 3 });
+		mockPrisma.menuCategory.create.mockResolvedValueOnce({
+			id: category.id,
+			restaurantId: category.restaurantId,
+			name: category.name,
+			description: category.description,
+			displayOrder: category.displayOrder,
+			isActive: category.isActive,
+			isDeleted: false,
+			createdAt: category.createdAt,
+			updatedAt: category.updatedAt,
+		});
+
+		const created = await repository.create(category);
+
+		expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
+		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				isDeleted: false,
+				displayOrder: {
+					gte: 2,
+				},
+			},
+			data: {
+				displayOrder: {
+					increment: 1,
+				},
+			},
+		});
+		expect(mockPrisma.menuCategory.create).toHaveBeenCalledWith({
+			data: expect.objectContaining({
+				displayOrder: 2,
+			}),
+		});
+		expect(created.displayOrder).toBe(2);
+	});
+
+	it("should translate P2002 error to CategoryAlreadyExistsError", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Starters",
+		});
+
+		const prismaError = new PrismaClientKnownRequestError(
+			"Unique constraint failed",
+			{
+				code: "P2002",
+				clientVersion: "6.19.3",
+			},
+		);
+
+		mockPrisma.menuCategory.create.mockRejectedValueOnce(prismaError);
+
+		await expect(repository.create(category)).rejects.toThrow(
+			CategoryAlreadyExistsError,
+		);
+	});
+
+	it("should translate P2003 error to RestaurantNotFoundError", async () => {
+		const category = MenuCategory.create({
+			restaurantId: "non-existent-restaurant",
+			name: "Starters",
+		});
+
+		const prismaError = new PrismaClientKnownRequestError(
+			"Foreign key constraint failed",
+			{
+				code: "P2003",
+				clientVersion: "6.19.3",
+			},
+		);
+
+		mockPrisma.menuCategory.create.mockRejectedValueOnce(prismaError);
+
+		await expect(repository.create(category)).rejects.toThrow(
+			RestaurantNotFoundError,
+		);
+	});
+
+	it("should translate P2025 error to CategoryNotFoundError", async () => {
+		const category = MenuCategory.create({
+			restaurantId,
+			name: "Starters",
+		});
+
+		const prismaError = new PrismaClientKnownRequestError(
+			"Record to update not found",
+			{
+				code: "P2025",
+				clientVersion: "6.19.3",
+			},
+		);
+
+		mockPrisma.menuCategory.update = jest
+			.fn()
+			.mockRejectedValueOnce(prismaError);
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryNotFoundError,
+		);
+	});
+
+	it("should update category without reordering when previousDisplayOrder is not provided or equal", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 2,
+			isActive: true,
+			isDeleted: false,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.update = jest.fn().mockResolvedValueOnce({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 2,
+			isActive: true,
+			isDeleted: false,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const updated = await repository.updateCategory(category, 2);
+
+		expect(updated).toBeInstanceOf(MenuCategory);
+		expect(updated.name).toBe("Updated Main Course");
+		expect(mockPrisma.menuCategory.update).toHaveBeenCalledWith({
+			where: { id: "cat-1" },
+			data: expect.objectContaining({
+				name: "Updated Main Course",
+				description: "Updated description",
+				displayOrder: 2,
+				isActive: true,
+			}),
+		});
+	});
+
+	it("should execute transaction and increment display orders when moving item to lower order", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 1, // moved from 3 to 1
+			isActive: true,
+			isDeleted: false,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const txMock = {
+			menuCategory: {
+				updateMany: jest.fn().mockResolvedValue({ count: 2 }),
+				update: jest.fn().mockResolvedValue({
+					id: "cat-1",
+					restaurantId,
+					name: "Updated Main Course",
+					description: "Updated description",
+					displayOrder: 1,
+					isActive: true,
+					isDeleted: false,
+					createdAt: new Date("2026-09-23T10:00:00Z"),
+					updatedAt: new Date("2026-09-24T10:00:00Z"),
+				}),
+			},
+		};
+
+		(mockPrisma as unknown as { $transaction: jest.Mock }).$transaction = jest
+			.fn()
+			.mockImplementation(async (callback: (tx: unknown) => unknown) => {
+				return callback(txMock);
+			});
+
+		const updated = await repository.updateCategory(category, 3);
+
+		expect(updated.displayOrder).toBe(1);
+		expect(txMock.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				isDeleted: false,
+				id: { not: "cat-1" },
+				displayOrder: {
+					gte: 1,
+					lt: 3,
+				},
+			},
+			data: {
+				displayOrder: {
+					increment: 1,
+				},
+			},
+		});
+		expect(txMock.menuCategory.update).toHaveBeenCalledWith({
+			where: { id: "cat-1" },
+			data: expect.objectContaining({
+				displayOrder: 1,
+			}),
+		});
+	});
+
+	it("should execute transaction and decrement display orders when moving item to higher order", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Updated Main Course",
+			description: "Updated description",
+			displayOrder: 4, // moved from 1 to 4
+			isActive: true,
+			isDeleted: false,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const txMock = {
+			menuCategory: {
+				updateMany: jest.fn().mockResolvedValue({ count: 3 }),
+				update: jest.fn().mockResolvedValue({
+					id: "cat-1",
+					restaurantId,
+					name: "Updated Main Course",
+					description: "Updated description",
+					displayOrder: 4,
+					isActive: true,
+					isDeleted: false,
+					createdAt: new Date("2026-09-23T10:00:00Z"),
+					updatedAt: new Date("2026-09-24T10:00:00Z"),
+				}),
+			},
+		};
+
+		(mockPrisma as unknown as { $transaction: jest.Mock }).$transaction = jest
+			.fn()
+			.mockImplementation(async (callback: (tx: unknown) => unknown) => {
+				return callback(txMock);
+			});
+
+		const updated = await repository.updateCategory(category, 1);
+
+		expect(updated.displayOrder).toBe(4);
+		expect(txMock.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				restaurantId,
+				isDeleted: false,
+				id: { not: "cat-1" },
+				displayOrder: {
+					gt: 1,
+					lte: 4,
+				},
+			},
+			data: {
+				displayOrder: {
+					decrement: 1,
+				},
+			},
+		});
+	});
+
+	it("should return true when category has menu items", async () => {
+		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
+			count: jest.fn().mockResolvedValueOnce(3),
+		};
+
+		const result = await repository.hasMenuItems("cat-1");
+
+		expect(result).toBe(true);
+		expect(
+			(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem
+				.count,
+		).toHaveBeenCalledWith({
+			where: { categoryId: "cat-1", isDeleted: false },
+		});
+	});
+
+	it("should atomically soft delete category when no menu items exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 1 });
+		mockPrisma.menuCategory.findUnique.mockResolvedValueOnce({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		const result = await repository.updateCategory(category);
+
+		expect(mockPrisma.menuCategory.updateMany).toHaveBeenCalledWith({
+			where: {
+				id: "cat-1",
+				isDeleted: false,
+				menuItems: { none: { isDeleted: false } },
+			},
+			data: expect.objectContaining({
+				isDeleted: true,
+				isActive: false,
+			}),
+		});
+		expect(result.isDeleted).toBe(true);
+	});
+
+	it("should throw CategoryHasMenuItemsError when atomic soft delete fails because items exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-1",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 0 });
+		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
+			count: jest.fn().mockResolvedValueOnce(2),
+		};
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryHasMenuItemsError,
+		);
+	});
+
+	it("should throw CategoryNotFoundError when atomic soft delete fails because category does not exist", async () => {
+		const category = MenuCategory.reconstitute({
+			id: "cat-non-existent",
+			restaurantId,
+			name: "Beverages",
+			description: null,
+			displayOrder: 1,
+			isActive: false,
+			isDeleted: true,
+			createdAt: new Date("2026-09-23T10:00:00Z"),
+			updatedAt: new Date("2026-09-24T10:00:00Z"),
+		});
+
+		mockPrisma.menuCategory.updateMany.mockResolvedValueOnce({ count: 0 });
+		(mockPrisma as unknown as { menuItem: { count: jest.Mock } }).menuItem = {
+			count: jest.fn().mockResolvedValueOnce(0),
+		};
+
+		await expect(repository.updateCategory(category)).rejects.toThrow(
+			CategoryNotFoundError,
+		);
+	});
+});

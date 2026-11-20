@@ -1,2 +1,15 @@
 allowBuilds:
+  '@parcel/watcher': false
+  '@prisma/client': false
+  '@prisma/engines': false
+  '@swc/core': true
+  bcrypt: true
   esbuild: false
+  msgpackr-extract: true
+  prisma: false
+  unrs-resolver: true
+overrides:
+  deepmerge-ts: 8.0.0
+minimumReleaseAgeExclude:
+  - '@spotq-org/s2s-core@1.0.0'
+  - '@spotq-org/rabbitmq-client@1.0.0'
